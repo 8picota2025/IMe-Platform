@@ -22,6 +22,12 @@ import mockProductos from '../data/mock-productos.json';
 import { esProductoDePrueba } from './productos-prueba';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
+import {
+  robotAssetDirectory,
+  robotImportedGallery,
+  robotImportedMainImage,
+  robotImportedPdfPath,
+} from './robot-media';
 
 let supabaseDeshabilitadoPorError = false;
 type RawRow = Record<string, unknown>;
@@ -151,78 +157,28 @@ function localProductImage(slug: unknown): string | null {
   return manifest[slug] ?? manifest[aliases[slug]] ?? null;
 }
 
-const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
-  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 2,
-  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot': 2,
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 2,
-  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot': 2,
-  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot': 2,
-  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 2,
-  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 2,
-  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future': 1,
-};
+/** PNGs/WebP de 10px generados como relleno; no son fotos de producto. */
+const STUB_GALLERY_FILES = new Set([
+  'imagen-principal-rgt-a-200-rt.png',
+  'imagen-principal-tcs-200-rt.png',
+  'imagen-principal-tcs-200b-rt.png',
+  'imagen-principal-zt-120.png',
+  'imagen-principal-zt-150a.webp',
+]);
 
-const ROBOT_MEDIA_SEO_SLUG: Record<string, string> = {
-  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
-    'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
-  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot':
-    'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
-  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
-    'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot':
-    'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
-  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
-    'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
-  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
-    'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
-  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot':
-    'robot-limpieza-industrial-hospitalaria-autonoma-c3',
-  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot':
-    'robot-educativo-social-tercera-edad-padbot-t2',
-};
-
-function robotImportedAssetPath(slug: unknown, filename: string): string | null {
-  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
-  return `/assets/productos/importados/${slug}/${filename}`;
+function usableGalleryImage(value: unknown): string | null {
+  const src = publicImage(value);
+  if (!src) return null;
+  if (/placeholder|manual-review/i.test(src)) return null;
+  const name = src.split('?')[0]?.split('/').pop() ?? '';
+  if (STUB_GALLERY_FILES.has(name)) return null;
+  return src;
 }
 
-function robotMediaFilename(
-  slug: string,
-  role: 'robot-producto' | 'robot-galeria',
-  index?: number
-): string {
-  const seoSlug = ROBOT_MEDIA_SEO_SLUG[slug] ?? slug;
-  const suffix = typeof index === 'number' ? `-${String(index).padStart(2, '0')}` : '';
-  return `${role}-${seoSlug}${suffix}.webp`;
-}
-
-function robotImportedMainImage(slug: unknown): string | null {
-  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
-  return robotImportedAssetPath(slug, robotMediaFilename(slug, 'robot-producto'));
-}
-
-function robotImportedGallery(slug: unknown): string[] | null {
-  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
-  const main = robotImportedMainImage(slug);
-  if (!main) return null;
-  const count = ROBOT_IMPORT_GALLERY_COUNT[slug];
-  return [
-    main,
-    ...Array.from(
-      { length: count },
-      (_, index) =>
-        `/assets/productos/importados/${slug}/${robotMediaFilename(slug, 'robot-galeria', index + 2)}`
-    ),
-  ];
-}
-
-function robotImportedPdf(slug: unknown, value: unknown): string | null {
-  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return publicImage(value);
-  if (typeof value === 'string' && value.trim()) {
-    const filename = value.split('/').pop();
-    if (filename) return `/assets/productos/importados/${slug}/${filename}`;
-  }
-  return null;
+function fichaPdfProducto(slug: unknown, value: unknown): string | null {
+  if (typeof slug === 'string' && robotAssetDirectory(slug))
+    return robotImportedPdfPath(slug, value);
+  return publicImage(value);
 }
 
 // Cache de mapeo familia_id <-> familia_slug, resuelto vía Supabase (productos.familia_id
@@ -288,8 +244,8 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
       publicImage(raw.imagen_principal),
     galeria:
       robotImportedGallery(raw.slug) ??
-      (Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : []),
-    ficha_pdf: robotImportedPdf(raw.slug, raw.ficha_pdf),
+      (Array.isArray(raw.galeria) ? raw.galeria.map(usableGalleryImage).filter(isString) : []),
+    ficha_pdf: fichaPdfProducto(raw.slug, raw.ficha_pdf),
     tipo_comercial: raw.tipo_comercial,
     fulfillment_mode: raw.fulfillment_mode,
     precio: resolvePrecioPublico(raw),
@@ -514,9 +470,15 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
         ? (raw as { seo_keywords_en?: string[] }).seo_keywords_en
         : (raw as { seo_keywords_es?: string[] }).seo_keywords_es) ?? [],
     marca: (raw as { marca?: string }).marca ?? null,
-    imagen_principal: localProductImage(raw.slug) ?? publicImage(raw.imagen_principal),
-    galeria: raw.galeria.map(publicImage).filter(isString),
-    ficha_pdf: raw.ficha_pdf,
+    imagen_principal:
+      robotImportedMainImage(raw.slug) ??
+      localProductImage(raw.slug) ??
+      publicImage(raw.imagen_principal),
+    galeria: robotImportedGallery(raw.slug) ?? raw.galeria.map(usableGalleryImage).filter(isString),
+    ficha_pdf:
+      typeof raw.slug === 'string' && robotAssetDirectory(raw.slug)
+        ? robotImportedPdfPath(raw.slug, raw.ficha_pdf)
+        : raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial as Producto['tipo_comercial'],
     fulfillment_mode: raw.fulfillment_mode as Producto['fulfillment_mode'],
     precio: resolvePrecioPublico(raw),

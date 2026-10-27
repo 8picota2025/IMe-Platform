@@ -1,5 +1,12 @@
 #!/usr/bin/env node
-import { copyFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import { createClient } from '@supabase/supabase-js';
@@ -20,20 +27,44 @@ const ROBOT_IMAGE_WEBP_QUALITY = 82;
 const robotMediaSeoSlugByProductSlug = {
   'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
     'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
-  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot':
+    'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
   'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
     'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot':
+    'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
   'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
     'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
   'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
     'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
-  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
-  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 'robot-educativo-social-tercera-edad-padbot-t2',
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot':
+    'robot-limpieza-industrial-hospitalaria-autonoma-c3',
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot':
+    'robot-educativo-social-tercera-edad-padbot-t2',
+};
+
+// Mantener alineado con src/lib/robot-media.ts (ROBOT_ASSET_DIR).
+const robotAssetDirByProductSlug = {
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 'padbot-x3-robot-recepcion',
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
+    'padbot-x2-robot-servicio-interactivo',
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 'padbot-p2-robot-telepresencia',
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
+    'padbot-w2-robot-delivery-institucional',
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
+    'padbot-w3s-robot-delivery-alimentos',
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 'c3-robot-limpieza-autonoma',
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 'padbot-t2-robot-educativo-social',
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
+    'cruzr-robot-comercial-inteligente-ahuman-future',
 };
 
 function mediaSeoSlug(productSlug) {
   return robotMediaSeoSlugByProductSlug[productSlug] ?? productSlug;
+}
+
+function robotAssetDir(productSlug) {
+  return robotAssetDirByProductSlug[productSlug] ?? productSlug;
 }
 
 function mediaFilename(productSlug, role, index = null) {
@@ -379,45 +410,37 @@ const typeKeywords = {
 
 const marketParagraphs = {
   'robots-recepcion-atencion': {
-    es:
-      'Para proyectos en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robots asistenciales, robots de recepción, robots hospitalarios, orientación de pacientes, admisiones automatizadas, atención a visitantes, hospitales 4.0 y automatización de servicios en clínicas, IPS, hoteles, universidades y edificios corporativos.',
-    en:
-      'For projects in Colombia, Latin America and Spain, this category matches searches for assistive robots, reception robots, hospital robots, patient wayfinding, automated admissions, visitor assistance, hospital 4.0 and service automation in clinics, healthcare providers, hotels, universities and corporate buildings.',
+    es: 'Para proyectos en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robots asistenciales, robots de recepción, robots hospitalarios, orientación de pacientes, admisiones automatizadas, atención a visitantes, hospitales 4.0 y automatización de servicios en clínicas, IPS, hoteles, universidades y edificios corporativos.',
+    en: 'For projects in Colombia, Latin America and Spain, this category matches searches for assistive robots, reception robots, hospital robots, patient wayfinding, automated admissions, visitor assistance, hospital 4.0 and service automation in clinics, healthcare providers, hotels, universities and corporate buildings.',
   },
   'robots-telepresencia': {
-    es:
-      'Para servicios médicos, tercera edad y atención remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, telemedicina, teleconsulta, teleasistencia, acompañamiento virtual, rondas remotas, especialistas a distancia y soporte para adultos mayores o residencias de cuidado.',
-    en:
-      'For medical services, senior care and remote assistance in Colombia, Latin America and Spain, this model covers searches for telepresence robots, telemedicine, teleconsultation, teleassistance, virtual accompaniment, remote rounds, remote specialists and support for older adults or care residences.',
+    es: 'Para servicios médicos, tercera edad y atención remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, telemedicina, teleconsulta, teleasistencia, acompañamiento virtual, rondas remotas, especialistas a distancia y soporte para adultos mayores o residencias de cuidado.',
+    en: 'For medical services, senior care and remote assistance in Colombia, Latin America and Spain, this model covers searches for telepresence robots, telemedicine, teleconsultation, teleassistance, virtual accompaniment, remote rounds, remote specialists and support for older adults or care residences.',
   },
   'robots-delivery-institucional': {
-    es:
-      'Para logística institucional y salud en Colombia, Latinoamérica y España, esta solución se alinea con búsquedas de robots industriales de servicio, robot de delivery hospitalario, logística interna en clínicas, transporte de documentos, insumos no estériles, muestras no críticas y automatización de rutas repetitivas.',
-    en:
-      'For institutional logistics and healthcare in Colombia, Latin America and Spain, this solution aligns with searches for industrial service robots, hospital delivery robots, clinic internal logistics, document transport, non-sterile supplies, non-critical samples and repetitive route automation.',
+    es: 'Para logística institucional y salud en Colombia, Latinoamérica y España, esta solución se alinea con búsquedas de robots industriales de servicio, robot de delivery hospitalario, logística interna en clínicas, transporte de documentos, insumos no estériles, muestras no críticas y automatización de rutas repetitivas.',
+    en: 'For institutional logistics and healthcare in Colombia, Latin America and Spain, this solution aligns with searches for industrial service robots, hospital delivery robots, clinic internal logistics, document transport, non-sterile supplies, non-critical samples and repetitive route automation.',
   },
   'robots-delivery-alimentos': {
-    es:
-      'Para hospitality, alimentación institucional y servicios complementarios de salud en Colombia, Latinoamérica y España, este robot responde a búsquedas de robot camarero, robot de delivery de alimentos, robot para cafeterías hospitalarias, robot para hoteles, comedores institucionales y automatización de servicio de mesa.',
-    en:
-      'For hospitality, institutional dining and complementary healthcare services in Colombia, Latin America and Spain, this robot targets searches for robot waiter, food delivery robot, hospital cafeteria robot, hotel robot, institutional dining robot and table service automation.',
+    es: 'Para hospitality, alimentación institucional y servicios complementarios de salud en Colombia, Latinoamérica y España, este robot responde a búsquedas de robot camarero, robot de delivery de alimentos, robot para cafeterías hospitalarias, robot para hoteles, comedores institucionales y automatización de servicio de mesa.',
+    en: 'For hospitality, institutional dining and complementary healthcare services in Colombia, Latin America and Spain, this robot targets searches for robot waiter, food delivery robot, hospital cafeteria robot, hotel robot, institutional dining robot and table service automation.',
   },
   'robots-limpieza-autonoma': {
-    es:
-      'Para operación industrial, edificios de salud y mantenimiento institucional en Colombia, Latinoamérica y España, este equipo cubre búsquedas de robot de limpieza autónoma, robot limpiador industrial, limpieza hospitalaria no crítica, limpieza de pasillos, pisos duros, universidades, hoteles y grandes superficies.',
-    en:
-      'For industrial operations, healthcare buildings and institutional maintenance in Colombia, Latin America and Spain, this device covers searches for autonomous cleaning robot, industrial cleaning robot, non-critical hospital cleaning, corridor cleaning, hard floors, universities, hotels and large surfaces.',
+    es: 'Para operación industrial, edificios de salud y mantenimiento institucional en Colombia, Latinoamérica y España, este equipo cubre búsquedas de robot de limpieza autónoma, robot limpiador industrial, limpieza hospitalaria no crítica, limpieza de pasillos, pisos duros, universidades, hoteles y grandes superficies.',
+    en: 'For industrial operations, healthcare buildings and institutional maintenance in Colombia, Latin America and Spain, this device covers searches for autonomous cleaning robot, industrial cleaning robot, non-critical hospital cleaning, corridor cleaning, hard floors, universities, hotels and large surfaces.',
   },
   'robots-educativos-sociales': {
-    es:
-      'Para educación, tercera edad y experiencias institucionales en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robot educativo, robot social, robot de acompañamiento, robótica STEAM, interacción con adultos mayores, ferias de salud y activaciones tecnológicas.',
-    en:
-      'For education, senior care and institutional experiences in Colombia, Latin America and Spain, this category matches searches for educational robot, social robot, companion robot, STEAM robotics, interaction with older adults, healthcare fairs and technology activations.',
+    es: 'Para educación, tercera edad y experiencias institucionales en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robot educativo, robot social, robot de acompañamiento, robótica STEAM, interacción con adultos mayores, ferias de salud y activaciones tecnológicas.',
+    en: 'For education, senior care and institutional experiences in Colombia, Latin America and Spain, this category matches searches for educational robot, social robot, companion robot, STEAM robotics, interaction with older adults, healthcare fairs and technology activations.',
   },
 };
 
 function uniqueStrings(values) {
-  return [...new Set(values.filter(value => typeof value === 'string' && value.trim()).map(value => value.trim()))];
+  return [
+    ...new Set(
+      values.filter(value => typeof value === 'string' && value.trim()).map(value => value.trim())
+    ),
+  ];
 }
 
 function buildSeoKeywords(product, locale) {
@@ -510,10 +533,18 @@ const products = [
     especificaciones: [
       spec('Producto', 'Cruzr', 'Identificacion'),
       spec('Fabricante / marca visible', 'AHuman Future', 'Identificacion'),
-      spec('Categoria visible en ficha', 'Cloud-based Intelligent Commercial Service Robot', 'Identificacion'),
+      spec(
+        'Categoria visible en ficha',
+        'Cloud-based Intelligent Commercial Service Robot',
+        'Identificacion'
+      ),
       spec('Arquitectura', 'Cloud-based Robotic OS', 'Plataforma'),
       spec('Integracion', 'Open API', 'Plataforma'),
-      spec('Personalizacion', 'Industry-specific solutions / customized personalization', 'Plataforma'),
+      spec(
+        'Personalizacion',
+        'Industry-specific solutions / customized personalization',
+        'Plataforma'
+      ),
       spec('Interaccion', 'Human-machine interaction', 'Funciones'),
       spec('Percepcion', 'Face detection', 'Funciones'),
       spec('Navegacion', 'Stereoscopic navigation', 'Funciones'),
@@ -585,7 +616,11 @@ const products = [
       spec('Tiempo de carga', '9 h'),
       spec('Autonomia', '10 h'),
       spec('Conectividad', '4G con Micro-SIM y WiFi', 'Conectividad'),
-      spec('Seguridad', 'Boton de parada de emergencia; sensores anti-colision y anti-caida', 'Seguridad'),
+      spec(
+        'Seguridad',
+        'Boton de parada de emergencia; sensores anti-colision y anti-caida',
+        'Seguridad'
+      ),
       spec('Funciones', 'Voz, Q&A personalizado, reconocimiento facial, video remoto', 'Funciones'),
       spec('Impresora', 'Opcional segun configuracion', 'Funciones'),
     ],
@@ -654,7 +689,11 @@ const products = [
       spec('Tiempo de carga', '9 h'),
       spec('Autonomia', '10 h'),
       spec('Conectividad', '4G con Micro-SIM y WiFi', 'Conectividad'),
-      spec('Seguridad', 'Boton de parada de emergencia; sensores anti-colision y anti-caida', 'Seguridad'),
+      spec(
+        'Seguridad',
+        'Boton de parada de emergencia; sensores anti-colision y anti-caida',
+        'Seguridad'
+      ),
       spec('Funciones', 'Voz, Q&A personalizado, reconocimiento facial, video remoto', 'Funciones'),
     ],
     marca: 'PadBot',
@@ -722,7 +761,11 @@ const products = [
       spec('Standby', '40 h'),
       spec('Conectividad', 'WiFi y 4G con Micro-SIM', 'Conectividad'),
       spec('Seguridad', 'Sistema de prevencion de colision y anti-caida', 'Seguridad'),
-      spec('Funciones', 'PadBot AI Brain, video llamada, control remoto, reconocimiento facial', 'Funciones'),
+      spec(
+        'Funciones',
+        'PadBot AI Brain, video llamada, control remoto, reconocimiento facial',
+        'Funciones'
+      ),
     ],
     marca: 'PadBot',
     orden: 473,
@@ -787,8 +830,16 @@ const products = [
       spec('Autonomia', '10 h'),
       spec('Conectividad', '4G con Micro-SIM y WiFi', 'Conectividad'),
       spec('Carga', 'Carga directa o base de carga', 'Energia'),
-      spec('Seguridad', 'Boton de parada de emergencia; sensores anti-colision y anti-caida', 'Seguridad'),
-      spec('Navegacion', 'Mapas, puntos objetivo, muros virtuales, zonas restringidas y limites de velocidad', 'Navegacion'),
+      spec(
+        'Seguridad',
+        'Boton de parada de emergencia; sensores anti-colision y anti-caida',
+        'Seguridad'
+      ),
+      spec(
+        'Navegacion',
+        'Mapas, puntos objetivo, muros virtuales, zonas restringidas y limites de velocidad',
+        'Navegacion'
+      ),
       spec('Almacenamiento', 'Locker integrado', 'Funciones'),
     ],
     marca: 'PadBot',
@@ -855,8 +906,16 @@ const products = [
       spec('Tiempo de carga', '9 h'),
       spec('Autonomia', '10 h'),
       spec('Conectividad', '4G con Micro-SIM y WiFi', 'Conectividad'),
-      spec('Seguridad', 'Boton de parada de emergencia; sensores anti-colision y anti-caida', 'Seguridad'),
-      spec('Navegacion', 'Puntos objetivo, cocina, dishwash/retorno, muros virtuales y zonas restringidas', 'Navegacion'),
+      spec(
+        'Seguridad',
+        'Boton de parada de emergencia; sensores anti-colision y anti-caida',
+        'Seguridad'
+      ),
+      spec(
+        'Navegacion',
+        'Puntos objetivo, cocina, dishwash/retorno, muros virtuales y zonas restringidas',
+        'Navegacion'
+      ),
       spec('Servicio', 'Bandeja y pantalla publicitaria', 'Funciones'),
     ],
     marca: 'PadBot',
@@ -994,7 +1053,11 @@ const products = [
       spec('Procesador', 'Quad-core Cortex-A7'),
       spec('Camara', '230-degree wide-angle HD 720P'),
       spec('Conectividad', 'WiFi', 'Conectividad'),
-      spec('Funciones', 'Voz, juegos, video llamada, fotos, musica, historias y danza', 'Funciones'),
+      spec(
+        'Funciones',
+        'Voz, juegos, video llamada, fotos, musica, historias y danza',
+        'Funciones'
+      ),
     ],
     marca: 'PadBot',
     orden: 477,
@@ -1059,7 +1122,8 @@ async function optimizeRobotImage(sourcePng, targetWebp) {
 async function prepareAssets(product) {
   const sourcePdf = path.join(SOURCE_DIR, product.pdf);
   if (!existsSync(sourcePdf)) throw new Error(`No existe PDF fuente: ${sourcePdf}`);
-  const productDir = path.join(PUBLIC_ROOT, product.slug);
+  const assetDir = robotAssetDir(product.slug);
+  const productDir = path.join(PUBLIC_ROOT, assetDir);
   mkdirSync(productDir, { recursive: true });
   const pdfTarget = path.join(productDir, product.pdfName);
   copyFileSync(sourcePdf, pdfTarget);
@@ -1071,7 +1135,10 @@ async function prepareAssets(product) {
   unlinkSync(imageTarget);
   const galleryTargets = [];
   for (const [index, pageNumber] of product.galleryPages.entries()) {
-    const galleryTarget = path.join(productDir, `galeria-${product.slug}-${String(index + 2).padStart(2, '0')}.png`);
+    const galleryTarget = path.join(
+      productDir,
+      `galeria-${product.slug}-${String(index + 2).padStart(2, '0')}.png`
+    );
     await renderPdfPage(sourcePdf, pageNumber, galleryTarget);
     const optimizedGalleryTarget = path.join(
       productDir,
@@ -1079,16 +1146,18 @@ async function prepareAssets(product) {
     );
     await optimizeRobotImage(galleryTarget, optimizedGalleryTarget);
     unlinkSync(galleryTarget);
-    galleryTargets.push(`/assets/productos/importados/${product.slug}/${path.basename(optimizedGalleryTarget)}`);
+    galleryTargets.push(
+      `/assets/productos/importados/${assetDir}/${path.basename(optimizedGalleryTarget)}`
+    );
   }
 
   return {
-    imagen_principal: `/assets/productos/importados/${product.slug}/${path.basename(optimizedImageTarget)}`,
+    imagen_principal: `/assets/productos/importados/${assetDir}/${path.basename(optimizedImageTarget)}`,
     galeria: [
-      `/assets/productos/importados/${product.slug}/${path.basename(optimizedImageTarget)}`,
+      `/assets/productos/importados/${assetDir}/${path.basename(optimizedImageTarget)}`,
       ...galleryTargets,
     ],
-    ficha_pdf: `/assets/productos/importados/${product.slug}/${product.pdfName}`,
+    ficha_pdf: `/assets/productos/importados/${assetDir}/${product.pdfName}`,
   };
 }
 
@@ -1201,17 +1270,23 @@ async function syncSupabase(mockProducts) {
     orden: family.orden,
     activo: family.activo,
   };
-  const { error: familyError } = await supabase.from('familias').upsert(familyPayload, { onConflict: 'slug' });
+  const { error: familyError } = await supabase
+    .from('familias')
+    .upsert(familyPayload, { onConflict: 'slug' });
   if (familyError) throw familyError;
 
   const typePayload = types.map(({ familia_slug, ...type }) => type);
-  const { error: typeError } = await supabase.from('tipos').upsert(typePayload, { onConflict: 'familia_id,slug' });
+  const { error: typeError } = await supabase
+    .from('tipos')
+    .upsert(typePayload, { onConflict: 'familia_id,slug' });
   if (typeError) throw typeError;
 
   const productPayload = mockProducts.map((mockProduct, index) =>
     toSupabaseProduct(mockProduct, products[index])
   );
-  const { error: productError } = await supabase.from('productos').upsert(productPayload, { onConflict: 'id' });
+  const { error: productError } = await supabase
+    .from('productos')
+    .upsert(productPayload, { onConflict: 'id' });
   if (productError) throw productError;
 }
 
