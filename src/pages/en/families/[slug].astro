@@ -21,6 +21,7 @@ import { getFamiliaSeoCms } from '../../../lib/landings-cms';
 import { buildCatalogoIndex, paginateCatalogItems } from '../../../lib/catalogo';
 import { t } from '../../../i18n/utils';
 import NotaPromoPadbot from '../../../components/NotaPromoPadbot.astro';
+import FamiliaRobotsShowcase from '../../../components/FamiliaRobotsShowcase.astro';
 
 export function getStaticPaths() {
   return listFamiliaSeoSlugs().map(slug => ({ params: { slug } }));
@@ -93,151 +94,180 @@ const jsonLd = combineJsonLd(
   jsonLd={jsonLd}
   noindex={noindex}
 >
-  <div
-    class="page-hero"
-    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
-  >
-    <div class="container" style="max-width:760px">
-      <nav class="breadcrumb" aria-label="Breadcrumb" style="margin-bottom:1rem;font-size:0.875rem">
-        <a href="/en/">Home</a><span aria-hidden="true"> / </span>
-        <a href="/en/catalog/">Catalog</a><span aria-hidden="true"> / </span>
-        <span aria-current="page">{name}</span>
-      </nav>
-      <span class="section-tag">Family</span>
-      <h1>{name}</h1>
-      {
-        noindex && (
-          <p style="margin:0.75rem 0 0">
-            <a href="/en/families/soluciones-iv/">View infusion pumps</a>
-          </p>
-        )
-      }
-      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{content.intro_en}</p>
-      <p style="margin-top:1.25rem">
-        <a class="btn btn-primary" href={catalogoFamilia}
-          >Browse {productos.length} family devices</a
-        >
-        <a class="btn btn-ghost" href="/en/contact/" style="margin-left:0.5rem">Request a quote</a>
-      </p>
-    </div>
-  </div>
-
-  <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
-    {
-      content.body_en.map(p => (
-        <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
-      ))
-    }
-    {(slug === 'sala-cirugia' || slug === 'robots') && <NotaPromoPadbot locale={locale} />}
-    {
-      relatedProducts.length > 0 && (
-        <nav aria-label="Related products" style="margin:1.25rem 0 0">
-          <h2 style="font-size:1.05rem;margin:0 0 0.5rem">Related products</h2>
-          <ul style="margin:0;padding-left:1.25rem;line-height:1.7">
-            {relatedProducts.map(producto => (
-              <li>
-                <a href={`/en/products/${producto.slug}/`}>{producto.nombre}</a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )
-    }
-    {
-      hubLinks.length > 0 && (
-        <p style="margin:1.25rem 0 0">
-          {hubLinks.map((link, index) => (
-            <a
-              class="btn btn-secondary"
-              href={link.href}
-              style={
-                index < hubLinks.length - 1
-                  ? 'margin-right:0.5rem;margin-bottom:0.5rem'
-                  : 'margin-bottom:0.5rem'
-              }
-            >
-              {link.label}
-            </a>
-          ))}
-        </p>
-      )
-    }
-  </section>
-
-  <section class="container" style="padding:0 0 var(--space-xl);max-width:760px">
-    <h2>How to structure an institutional purchase</h2>
-    <p style="color:var(--text-mid);line-height:1.6">
-      Use this guide to prepare a comparable request. It does not replace clinical or technical
-      assessment, nor manufacturer documentation.
-    </p>
-    <ol class="family-guide">
-      {criterios.map(criterio => <li>{criterio}</li>)}
-    </ol>
-    <p style="color:var(--text-mid);line-height:1.6">
-      For each SKU, I-ME confirms applicable documentation, commercial scope and support conditions.
-      INVIMA organizes medical-device and biomedical-equipment requirements throughout their
-      lifecycle; WHO recommends integrating inspection and preventive and corrective maintenance
-      into equipment management.
-    </p>
-    <p>
-      <a
-        href="https://www.invima.gov.co/productos-vigilados/dispositivos-medicos"
-        rel="noopener noreferrer"
-        target="_blank">INVIMA medical-device guidance</a
-      > · <a
-        href="https://www.who.int/publications/i/item/9789241501538"
-        rel="noopener noreferrer"
-        target="_blank">WHO maintenance guide</a
-      >
-    </p>
-  </section>
-
   {
-    productos.length > 0 && (
-      <section id="equipment" class="container" style="padding-bottom:var(--space-xl)">
-        <h2 style="margin-bottom:1rem">{name} equipment</h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
-          {familyPage.items.map(p => (
-            <ProductoCard
-              producto={{
-                ...p,
-                familia: { slug: content.slug, nombre: name },
-              }}
-              locale={locale}
-            />
-          ))}
+    slug === 'robots' ? (
+      <FamiliaRobotsShowcase
+        locale={locale}
+        name={name}
+        intro={content.intro_en}
+        paragraphs={content.body_en}
+        faq={faq}
+        criterios={criterios}
+        hubLinks={hubLinks}
+        items={familyPage.items}
+        pageCount={familyPage.pageCount}
+        total={productos.length}
+      />
+    ) : (
+      <>
+        <div
+          class="page-hero"
+          style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+        >
+          <div class="container" style="max-width:760px">
+            <nav
+              class="breadcrumb"
+              aria-label="Breadcrumb"
+              style="margin-bottom:1rem;font-size:0.875rem"
+            >
+              <>
+                <a href="/en/">Home</a>
+                <span aria-hidden="true"> / </span>
+              </>
+              <>
+                <a href="/en/catalog/">Catalog</a>
+                <span aria-hidden="true"> / </span>
+              </>
+              <span aria-current="page">{name}</span>
+            </nav>
+            <span class="section-tag">Family</span>
+            <h1>{name}</h1>
+            {noindex && (
+              <p style="margin:0.75rem 0 0">
+                <a href="/en/families/soluciones-iv/">View infusion pumps</a>
+              </p>
+            )}
+            <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">
+              {content.intro_en}
+            </p>
+            <p style="margin-top:1.25rem">
+              <a class="btn btn-primary" href={catalogoFamilia}>
+                Browse {productos.length} family devices
+              </a>
+              <a class="btn btn-ghost" href="/en/contact/" style="margin-left:0.5rem">
+                Request a quote
+              </a>
+            </p>
+          </div>
         </div>
-        {familyPage.pageCount > 1 && (
-          <nav class="family-pagination" aria-label="Family pagination">
-            <span>Page 1 of {familyPage.pageCount}</span>
-            <PaginacionNumeros
-              page={1}
-              pageCount={familyPage.pageCount}
-              pagePath={(n: number) =>
-                n === 1 ? `/en/families/${slug}/` : `/en/families/${slug}/pagina/${n}/`
-              }
-              irALabel="Go to page"
-            />
-            <a class="btn btn-secondary" href={`/en/families/${slug}/pagina/2/`}>
-              Next
+
+        <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
+          {content.body_en.map(p => (
+            <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
+          ))}
+          {(slug === 'sala-cirugia' || slug === 'robots') && <NotaPromoPadbot locale={locale} />}
+          {relatedProducts.length > 0 && (
+            <nav aria-label="Related products" style="margin:1.25rem 0 0">
+              <h2 style="font-size:1.05rem;margin:0 0 0.5rem">Related products</h2>
+              <ul style="margin:0;padding-left:1.25rem;line-height:1.7">
+                {relatedProducts.map(producto => (
+                  <li>
+                    <a href={`/en/products/${producto.slug}/`}>{producto.nombre}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+          {hubLinks.length > 0 && (
+            <p style="margin:1.25rem 0 0">
+              {hubLinks.map((link, index) => (
+                <a
+                  class="btn btn-secondary"
+                  href={link.href}
+                  style={
+                    index < hubLinks.length - 1
+                      ? 'margin-right:0.5rem;margin-bottom:0.5rem'
+                      : 'margin-bottom:0.5rem'
+                  }
+                >
+                  {link.label}
+                </a>
+              ))}
+            </p>
+          )}
+        </section>
+
+        <section class="container" style="padding:0 0 var(--space-xl);max-width:760px">
+          <h2>How to structure an institutional purchase</h2>
+          <p style="color:var(--text-mid);line-height:1.6">
+            Use this guide to prepare a comparable request. It does not replace clinical or
+            technical assessment, nor manufacturer documentation.
+          </p>
+          <ol class="family-guide">
+            {criterios.map(criterio => (
+              <li>{criterio}</li>
+            ))}
+          </ol>
+          <p style="color:var(--text-mid);line-height:1.6">
+            For each SKU, I-ME confirms applicable documentation, commercial scope and support
+            conditions. INVIMA organizes medical-device and biomedical-equipment requirements
+            throughout their lifecycle; WHO recommends integrating inspection and preventive and
+            corrective maintenance into equipment management.
+          </p>
+          <p>
+            <a
+              href="https://www.invima.gov.co/productos-vigilados/dispositivos-medicos"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              INVIMA medical-device guidance
+            </a>{' '}
+            ·{' '}
+            <a
+              href="https://www.who.int/publications/i/item/9789241501538"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              WHO maintenance guide
             </a>
-          </nav>
+          </p>
+        </section>
+
+        {productos.length > 0 && (
+          <section id="equipment" class="container" style="padding-bottom:var(--space-xl)">
+            <h2 style="margin-bottom:1rem">{name} equipment</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
+              {familyPage.items.map(p => (
+                <ProductoCard
+                  producto={{
+                    ...p,
+                    familia: { slug: content.slug, nombre: name },
+                  }}
+                  locale={locale}
+                />
+              ))}
+            </div>
+            {familyPage.pageCount > 1 && (
+              <nav class="family-pagination" aria-label="Family pagination">
+                <span>Page 1 of {familyPage.pageCount}</span>
+                <PaginacionNumeros
+                  page={1}
+                  pageCount={familyPage.pageCount}
+                  pagePath={(n: number) =>
+                    n === 1 ? `/en/families/${slug}/` : `/en/families/${slug}/pagina/${n}/`
+                  }
+                  irALabel="Go to page"
+                />
+                <a class="btn btn-secondary" href={`/en/families/${slug}/pagina/2/`}>
+                  Next
+                </a>
+              </nav>
+            )}
+          </section>
         )}
-      </section>
+
+        <section class="container" style="padding-bottom:var(--space-2xl);max-width:760px">
+          <h2>FAQ</h2>
+          {faq.map(item => (
+            <details style="margin:0.75rem 0;padding:0.75rem 0;border-bottom:1px solid var(--border, #e2e8ed)">
+              <summary style="cursor:pointer;font-weight:600">{item.q}</summary>
+              <p style="margin:0.5rem 0 0;color:var(--text-mid);line-height:1.55">{item.a}</p>
+            </details>
+          ))}
+        </section>
+      </>
     )
   }
-
-  <section class="container" style="padding-bottom:var(--space-2xl);max-width:760px">
-    <h2>FAQ</h2>
-    {
-      faq.map(item => (
-        <details style="margin:0.75rem 0;padding:0.75rem 0;border-bottom:1px solid var(--border, #e2e8ed)">
-          <summary style="cursor:pointer;font-weight:600">{item.q}</summary>
-          <p style="margin:0.5rem 0 0;color:var(--text-mid);line-height:1.55">{item.a}</p>
-        </details>
-      ))
-    }
-  </section>
 </Layout>
 
 <style>
