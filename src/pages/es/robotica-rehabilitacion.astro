@@ -1,11 +1,7 @@
 ---
-import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
-import { getCampaignLandingCms } from '../../lib/landings-cms';
-import { getProductosBySlugs } from '../../lib/datos';
+import RoboticaIngenieriaLanding from '../../components/RoboticaIngenieriaLanding.astro';
 
 const locale = 'es' as const;
-const content = await getCampaignLandingCms('robotica_rehabilitacion', locale);
-const productos = await getProductosBySlugs(content.productSlugs, locale);
 ---
 
-<CampaignLandingPage locale={locale} content={content} productos={productos} />
+<RoboticaIngenieriaLanding locale={locale} />

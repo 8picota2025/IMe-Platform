@@ -133,7 +133,7 @@ const jsonLd = combineJsonLd(
         <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
       ))
     }
-    {slug === 'sala-cirugia' && <NotaPromoPadbot locale={locale} />}
+    {(slug === 'sala-cirugia' || slug === 'robots') && <NotaPromoPadbot locale={locale} />}
     {
       relatedProducts.length > 0 && (
         <nav aria-label="Productos relacionados" style="margin:1.25rem 0 0">

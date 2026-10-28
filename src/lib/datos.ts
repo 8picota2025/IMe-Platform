@@ -151,6 +151,22 @@ function localProductImage(slug: unknown): string | null {
   return manifest[slug] ?? manifest[aliases[slug]] ?? null;
 }
 
+/** Carpetas reales en `public/assets/productos/importados/` (slug corto). */
+const ROBOT_IMPORT_DIR: Record<string, string> = {
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 'padbot-x3-robot-recepcion',
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
+    'padbot-x2-robot-servicio-interactivo',
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 'padbot-p2-robot-telepresencia',
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
+    'padbot-w2-robot-delivery-institucional',
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
+    'padbot-w3s-robot-delivery-alimentos',
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 'c3-robot-limpieza-autonoma',
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 'padbot-t2-robot-educativo-social',
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
+    'cruzr-robot-comercial-inteligente-ahuman-future',
+};
+
 const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
   'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 2,
   'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot': 2,
@@ -183,7 +199,8 @@ const ROBOT_MEDIA_SEO_SLUG: Record<string, string> = {
 
 function robotImportedAssetPath(slug: unknown, filename: string): string | null {
   if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
-  return `/assets/productos/importados/${slug}/${filename}`;
+  const dir = ROBOT_IMPORT_DIR[slug] ?? slug;
+  return `/assets/productos/importados/${dir}/${filename}`;
 }
 
 function robotMediaFilename(
@@ -205,14 +222,13 @@ function robotImportedGallery(slug: unknown): string[] | null {
   if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
   const main = robotImportedMainImage(slug);
   if (!main) return null;
-  const count = ROBOT_IMPORT_GALLERY_COUNT[slug];
+  const count = ROBOT_IMPORT_GALLERY_COUNT[slug] ?? 0;
   return [
     main,
-    ...Array.from(
-      { length: count },
-      (_, index) =>
-        `/assets/productos/importados/${slug}/${robotMediaFilename(slug, 'robot-galeria', index + 2)}`
-    ),
+    ...Array.from({ length: count }, (_, index) => {
+      const file = robotMediaFilename(slug, 'robot-galeria', index + 2);
+      return robotImportedAssetPath(slug, file) ?? main;
+    }),
   ];
 }
 
@@ -220,7 +236,7 @@ function robotImportedPdf(slug: unknown, value: unknown): string | null {
   if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return publicImage(value);
   if (typeof value === 'string' && value.trim()) {
     const filename = value.split('/').pop();
-    if (filename) return `/assets/productos/importados/${slug}/${filename}`;
+    if (filename) return robotImportedAssetPath(slug, filename);
   }
   return null;
 }

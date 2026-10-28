@@ -1,0 +1,690 @@
+---
+/**
+ * Landing canónica de distribuidores de robots e ingeniería robótica.
+ * La URL sigue siendo /es/robotica-rehabilitacion/ para no perder la autoridad ya indexada.
+ */
+import Layout from '../layouts/Layout.astro';
+import LeadQualificationForm from './LeadQualificationForm.astro';
+import type { Locale } from '../i18n/utils';
+import { buildCanonical } from '../lib/seo';
+import { buildWhatsAppHref, IME_WHATSAPP_DISPLAY } from '../lib/contacto-oficial';
+import { textoPromoPadbot } from '../data/promo-padbot';
+import {
+  BADGES,
+  FAQS,
+  KPIS,
+  LAYERS,
+  PROJECTS,
+  ROBOTICA_COPY,
+  ROBOTICA_PATH,
+  ROBOTS,
+  STEPS,
+  VERTICALS,
+  buildRoboticaJsonLd,
+  l10n,
+  pageCopy,
+} from '../data/robotica-ingenieria';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = pageCopy(locale);
+const campaign = ROBOTICA_COPY[locale];
+const isEn = locale === 'en';
+const path = isEn ? ROBOTICA_PATH.en : ROBOTICA_PATH.es;
+const canonical = buildCanonical(path);
+const currentPath = path.replace(/\/$/, '');
+const whatsapp = buildWhatsAppHref(
+  isEn
+    ? 'Hello, I want to quote service robots and robotics engineering for my institution in Colombia.'
+    : 'Hola, quiero cotizar robots de servicio e ingeniería robótica para mi institución en Colombia.'
+);
+const hero = '/assets/img/robots-asistenciales-atencion-institucional-colombia.webp';
+const station = '/assets/img/robots/c3-esquema-estacion-acoplamiento.webp';
+const jsonLd = buildRoboticaJsonLd(locale);
+---
+
+<Layout
+  title={copy.title}
+  description={copy.description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+  ogImage={hero}
+  ogImageWidth={1168}
+  ogImageHeight={784}
+  jsonLd={jsonLd}
+>
+  <article class="rbo">
+    <header class="rbo-hero">
+      <div class="rbo-wrap rbo-hero__grid">
+        <div>
+          <nav class="rbo-crumbs" aria-label={isEn ? 'Breadcrumb' : 'Ruta'}>
+            <a href={copy.homeHref}>{copy.home}</a>
+            <span aria-hidden="true">/</span>
+            <a href={copy.crumbHubHref}>{copy.crumbHub}</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{copy.crumbHere}</span>
+          </nav>
+          <p class="rbo-eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.h1}</h1>
+          <p class="rbo-lead">{copy.lead}</p>
+          <ul class="rbo-badges">
+            {BADGES.map(badge => <li>{l10n(locale, badge)}</li>)}
+          </ul>
+          <div class="rbo-actions">
+            <a class="btn btn-primary" href="#robotica-form">{copy.primaryCta}</a>
+            <a class="btn btn-secondary" href={whatsapp} target="_blank" rel="noopener noreferrer">
+              {copy.secondaryCta}
+              {IME_WHATSAPP_DISPLAY}
+            </a>
+            <a class="btn btn-secondary" href={copy.familyHref}>{copy.catalogCta}</a>
+          </div>
+          <p class="rbo-fine">{copy.regulatory}</p>
+        </div>
+        <figure class="rbo-hero__figure">
+          <img
+            src={hero}
+            alt={copy.heroAlt}
+            width="1168"
+            height="784"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <figcaption class="rbo-film" aria-label={isEn ? 'Catalog robots' : 'Robots del catálogo'}>
+            {
+              ROBOTS.map(robot => (
+                <img
+                  src={robot.image}
+                  alt={robot.model}
+                  width={robot.width}
+                  height={robot.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))
+            }
+          </figcaption>
+        </figure>
+      </div>
+      <dl class="rbo-wrap rbo-kpis">
+        {
+          KPIS.map(kpi => (
+            <div>
+              <dt>{kpi.value}</dt>
+              <dd>{l10n(locale, kpi.label)}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </header>
+
+    <section class="rbo-section" aria-labelledby="rbo-catalogo">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-catalogo">{copy.catalogTitle}</h2>
+          <p>{copy.catalogLead}</p>
+        </header>
+        <div class="rbo-board">
+          <fieldset class="rbo-filters">
+            <legend>{copy.filterLegend}</legend>
+            {
+              VERTICALS.map((vertical, index) => (
+                <span class="rbo-switch">
+                  <input
+                    class="rbo-input"
+                    type="radio"
+                    name="rbo-vertical"
+                    id={`rv-${vertical.id}`}
+                    checked={index === 0}
+                  />
+                  <label class="rbo-pill" for={`rv-${vertical.id}`}>
+                    {l10n(locale, vertical.label)}
+                  </label>
+                </span>
+              ))
+            }
+          </fieldset>
+          <div class="rbo-grid">
+            {
+              ROBOTS.map(robot => (
+                <article class="rbo-card" data-vertical={robot.verticals.join(' ')}>
+                  <img
+                    src={robot.image}
+                    alt={`${robot.model}. ${l10n(locale, robot.role)}`}
+                    width={robot.width}
+                    height={robot.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div class="rbo-card__body">
+                    <p class="rbo-sku">{robot.sku}</p>
+                    <h3>{robot.model}</h3>
+                    <p class="rbo-role">{l10n(locale, robot.role)}</p>
+                    <p>{l10n(locale, robot.summary)}</p>
+                    <dl>
+                      {robot.specs.map(spec => (
+                        <div>
+                          <dt>{l10n(locale, spec.label)}</dt>
+                          <dd>{spec.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <div class="rbo-card__links">
+                      <a href={`${copy.productBase}${robot.slug}/`}>{copy.sheetCta}</a>
+                      <a href={robot.pdf}>{copy.pdfCta}</a>
+                      <a href="#robotica-form">{copy.quoteCta}</a>
+                    </div>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rbo-section rbo-section--tint" aria-labelledby="rbo-tabla">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-tabla">{copy.tableTitle}</h2>
+          <p>{copy.tableLead}</p>
+        </header>
+        <div class="rbo-table-scroll">
+          <table>
+            <caption>{copy.tableCaption}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{isEn ? 'Model' : 'Modelo'}</th>
+                <th scope="col">{isEn ? 'Application' : 'Aplicación'}</th>
+                {ROBOTS[0]?.specs.map(spec => <th scope="col">{l10n(locale, spec.label)}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {
+                ROBOTS.map(robot => (
+                  <tr>
+                    <th scope="row">
+                      <a href={`${copy.productBase}${robot.slug}/`}>{robot.model}</a>
+                    </th>
+                    <td>{l10n(locale, robot.role)}</td>
+                    {robot.specs.map(spec => (
+                      <td>{spec.value}</td>
+                    ))}
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="rbo-section" aria-labelledby="rbo-ingenieria">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-ingenieria">{copy.engineeringTitle}</h2>
+          <p>{copy.engineeringLead}</p>
+        </header>
+        <ol class="rbo-layers">
+          {
+            LAYERS.map(layer => (
+              <li>
+                <span>{layer.n}</span>
+                <h3>{l10n(locale, layer.title)}</h3>
+                <p>{l10n(locale, layer.body)}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="rbo-station">
+          <img
+            src={station}
+            alt={copy.stationAlt}
+            width="1400"
+            height="1050"
+            loading="lazy"
+            decoding="async"
+          />
+          <div>
+            <h3>{copy.stationTitle}</h3>
+            <p>{copy.stationBody}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rbo-section rbo-section--tint" aria-labelledby="rbo-pasos">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-pasos">{copy.stepsTitle}</h2>
+          <p>{copy.stepsLead}</p>
+        </header>
+        <ol class="rbo-steps">
+          {
+            STEPS.map((step, index) => (
+              <li>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <h3>{l10n(locale, step.title)}</h3>
+                <p>{l10n(locale, step.body)}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="rbo-section" aria-labelledby="rbo-proyectos">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-proyectos">{copy.projectsTitle}</h2>
+          <p>{copy.projectsLead}</p>
+        </header>
+        <div class="rbo-projects">
+          {
+            PROJECTS.map(project => (
+              <article>
+                <p class="rbo-flag">{copy.projectsBadge}</p>
+                <h3>{l10n(locale, project.title)}</h3>
+                <p>{l10n(locale, project.body)}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="rbo-section" aria-labelledby="rbo-promo">
+      <div class="rbo-wrap">
+        <aside class="rbo-promo">
+          <h2 id="rbo-promo">{copy.promoTitle}</h2>
+          <p>{textoPromoPadbot(locale)}</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="rbo-section rbo-section--tint" aria-labelledby="rbo-faq">
+      <div class="rbo-wrap rbo-narrow">
+        <h2 id="rbo-faq">
+          {isEn ? 'Questions from institutions' : 'Preguntas de las instituciones'}
+        </h2>
+        {
+          FAQS.map(item => (
+            <details>
+              <summary>{l10n(locale, item.q)}</summary>
+              <p>{l10n(locale, item.a)}</p>
+            </details>
+          ))
+        }
+        <p class="rbo-links">
+          <a href={copy.familyHref}>{copy.familyLabel}</a>
+          <a href={copy.teleHref}>{copy.teleLabel}</a>
+          <a href={copy.guideHref}>{copy.guideLabel}</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="rbo-section" id="robotica-form" aria-labelledby="rbo-form">
+      <div class="rbo-wrap rbo-narrow">
+        <h2 id="rbo-form">{copy.formTitle}</h2>
+        <p>{copy.formIntro}</p>
+        <p>
+          {IME_WHATSAPP_DISPLAY} · <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
+        </p>
+        <LeadQualificationForm
+          locale={locale}
+          campaign="robotica_rehabilitacion"
+          familiaSlug="robots"
+          primaryCta={copy.primaryCta}
+          projectOptions={[...campaign.projectOptions]}
+          formId="robotica-lead"
+        />
+      </div>
+    </section>
+  </article>
+</Layout>
+
+<style>
+  .rbo {
+    color: var(--text);
+    background: var(--white);
+  }
+  .rbo-wrap {
+    width: min(var(--container-inner), calc(100% - 2rem));
+    margin-inline: auto;
+  }
+  .rbo-narrow {
+    width: min(760px, calc(100% - 2rem));
+  }
+  .rbo-hero {
+    background: var(--t900);
+    color: var(--white);
+    padding: calc(6.5rem + var(--space-md)) 0 var(--space-lg);
+  }
+  .rbo-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: var(--space-lg);
+    align-items: center;
+  }
+  .rbo-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    font-size: var(--step--1);
+    margin-bottom: 1rem;
+  }
+  .rbo-crumbs a {
+    color: inherit;
+  }
+  .rbo-eyebrow {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: var(--step--1);
+    margin: 0 0 0.75rem;
+  }
+  .rbo-hero h1 {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    color: inherit;
+  }
+  .rbo-lead,
+  .rbo-head p,
+  .rbo-card p,
+  .rbo-layers p,
+  .rbo-steps p,
+  .rbo-projects p,
+  .rbo-station p,
+  .rbo-promo p,
+  details p {
+    line-height: 1.6;
+  }
+  .rbo-badges,
+  .rbo-actions,
+  .rbo-card__links,
+  .rbo-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .rbo-badges {
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0;
+  }
+  .rbo-badges li,
+  .rbo-flag {
+    border: 1px solid var(--border-mid);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: var(--step--1);
+  }
+  .rbo-hero .rbo-badges li {
+    border-color: color-mix(in srgb, var(--white) 35%, transparent);
+  }
+  .rbo-fine {
+    font-size: var(--step--1);
+    margin: 1rem 0 0;
+    max-width: 62ch;
+  }
+  .rbo-hero__figure {
+    margin: 0;
+  }
+  .rbo-hero__figure > img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+  }
+  .rbo-film {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+  .rbo-film img,
+  .rbo-card > img,
+  .rbo-station img {
+    width: 100%;
+    height: auto;
+    background: var(--off);
+    border-radius: var(--radius);
+    object-fit: contain;
+  }
+  .rbo-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-top: var(--space-lg);
+  }
+  .rbo-kpis div {
+    background: color-mix(in srgb, var(--white) 10%, transparent);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+  }
+  .rbo-kpis dt {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+  .rbo-kpis dd {
+    margin: 0.25rem 0 0;
+    font-size: var(--step--1);
+  }
+  .rbo-section {
+    padding: var(--space-xl) 0;
+  }
+  .rbo-section--tint {
+    background: var(--off);
+  }
+  .rbo-head h2,
+  .rbo-narrow h2,
+  .rbo-promo h2 {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.2;
+    margin: 0 0 0.75rem;
+    color: var(--ink);
+  }
+  .rbo-filters {
+    border: 0;
+    padding: 0;
+    margin: 0 0 var(--space-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .rbo-filters legend {
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: var(--step--1);
+  }
+  .rbo-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .rbo-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-mid);
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .rbo-input:focus-visible + .rbo-pill {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+  .rbo-input:checked + .rbo-pill {
+    background: var(--t900);
+    color: var(--white);
+    border-color: var(--t900);
+  }
+  .rbo-board:has(#rv-recepcion:checked) .rbo-card:not([data-vertical~='recepcion']),
+  .rbo-board:has(#rv-telepresencia:checked) .rbo-card:not([data-vertical~='telepresencia']),
+  .rbo-board:has(#rv-logistica:checked) .rbo-card:not([data-vertical~='logistica']),
+  .rbo-board:has(#rv-limpieza:checked) .rbo-card:not([data-vertical~='limpieza']),
+  .rbo-board:has(#rv-humanoide:checked) .rbo-card:not([data-vertical~='humanoide']),
+  .rbo-board:has(#rv-educacion:checked) .rbo-card:not([data-vertical~='educacion']) {
+    display: none;
+  }
+  .rbo-grid,
+  .rbo-projects,
+  .rbo-steps,
+  .rbo-layers {
+    display: grid;
+    gap: 1rem;
+  }
+  .rbo-grid,
+  .rbo-projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rbo-layers,
+  .rbo-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .rbo-layers {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .rbo-card,
+  .rbo-projects article,
+  .rbo-layers li,
+  .rbo-steps li,
+  .rbo-promo {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  .rbo-card__body,
+  .rbo-projects article,
+  .rbo-layers li,
+  .rbo-steps li {
+    padding: 1rem 1.1rem 1.2rem;
+  }
+  .rbo-card h3,
+  .rbo-projects h3,
+  .rbo-layers h3,
+  .rbo-steps h3,
+  .rbo-station h3 {
+    margin: 0.2rem 0 0.4rem;
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+  .rbo-sku,
+  .rbo-layers span,
+  .rbo-steps span,
+  .rbo-flag {
+    color: var(--t800);
+    font-size: var(--step--1);
+    margin: 0;
+  }
+  .rbo-role {
+    font-weight: 600;
+  }
+  .rbo-card dl {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.8rem 0;
+  }
+  .rbo-card dt {
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .rbo-card dd {
+    margin: 0;
+  }
+  .rbo-card__links a,
+  .rbo-links a,
+  .rbo table a {
+    color: var(--t800);
+  }
+  .rbo-table-scroll {
+    overflow-x: auto;
+  }
+  .rbo table {
+    width: 100%;
+    min-width: 920px;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .rbo caption {
+    text-align: left;
+    margin-bottom: 0.75rem;
+  }
+  .rbo th,
+  .rbo td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.7rem 0.6rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .rbo thead th {
+    color: var(--ink);
+  }
+  .rbo-station {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--space-md);
+    align-items: center;
+    margin-top: var(--space-lg);
+  }
+  .rbo-promo {
+    padding: 1.25rem 1.4rem;
+    border-left: 4px solid var(--t700);
+    background: var(--t50);
+  }
+  details {
+    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 0;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  summary:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+  .rbo-links {
+    margin-top: 1.25rem;
+  }
+  @media (max-width: 960px) {
+    .rbo-hero__grid,
+    .rbo-grid,
+    .rbo-projects,
+    .rbo-station,
+    .rbo-kpis,
+    .rbo-layers,
+    .rbo-steps {
+      grid-template-columns: 1fr;
+    }
+    .rbo-film {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rbo *,
+    .rbo *::before,
+    .rbo *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

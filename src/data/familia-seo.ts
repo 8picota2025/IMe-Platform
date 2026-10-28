@@ -351,40 +351,46 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'robots',
-    name_es: 'Robots de servicio y asistencia',
-    name_en: 'Service and assistive robots',
-    title_es: 'Robots de servicio, recepción y logística institucional | I-ME',
-    title_en: 'Service, reception and institutional logistics robots | I-ME',
+    name_es: 'Robots de servicio e ingeniería robótica en Colombia',
+    name_en: 'Service robots and robotics engineering in Colombia',
+    title_es: 'Robots de servicio e ingeniería robótica en Colombia | I-ME',
+    title_en: 'Service robots and robotics engineering in Colombia | I-ME',
     description_es:
-      'Robots de recepción, telepresencia, delivery, limpieza y asistencia para instituciones. Compare funciones, entorno y soporte con I-ME.',
+      'Distribuidores de robots en Colombia: recepción, telepresencia, limpieza autónoma, logística AMR e ingeniería con LiDAR SLAM.',
     description_en:
-      'Reception, telepresence, delivery, cleaning and assistive robots for institutions. Compare functions, environment and support with I-ME.',
+      'Robot distributors in Colombia: reception, telepresence, autonomous cleaning, AMR logistics and LiDAR SLAM engineering.',
     intro_es:
-      'Un robot institucional se selecciona desde el proceso que debe resolver: orientar visitantes, conectar personas a distancia, transportar elementos, apoyar actividades o automatizar limpieza.',
+      'I-ME distribuye robots de servicio en Colombia y hace la ingeniería de integración: recepción, telepresencia, logística intrahospitalaria, limpieza autónoma y educación, con navegación LiDAR SLAM sobre el plano real de la sede.',
     intro_en:
-      'An institutional robot should be selected from the workflow it must support: visitor wayfinding, remote presence, internal delivery, activities or cleaning automation.',
+      'I-ME distributes service robots in Colombia and engineers the integration: reception, telepresence, in-hospital logistics, autonomous cleaning and education, with LiDAR SLAM navigation on the real floor plan.',
     body_es: [
-      'El catálogo reúne ocho referencias oficiales para recepción, servicio interactivo, telepresencia, delivery institucional y de alimentos, educación social y limpieza autónoma.',
-      'La comparación debe empezar por el entorno real: recorridos, puertas, ascensores, superficies, puntos de carga, conectividad y responsables de operación. Después se valida cada función contra la ficha del fabricante.',
-      'I-ME estructura el alcance comercial y técnico por proyecto. La autonomía, integración, accesorios y puesta en marcha se confirman para la referencia cotizada.',
+      'El catálogo activo reúne ocho referencias: PadBot X3 y PadBot X2 (recepción), Cruzr (humanoide y Open API), PadBot P2 (telepresencia), PadBot W2 (gabinete PIN/QR), PadBot W3s (bandejas), robot C3 (limpieza 3-en-1) y PadBot T2 (educación y acompañamiento).',
+      'La comparación empieza por el edificio: recorridos, puertas, ascensores, superficies, puntos de carga y el responsable de operación. La integración multiplanta usa puntos de espera y abordaje de ascensor (módulo IoT E-Box o API Cloud) y puntos de control de acceso.',
+      'Otras arquitecturas —limpieza industrial pesada, desinfección UV-C o logística cerrada— se estudian como ingeniería bajo proyecto y no se publican como SKUs nuevos. La garantía es la del fabricante, con soporte electromecánico local de I-ME.',
     ],
     body_en: [
-      'The catalog includes eight official models for reception, interactive service, telepresence, institutional and food delivery, social education and autonomous cleaning.',
-      'Comparison starts with the real environment: routes, doors, elevators, surfaces, charging points, connectivity and operating owners. Each function is then validated against manufacturer documentation.',
-      'I-ME structures commercial and technical scope by project. Runtime, integration, accessories and commissioning are confirmed for the quoted model.',
+      'The active catalog has eight references: PadBot X3 and PadBot X2 (reception), Cruzr (humanoid and Open API), PadBot P2 (telepresence), PadBot W2 (PIN/QR cabinet), PadBot W3s (trays), the C3 robot (3-in-1 cleaning) and PadBot T2 (education and companionship).',
+      'Comparison starts with the building: routes, doors, elevators, floors, charge points and the operating owner. Multi-floor integration uses elevator waiting and boarding points (E-Box IoT module or cloud API) and access-control points.',
+      'Other architectures — heavy industrial cleaning, UV-C disinfection or closed logistics — are studied as project engineering and are not published as new SKUs. Warranty is the manufacturer’s, with local electromechanical support from I-ME.',
     ],
     faq: [
       {
-        q_es: '¿Qué tipo de robot necesita una institución?',
-        a_es: 'Depende del flujo objetivo. Recepción, telepresencia, delivery y limpieza son categorías distintas; primero documentamos recorrido, interacción y responsable operativo.',
-        q_en: 'What type of robot does an institution need?',
-        a_en: 'It depends on the target workflow. Reception, telepresence, delivery and cleaning are different categories; first document route, interaction and operating owner.',
+        q_es: '¿I-ME es un distribuidor de robots de servicio en Colombia?',
+        a_es: 'Sí. Publica ocho robots de recepción, telepresencia, logística, limpieza y educación, y acompaña la ingeniería de integración en la sede. El alcance se confirma en la propuesta.',
+        q_en: 'Is I-ME a service-robot distributor in Colombia?',
+        a_en: 'Yes. It publishes eight reception, telepresence, logistics, cleaning and education robots, and supports on-site integration engineering. Scope is confirmed in the proposal.',
       },
       {
-        q_es: '¿Puede integrarse con ascensores o sistemas existentes?',
-        a_es: 'La integración depende del modelo y de la infraestructura. Se confirma con documentación del fabricante y revisión técnica del proyecto.',
-        q_en: 'Can it integrate with elevators or existing systems?',
-        a_en: 'Integration depends on model and infrastructure. It is confirmed through manufacturer documentation and project technical review.',
+        q_es: '¿Puede integrarse con ascensores o torniquetes?',
+        a_es: 'En los modelos cuyo manual lo describe, sí: puntos de espera y abordaje de ascensor con módulo IoT E-Box o API Cloud, y control de acceso para puertas y torniquetes. Se valida en el plano de la sede.',
+        q_en: 'Can it integrate with elevators or turnstiles?',
+        a_en: 'On models whose manual describes it, yes: elevator waiting and boarding points via the E-Box IoT module or a cloud API, and access control for doors and turnstiles. It is validated on the site drawing.',
+      },
+      {
+        q_es: '¿La navegación exige obra civil o cinta magnética?',
+        a_es: 'Los manuales de esta línea describen mapas SLAM con LiDAR, sin reflectores ni balizas magnéticas. Sensores de ultrasonido, anticaída y parachoques cubren vidrio, escaleras y contacto.',
+        q_en: 'Does navigation require civil works or magnetic tape?',
+        a_en: 'Manuals for this line describe SLAM maps with LiDAR, without reflectors or magnetic beacons. Ultrasound, cliff sensors and bumpers cover glass, stairs and contact.',
       },
     ],
     relatedSlugs: [
@@ -1094,6 +1100,20 @@ export interface FamiliaHubLink {
 }
 
 const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
+  robots: [
+    {
+      href_es: '/es/robotica-rehabilitacion/',
+      href_en: '/en/robotics-rehabilitation/',
+      label_es: 'Distribuidores de robots e ingeniería robótica en Colombia',
+      label_en: 'Robot distributors and robotics engineering in Colombia',
+    },
+    {
+      href_es: '/es/robotica-rehabilitacion/telepresencia/',
+      href_en: '/en/robotics-rehabilitation/telepresencia/',
+      label_es: 'Telepresencia médica PadBot P2',
+      label_en: 'PadBot P2 medical telepresence',
+    },
+  ],
   'movilidad-rehabilitacion': [
     {
       href_es: '/es/caminadores-para-adultos/',

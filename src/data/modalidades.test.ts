@@ -40,7 +40,7 @@ describe('modalidades', () => {
 
   it('la promoción nombra P2 o X3 y no promete los dos robots', () => {
     for (const texto of [PROMO_PADBOT_ES, PROMO_PADBOT_EN]) {
-      expect(texto).toMatch(/P2 o X3|P2 or X3/);
+      expect(texto).toMatch(/P2 o (?:PadBot )?X3|P2 or (?:PadBot )?X3/);
       expect(texto.toLowerCase()).not.toMatch(/ambos|both robots|los dos/);
     }
   });
