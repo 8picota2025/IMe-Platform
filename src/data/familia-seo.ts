@@ -1102,10 +1102,12 @@ export interface FamiliaHubLink {
 const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
   robots: [
     {
-      href_es: '/es/robotica-rehabilitacion/',
-      href_en: '/en/robotics-rehabilitation/',
-      label_es: 'Distribuidores de robots e ingeniería robótica en Colombia',
-      label_en: 'Robot distributors and robotics engineering in Colombia',
+      href_es:
+        '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/',
+      href_en:
+        '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/',
+      label_es: 'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica',
+      label_en: 'Robot distributors and robotics engineering in Colombia and Latin America',
     },
     {
       href_es: '/es/robotica-rehabilitacion/telepresencia/',

@@ -55,6 +55,10 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'esterilizacion', en: 'sterilization' },
   { es: 'imagenologia', en: 'imaging' },
   { es: 'robotica-rehabilitacion', en: 'robotics-rehabilitation' },
+  {
+    es: 'distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica',
+    en: 'robot-distributors-and-robotics-engineering-in-colombia-and-latin-america',
+  },
   { es: 'caminadores-para-adultos', en: 'adult-walkers' },
   { es: 'sillas-de-ruedas', en: 'wheelchairs' },
   { es: 'monitores-biolight-uci', en: 'biolight-icu-monitors' },

@@ -7,6 +7,7 @@ import {
   FAQS,
   PAGE,
   PHONE_DISPLAY,
+  ROBOTICA_PATH,
   ROBOTS,
   WARRANTY,
   buildRoboticaJsonLd,
@@ -34,13 +35,19 @@ describe('landing de distribuidores de robots', () => {
   });
 
   it('coloca las keywords de cabecera en title, descripción y h1', () => {
-    expect(PAGE.es.title).toBe('Distribuidores de Robots e Ingeniería Robótica en Colombia | I-ME');
-    expect(PAGE.es.h1).toContain('Distribuidores de Robots e Ingeniería Robótica en Colombia');
-    expect(PAGE.es.description).toContain('ingeniería robótica en Colombia');
+    expect(PAGE.es.title).toBe('Distribuidores de robots en Colombia y Latinoamérica | I-ME');
+    expect(PAGE.es.h1).toContain('Ingeniería Robótica en Colombia y Latinoamérica');
+    expect(PAGE.es.description).toContain('Latinoamérica');
     expect(PAGE.es.description).toContain('LiDAR SLAM');
     expect(PAGE.en.title).toContain('Robot Distributors');
-    expect(PAGE.en.title).toContain('Robotics Engineering in Colombia');
-    expect(PAGE.en.h1).toContain('Robotics Engineering in Colombia');
+    expect(PAGE.en.title).toContain('Latin America');
+    expect(PAGE.en.h1).toContain('Robotics Engineering in Colombia and Latin America');
+    expect(ROBOTICA_PATH.es).toBe(
+      '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/'
+    );
+    expect(ROBOTICA_PATH.en).toBe(
+      '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/'
+    );
     expect(getCampaignLanding('robotica_rehabilitacion', 'es').h1).toBe(PAGE.es.h1);
     expect(getCampaignLanding('robotica_rehabilitacion', 'es').productSlugs).toEqual(
       ROBOTS.map(robot => robot.slug)
@@ -96,11 +103,17 @@ describe('landing de distribuidores de robots', () => {
 
   it('la página canónica renderiza el componente nuevo', () => {
     const es = readFileSync(
-      new URL('../pages/es/robotica-rehabilitacion.astro', import.meta.url),
+      new URL(
+        '../pages/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica.astro',
+        import.meta.url
+      ),
       'utf8'
     );
     const en = readFileSync(
-      new URL('../pages/en/robotics-rehabilitation.astro', import.meta.url),
+      new URL(
+        '../pages/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america.astro',
+        import.meta.url
+      ),
       'utf8'
     );
     expect(es).toContain('RoboticaIngenieriaLanding');

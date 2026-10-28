@@ -22,7 +22,12 @@ const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
   buildBreadcrumbJsonLd([
     { name: 'Home', url: buildCanonical('/en/') },
-    { name: 'Robotics', url: buildCanonical('/en/robotics-rehabilitation') },
+    {
+      name: 'Robotics',
+      url: buildCanonical(
+        '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america'
+      ),
+    },
     { name: 'Telepresence', url: canonical },
   ])
 );
@@ -42,7 +47,11 @@ const jsonLd = combineJsonLd(
   >
     <div class="container" style="max-width:760px">
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/en/">Home</a> / <a href="/en/robotics-rehabilitation/">Robotics</a> /
+        <a href="/en/">Home</a> /{' '}
+        <a href="/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/"
+          >Robotics</a
+        >{' '}
+        /
         <span aria-current="page">Telepresence</span>
       </nav>
       <h1>Hospital telepresence robot PadBot P2 in Colombia</h1>
@@ -79,7 +88,9 @@ const jsonLd = combineJsonLd(
       )
     }
     <p>
-      <a href="/en/robotics-rehabilitation/">Back to institutional robotics</a>
+      <a href="/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/"
+        >Back to robot distributors in Colombia and Latin America</a
+      >
       {' · '}
       <a href="/en/public-procurement/">Public procurement</a>
     </p>

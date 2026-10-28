@@ -2669,8 +2669,8 @@ const META: Record<
   },
   robotica_rehabilitacion: {
     familia_slug: 'robots',
-    path: '/es/robotica-rehabilitacion/',
-    pathEn: '/en/robotics-rehabilitation/',
+    path: '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/',
+    pathEn: '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/',
   },
   caminadores_adultos: {
     familia_slug: 'movilidad-rehabilitacion',

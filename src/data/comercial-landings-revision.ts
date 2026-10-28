@@ -42,8 +42,8 @@ const REVISION_ES: readonly CampaignLandingRevision[] = [
   },
   {
     id: 'robotica_rehabilitacion',
-    path: '/es/robotica-rehabilitacion/',
-    h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia: Automatización Autónoma para Clínicas, Industria y Empresas',
+    path: '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/',
+    h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia y Latinoamérica',
     productSlugs: [
       'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
       'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot',
