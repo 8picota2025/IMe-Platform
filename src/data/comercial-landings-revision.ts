@@ -43,12 +43,16 @@ const REVISION_ES: readonly CampaignLandingRevision[] = [
   {
     id: 'robotica_rehabilitacion',
     path: '/es/robotica-rehabilitacion/',
-    h1: 'Robótica que alivia operación — no ciencia ficción en el lobby',
+    h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia: Automatización Autónoma para Clínicas, Industria y Empresas',
     productSlugs: [
       'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
+      'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot',
       'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
       'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot',
+      'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot',
       'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot',
+      'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot',
+      'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future',
     ],
   },
   {

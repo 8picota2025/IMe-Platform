@@ -42,7 +42,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'campana',
     clave: 'robotica_rehabilitacion',
-    nombre: 'Robótica institucional',
+    nombre: 'Distribuidores de robots',
     path: '/es/robotica-rehabilitacion/',
     pathEn: '/en/robotics-rehabilitation/',
   },
@@ -252,7 +252,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'robots',
-    nombre: 'Robots de servicio y asistencia',
+    nombre: 'Robots de servicio e ingeniería robótica en Colombia',
     path: '/es/familias/robots/',
     pathEn: '/en/families/robots/',
   },

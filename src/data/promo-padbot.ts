@@ -5,10 +5,10 @@
 import type { Locale } from '../i18n/utils';
 
 export const PROMO_PADBOT_ES =
-  'Con la compra de un equipo de imagenología de última generación (WR-3D, Talent II) o del equipamiento de quirófano, I-ME puede incluir sin costo un robot PadBot P2 o X3, según el pedido.';
+  'En proyectos integrales de equipamiento de quirófano o con la adquisición de equipos de imagenología de última generación (como sistemas DR dinámicos WR-3D o arcos en C quirúrgicos Talent II), I-ME puede llegar a incluir una unidad robótica asistencial PadBot P2 o PadBot X3 sin costo adicional según el alcance del pedido.';
 
 export const PROMO_PADBOT_EN =
-  'With the purchase of a latest-generation imaging system (WR-3D, Talent II) or operating-room equipment, I-ME may include a PadBot P2 or X3 robot at no charge, depending on the order.';
+  'On integrated operating-room equipment projects, or with the acquisition of latest-generation imaging systems (such as WR-3D dynamic DR systems or Talent II surgical C-arms), I-ME may include one assistive PadBot P2 or PadBot X3 unit at no additional charge, depending on the scope of the order.';
 
 export const SLUGS_PROMO_PADBOT = [
   'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',

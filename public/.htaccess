@@ -69,6 +69,9 @@ RewriteRule ^77/index\.html$ /es/ [R=301,L]
 RewriteRule ^(.+)/index\.html$ /$1/ [R=301,L]
 RewriteRule ^es/productos/?$ /es/catalogo/ [R=301,L]
 RewriteRule ^en/products/?$ /en/catalog/ [R=301,L]
+# Alias de campaña. La canónica indexada sigue siendo la landing de robótica.
+RewriteRule ^es/distribuidores-robots-ingenieria-robotica-colombia/?$ /es/robotica-rehabilitacion/ [R=301,L]
+RewriteRule ^en/robot-distributors-robotics-engineering-colombia/?$ /en/robotics-rehabilitation/ [R=301,L]
 
 # /es/familias/ y /en/families/ son hubs (index.html). Alias que no tienen landing.
 # Terapia de infusión duplica la familia de bombas (soluciones-iv).
