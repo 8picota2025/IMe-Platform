@@ -1,0 +1,26 @@
+---
+/**
+ * Historical path. .htaccess returns 301 to the Colombia and Latin America canonical.
+ * Generated so published links still have a destination, and kept out of the sitemap.
+ */
+import Layout from '../../layouts/Layout.astro';
+import { buildCanonical } from '../../lib/seo';
+
+const canonical = buildCanonical(
+  '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america'
+);
+---
+
+<Layout
+  title="Robot Distributors in Colombia and Latin America | I-ME"
+  description="This address now opens the landing for robot distributors and robotics engineering in Colombia and Latin America."
+  canonical={canonical}
+  locale="en"
+  currentPath="/en/robotics-rehabilitation"
+  noindex={true}
+>
+  <p class="container" style="padding:8rem 0 4rem">
+    <a href={canonical}>Robot distributors and robotics engineering in Colombia and Latin America</a
+    >
+  </p>
+</Layout>

@@ -15,3 +15,17 @@ SELECT id, version, contenido_es, contenido_en
 FROM public.landings
 WHERE tipo = 'campana' AND clave = 'robotica_rehabilitacion'
 ON CONFLICT (landing_id, version) DO NOTHING;
+
+UPDATE public.articulos
+SET cuerpo_es = replace(
+      cuerpo_es,
+      '(/es/robotica-rehabilitacion/)',
+      '(/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/)'
+    ),
+    cuerpo_en = replace(
+      cuerpo_en,
+      '(/en/robotics-rehabilitation/)',
+      '(/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/)'
+    )
+WHERE cuerpo_es LIKE '%(/es/robotica-rehabilitacion/)%'
+   OR cuerpo_en LIKE '%(/en/robotics-rehabilitation/)%';
