@@ -52,6 +52,10 @@ import {
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
+import {
+  indexProductosPorSlug,
+  validarDisponibilidadLineasOferta,
+} from '../../../src/lib/cotizacion-disponibilidad.ts';
 import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 
 interface Body {
@@ -399,11 +403,13 @@ Deno.serve(async req => {
     }
     const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, row);
     if (!creado.ok) {
-      return errorResponse(
-        { code: creado.code, message: creado.message },
-        creado.code === 'COTIZACION_YA_CONVERTIDA' ? 409 : 422,
-        origin
-      );
+      const status =
+        creado.code === 'COTIZACION_YA_CONVERTIDA'
+          ? 409
+          : creado.code === 'PRODUCTO_NO_DISPONIBLE'
+            ? 400
+            : 422;
+      return errorResponse({ code: creado.code, message: creado.message }, status, origin);
     }
     const redirectUrl = `${siteUrl}${locale === 'en' ? '/en/payment/result' : '/es/pago/resultado'}?ref=${encodeURIComponent(creado.pedidoId)}`;
     const pago = await enlaceWompiDeCotizacion({
@@ -605,6 +611,40 @@ Deno.serve(async req => {
     clienteFiscal: fiscalCliente,
     moneda,
   });
+
+  const slugs = lineas.map(l => l.slug);
+  const { data: productos, error: productosSnapError } = await supabase
+    .from('productos')
+    .select('id, slug, nombre_es, familia_id, activo, disponible')
+    .in('slug', slugs);
+  if (productosSnapError) {
+    return internalError(
+      `error consultando productos: ${productosSnapError.message}`,
+      origin
+    );
+  }
+  const porSlug = new Map(
+    ((productos ?? []) as Array<Record<string, unknown>>).map(p => [String(p.slug), p])
+  );
+  // Escenario A: misma puerta que crear-pago locked / convertir / iniciar_pago_wompi.
+  const disponibilidad = validarDisponibilidadLineasOferta(
+    lineas,
+    indexProductosPorSlug(
+      ((productos ?? []) as Array<Record<string, unknown>>).map(p => ({
+        slug: String(p.slug ?? ''),
+        activo: p.activo as boolean | null | undefined,
+        disponible: p.disponible as boolean | null | undefined,
+      }))
+    )
+  );
+  if (!disponibilidad.ok) {
+    return errorResponse(
+      { code: disponibilidad.code, message: disponibilidad.message },
+      disponibilidad.code === 'PRODUCTO_NO_DISPONIBLE_TEMPORAL' ? 422 : 400,
+      origin
+    );
+  }
+
   const ext =
     mime === 'application/pdf'
       ? 'pdf'
@@ -621,15 +661,6 @@ Deno.serve(async req => {
   if (uploadError) {
     return internalError(`error subiendo comprobante: ${uploadError.message}`, origin);
   }
-
-  const slugs = lineas.map(l => l.slug);
-  const { data: productos } = await supabase
-    .from('productos')
-    .select('id, slug, nombre_es, familia_id')
-    .in('slug', slugs);
-  const porSlug = new Map(
-    ((productos ?? []) as Array<Record<string, unknown>>).map(p => [String(p.slug), p])
-  );
 
   const itemsSnapshot = lineas.map(linea => {
     const producto = porSlug.get(linea.slug);
