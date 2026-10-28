@@ -178,58 +178,87 @@ const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
   'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future': 1,
 };
 
-const ROBOT_MEDIA_SEO_SLUG: Record<string, string> = {
-  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
-    'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
-  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot':
-    'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
-  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
-    'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot':
-    'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
-  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
-    'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
-  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
-    'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
-  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot':
-    'robot-limpieza-industrial-hospitalaria-autonoma-c3',
-  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot':
-    'robot-educativo-social-tercera-edad-padbot-t2',
-};
-
 function robotImportedAssetPath(slug: unknown, filename: string): string | null {
   if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
   const dir = ROBOT_IMPORT_DIR[slug] ?? slug;
   return `/assets/productos/importados/${dir}/${filename}`;
 }
 
-function robotMediaFilename(
-  slug: string,
-  role: 'robot-producto' | 'robot-galeria',
-  index?: number
-): string {
-  const seoSlug = ROBOT_MEDIA_SEO_SLUG[slug] ?? slug;
-  const suffix = typeof index === 'number' ? `-${String(index).padStart(2, '0')}` : '';
-  return `${role}-${seoSlug}${suffix}.webp`;
-}
+/**
+ * Fotos de estudio servidas desde `/assets/img/robots/`.
+ * El deploy FTP excluye `assets/productos/importados/`, así que las tarjetas
+ * no pueden depender de reemplazar esos archivos en Hostinger.
+ */
+const ROBOT_STUDIO: Record<string, { main: string; gallery: string[] }> = {
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': {
+    main: '/assets/img/robots/padbot-x3-frente-estudio.webp',
+    gallery: [
+      '/assets/img/robots/padbot-x3-frente-estudio.webp',
+      '/assets/img/robots/padbot-x3-reverso-ingenieria.webp',
+      '/assets/img/robots/padbot-x3-cutout-frontal.webp',
+    ],
+  },
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot': {
+    main: '/assets/img/robots/padbot-x2-frente-estudio.webp',
+    gallery: [
+      '/assets/img/robots/padbot-x2-frente-estudio.webp',
+      '/assets/img/robots/padbot-x2-reverso-ingenieria.webp',
+    ],
+  },
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': {
+    main: '/assets/img/robots/padbot-p2-frente-estudio.webp',
+    gallery: [
+      '/assets/img/robots/padbot-p2-frente-estudio.webp',
+      '/assets/img/robots/padbot-p2-diagrama-partes.webp',
+    ],
+  },
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot': {
+    main: '/assets/img/robots/padbot-w2-frente-locker.webp',
+    gallery: [
+      '/assets/img/robots/padbot-w2-frente-locker.webp',
+      '/assets/img/robots/padbot-w2-perfil-sensores.webp',
+    ],
+  },
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot': {
+    main: '/assets/img/robots/padbot-w3s-frente-bandejas.webp',
+    gallery: [
+      '/assets/img/robots/padbot-w3s-frente-bandejas.webp',
+      '/assets/img/robots/padbot-w3s-reverso-bandejas.webp',
+    ],
+  },
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': {
+    main: '/assets/img/robots/c3-robot-estacion-estudio.webp',
+    gallery: [
+      '/assets/img/robots/c3-robot-estacion-estudio.webp',
+      '/assets/img/robots/c3-esquema-estacion-acoplamiento.webp',
+      '/assets/img/robots/c3-esquema-controles-lidar.webp',
+    ],
+  },
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': {
+    main: '/assets/img/robots/padbot-t2-frente-estudio.webp',
+    gallery: [
+      '/assets/img/robots/padbot-t2-frente-estudio.webp',
+      '/assets/img/robots/padbot-t2-orugas-base.webp',
+    ],
+  },
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future': {
+    main: '/assets/img/robots/cruzr-frente-estudio.webp',
+    gallery: [
+      '/assets/img/robots/cruzr-frente-estudio.webp',
+      '/assets/img/robots/cruzr-arquitectura-funciones.webp',
+    ],
+  },
+};
 
 function robotImportedMainImage(slug: unknown): string | null {
-  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
-  return robotImportedAssetPath(slug, robotMediaFilename(slug, 'robot-producto'));
+  if (typeof slug !== 'string') return null;
+  return ROBOT_STUDIO[slug]?.main ?? null;
 }
 
 function robotImportedGallery(slug: unknown): string[] | null {
-  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
-  const main = robotImportedMainImage(slug);
-  if (!main) return null;
-  const count = ROBOT_IMPORT_GALLERY_COUNT[slug] ?? 0;
-  return [
-    main,
-    ...Array.from({ length: count }, (_, index) => {
-      const file = robotMediaFilename(slug, 'robot-galeria', index + 2);
-      return robotImportedAssetPath(slug, file) ?? main;
-    }),
-  ];
+  if (typeof slug !== 'string') return null;
+  const studio = ROBOT_STUDIO[slug];
+  return studio ? [...studio.gallery] : null;
 }
 
 function robotImportedPdf(slug: unknown, value: unknown): string | null {
