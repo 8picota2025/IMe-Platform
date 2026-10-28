@@ -22,7 +22,12 @@ const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
   buildBreadcrumbJsonLd([
     { name: 'Inicio', url: buildCanonical('/es/') },
-    { name: 'Robótica', url: buildCanonical('/es/robotica-rehabilitacion') },
+    {
+      name: 'Robótica',
+      url: buildCanonical(
+        '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica'
+      ),
+    },
     { name: 'Telepresencia', url: canonical },
   ])
 );
@@ -42,7 +47,11 @@ const jsonLd = combineJsonLd(
   >
     <div class="container" style="max-width:760px">
       <nav class="breadcrumb" aria-label="Ruta">
-        <a href="/es/">Inicio</a> / <a href="/es/robotica-rehabilitacion/">Robótica</a> /
+        <a href="/es/">Inicio</a> /{' '}
+        <a href="/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/"
+          >Robótica</a
+        >{' '}
+        /
         <span aria-current="page">Telepresencia</span>
       </nav>
       <h1>Robot de telepresencia hospitalaria PadBot P2 en Colombia</h1>
@@ -79,7 +88,9 @@ const jsonLd = combineJsonLd(
       )
     }
     <p>
-      <a href="/es/robotica-rehabilitacion/">Volver a robótica institucional</a>
+      <a href="/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/"
+        >Volver a distribuidores de robots en Colombia y Latinoamérica</a
+      >
       {' · '}
       <a href="/es/compras-publicas/">Compras públicas</a>
     </p>

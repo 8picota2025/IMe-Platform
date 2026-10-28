@@ -43,8 +43,8 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
     tipo: 'campana',
     clave: 'robotica_rehabilitacion',
     nombre: 'Distribuidores de robots',
-    path: '/es/robotica-rehabilitacion/',
-    pathEn: '/en/robotics-rehabilitation/',
+    path: '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/',
+    pathEn: '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/',
   },
   {
     tipo: 'campana',

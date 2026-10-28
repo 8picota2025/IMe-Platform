@@ -13,9 +13,20 @@ import {
   combineJsonLd,
 } from '../lib/seo';
 
+/**
+ * Slug canónico: keywords primarias del informe GSC + intención LatAm.
+ * ES: distribuidores de robots, ingeniería robótica, Colombia, Latinoamérica.
+ * EN: robot distributors, robotics engineering, Colombia, Latin America.
+ * La ruta corta `/es/robotica-rehabilitacion/` redirige aquí con 301.
+ */
+export const ROBOTICA_SLUG = {
+  es: 'distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica',
+  en: 'robot-distributors-and-robotics-engineering-in-colombia-and-latin-america',
+} as const;
+
 export const ROBOTICA_PATH = {
-  es: '/es/robotica-rehabilitacion/',
-  en: '/en/robotics-rehabilitation/',
+  es: `/es/${ROBOTICA_SLUG.es}/`,
+  en: `/en/${ROBOTICA_SLUG.en}/`,
 } as const;
 
 export const PHONE_DISPLAY = '+57 313 724 7353';
@@ -565,16 +576,27 @@ export const FAQS: ReadonlyArray<{ q: L10n; a: L10n }> = [
       en: 'They do not diagnose, monitor or treat a patient: they operate as automation, logistics and infrastructure. Applicable documentation is confirmed per reference, under Decree 4725 when the unit is a medical device and under the machinery standards in the manual (EN ISO 12100, EN 60335-2-72, IEC 60825-1, among others cited for the C3). I-ME does not publish a generic INVIMA registration number for the line.',
     },
   },
+  {
+    q: {
+      es: '¿I-ME distribuye robots en Colombia y también en Latinoamérica?',
+      en: 'Does I-ME distribute robots in Colombia and also in Latin America?',
+    },
+    a: {
+      es: 'El catálogo, la ingeniería de integración y el soporte electromecánico se operan desde Colombia, con visitas en Bogotá, Medellín, Cali, Barranquilla y el resto del país. I-ME también atiende proyectos de distribución e ingeniería robótica para instituciones en Latinoamérica; la logística y el alcance de cada sede se confirman en la propuesta. No publicamos sucursales ni plazos genéricos por país.',
+      en: 'The catalog, integration engineering and electromechanical support run from Colombia, with visits in Bogotá, Medellín, Cali, Barranquilla and the rest of the country. I-ME also takes distribution and robotics engineering projects for institutions in Latin America; logistics and scope for each site are confirmed in the proposal. We do not publish branches or generic lead times by country.',
+    },
+  },
 ];
 
 export const PAGE = {
   es: {
-    title: 'Distribuidores de Robots e Ingeniería Robótica en Colombia | I-ME',
+    title: 'Distribuidores de robots en Colombia y Latinoamérica | I-ME',
     description:
-      'Distribuidores de robots e ingeniería robótica en Colombia: robots de limpieza autónoma, recepción, telepresencia y logística con navegación LiDAR SLAM. Cotice con I-ME.',
-    h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia: Automatización Autónoma para Clínicas, Industria y Empresas',
-    eyebrow: 'Distribuidores de robots e ingeniería robótica en Colombia · soporte local I-ME',
-    lead: 'I-ME integra robots de servicio, limpieza autónoma, recepción, telepresencia y logística AMR para clínicas, hoteles, universidades y empresas. Ocho modelos están en catálogo. Otras arquitecturas se ingenian bajo proyecto, sin dar de alta SKUs nuevos.',
+      'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica: limpieza autónoma, recepción, telepresencia y logística con LiDAR SLAM. Cotice con I-ME.',
+    h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia y Latinoamérica',
+    eyebrow:
+      'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica · soporte I-ME',
+    lead: 'I-ME distribuye robots de servicio, limpieza autónoma, recepción, telepresencia y logística AMR para clínicas, hoteles, universidades y empresas en Colombia, y atiende proyectos de ingeniería robótica en Latinoamérica. Ocho modelos están en catálogo. Otras arquitecturas se ingenian bajo proyecto, sin dar de alta SKUs nuevos.',
     heroAlt:
       'Robot humanoide asistencial en un lobby clínico, referencia visual de robótica de servicio en Colombia',
     primaryCta: 'Cotizar ingeniería robótica',
@@ -600,7 +622,7 @@ export const PAGE = {
     stationAlt: 'Esquema del robot C3 acoplado a la estación de recarga, agua limpia y drenaje',
     stepsTitle: 'Comisionamiento en Colombia',
     stepsLead:
-      'El protocolo de I-ME cubre Bogotá, Medellín, Cali, Barranquilla y el resto del país. El alcance de cada visita queda en la propuesta.',
+      'El comisionamiento en sitio cubre Bogotá, Medellín, Cali, Barranquilla y el resto de Colombia. Los proyectos de Latinoamérica se coordinan desde esa base; el alcance de cada visita queda en la propuesta.',
     projectsTitle: 'Otras soluciones de ingeniería robótica bajo proyecto',
     projectsLead:
       'Capacidades de los fabricantes aliados que I-ME puede integrar. No son fichas nuevas del catálogo y no se venden como un SKU publicado.',
@@ -625,12 +647,12 @@ export const PAGE = {
       'La documentación regulatoria se confirma por referencia. Esta página no publica registros INVIMA, códigos UNSPSC ni precios.',
   },
   en: {
-    title: 'Robot Distributors & Robotics Engineering in Colombia | I-ME',
+    title: 'Robot Distributors in Colombia and Latin America | I-ME',
     description:
-      'Authorized robot distributors and robotics engineering in Colombia: autonomous cleaning, reception, telepresence and hospital delivery robots with LiDAR SLAM. Contact I-ME.',
-    h1: 'Robot Distributors and Robotics Engineering in Colombia: Autonomous Service, Cleaning & Logistics Solutions',
-    eyebrow: 'Robot distributors and robotics engineering in Colombia · local I-ME support',
-    lead: 'I-ME integrates service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies. Eight models are in the catalog. Other architectures are engineered per project, without new SKUs.',
+      'Robot distributors and robotics engineering in Colombia and Latin America: autonomous cleaning, reception, telepresence and logistics with LiDAR SLAM. Contact I-ME.',
+    h1: 'Robot Distributors and Robotics Engineering in Colombia and Latin America',
+    eyebrow: 'Robot distributors and robotics engineering in Colombia and Latin America · I-ME',
+    lead: 'I-ME distributes service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight models are in the catalog. Other architectures are engineered per project, without new SKUs.',
     heroAlt:
       'Assistive humanoid robot in a clinical lobby, a visual reference for service robotics in Colombia',
     primaryCta: 'Request robotics engineering',
@@ -656,7 +678,7 @@ export const PAGE = {
     stationAlt: 'Drawing of the C3 robot docked to the recharge, clean-water and drain station',
     stepsTitle: 'Commissioning in Colombia',
     stepsLead:
-      'The I-ME protocol covers Bogotá, Medellín, Cali, Barranquilla and the rest of the country. Each visit scope is written into the proposal.',
+      'On-site commissioning covers Bogotá, Medellín, Cali, Barranquilla and the rest of Colombia. Latin American projects are scoped from that base; each visit is written into the proposal.',
     projectsTitle: 'Other robotics engineering solutions supplied per project',
     projectsLead:
       'Capabilities from allied manufacturers that I-ME can integrate. They are not new catalog sheets and are not sold as a published SKU.',

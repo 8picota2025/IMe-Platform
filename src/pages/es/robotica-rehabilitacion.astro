@@ -1,7 +1,27 @@
 ---
-import RoboticaIngenieriaLanding from '../../components/RoboticaIngenieriaLanding.astro';
+/**
+ * Ruta histórica. El .htaccess responde 301 a la canónica de Colombia y Latinoamérica.
+ * Se genera para que los enlaces ya publicados tengan destino, y queda fuera del sitemap.
+ */
+import Layout from '../../layouts/Layout.astro';
+import { buildCanonical } from '../../lib/seo';
 
-const locale = 'es' as const;
+const canonical = buildCanonical(
+  '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica'
+);
 ---
 
-<RoboticaIngenieriaLanding locale={locale} />
+<Layout
+  title="Distribuidores de robots en Colombia y Latinoamérica | I-ME"
+  description="Esta dirección ahora abre la landing de distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica."
+  canonical={canonical}
+  locale="es"
+  currentPath="/es/robotica-rehabilitacion"
+  noindex={true}
+>
+  <p class="container" style="padding:8rem 0 4rem">
+    <a href={canonical}
+      >Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica</a
+    >
+  </p>
+</Layout>
