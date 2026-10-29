@@ -27,13 +27,18 @@ interface Props {
   locale: Locale;
   seoH1?: string;
   seoIntro?: string;
+  enlaces?: Array<{ href: string; label: string }>;
 }
 
-const { producto, familia, relacionados, locale, seoH1, seoIntro } = Astro.props;
+const { producto, familia, relacionados, locale, seoH1, seoIntro, enlaces = [] } = Astro.props;
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 
-const especificaciones = normalizarEspecificaciones(producto.especificaciones);
+const especificaciones = normalizarEspecificaciones(
+  locale === 'en' && producto.especificaciones_en && producto.especificaciones_en.length > 0
+    ? producto.especificaciones_en
+    : producto.especificaciones
+);
 const grupos = new Map<string, typeof especificaciones>();
 for (const espec of especificaciones) {
   const grupo = espec.grupo ?? '';
@@ -106,7 +111,7 @@ const disponibilidadTexto = noDisponible
       : t(locale, 'producto.ficha_disponible');
 const productSegment = locale === 'en' ? 'products' : 'productos';
 const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.slug}/`;
-const modelo = especificaciones.find(item => item.clave.toLowerCase() === 'modelo')?.valor;
+const modelo = especificaciones.find(item => /^(modelo|model)$/i.test(item.clave))?.valor;
 const referencia = modelo?.trim() || producto.sku?.trim() || null;
 const disponibleParaMostrar = !noDisponible && producto.stock !== 0;
 const stockMax =
@@ -176,6 +181,10 @@ const migas = [
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 const confianza = datosConfianzaProducto(especificaciones);
 const h1Visible = seoH1?.trim() || producto.nombre;
+const altPorIndice = producto.galeria_alt ?? [];
+const altPrincipal = producto.alt_imagen?.trim() || h1Visible;
+const imagenAncho = producto.imagen_ancho ?? 640;
+const imagenAlto = producto.imagen_alto ?? 480;
 const enlaceTensiometros = enlaceFamiliaTensiometro(locale, producto.slug);
 const serviciosHref = locale === 'en' ? '/en/services/' : '/es/servicios/';
 const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
@@ -231,9 +240,9 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                 <source srcset={heroImageWebp} type="image/webp" />
                 <img
                   src={imagenes[0]}
-                  alt={producto.nombre}
-                  width="640"
-                  height="480"
+                  alt={altPrincipal}
+                  width={imagenAncho}
+                  height={imagenAlto}
                   decoding="async"
                   fetchpriority="high"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -245,9 +254,9 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
             ) : (
               <img
                 src={imagenes[0]}
-                alt={producto.nombre}
-                width="640"
-                height="480"
+                alt={altPrincipal}
+                width={imagenAncho}
+                height={imagenAlto}
                 decoding="async"
                 fetchpriority="high"
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -284,7 +293,10 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                     data-galeria-index={index}
                     data-pdp-thumb
                     aria-current={index === 0 ? 'true' : undefined}
-                    aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
+                    aria-label={`${t(locale, 'producto.galeria_abrir')}: ${altPorIndice[index] || altPrincipal} ${index + 1}/${imagenes.length}`}
+                    data-alt={altPorIndice[index] || altPrincipal}
+                    data-width={index === 0 ? imagenAncho : undefined}
+                    data-height={index === 0 ? imagenAlto : undefined}
                   >
                     <img
                       src={getOptimizedImageUrl(src, 160, 'webp')}
@@ -339,6 +351,19 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               <p class="pdp-identity__desc">
                 <a href={enlaceTensiometros.href}>{enlaceTensiometros.label}</a>
               </p>
+            )
+          }
+          {
+            enlaces.length > 0 && (
+              <nav class="pdp-identity__desc" aria-label={locale === 'en' ? 'Related pages' : 'Páginas relacionadas'}>
+                <ul>
+                  {enlaces.map(enlace => (
+                    <li>
+                      <a href={enlace.href}>{enlace.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             )
           }
           {muestraPromoPadbot(producto.slug) && <NotaPromoPadbot locale={locale} />}
@@ -2073,6 +2098,19 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     line-height: 1.6;
     max-width: 52ch;
   }
+  .pdp-identity nav ul {
+    margin: 0.25rem 0 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .pdp-identity nav a {
+    color: var(--t900);
+  }
+  .pdp-identity nav a:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
   .pdp-identity__trust {
     list-style: none;
     margin: 0 0 0.85rem;
@@ -2997,6 +3035,12 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
       const thumbImg = btn.querySelector('img');
       if (mainImg && thumbImg) {
         mainImg.src = thumbImg.currentSrc || thumbImg.src;
+        const alt = btn.dataset['alt'];
+        if (alt) mainImg.alt = alt;
+        const ancho = Number(btn.dataset['width']);
+        const alto = Number(btn.dataset['height']);
+        if (Number.isFinite(ancho) && ancho > 0) mainImg.width = ancho;
+        if (Number.isFinite(alto) && alto > 0) mainImg.height = alto;
       }
       document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach((other, i) => {
         if (i === index) other.setAttribute('aria-current', 'true');

@@ -3,6 +3,7 @@
  * No cambia el nombre de catálogo ni inventa precio, marca o ficha.
  */
 import type { Locale } from '../i18n/utils';
+import { seoZuowei } from './zuowei-catalogo';
 
 export interface ProductoSeoCopy {
   title: string;
@@ -87,5 +88,5 @@ const COPY: Record<string, { es: ProductoSeoCopy; en: ProductoSeoCopy }> = {
 };
 
 export function getProductoSeoCopy(slug: string, locale: Locale): ProductoSeoCopy | undefined {
-  return COPY[slug]?.[locale];
+  return COPY[slug]?.[locale] ?? seoZuowei(slug, locale);
 }

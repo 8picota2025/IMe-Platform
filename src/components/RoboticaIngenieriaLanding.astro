@@ -25,6 +25,7 @@ import {
   l10n,
   pageCopy,
 } from '../data/robotica-ingenieria';
+import { rehabZuowei } from '../data/zuowei-catalogo';
 
 interface Props {
   locale: Locale;
@@ -45,6 +46,14 @@ const whatsapp = buildWhatsAppHref(
 const hero = '/assets/img/robots-asistenciales-atencion-institucional-colombia.webp';
 const station = '/assets/img/robots/c3-esquema-estacion-acoplamiento.webp';
 const jsonLd = buildRoboticaJsonLd(locale);
+const rehabCards = rehabZuowei().map(producto => ({
+  producto,
+  quote: buildWhatsAppHref(
+    isEn
+      ? `Hello, I want a quote for the Zuowei ${producto.sku}.`
+      : `Hola, quiero cotizar el Zuowei ${producto.sku}.`
+  ),
+}));
 ---
 
 <Layout
@@ -183,6 +192,52 @@ const jsonLd = buildRoboticaJsonLd(locale);
               ))
             }
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rbo-section" aria-labelledby="rbo-rehab">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-rehab">{copy.rehabTitle}</h2>
+          <p>{copy.rehabLead}</p>
+        </header>
+        <div class="rbo-grid">
+          {
+            rehabCards.map(({ producto, quote }) => {
+              const principal = producto.imagenes[0];
+              return (
+                <article class="rbo-card">
+                  <img
+                    src={principal?.src}
+                    alt={isEn ? principal?.alt_en : principal?.alt_es}
+                    width={principal?.ancho}
+                    height={principal?.alto}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div class="rbo-card__body">
+                    <p class="rbo-sku">{producto.sku}</p>
+                    <h3>{isEn ? producto.nombre_en : producto.nombre_es}</h3>
+                    <p class="rbo-role">{l10n(locale, producto.role)}</p>
+                    <p>{l10n(locale, producto.summary)}</p>
+                    <dl>
+                      {producto.cardSpecs.map(spec => (
+                        <div>
+                          <dt>{l10n(locale, spec.label)}</dt>
+                          <dd>{l10n(locale, spec.value)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <div class="rbo-card__links">
+                      <a href={`${copy.productBase}${producto.slug}/`}>{copy.sheetCta}</a>
+                      <a href={quote} target="_blank" rel="noopener noreferrer">{copy.rehabQuote}</a>
+                    </div>
+                  </div>
+                </article>
+              );
+            })
+          }
         </div>
       </div>
     </section>

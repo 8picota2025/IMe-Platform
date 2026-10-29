@@ -708,5 +708,55 @@
     "nombre_en": "Sillas de evacuación y traslado",
     "orden": 999,
     "activo": true
+  },
+  {
+    "id": "a1e7c3d2-6b48-4f0a-9c11-7d2e8f4a1b01",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "exoesqueletos",
+    "nombre_es": "Exoesqueletos",
+    "nombre_en": "Exoskeletons",
+    "orden": 70,
+    "activo": true
+  },
+  {
+    "id": "a1e7c3d2-6b48-4f0a-9c11-7d2e8f4a1b02",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "bipedestacion-y-marcha",
+    "nombre_es": "Bipedestación y marcha",
+    "nombre_en": "Standing and gait",
+    "orden": 80,
+    "activo": true
+  },
+  {
+    "id": "a1e7c3d2-6b48-4f0a-9c11-7d2e8f4a1b03",
+    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
+    "familia_slug": "movilidad-rehabilitacion",
+    "slug": "sillas-de-transferencia",
+    "nombre_es": "Sillas de transferencia",
+    "nombre_en": "Transfer chairs",
+    "orden": 70,
+    "activo": true
+  },
+  {
+    "id": "a1e7c3d2-6b48-4f0a-9c11-7d2e8f4a1b04",
+    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
+    "familia_slug": "movilidad-rehabilitacion",
+    "slug": "scooters-electricos",
+    "nombre_es": "Scooters eléctricos",
+    "nombre_en": "Mobility scooters",
+    "orden": 80,
+    "activo": true
+  },
+  {
+    "id": "a1e7c3d2-6b48-4f0a-9c11-7d2e8f4a1b05",
+    "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
+    "familia_slug": "actividades-vida-diaria",
+    "slug": "higiene-en-cama",
+    "nombre_es": "Higiene en cama",
+    "nombre_en": "Bed bathing",
+    "orden": 70,
+    "activo": true
   }
 ]

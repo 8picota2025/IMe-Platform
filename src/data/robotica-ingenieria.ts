@@ -4,6 +4,7 @@
  * 2026-10-28. Sin precios, sin registros INVIMA inventados y sin SKUs nuevos.
  */
 import type { Locale } from '../i18n/utils';
+import { rehabZuowei } from './zuowei-catalogo';
 import {
   buildBreadcrumbJsonLd,
   buildCanonical,
@@ -532,8 +533,8 @@ export const FAQS: ReadonlyArray<{ q: L10n; a: L10n }> = [
       en: 'Who distributes service, cleaning and telepresence robots in Colombia?',
     },
     a: {
-      es: `I-ME (International Medical Enterprise IME S.A.S.) distribuye en Colombia los ocho robots del catálogo activo: PadBot X3, PadBot X2, PadBot P2, PadBot W2, PadBot W3s, robot C3 de limpieza autónoma, PadBot T2 y Cruzr (AHuman Future). La cotización y el alcance de instalación se confirman por proyecto. WhatsApp ${PHONE_DISPLAY} · ${EMAIL}.`,
-      en: `I-ME (International Medical Enterprise IME S.A.S.) distributes in Colombia the eight robots in the active catalog: PadBot X3, PadBot X2, PadBot P2, PadBot W2, PadBot W3s, the C3 autonomous cleaning robot, PadBot T2 and Cruzr (AHuman Future). Quote and installation scope are confirmed per project. WhatsApp ${PHONE_DISPLAY} · ${EMAIL}.`,
+      es: `I-ME (International Medical Enterprise IME S.A.S.) distribuye en Colombia los ocho robots de servicio del catálogo activo: PadBot X3, PadBot X2, PadBot P2, PadBot W2, PadBot W3s, robot C3 de limpieza autónoma, PadBot T2 y Cruzr (AHuman Future). La rehabilitación de la marcha suma el exoesqueleto Zuowei ZW568, el exoesqueleto Zuowei ZW598 y la silla de bipedestación Zuowei ZW518. La cotización y el alcance de instalación se confirman por proyecto. WhatsApp ${PHONE_DISPLAY} · ${EMAIL}.`,
+      en: `I-ME (International Medical Enterprise IME S.A.S.) distributes in Colombia the eight service robots in the active catalog: PadBot X3, PadBot X2, PadBot P2, PadBot W2, PadBot W3s, the C3 autonomous cleaning robot, PadBot T2 and Cruzr (AHuman Future). Gait rehabilitation adds the Zuowei ZW568 exoskeleton, the Zuowei ZW598 exoskeleton and the Zuowei ZW518 standing chair. Quote and installation scope are confirmed per project. WhatsApp ${PHONE_DISPLAY} · ${EMAIL}.`,
     },
   },
   {
@@ -596,7 +597,7 @@ export const PAGE = {
     h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia y Latinoamérica',
     eyebrow:
       'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica · soporte I-ME',
-    lead: 'I-ME distribuye robots de servicio, limpieza autónoma, recepción, telepresencia y logística AMR para clínicas, hoteles, universidades y empresas en Colombia, y atiende proyectos de ingeniería robótica en Latinoamérica. Ocho modelos están en catálogo. Otras arquitecturas se ingenian bajo proyecto, sin dar de alta SKUs nuevos.',
+    lead: 'I-ME distribuye robots de servicio, limpieza autónoma, recepción, telepresencia y logística AMR para clínicas, hoteles, universidades y empresas en Colombia, y atiende proyectos de ingeniería robótica en Latinoamérica. Ocho robots de servicio están en catálogo. La rehabilitación de la marcha suma los Zuowei ZW568, ZW598 y ZW518. Otras arquitecturas se ingenian bajo proyecto.',
     heroAlt:
       'Robot humanoide asistencial en un lobby clínico, referencia visual de robótica de servicio en Colombia',
     primaryCta: 'Cotizar ingeniería robótica',
@@ -645,6 +646,10 @@ export const PAGE = {
     productBase: '/es/productos/',
     regulatory:
       'La documentación regulatoria se confirma por referencia. Esta página no publica registros INVIMA, códigos UNSPSC ni precios.',
+    rehabTitle: 'Nuevo · Rehabilitación de la marcha',
+    rehabLead:
+      'Exoesqueletos Zuowei ZW568 y ZW598, y silla de bipedestación Zuowei ZW518. Precio bajo cotización. Garantía del fabricante Shenzhen Zuowei Technology.',
+    rehabQuote: 'Solicitar cotización',
   },
   en: {
     title: 'Robot Distributors in Colombia and Latin America | I-ME',
@@ -652,7 +657,7 @@ export const PAGE = {
       'Robot distributors and robotics engineering in Colombia and Latin America: autonomous cleaning, reception, telepresence and logistics with LiDAR SLAM. Contact I-ME.',
     h1: 'Robot Distributors and Robotics Engineering in Colombia and Latin America',
     eyebrow: 'Robot distributors and robotics engineering in Colombia and Latin America · I-ME',
-    lead: 'I-ME distributes service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight models are in the catalog. Other architectures are engineered per project, without new SKUs.',
+    lead: 'I-ME distributes service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight service robots are in the catalog. Gait rehabilitation adds the Zuowei ZW568, ZW598 and ZW518. Other architectures are engineered per project.',
     heroAlt:
       'Assistive humanoid robot in a clinical lobby, a visual reference for service robotics in Colombia',
     primaryCta: 'Request robotics engineering',
@@ -701,6 +706,10 @@ export const PAGE = {
     productBase: '/en/products/',
     regulatory:
       'Applicable documentation is confirmed per reference. This page does not publish INVIMA registrations, UNSPSC codes or prices.',
+    rehabTitle: 'New · Gait rehabilitation',
+    rehabLead:
+      'Zuowei ZW568 and ZW598 exoskeletons, and the Zuowei ZW518 standing chair. Price on request. Manufacturer warranty from Shenzhen Zuowei Technology.',
+    rehabQuote: 'Request a quote',
   },
 };
 
@@ -944,6 +953,13 @@ export function buildRoboticaJsonLd(locale: Locale): string {
       items: ROBOTS.map(robot => ({
         name: robot.model,
         url: buildCanonical(`${copy.productBase}${robot.slug}`),
+      })),
+    }),
+    buildUrlItemList({
+      name: copy.rehabTitle,
+      items: rehabZuowei().map(producto => ({
+        name: locale === 'en' ? producto.nombre_en : producto.nombre_es,
+        url: buildCanonical(`${copy.productBase}${producto.slug}`),
       })),
     }),
     {

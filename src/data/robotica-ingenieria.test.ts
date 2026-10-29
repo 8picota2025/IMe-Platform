@@ -88,6 +88,13 @@ describe('landing de distribuidores de robots', () => {
         itemListElement: unknown[];
       };
       expect(list.itemListElement).toHaveLength(8);
+      const lists = graph['@graph'].filter(node => node['@type'] === 'ItemList') as unknown as Array<{
+        name: string;
+        itemListElement: unknown[];
+      }>;
+      expect(lists).toHaveLength(2);
+      expect(lists[1]?.itemListElement).toHaveLength(3);
+      expect(lists[1]?.name).toMatch(/Rehabilitación de la marcha|Gait rehabilitation/);
     }
   });
 
@@ -118,5 +125,15 @@ describe('landing de distribuidores de robots', () => {
     );
     expect(es).toContain('RoboticaIngenieriaLanding');
     expect(en).toContain('RoboticaIngenieriaLanding');
+  });
+
+  it('añade ZW568, ZW598 y ZW518 sin precio ni 110 V', () => {
+    const texto = textoPublico();
+    expect(texto).toContain('ZW568');
+    expect(texto).toContain('ZW598');
+    expect(texto).toContain('ZW518');
+    expect(texto).not.toMatch(/110\s*V/);
+    expect(PAGE.es.rehabTitle).toContain('Rehabilitación de la marcha');
+    expect(PAGE.en.rehabTitle).toContain('Gait rehabilitation');
   });
 });
