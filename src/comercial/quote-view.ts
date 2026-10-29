@@ -36,6 +36,7 @@ import {
   trackCommercialUsage,
 } from './shared';
 import { COTIZACION_ESTADOS } from '../lib/cotizacion-estado';
+import { bindQuotePriceIntelligence } from '../lib/price-intelligence-picker';
 import {
   archivarQuote,
   cambiarEstadoQuote,
@@ -585,6 +586,7 @@ function comboboxHtml(): string {
         <button class="comercial-button comercial-button--ghost" type="button" data-quote-ingest-pdf>Importar ficha PDF → producto</button>
         <input type="file" accept="application/pdf,.pdf" data-quote-ingest-file hidden />
         <button class="comercial-button comercial-button--ghost" type="button" data-quote-add-free>Añadir línea libre</button>
+        <button class="comercial-button comercial-button--ghost" type="button" data-price-intel-open>Buscar en Inteligencia de Precios</button>
       </div>
     </div>`;
 }
@@ -611,6 +613,7 @@ function linesHtml(
             <input class="comercial-input" data-linea-nombre-en value="${escapeHtml(l.nombre_en ?? '')}" placeholder="Nombre en inglés (opcional)" aria-label="Nombre en inglés" ${disabled} />
             <textarea class="comercial-input" data-linea-notas-en rows="2" placeholder="Especificaciones en inglés (opcional)" aria-label="Especificaciones en inglés" ${disabled}>${escapeHtml(l.notas_en ?? '')}</textarea>
             ${editable ? '<button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-linea-specs-catalogo>Traer del catálogo</button>' : ''}
+            ${editable ? '<button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-price-intel-line>Buscar en Inteligencia de Precios</button>' : ''}
             ${missing ? '<span class="comercial-badge comercial-badge--status-warn">Sin precio</span>' : ''}
             ${pendiente ? '<span class="comercial-badge comercial-badge--status-warn">Pendiente validar</span>' : ''}
           </div>
@@ -685,9 +688,11 @@ function readForm(root: HTMLElement): {
     if (tratamiento) linea.tratamiento_iva = tratamiento;
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
-    const nombreEn = row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
+    const nombreEn =
+      row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
     if (nombreEn) linea.nombre_en = nombreEn;
-    const notasEn = row.querySelector<HTMLTextAreaElement>('[data-linea-notas-en]')?.value.trim() ?? '';
+    const notasEn =
+      row.querySelector<HTMLTextAreaElement>('[data-linea-notas-en]')?.value.trim() ?? '';
     if (notasEn) linea.notas_en = notasEn;
     productos.push(linea);
   });
@@ -1449,6 +1454,22 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       trigger: editor.querySelector<HTMLElement>('[data-quote-ingest-pdf]'),
       fileInput: editor.querySelector<HTMLInputElement>('[data-quote-ingest-file]'),
       modalSlot: container.querySelector<HTMLElement>('[data-quote-modal-slot]'),
+    });
+    bindQuotePriceIntelligence({
+      root: editor,
+      supabase,
+      escapeHtml,
+      toast,
+      getMoneda: () =>
+        editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
+          ? 'USD'
+          : 'COP',
+      modalSlot: container.querySelector<HTMLElement>('[data-quote-modal-slot]'),
+      onAddLine: addQuoteLine,
+      onApplied: () => {
+        setDirty(true);
+        refreshTotals(editor);
+      },
     });
   }
 

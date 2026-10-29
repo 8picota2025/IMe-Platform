@@ -31,6 +31,12 @@ import {
 } from '../lib/comercio-operacion';
 import { renderMarkdown } from '../lib/markdown';
 import { bindLandings, landingsView, type LandingsAdminCtx } from './landings-admin';
+import {
+  bindPriceIntelligence,
+  priceIntelligenceView,
+  type PriceIntelAdminCtx,
+} from './price-intelligence-admin';
+import { bindQuotePriceIntelligence } from '../lib/price-intelligence-picker';
 import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import type { AuthChangeEvent } from '@supabase/supabase-js';
@@ -166,7 +172,8 @@ type View =
   | 'propuestas'
   | 'ingesta'
   | 'asesor'
-  | 'compra-directa';
+  | 'compra-directa'
+  | 'inteligencia-precios';
 
 type Row = Record<string, unknown>;
 
@@ -373,6 +380,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'landings',
     'propuestas',
     'compra-directa',
+    'inteligencia-precios',
   ]),
   ventas: new Set<View>([
     'dashboard',
@@ -399,6 +407,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'landings',
     'propuestas',
     'compra-directa',
+    'inteligencia-precios',
   ]),
   operaciones: new Set<View>([
     'dashboard',
@@ -414,6 +423,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'envios',
     'plantillas',
     'reportes',
+    'inteligencia-precios',
   ]),
   lectura: new Set<View>(['dashboard', 'reportes', 'marketing']),
 };
@@ -571,7 +581,8 @@ function parseView(hash: string): View {
     raw === 'propuestas' ||
     raw === 'ingesta' ||
     raw === 'asesor' ||
-    raw === 'compra-directa'
+    raw === 'compra-directa' ||
+    raw === 'inteligencia-precios'
   ) {
     return raw === 'blog' ? 'conocimiento' : raw;
   }
@@ -783,6 +794,17 @@ function renderNewPassword() {
   });
 }
 
+function priceIntelCtx(): PriceIntelAdminCtx {
+  return {
+    supabase: supabase!,
+    escapeHtml,
+    toast,
+    rerender: render,
+    canDelete:
+      !state.rol || state.rol === 'owner' || state.rol === 'admin' || state.rol === 'operaciones',
+  };
+}
+
 /** Dependencias del editor de landings (Fase 3B), que vive en su propio módulo. */
 function landingsCtx(): LandingsAdminCtx {
   return {
@@ -840,6 +862,11 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'asesor') return { title: 'Asesor', body: await asesorView() };
   if (state.view === 'compra-directa')
     return { title: 'Compra directa', body: await compraDirectaView() };
+  if (state.view === 'inteligencia-precios')
+    return {
+      title: 'Inteligencia de precios',
+      body: await priceIntelligenceView(priceIntelCtx()),
+    };
   return { title: 'Dashboard', body: await dashboardView() };
 }
 
@@ -864,6 +891,7 @@ function shellHtml(title: string, body: string): string {
         ['crm', 'CRM'],
         ['clientes', 'Clientes'],
         ['cotizaciones', 'Presupuestos'],
+        ['inteligencia-precios', 'Inteligencia de precios'],
         ['pedidos', 'Pedidos'],
         ['facturas', 'Facturas'],
         ['cupones', 'Cupones'],
@@ -1001,6 +1029,7 @@ function bindView() {
   bindAsesorPanel();
   bindCompraDirecta();
   if (state.view === 'landings') bindLandings(landingsCtx());
+  if (state.view === 'inteligencia-precios') bindPriceIntelligence(priceIntelCtx());
 }
 
 async function plantillasView(): Promise<string> {
@@ -4286,6 +4315,7 @@ function cotizacionLineaRowHtml(
           <input class="admin-inline-input" type="text" data-linea-nombre-en value="${escapeHtml(line.nombre_en ?? '')}" placeholder="Nombre en inglés (opcional)" aria-label="Nombre en inglés" ${disabled} />
           <textarea class="admin-inline-input" data-linea-notas-en rows="2" placeholder="Especificaciones en inglés (opcional)" aria-label="Especificaciones en inglés" ${disabled}>${escapeHtml(line.notas_en ?? '')}</textarea>
           ${readOnly ? '' : '<button class="admin-button admin-button--ghost" type="button" data-linea-specs-catalogo>Traer del catálogo</button>'}
+          ${readOnly ? '' : '<button class="admin-button admin-button--ghost" type="button" data-price-intel-line>Buscar en Inteligencia de Precios</button>'}
           <span data-linea-aviso>${
             pendiente
               ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
@@ -4325,6 +4355,7 @@ function cotizacionLineasEditorHtml(
         <ul data-cotizacion-catalog-suggest hidden class="quote-ingest-suggest"></ul>
       </label>
       <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ingest-pdf>Importar ficha PDF → producto</button>
+      <button class="admin-button admin-button--ghost" type="button" data-price-intel-open>Buscar en Inteligencia de Precios</button>
       <input type="file" accept="application/pdf,.pdf" data-cotizacion-ingest-file hidden />
     </div>
     <div class="cotizacion-catalog-tools" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
@@ -9252,9 +9283,11 @@ function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
     if (tratamiento) linea.tratamiento_iva = tratamiento;
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
-    const nombreEn = row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
+    const nombreEn =
+      row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
     if (nombreEn) linea.nombre_en = nombreEn;
-    const notasEn = row.querySelector<HTMLTextAreaElement>('[data-linea-notas-en]')?.value.trim() ?? '';
+    const notasEn =
+      row.querySelector<HTMLTextAreaElement>('[data-linea-notas-en]')?.value.trim() ?? '';
     if (notasEn) linea.notas_en = notasEn;
     return linea;
   });
@@ -9744,6 +9777,22 @@ function bindCotizaciones() {
       fileInput: app.querySelector<HTMLInputElement>('[data-cotizacion-ingest-file]'),
       modalSlot: app.querySelector<HTMLElement>('[data-cotizacion-modal-slot]'),
     });
+    bindQuotePriceIntelligence({
+      root: app,
+      supabase,
+      escapeHtml,
+      toast,
+      getMoneda: () =>
+        normalizarMonedaCotizacion(
+          app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+        ),
+      modalSlot: app.querySelector<HTMLElement>('[data-cotizacion-modal-slot]'),
+      onAddLine: appendAdminQuoteLine,
+      onApplied: () => {
+        cotizacionDirty = true;
+        syncCotizacionTotalesDom();
+      },
+    });
   }
 
   const ofertaForm = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
@@ -10024,7 +10073,11 @@ function bindCotizaciones() {
         moneda: validated.moneda,
         mercado: validated.mercado,
         locale: 'es',
-        idioma: idiomaOfertaAdmin(validated.moneda, validated.datosOferta, validated.condicionesDom),
+        idioma: idiomaOfertaAdmin(
+          validated.moneda,
+          validated.datosOferta,
+          validated.condicionesDom
+        ),
         productos: validated.lineasConMoneda,
         impuestos_incluidos: validated.datosOferta.get('impuestos_incluidos') === 'on',
       };
