@@ -22,7 +22,6 @@ import mockProductos from '../data/mock-productos.json';
 import { esProductoDePrueba } from './productos-prueba';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
-import { vistasZuowei } from '../data/zuowei-catalogo';
 
 let supabaseDeshabilitadoPorError = false;
 type RawRow = Record<string, unknown>;
@@ -837,15 +836,6 @@ function camposZuowei(
   };
 }
 
-function anexarCatalogoZuowei(lista: Producto[], locale: Locale, pageSize: number): Producto[] {
-  if (pageSize < 1000) return lista;
-  const presentes = new Set(lista.map(producto => producto.slug));
-  const extra = (vistasZuowei(locale) as unknown as Producto[]).filter(
-    producto => !presentes.has(producto.slug)
-  );
-  return extra.length > 0 ? [...extra, ...lista] : lista;
-}
-
 export async function getProductos(filtros: FiltrosProductos, locale: Locale): Promise<Producto[]> {
   const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros;
 
@@ -873,11 +863,9 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
       if (lote.length < hasta - desde + 1) break; // no hay más filas
     }
     if (!error && filas.length > 0) {
-      return anexarCatalogoZuowei(
-        filas.filter(raw => !esProductoDePrueba(raw.slug)).map(raw => mapProductoSupabase(raw, locale)),
-        locale,
-        pageSize
-      );
+      return filas
+        .filter(raw => !esProductoDePrueba(raw.slug))
+        .map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductos', error);
     else if (!familia) registrarVacioSupabase('getProductos');
@@ -894,11 +882,7 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
     );
   }
   const start = (page - 1) * pageSize;
-  return anexarCatalogoZuowei(
-    lista.slice(start, start + pageSize).map(p => mapProducto(p, locale)),
-    locale,
-    pageSize
-  );
+  return lista.slice(start, start + pageSize).map(p => mapProducto(p, locale));
 }
 
 export async function getProductoBySlug(slug: string, locale: Locale): Promise<Producto | null> {
@@ -917,8 +901,7 @@ export async function getProductoBySlug(slug: string, locale: Locale): Promise<P
     if (error) registrarErrorSupabase('getProductoBySlug', error);
   }
   const found = mockProductos.find(p => p.slug === slug && p.activo);
-  if (found) return mapProducto(found, locale);
-  return (vistasZuowei(locale) as unknown as Producto[]).find(producto => producto.slug === slug) ?? null;
+  return found ? mapProducto(found, locale) : null;
 }
 
 export async function getProductosDestacados(locale: Locale): Promise<Producto[]> {
@@ -935,25 +918,15 @@ export async function getProductosBySlugs(slugs: string[], locale: Locale): Prom
       .in('slug', slugs)
       .eq('activo', true);
     if (!error && data) {
-      const lista = data
+      return data
         .filter(raw => !esProductoDePrueba(raw.slug))
         .map(raw => mapProductoSupabase(raw, locale));
-      const presentes = new Set(lista.map(producto => producto.slug));
-      const extra = (vistasZuowei(locale) as unknown as Producto[]).filter(
-        producto => slugs.includes(producto.slug) && !presentes.has(producto.slug)
-      );
-      return [...lista, ...extra];
     }
     if (error) registrarErrorSupabase('getProductosBySlugs', error);
   }
-  const mock = mockProductos
+  return mockProductos
     .filter(p => slugs.includes(p.slug) && p.activo && !esProductoDePrueba(p.slug))
     .map(p => mapProducto(p, locale));
-  const presentes = new Set(mock.map(producto => producto.slug));
-  const extra = (vistasZuowei(locale) as unknown as Producto[]).filter(
-    producto => slugs.includes(producto.slug) && !presentes.has(producto.slug)
-  );
-  return [...mock, ...extra];
 }
 
 export async function buscarProductos(query: string, locale: Locale): Promise<Producto[]> {
