@@ -150,8 +150,8 @@ export const ROBOTS: readonly CatalogRobot[] = [
     height: 1200,
     pdf: '/assets/productos/importados/padbot-p2-robot-telepresencia/ficha-padbot-p2-robot-telepresencia.pdf',
     role: {
-      es: 'Telepresencia médica y rondas clínicas',
-      en: 'Medical telepresence and clinical rounds',
+      es: 'Telepresencia y comunicación en instalaciones',
+      en: 'Telepresence and on-site communication',
     },
     summary: {
       es: 'Videollamada HD en uno o dos sentidos con control remoto del desplazamiento y de la inclinación del cabezal. Seguimiento facial, comando de acercamiento y PadBot AI Brain opcional.',
@@ -185,12 +185,12 @@ export const ROBOTS: readonly CatalogRobot[] = [
     height: 1200,
     pdf: '/assets/productos/importados/padbot-w2-robot-delivery-institucional/ficha-padbot-w2-robot-delivery-institucional.pdf',
     role: {
-      es: 'Logística intrahospitalaria con gabinete PIN/QR',
-      en: 'In-hospital logistics with PIN/QR cabinet',
+      es: 'Logística interna con gabinete PIN/QR',
+      en: 'Internal logistics with PIN/QR cabinet',
     },
     summary: {
-      es: 'Gabinete motorizado que abre con código PIN o QR para muestras, medicamentos o documentos. Retorno automático tras 3 min. Conmutación multimapa, ascensores y torniquetes.',
-      en: 'Motorized cabinet opened by PIN or QR for samples, medication or documents. Automatic return after 3 min. Multi-map switching, elevators and turnstiles.',
+      es: 'Gabinete motorizado que abre con código PIN o QR para el transporte interno de insumos y documentos. Retorno automático tras 3 min. Conmutación multimapa, ascensores y torniquetes.',
+      en: 'Motorized cabinet opened by PIN or QR for internal transport of supplies and documents. Automatic return after 3 min. Multi-map switching, elevators and turnstiles.',
     },
     specs: [
       {
@@ -296,8 +296,8 @@ export const ROBOTS: readonly CatalogRobot[] = [
     height: 1200,
     pdf: '/assets/productos/importados/padbot-t2-robot-educativo-social/ficha-padbot-t2-robot-educativo-social.pdf',
     role: {
-      es: 'Educación STEM, acompañamiento social y pediátrico',
-      en: 'STEM education, social and pediatric companionship',
+      es: 'Educación STEM y acompañamiento social',
+      en: 'STEM education and social companionship',
     },
     summary: {
       es: 'Conversación sin palabra de activación, videollamada con control desde la app y tracción por orugas. Recordatorios de hábitos y límites de uso configurables. No es un dispositivo de diagnóstico.',
@@ -341,8 +341,8 @@ export const ROBOTS: readonly CatalogRobot[] = [
       en: 'Commercial humanoid with Open API',
     },
     summary: {
-      es: 'Brazos articulados, pantalla facial y Cloud Robotic OS. Navegación estereoscópica con LiDAR, detección facial y Open API para HIS, ERP o CRM. El alcance de integración se cotiza por proyecto.',
-      en: 'Articulated arms, facial display and Cloud Robotic OS. Stereoscopic navigation with LiDAR, face detection and an Open API for HIS, ERP or CRM. Integration scope is quoted per project.',
+      es: 'Brazos articulados, pantalla facial y Cloud Robotic OS. Navegación estereoscópica con LiDAR, detección facial y Open API para ERP o CRM. El alcance de integración se cotiza por proyecto.',
+      en: 'Articulated arms, facial display and Cloud Robotic OS. Stereoscopic navigation with LiDAR, face detection and an Open API for ERP or CRM. Integration scope is quoted per project.',
     },
     specs: [
       {
@@ -373,7 +373,13 @@ export const ROBOTS: readonly CatalogRobot[] = [
 export const VERTICALS: ReadonlyArray<{ id: string; label: L10n }> = [
   { id: 'todos', label: { es: 'Todos los robots', en: 'All robots' } },
   { id: 'recepcion', label: { es: 'Recepción e IA', en: 'Reception and AI' } },
-  { id: 'telepresencia', label: { es: 'Telepresencia médica', en: 'Medical telepresence' } },
+  {
+    id: 'telepresencia',
+    label: {
+      es: 'Telepresencia y comunicación en instalaciones',
+      en: 'Telepresence and on-site communication',
+    },
+  },
   { id: 'logistica', label: { es: 'Logística y delivery', en: 'Logistics and delivery' } },
   { id: 'limpieza', label: { es: 'Limpieza autónoma', en: 'Autonomous cleaning' } },
   { id: 'humanoide', label: { es: 'Humanoide y Open API', en: 'Humanoid and Open API' } },
@@ -430,8 +436,8 @@ export const LAYERS: ReadonlyArray<{ n: string; title: L10n; body: L10n }> = [
     n: '03',
     title: { es: 'Ultrasonido y vidrio', en: 'Ultrasound and glass' },
     body: {
-      es: 'Arreglo ultrasónico y láser lineal frontal para cristales, puertas de vidrio templado y obstáculos bajos en clínicas y oficinas.',
-      en: 'Ultrasonic array and front line laser for glass, tempered doors and low obstacles in clinics and offices.',
+      es: 'Arreglo ultrasónico y láser lineal frontal para cristales, puertas de vidrio templado y obstáculos bajos en instalaciones y oficinas.',
+      en: 'Ultrasonic array and front line laser for glass, tempered doors and low obstacles in facilities and offices.',
     },
   },
   {
@@ -475,12 +481,12 @@ export const PROJECTS: ReadonlyArray<{ title: L10n; body: L10n }> = [
   },
   {
     title: {
-      es: 'Logística cerrada y farmacia',
-      en: 'Closed logistics and pharmacy',
+      es: 'Logística cerrada',
+      en: 'Closed logistics',
     },
     body: {
-      es: 'Bajo proyecto: transporte autónomo cerrado con acceso biométrico o QR para CEYE, unidosis, muestras y lencería. El PadBot W2 del catálogo cubre el gabinete PIN/QR; los formatos pesados se diseñan aparte.',
-      en: 'Project supply: closed autonomous transport with biometric or QR access for sterile processing, unit dose, samples and linen. Catalog PadBot W2 covers the PIN/QR cabinet; heavy formats are engineered separately.',
+      es: 'Bajo proyecto: transporte autónomo cerrado con acceso biométrico o QR. El PadBot W2 del catálogo cubre el gabinete PIN/QR; los formatos pesados se diseñan aparte.',
+      en: 'Project supply: closed autonomous transport with biometric or QR access. Catalog PadBot W2 covers the PIN/QR cabinet; heavy formats are engineered separately.',
     },
   },
   {
@@ -599,14 +605,14 @@ export const PAGE = {
       'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica · soporte I-ME',
     lead: 'I-ME distribuye robots de servicio, limpieza autónoma, recepción, telepresencia y logística AMR para clínicas, hoteles, universidades y empresas en Colombia, y atiende proyectos de ingeniería robótica en Latinoamérica. Ocho robots de servicio están en catálogo. La rehabilitación de la marcha suma los Zuowei ZW568, ZW598 y ZW518. Otras arquitecturas se ingenian bajo proyecto.',
     heroAlt:
-      'Robot humanoide asistencial en un lobby clínico, referencia visual de robótica de servicio en Colombia',
+      'Robot humanoide de servicio en un lobby institucional, referencia visual de robótica de servicio en Colombia',
     primaryCta: 'Cotizar ingeniería robótica',
     secondaryCta: 'WhatsApp',
     catalogCta: 'Ver la familia de robots',
     filterLegend: 'Filtrar por función',
     catalogTitle: 'Ocho robots de servicio en distribución directa',
     catalogLead:
-      'Robots de recepción, telepresencia, logística intrahospitalaria, limpieza autónoma y educación. Cada cifra sale del manual del fabricante. El precio es bajo cotización.',
+      'Robots de recepción, telepresencia, logística interna, limpieza autónoma y educación. Cada cifra sale del manual del fabricante. El precio es bajo cotización.',
     sheetCta: 'Ver ficha',
     pdfCta: 'PDF técnico',
     quoteCta: 'Cotizar este modelo',
@@ -637,7 +643,7 @@ export const PAGE = {
     teleHref: '/es/robotica-rehabilitacion/telepresencia/',
     teleLabel: 'Ficha de telepresencia PadBot P2',
     guideHref: '/es/conocimiento/robots-asistenciales-atencion-reduccion-carga-personal/',
-    guideLabel: 'Guía: robots asistenciales y carga operativa',
+    guideLabel: 'Guía: robots de servicio y carga operativa',
     crumbHub: 'Proyectos',
     crumbHubHref: '/es/proyectos/',
     crumbHere: 'Distribuidores de robots',
@@ -659,14 +665,14 @@ export const PAGE = {
     eyebrow: 'Robot distributors and robotics engineering in Colombia and Latin America · I-ME',
     lead: 'I-ME distributes service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight service robots are in the catalog. Gait rehabilitation adds the Zuowei ZW568, ZW598 and ZW518. Other architectures are engineered per project.',
     heroAlt:
-      'Assistive humanoid robot in a clinical lobby, a visual reference for service robotics in Colombia',
+      'Service humanoid robot in an institutional lobby, a visual reference for service robotics in Colombia',
     primaryCta: 'Request robotics engineering',
     secondaryCta: 'WhatsApp',
     catalogCta: 'Browse the robot family',
     filterLegend: 'Filter by function',
     catalogTitle: 'Eight service robots in direct distribution',
     catalogLead:
-      'Reception, telepresence, in-hospital logistics, autonomous cleaning and education. Every figure comes from the manufacturer manual. Price is on request.',
+      'Reception, telepresence, internal logistics, autonomous cleaning and education. Every figure comes from the manufacturer manual. Price is on request.',
     sheetCta: 'View sheet',
     pdfCta: 'Technical PDF',
     quoteCta: 'Quote this model',
@@ -697,7 +703,7 @@ export const PAGE = {
     teleHref: '/en/robotics-rehabilitation/telepresencia/',
     teleLabel: 'PadBot P2 telepresence page',
     guideHref: '/en/knowledge/robots-asistenciales-atencion-reduccion-carga-personal/',
-    guideLabel: 'Guide: assistive robots and task load',
+    guideLabel: 'Guide: service robots and task load',
     crumbHub: 'Projects',
     crumbHubHref: '/en/projects/',
     crumbHere: 'Robot distributors',
@@ -733,7 +739,7 @@ export const ROBOTICA_COPY = {
     h1: PAGE.es.h1,
     lead: PAGE.es.lead,
     modalityLinks: [
-      { title: 'Telepresencia médica PadBot P2', href: PAGE.es.teleHref },
+      { title: 'Telepresencia y comunicación en instalaciones', href: PAGE.es.teleHref },
       { title: 'Familia de robots en catálogo', href: PAGE.es.familyHref },
     ],
     formIntro: PAGE.es.formIntro,
@@ -755,15 +761,15 @@ export const ROBOTICA_COPY = {
         help: 'PadBot X3, PadBot X2 y Cruzr cubren orientación, Q&A e interacción. Cruzr añade brazos y Open API.',
       },
       {
-        pain: 'Rondas y telepresencia médica',
-        help: 'PadBot P2 publica videollamada HD, 10 h de autonomía y sensores anticaída para conectar al especialista con la sala.',
+        pain: 'Telepresencia y comunicación en instalaciones',
+        help: 'PadBot P2 publica videollamada HD, 10 h de autonomía y sensores anticaída.',
       },
       {
-        pain: 'Logística intrahospitalaria y alimentos',
+        pain: 'Logística interna y alimentos',
         help: 'PadBot W2 cierra el gabinete con PIN o QR. PadBot W3s reparte en tres bandejas con pantalla Full HD.',
       },
       {
-        pain: 'Limpieza autónoma de suelos clínicos',
+        pain: 'Limpieza autónoma de suelos',
         help: 'El robot C3 aspira, friega y pasa mopa, con estación de agua y ruido inferior a 70 dB.',
       },
     ],
@@ -818,7 +824,7 @@ export const ROBOTICA_COPY = {
     faqs: FAQS.map(item => ({ q: item.q.es, a: item.a.es })),
     projectOptions: [
       { value: 'recepcion_ia', label: 'Recepción, orientación e IA' },
-      { value: 'telepresencia', label: 'Telepresencia médica' },
+      { value: 'telepresencia', label: 'Telepresencia y comunicación en instalaciones' },
       { value: 'logistica_amr', label: 'Logística AMR y delivery' },
       { value: 'limpieza', label: 'Limpieza autónoma' },
       { value: 'ingenieria_integracion', label: 'Integración con ascensores y accesos' },
@@ -836,7 +842,7 @@ export const ROBOTICA_COPY = {
     h1: PAGE.en.h1,
     lead: PAGE.en.lead,
     modalityLinks: [
-      { title: 'PadBot P2 medical telepresence', href: PAGE.en.teleHref },
+      { title: 'Telepresence and on-site communication', href: PAGE.en.teleHref },
       { title: 'Robot family in the catalog', href: PAGE.en.familyHref },
     ],
     formIntro: PAGE.en.formIntro,
@@ -858,15 +864,15 @@ export const ROBOTICA_COPY = {
         help: 'PadBot X3, PadBot X2 and Cruzr cover wayfinding, Q&A and interaction. Cruzr adds arms and an Open API.',
       },
       {
-        pain: 'Rounds and medical telepresence',
-        help: 'PadBot P2 publishes HD video, 10 h runtime and cliff sensors so a specialist can join the room.',
+        pain: 'Telepresence and on-site communication',
+        help: 'PadBot P2 publishes HD video, 10 h runtime and cliff sensors.',
       },
       {
-        pain: 'In-hospital logistics and meals',
+        pain: 'Internal logistics and meals',
         help: 'PadBot W2 locks the cabinet with a PIN or QR. PadBot W3s delivers on three trays with a Full HD display.',
       },
       {
-        pain: 'Autonomous cleaning of clinical floors',
+        pain: 'Autonomous floor cleaning',
         help: 'The C3 robot vacuums, mops and dust-mops, with a water station and noise under 70 dB.',
       },
     ],
@@ -921,7 +927,7 @@ export const ROBOTICA_COPY = {
     faqs: FAQS.map(item => ({ q: item.q.en, a: item.a.en })),
     projectOptions: [
       { value: 'recepcion_ia', label: 'Reception, wayfinding and AI' },
-      { value: 'telepresencia', label: 'Medical telepresence' },
+      { value: 'telepresencia', label: 'Telepresence and on-site communication' },
       { value: 'logistica_amr', label: 'AMR logistics and delivery' },
       { value: 'limpieza', label: 'Autonomous cleaning' },
       { value: 'ingenieria_integracion', label: 'Elevator and access integration' },

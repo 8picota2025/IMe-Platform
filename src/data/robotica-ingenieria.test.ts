@@ -5,10 +5,14 @@ import { getFamiliaSeo } from './familia-seo';
 import { PROMO_PADBOT_EN, PROMO_PADBOT_ES } from './promo-padbot';
 import {
   FAQS,
+  LAYERS,
   PAGE,
   PHONE_DISPLAY,
+  PROJECTS,
+  ROBOTICA_COPY,
   ROBOTICA_PATH,
   ROBOTS,
+  VERTICALS,
   WARRANTY,
   buildRoboticaJsonLd,
 } from './robotica-ingenieria';
@@ -88,7 +92,9 @@ describe('landing de distribuidores de robots', () => {
         itemListElement: unknown[];
       };
       expect(list.itemListElement).toHaveLength(8);
-      const lists = graph['@graph'].filter(node => node['@type'] === 'ItemList') as unknown as Array<{
+      const lists = graph['@graph'].filter(
+        node => node['@type'] === 'ItemList'
+      ) as unknown as Array<{
         name: string;
         itemListElement: unknown[];
       }>;
@@ -125,6 +131,33 @@ describe('landing de distribuidores de robots', () => {
     );
     expect(es).toContain('RoboticaIngenieriaLanding');
     expect(en).toContain('RoboticaIngenieriaLanding');
+  });
+
+  it('no atribuye uso clínico, diagnóstico ni terapéutico a PadBot ni a Cruzr', () => {
+    const texto = JSON.stringify({
+      PAGE,
+      FAQS,
+      ROBOTS,
+      VERTICALS,
+      PROJECTS,
+      LAYERS,
+      ROBOTICA_COPY,
+      PROMO_PADBOT_ES,
+      PROMO_PADBOT_EN,
+    });
+    expect(texto).toContain('Telepresencia y comunicación en instalaciones');
+    expect(texto).toContain('Telepresence and on-site communication');
+    expect(texto).toContain('transporte interno de insumos y documentos');
+    expect(texto).toContain('internal transport of supplies and documents');
+    expect(texto).not.toMatch(/Telepresencia médica|rondas clínicas|medicamentos/);
+    expect(texto).not.toMatch(/Medical telepresence|clinical rounds|samples, medication/);
+    expect(texto).not.toMatch(/pediátrico|pediatric companionship|HIS, ERP/);
+    const p2 = ROBOTS.find(robot => robot.sku === 'PADBOT-P2');
+    const w2 = ROBOTS.find(robot => robot.sku === 'PADBOT-W2');
+    expect(p2?.role.es).toBe('Telepresencia y comunicación en instalaciones');
+    expect(p2?.role.en).toBe('Telepresence and on-site communication');
+    expect(w2?.summary.es).toContain('transporte interno de insumos y documentos');
+    expect(w2?.summary.en).toContain('internal transport of supplies and documents');
   });
 
   it('añade ZW568, ZW598 y ZW518 sin precio ni 110 V', () => {

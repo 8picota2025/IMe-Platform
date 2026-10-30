@@ -126,62 +126,31 @@ function spec(clave, valor, grupo = 'Ficha tecnica') {
 
 const marketKeywords = {
   es: [
-    'robots asistenciales',
     'robots de servicio',
-    'robots hospitalarios',
     'robots para clínicas',
     'robots para hospitales',
     'robots para centros médicos',
-    'robots para residencias de mayores',
-    'robots para hogares geriátricos',
-    'robots para adultos mayores',
-    'robots para tercera edad',
-    'automatización hospitalaria',
     'automatización institucional',
-    'hospital 4.0',
-    'hospital digital',
-    'tecnología asistencial',
-    'robótica asistencial',
     'robótica de servicio',
     'robots industriales de servicio',
     'robots para logística interna',
     'robots comerciales para empresas',
     'robots en Colombia',
-    'robots asistenciales Colombia',
-    'robots hospitalarios Colombia',
     'robots de servicio Latinoamérica',
     'robots para hospitales Latinoamérica',
-    'robots asistenciales España',
     'robots para hospitales España',
   ],
   en: [
-    'assistive robots',
     'service robots',
-    'healthcare robots',
-    'hospital robots',
     'clinic robots',
     'robots for medical centers',
-    'robots for senior living',
-    'robots for elderly care',
-    'robots for older adults',
-    'nursing home robots',
-    'hospital automation',
     'institutional automation',
-    'hospital 4.0',
-    'digital hospital',
-    'assistive technology',
-    'assistive robotics',
     'service robotics',
     'industrial service robots',
     'internal logistics robots',
     'commercial robots for companies',
     'robots in Colombia',
-    'healthcare robots Colombia',
-    'hospital robots Colombia',
     'service robots Latin America',
-    'hospital robots Latin America',
-    'assistive robots Spain',
-    'hospital robots Spain',
   ],
 };
 
@@ -191,8 +160,6 @@ const typeKeywords = {
       'robot de recepción',
       'robot recepcionista',
       'robot de atención al cliente',
-      'robot de orientación hospitalaria',
-      'robot para admisiones hospitalarias',
       'robot guía para visitantes',
       'robot humanoide de servicio',
       'robot con reconocimiento facial',
@@ -200,18 +167,12 @@ const typeKeywords = {
       'robot con pantalla publicitaria',
       'kiosco robótico móvil',
       'automatización de recepción',
-      'orientación de pacientes',
-      'atención en lobby hospitalario',
-      'robots para IPS',
-      'robots para EPS',
       'robots para hoteles y clínicas',
     ],
     en: [
       'reception robot',
       'front desk robot',
       'customer service robot',
-      'hospital wayfinding robot',
-      'hospital admissions robot',
       'visitor guidance robot',
       'humanoid service robot',
       'face recognition robot',
@@ -219,71 +180,36 @@ const typeKeywords = {
       'advertising screen robot',
       'mobile robotic kiosk',
       'reception automation',
-      'patient wayfinding',
-      'hospital lobby assistance',
-      'robots for healthcare providers',
       'robots for hotels and clinics',
     ],
   },
   'robots-telepresencia': {
     es: [
       'robot de telepresencia',
-      'robot para telemedicina',
-      'robot de teleconsulta',
-      'robot de teleasistencia',
       'robot para visitas remotas',
-      'robot para rondas médicas remotas',
-      'robot de videoatención',
       'robot para acompañamiento virtual',
-      'robot para cuidado remoto',
-      'robot para adultos mayores a distancia',
-      'robot para especialistas remotos',
-      'telepresencia en hospitales',
-      'telepresencia en residencias de mayores',
     ],
     en: [
       'telepresence robot',
-      'telemedicine robot',
-      'teleconsultation robot',
-      'teleassistance robot',
       'remote visit robot',
-      'remote medical rounds robot',
-      'video assistance robot',
       'virtual accompaniment robot',
-      'remote care robot',
-      'robot for remote elderly care',
-      'robot for remote specialists',
-      'hospital telepresence',
-      'telepresence for senior care facilities',
     ],
   },
   'robots-delivery-institucional': {
     es: [
       'robot de delivery institucional',
-      'robot de logística hospitalaria',
       'robot de transporte interno',
       'robot para entrega de insumos',
-      'robot para documentos hospitalarios',
-      'robot para muestras no críticas',
       'robot con locker',
-      'robot de reparto en hospitales',
       'robot para rutas internas',
-      'automatización logística hospitalaria',
-      'logística interna en clínicas',
       'delivery autónomo institucional',
     ],
     en: [
       'institutional delivery robot',
-      'hospital logistics robot',
       'internal transport robot',
       'supply delivery robot',
-      'hospital document delivery robot',
-      'non-critical sample delivery robot',
       'locker robot',
-      'hospital delivery robot',
       'internal route robot',
-      'hospital logistics automation',
-      'clinic internal logistics',
       'autonomous institutional delivery',
     ],
   },
@@ -292,7 +218,6 @@ const typeKeywords = {
       'robot de delivery de alimentos',
       'robot camarero',
       'robot para restaurantes',
-      'robot para cafeterías hospitalarias',
       'robot para comedores institucionales',
       'robot para hoteles',
       'robot con bandeja',
@@ -305,7 +230,6 @@ const typeKeywords = {
       'food delivery robot',
       'robot waiter',
       'restaurant robot',
-      'hospital cafeteria robot',
       'institutional dining robot',
       'hotel service robot',
       'tray robot',
@@ -353,10 +277,7 @@ const typeKeywords = {
       'robot para educación STEAM',
       'robot para universidades',
       'robot para colegios',
-      'robot para pediatría no clínica',
-      'robot interactivo para adultos mayores',
       'robot para activaciones institucionales',
-      'robot para ferias de salud',
       'robot de entretenimiento educativo',
       'robótica social',
     ],
@@ -367,10 +288,7 @@ const typeKeywords = {
       'STEAM education robot',
       'robot for universities',
       'robot for schools',
-      'robot for non-clinical pediatric spaces',
-      'interactive robot for older adults',
       'robot for institutional activations',
-      'robot for healthcare fairs',
       'educational entertainment robot',
       'social robotics',
     ],
@@ -380,27 +298,27 @@ const typeKeywords = {
 const marketParagraphs = {
   'robots-recepcion-atencion': {
     es:
-      'Para proyectos en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robots asistenciales, robots de recepción, robots hospitalarios, orientación de pacientes, admisiones automatizadas, atención a visitantes, hospitales 4.0 y automatización de servicios en clínicas, IPS, hoteles, universidades y edificios corporativos.',
+      'Para proyectos en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robots de recepción, atención a visitantes y automatización de servicios en hoteles, universidades y edificios corporativos.',
     en:
-      'For projects in Colombia, Latin America and Spain, this category matches searches for assistive robots, reception robots, hospital robots, patient wayfinding, automated admissions, visitor assistance, hospital 4.0 and service automation in clinics, healthcare providers, hotels, universities and corporate buildings.',
+      'For projects in Colombia, Latin America and Spain, this category matches searches for reception robots, visitor assistance and service automation in hotels, universities and corporate buildings.',
   },
   'robots-telepresencia': {
     es:
-      'Para servicios médicos, tercera edad y atención remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, telemedicina, teleconsulta, teleasistencia, acompañamiento virtual, rondas remotas, especialistas a distancia y soporte para adultos mayores o residencias de cuidado.',
+      'Para presencia remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, acompañamiento virtual y visitas remotas.',
     en:
-      'For medical services, senior care and remote assistance in Colombia, Latin America and Spain, this model covers searches for telepresence robots, telemedicine, teleconsultation, teleassistance, virtual accompaniment, remote rounds, remote specialists and support for older adults or care residences.',
+      'For remote presence in Colombia, Latin America and Spain, this model covers searches for telepresence robots, virtual accompaniment and remote visits.',
   },
   'robots-delivery-institucional': {
     es:
-      'Para logística institucional y salud en Colombia, Latinoamérica y España, esta solución se alinea con búsquedas de robots industriales de servicio, robot de delivery hospitalario, logística interna en clínicas, transporte de documentos, insumos no estériles, muestras no críticas y automatización de rutas repetitivas.',
+      'Para logística institucional en Colombia, Latinoamérica y España, esta solución se alinea con búsquedas de robots industriales de servicio, transporte interno de insumos y documentos y automatización de rutas repetitivas.',
     en:
-      'For institutional logistics and healthcare in Colombia, Latin America and Spain, this solution aligns with searches for industrial service robots, hospital delivery robots, clinic internal logistics, document transport, non-sterile supplies, non-critical samples and repetitive route automation.',
+      'For institutional logistics in Colombia, Latin America and Spain, this solution aligns with searches for industrial service robots, internal transport of supplies and documents and repetitive route automation.',
   },
   'robots-delivery-alimentos': {
     es:
-      'Para hospitality, alimentación institucional y servicios complementarios de salud en Colombia, Latinoamérica y España, este robot responde a búsquedas de robot camarero, robot de delivery de alimentos, robot para cafeterías hospitalarias, robot para hoteles, comedores institucionales y automatización de servicio de mesa.',
+      'Para alimentación institucional en Colombia, Latinoamérica y España, este robot responde a búsquedas de robot camarero, robot de delivery de alimentos, robot para hoteles, comedores institucionales y automatización de servicio de mesa.',
     en:
-      'For hospitality, institutional dining and complementary healthcare services in Colombia, Latin America and Spain, this robot targets searches for robot waiter, food delivery robot, hospital cafeteria robot, hotel robot, institutional dining robot and table service automation.',
+      'For institutional dining in Colombia, Latin America and Spain, this robot targets searches for robot waiter, food delivery robot, hotel robot, institutional dining robot and table service automation.',
   },
   'robots-limpieza-autonoma': {
     es:
@@ -410,9 +328,9 @@ const marketParagraphs = {
   },
   'robots-educativos-sociales': {
     es:
-      'Para educación, tercera edad y experiencias institucionales en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robot educativo, robot social, robot de acompañamiento, robótica STEAM, interacción con adultos mayores, ferias de salud y activaciones tecnológicas.',
+      'Para educación y experiencias institucionales en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robot educativo, robot social, robot de acompañamiento, robótica STEAM y activaciones tecnológicas.',
     en:
-      'For education, senior care and institutional experiences in Colombia, Latin America and Spain, this category matches searches for educational robot, social robot, companion robot, STEAM robotics, interaction with older adults, healthcare fairs and technology activations.',
+      'For education and institutional experiences in Colombia, Latin America and Spain, this category matches searches for educational robot, social robot, companion robot, STEAM robotics and technology activations.',
   },
 };
 
@@ -442,18 +360,8 @@ function enrichApplications(product, locale) {
   const base = locale === 'en' ? product.aplicaciones_en : product.aplicaciones_es;
   const additions =
     locale === 'en'
-      ? [
-          'Healthcare institutions in Colombia, Latin America and Spain',
-          'Senior care, service and assisted-living environments when validated by workflow',
-          'Hospital 4.0 and institutional automation projects',
-          'Commercial and industrial service automation',
-        ]
-      : [
-          'Instituciones de salud en Colombia, Latinoamérica y España',
-          'Entornos de tercera edad, cuidado y vida asistida cuando el flujo lo valide',
-          'Proyectos de hospital 4.0 y automatización institucional',
-          'Automatización comercial e industrial de servicios',
-        ];
+      ? ['Commercial and industrial service automation']
+      : ['Automatización comercial e industrial de servicios'];
   return uniqueStrings([...base, ...additions]);
 }
 
@@ -479,13 +387,13 @@ const products = [
       'Cruzr is an intelligent commercial service robot from AHuman Future designed to automate in-person assistance, greetings and service presentation in institutional spaces. Its value proposition combines a cloud-based robotic OS, an open API and industry-specific customization, allowing scripts, interactions and service flows to be adapted to each site.\n\nFor clinics, hospitals, hotels, universities, shopping centers and companies with high visitor traffic, Cruzr helps reduce repetitive tasks, optimize human resources and improve perceived service quality. Its humanoid design creates a friendlier touchpoint than a fixed kiosk, while face detection, stereoscopic navigation, real-time obstacle avoidance and human-machine interaction support guided experiences and commercial or informational messaging.\n\nI-ME positions Cruzr as an experience automation, reception and on-site marketing solution for institutions that want to differentiate service, improve satisfaction and strengthen brand image without relying only on fixed-front-desk staffing.',
     aplicaciones_es: [
       'Recepcion institucional y bienvenida de visitantes',
-      'Orientacion en hospitales, clinicas y edificios corporativos',
+      'Orientación en edificios corporativos e institucionales',
       'Presentacion comercial en puntos de alto trafico',
       'Automatizacion de preguntas frecuentes y mensajes de marca',
     ],
     aplicaciones_en: [
       'Institutional reception and visitor greeting',
-      'Wayfinding in hospitals, clinics and corporate buildings',
+      'Wayfinding in corporate and institutional buildings',
       'Commercial presentation in high-traffic points',
       'FAQ automation and brand messaging',
     ],
@@ -536,21 +444,21 @@ const products = [
     nombre_es: 'PadBot X3 Robot de Recepción',
     nombre_en: 'PadBot X3 Reception Robot',
     descripcion_corta_es:
-      'Robot de recepción con pantalla corporal de 19 pulgadas, reconocimiento facial, interacción por voz, navegación por mapas y videoatención remota.',
+      'Robot de recepción con pantalla corporal de 19 pulgadas, reconocimiento facial, interacción por voz, navegación por mapas y videollamada remota.',
     descripcion_corta_en:
       'Reception robot with 19-inch body screen, face recognition, voice interaction, map navigation and remote video support.',
     descripcion_larga_es:
-      'PadBot X3 está diseñado para recepción, orientación y atención inicial en instituciones con flujo permanente de visitantes. Integra pantalla principal de 10.1 pulgadas, pantalla corporal de 19 pulgadas, conectividad 4G/WiFi, reconocimiento facial, Q&A personalizable y gestión de sueño con reproducción de videos o slogans para comunicación institucional.\n\nEl robot permite crear mapas, definir puntos de destino, puntos de carga, espera de ascensor, acceso, cambio de mapa, muros virtuales, zonas restringidas y limites de velocidad. Esta lógica de navegación lo hace útil para lobby hospitalario, admisiones, consultorios, centros de diagnóstico, hoteles y campus corporativos donde se requiere orientar personas, contestar preguntas frecuentes y escalar atención a un operador.\n\nDesde la app PadBot se habilita video bidireccional o unidireccional: el administrador puede ver la escena, controlar movimiento y convertir texto en voz del robot. En modelos equipados, X3 puede incorporar impresora opcional, útil para turnos, comprobantes o información de visita cuando el flujo lo requiera.',
+      'PadBot X3 está diseñado para recepción, orientación y atención inicial en instituciones con flujo permanente de visitantes. Integra pantalla principal de 10.1 pulgadas, pantalla corporal de 19 pulgadas, conectividad 4G/WiFi, reconocimiento facial, Q&A personalizable y gestión de sueño con reproducción de videos o slogans para comunicación institucional.\n\nEl robot permite crear mapas, definir puntos de destino, puntos de carga, espera de ascensor, acceso, cambio de mapa, muros virtuales, zonas restringidas y limites de velocidad. Esta lógica de navegación lo hace útil para recepciones, hoteles y campus corporativos donde se requiere orientar personas, contestar preguntas frecuentes y escalar atención a un operador.\n\nDesde la app PadBot se habilita video bidireccional o unidireccional: el administrador puede ver la escena, controlar movimiento y convertir texto en voz del robot. En modelos equipados, X3 puede incorporar impresora opcional, útil para turnos, comprobantes o información de visita cuando el flujo lo requiera.',
     descripcion_larga_en:
-      'PadBot X3 is designed for reception, wayfinding and first-line assistance in institutions with constant visitor flow. It combines a 10.1-inch main screen, a 19-inch body screen, 4G/WiFi connectivity, face recognition, customizable Q&A and sleep-mode video or slogan playback for institutional communication.\n\nThe robot supports map creation, destination points, charging points, elevator waiting points, access-control points, map switching points, virtual walls, restricted areas and speed-limit areas. This navigation logic makes it suitable for hospital lobbies, admissions desks, clinics, diagnostic centers, hotels and corporate campuses that need to guide people, answer FAQs and escalate assistance to a remote operator.\n\nThe PadBot app enables two-way or one-way video: an administrator can see the on-site scene, control movement and convert typed text into robot speech. Equipped models may include an optional printer for tickets, receipts or visitor information when the workflow requires it.',
+      'PadBot X3 is designed for reception, wayfinding and first-line assistance in institutions with constant visitor flow. It combines a 10.1-inch main screen, a 19-inch body screen, 4G/WiFi connectivity, face recognition, customizable Q&A and sleep-mode video or slogan playback for institutional communication.\n\nThe robot supports map creation, destination points, charging points, elevator waiting points, access-control points, map switching points, virtual walls, restricted areas and speed-limit areas. This navigation logic makes it suitable for reception areas, hotels and corporate campuses that need to guide people, answer FAQs and escalate assistance to a remote operator.\n\nThe PadBot app enables two-way or one-way video: an administrator can see the on-site scene, control movement and convert typed text into robot speech. Equipped models may include an optional printer for tickets, receipts or visitor information when the workflow requires it.',
     aplicaciones_es: [
-      'Recepcion hospitalaria y admisiones',
+      'Recepción y orientación de visitantes',
       'Orientacion de visitantes en edificios',
       'Atencion remota con videooperador',
       'Mensajes institucionales y promocionales en lobby',
     ],
     aplicaciones_en: [
-      'Hospital reception and admissions',
+      'Visitor reception and wayfinding',
       'Visitor wayfinding inside buildings',
       'Remote assistance with video operator',
       'Institutional and promotional lobby messaging',
@@ -566,7 +474,7 @@ const products = [
       'Large body screen for visual communication',
       'Face recognition with registered group greetings',
       'Map navigation with points, restricted areas and limits',
-      'Two-way or one-way remote video assistance',
+      'Two-way or one-way remote video calls',
       'Optional printer for reception workflows',
     ],
     valor_es:
@@ -609,9 +517,9 @@ const products = [
     descripcion_corta_en:
       'Interactive service robot with 10.1-inch head screen, 15.6-inch body screen, 4G/WiFi and autonomous map navigation.',
     descripcion_larga_es:
-      'PadBot X2 es una solución compacta para atención, orientación y comunicación en puntos de servicio. Combina interacción por voz, Q&A personalizado, reconocimiento facial, reproducción de anuncios en modo reposo y videoatención remota con control de movimiento desde la app.\n\nSu navegación se gestiona mediante mapas con puntos objetivo, puntos de carga, zonas restringidas, muros virtuales, zonas transitables, límites de velocidad y puntos asociados a ascensores o accesos. Esto permite instalarlo en recepciones, salas de espera, centros comerciales, instituciones educativas y edificios corporativos donde se requiere guiar usuarios y automatizar respuestas frecuentes.\n\nLa batería de 20000 mAh y su peso de 15 kg lo hacen una alternativa liviana frente a robots de recepción de mayor formato, manteniendo pantalla corporal para comunicación visual y presencia de marca.',
+      'PadBot X2 es una solución compacta para atención, orientación y comunicación en puntos de servicio. Combina interacción por voz, Q&A personalizado, reconocimiento facial, reproducción de anuncios en modo reposo y videollamada remota con control de movimiento desde la app.\n\nSu navegación se gestiona mediante mapas con puntos objetivo, puntos de carga, zonas restringidas, muros virtuales, zonas transitables, límites de velocidad y puntos asociados a ascensores o accesos. Esto permite instalarlo en recepciones, salas de espera, centros comerciales, instituciones educativas y edificios corporativos donde se requiere guiar usuarios y automatizar respuestas frecuentes.\n\nLa batería de 20000 mAh y su peso de 15 kg lo hacen una alternativa liviana frente a robots de recepción de mayor formato, manteniendo pantalla corporal para comunicación visual y presencia de marca.',
     descripcion_larga_en:
-      'PadBot X2 is a compact solution for assistance, wayfinding and communication at service points. It combines voice interaction, customizable Q&A, face recognition, sleep-mode advertising playback and remote video assistance with movement control from the app.\n\nNavigation is managed through maps with target points, charging points, restricted areas, virtual walls, passable areas, speed limits and points associated with elevators or access gates. This makes it suitable for reception areas, waiting rooms, shopping centers, educational institutions and corporate buildings where users need guidance and frequent answers can be automated.\n\nIts 20000 mAh battery and 15 kg weight make it a lighter alternative to larger reception robots, while preserving a body screen for visual communication and brand presence.',
+      'PadBot X2 is a compact solution for assistance, wayfinding and communication at service points. It combines voice interaction, customizable Q&A, face recognition, sleep-mode advertising playback and remote video calls with movement control from the app.\n\nNavigation is managed through maps with target points, charging points, restricted areas, virtual walls, passable areas, speed limits and points associated with elevators or access gates. This makes it suitable for reception areas, waiting rooms, shopping centers, educational institutions and corporate buildings where users need guidance and frequent answers can be automated.\n\nIts 20000 mAh battery and 15 kg weight make it a lighter alternative to larger reception robots, while preserving a body screen for visual communication and brand presence.',
     aplicaciones_es: [
       'Puntos de informacion y orientacion',
       'Salas de espera y recepciones compactas',
@@ -676,20 +584,20 @@ const products = [
     descripcion_corta_en:
       'Foldable telepresence robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.',
     descripcion_larga_es:
-      'PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nEn salud y servicios, P2 puede apoyar teleorientación, rondas administrativas, visitas remotas, acompañamiento en instituciones educativas, recepción secundaria y soporte a pacientes o usuarios en salas de espera, siempre como herramienta de comunicación y no como dispositivo medico.',
+      'PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nP2 puede apoyar rondas administrativas, visitas remotas, acompañamiento en instituciones educativas y recepción secundaria, como herramienta de comunicación y no como dispositivo médico.',
     descripcion_larga_en:
-      'PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nIn healthcare and service environments, P2 can support tele-orientation, administrative rounds, remote visits, educational accompaniment, secondary reception and support for patients or users in waiting areas, as a communication tool rather than a medical device.',
+      'PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nP2 can support administrative rounds, remote visits, educational accompaniment and secondary reception, as a communication tool rather than a medical device.',
     aplicaciones_es: [
-      'Telepresencia en instituciones de salud',
+      'Telepresencia y comunicación en instalaciones',
       'Rondas administrativas remotas',
-      'Acompañamiento virtual en salas de espera',
-      'Videoatencion y control remoto',
+      'Visitas remotas',
+      'Videollamada y control remoto',
     ],
     aplicaciones_en: [
-      'Telepresence in healthcare institutions',
+      'Telepresence and on-site communication',
       'Remote administrative rounds',
-      'Virtual accompaniment in waiting rooms',
-      'Video assistance and remote control',
+      'Remote visits',
+      'Video calls and remote control',
     ],
     beneficios_es: [
       'Cuerpo plegable y peso de 6.5 kg',
@@ -706,9 +614,9 @@ const products = [
       'Auto-charge from dock when enabled in app',
     ],
     valor_es:
-      'PadBot P2 acerca especialistas, administrativos y acompañantes remotos a espacios físicos sin desplazar personas.',
+      'PadBot P2 acerca administrativos y acompañantes remotos a espacios físicos sin desplazar personas.',
     valor_en:
-      'PadBot P2 brings remote specialists, administrators and companions into physical spaces without moving people.',
+      'PadBot P2 brings remote administrators and companions into physical spaces without moving people.',
     especificaciones: [
       spec('Dimensiones', '27 x 37.2 x 110 cm'),
       spec('Pantalla', '10 pulgadas HD'),
@@ -743,17 +651,17 @@ const products = [
     descripcion_corta_en:
       'Delivery robot with locker, 10.1-inch screen, map navigation, 4G/WiFi, anti-collision sensors and charging dock.',
     descripcion_larga_es:
-      'PadBot W2 está orientado a transporte interno y delivery institucional en sedes donde se requiere mover elementos entre puntos definidos con trazabilidad operativa. Integra locker, pantalla de 10.1 pulgadas, conectividad 4G/WiFi, botón de parada de emergencia y sensores anti-colisión y anti-caída.\n\nLa plataforma permite crear mapas, editar puntos objetivo, puntos de carga, espera de ascensor, puntos de acceso, cambio de mapa, muros virtuales, zonas restringidas, áreas transitables y límites de velocidad. Esta granularidad ayuda a adaptar el robot a corredores, lobbies, áreas administrativas, hoteles, universidades y espacios de servicio con rutas repetitivas.\n\nPara entornos de salud, W2 puede analizarse como apoyo logístico para documentos, muestras no críticas, insumos no estériles o elementos administrativos bajo protocolo interno; I-ME recomienda validación operativa y de bioseguridad antes de usarlo en circuitos clínicos sensibles.',
+      'PadBot W2 está orientado a transporte interno y delivery institucional en sedes donde se requiere mover elementos entre puntos definidos con trazabilidad operativa. Integra locker, pantalla de 10.1 pulgadas, conectividad 4G/WiFi, botón de parada de emergencia y sensores anti-colisión y anti-caída.\n\nLa plataforma permite crear mapas, editar puntos objetivo, puntos de carga, espera de ascensor, puntos de acceso, cambio de mapa, muros virtuales, zonas restringidas, áreas transitables y límites de velocidad. Esta granularidad ayuda a adaptar el robot a corredores, lobbies, áreas administrativas, hoteles, universidades y espacios de servicio con rutas repetitivas.\n\n',
     descripcion_larga_en:
-      'PadBot W2 is aimed at internal transport and institutional delivery in facilities that need to move items between defined points with operational traceability. It integrates a locker, 10.1-inch screen, 4G/WiFi connectivity, emergency stop button and anti-collision and anti-fall sensors.\n\nThe platform supports map creation, editable target points, charging points, elevator waiting points, access points, map switching, virtual walls, restricted areas, passable areas and speed limits. This granularity helps adapt the robot to corridors, lobbies, administrative areas, hotels, universities and service spaces with repetitive routes.\n\nFor healthcare environments, W2 can be evaluated as logistical support for documents, non-critical samples, non-sterile supplies or administrative items under internal protocol; I-ME recommends operational and biosafety validation before using it in sensitive clinical circuits.',
+      'PadBot W2 is aimed at internal transport and institutional delivery in facilities that need to move items between defined points with operational traceability. It integrates a locker, 10.1-inch screen, 4G/WiFi connectivity, emergency stop button and anti-collision and anti-fall sensors.\n\nThe platform supports map creation, editable target points, charging points, elevator waiting points, access points, map switching, virtual walls, restricted areas, passable areas and speed limits. This granularity helps adapt the robot to corridors, lobbies, administrative areas, hotels, universities and service spaces with repetitive routes.\n\n',
     aplicaciones_es: [
-      'Delivery interno de documentos e insumos no esteriles',
+      'Transporte interno de insumos y documentos',
       'Rutas repetitivas en edificios institucionales',
       'Hoteles, universidades y sedes corporativas',
       'Apoyo logistico en areas administrativas',
     ],
     aplicaciones_en: [
-      'Internal delivery of documents and non-sterile supplies',
+      'Internal transport of supplies and documents',
       'Repetitive routes inside institutional buildings',
       'Hotels, universities and corporate facilities',
       'Logistics support in administrative areas',
@@ -810,9 +718,9 @@ const products = [
     descripcion_corta_en:
       'Food delivery robot with tray, 15.6-inch advertising screen, maps with kitchen and return points, 4G/WiFi and charging dock.',
     descripcion_larga_es:
-      'PadBot W3s está diseñado para delivery de alimentos y servicio interno en cafeterías, hoteles, restaurantes, comedores institucionales y áreas de hospitalidad. Incorpora bandeja, pantalla de operación de 10.1 pulgadas y pantalla publicitaria de 15.6 pulgadas Full HD para comunicación visual durante el recorrido.\n\nSu software permite crear mapas, editar puntos de destino y usar puntos específicos de cocina y lavaplatos/retorno, además de puntos de carga, muros virtuales, zonas restringidas, zonas transitables y límites de velocidad. Esta orientación funcional lo diferencia de robots de delivery general, ya que está pensado para rutas de servicio de mesa, recogida y retorno.\n\nEn entornos clínicos, W3s debe evaluarse para cafeterías, servicio de alimentación no crítico o áreas de hospitalidad, no para transporte clínico sensible sin validación sanitaria y operacional.',
+      'PadBot W3s está diseñado para delivery de alimentos y servicio interno en cafeterías, hoteles, restaurantes, comedores institucionales y áreas de hospitalidad. Incorpora bandeja, pantalla de operación de 10.1 pulgadas y pantalla publicitaria de 15.6 pulgadas Full HD para comunicación visual durante el recorrido.\n\nSu software permite crear mapas, editar puntos de destino y usar puntos específicos de cocina y lavaplatos/retorno, además de puntos de carga, muros virtuales, zonas restringidas, zonas transitables y límites de velocidad. Esta orientación funcional lo diferencia de robots de delivery general, ya que está pensado para rutas de servicio de mesa, recogida y retorno.\n\n',
     descripcion_larga_en:
-      'PadBot W3s is designed for food delivery and internal service in cafeterias, hotels, restaurants, institutional dining rooms and hospitality areas. It includes a tray, 10.1-inch operating screen and 15.6-inch Full HD advertising screen for visual communication during routes.\n\nIts software supports map creation, editable destination points and specific kitchen and dishwash/return points, plus charging points, virtual walls, restricted areas, passable areas and speed limits. This functional orientation sets it apart from general delivery robots because it is designed for table service, pick-up and return routes.\n\nIn clinical environments, W3s should be evaluated for cafeterias, non-critical food service or hospitality areas, not for sensitive clinical transport without health and operational validation.',
+      'PadBot W3s is designed for food delivery and internal service in cafeterias, hotels, restaurants, institutional dining rooms and hospitality areas. It includes a tray, 10.1-inch operating screen and 15.6-inch Full HD advertising screen for visual communication during routes.\n\nIts software supports map creation, editable destination points and specific kitchen and dishwash/return points, plus charging points, virtual walls, restricted areas, passable areas and speed limits. This functional orientation sets it apart from general delivery robots because it is designed for table service, pick-up and return routes.\n\n',
     aplicaciones_es: [
       'Cafeterias y restaurantes institucionales',
       'Hoteles y servicio de alimentos',
@@ -947,20 +855,20 @@ const products = [
     descripcion_corta_en:
       'Compact social robot with 5-inch screen, voice interaction, 720P wide-angle camera, games, video calling and app control.',
     descripcion_larga_es:
-      'PadBot T2 es un robot social de pequeño formato para interacción educativa, acompañamiento y demostraciones de robótica. Integra pantalla de 5 pulgadas, cámara gran angular de 230 grados HD 720P, conectividad WiFi, interacción por voz sin palabra de activación después de conectarse a internet, juegos, música, historias, danza, fotos y video llamada desde la app.\n\nSu tamaño y peso facilitan uso en colegios, universidades, ferias, salas de pediatría no asistenciales, espacios de experiencia y programas de educación STEAM. El manual describe interacciones táctiles, comandos de movimiento, control por app y respuestas emocionales frente a posiciones o contacto.\n\nI-ME lo clasifica como robot educativo/social y no como equipo biomédico. Su valor comercial está en engagement, educación, demostración tecnológica y acompañamiento ligero en entornos controlados.',
+      'PadBot T2 es un robot social de pequeño formato para interacción educativa, acompañamiento y demostraciones de robótica. Integra pantalla de 5 pulgadas, cámara gran angular de 230 grados HD 720P, conectividad WiFi, interacción por voz sin palabra de activación después de conectarse a internet, juegos, música, historias, danza, fotos y video llamada desde la app.\n\nSu tamaño y peso facilitan uso en colegios, universidades, ferias y espacios de experiencia y programas de educación STEAM. El manual describe interacciones táctiles, comandos de movimiento, control por app y respuestas emocionales frente a posiciones o contacto.\n\nI-ME lo clasifica como robot educativo/social y no como equipo biomédico. Su valor comercial está en engagement, educación, demostración tecnológica y acompañamiento ligero en entornos controlados.',
     descripcion_larga_en:
-      'PadBot T2 is a small social robot for educational interaction, accompaniment and robotics demonstrations. It integrates a 5-inch screen, 230-degree HD 720P wide-angle camera, WiFi connectivity, voice interaction without a wake word after internet connection, games, music, stories, dancing, photos and video calling from the app.\n\nIts size and weight make it suitable for schools, universities, fairs, non-clinical pediatric spaces, experience areas and STEAM education programs. The manual describes touch interactions, movement commands, app control and emotional responses to position or contact.\n\nI-ME classifies it as an educational/social robot, not as biomedical equipment. Its commercial value lies in engagement, education, technology demonstration and light accompaniment in controlled environments.',
+      'PadBot T2 is a small social robot for educational interaction, accompaniment and robotics demonstrations. It integrates a 5-inch screen, 230-degree HD 720P wide-angle camera, WiFi connectivity, voice interaction without a wake word after internet connection, games, music, stories, dancing, photos and video calling from the app.\n\nIts size and weight make it suitable for schools, universities, fairs and experience areas and STEAM education programs. The manual describes touch interactions, movement commands, app control and emotional responses to position or contact.\n\nI-ME classifies it as an educational/social robot, not as biomedical equipment. Its commercial value lies in engagement, education, technology demonstration and light accompaniment in controlled environments.',
     aplicaciones_es: [
       'Educacion STEAM y demostraciones de robotica',
       'Interaccion social en espacios controlados',
       'Ferias, universidades y activaciones institucionales',
-      'Acompañamiento no clinico en areas pediátricas o educativas',
+      'Acompañamiento en espacios educativos',
     ],
     aplicaciones_en: [
       'STEAM education and robotics demonstrations',
       'Social interaction in controlled spaces',
       'Fairs, universities and institutional activations',
-      'Non-clinical accompaniment in pediatric or educational areas',
+      'Accompaniment in educational spaces',
     ],
     beneficios_es: [
       'Formato compacto de 1.68 kg',
