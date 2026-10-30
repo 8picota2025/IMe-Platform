@@ -1,3 +1,4 @@
+import { timingSafeEqualString } from '../../../src/lib/whatsapp-cloud.ts';
 /**
  * Edge Function: generar-embeddings
  * Genera/actualiza productos.embedding (Asesor RAG). Idempotente.
@@ -55,6 +56,21 @@ interface ProductoRawRow {
 
 const BATCH_SIZE = 5;
 
+async function esTokenCron(
+  supabase: ReturnType<typeof getServerSupabase>,
+  header: string | null
+): Promise<boolean> {
+  const bearer = (header ?? '').replace(/^Bearer\s+/i, '').trim();
+  if (bearer.length < 32) return false;
+  const { data, error } = await supabase
+    .from('whatsapp_dispatch_auth')
+    .select('token')
+    .eq('id', 1)
+    .maybeSingle();
+  const token = !error && data && typeof data.token === 'string' ? data.token : '';
+  return !!token && timingSafeEqualString(bearer, token);
+}
+
 Deno.serve(async req => {
   const origin = req.headers.get('origin');
   const corsRes = handleCors(req);
@@ -63,10 +79,14 @@ Deno.serve(async req => {
 
   try {
     const supabase = getServerSupabase();
-    const admin = await requireAdmin(supabase, req.headers.get('Authorization'));
-    if (!admin.ok) return unauthorized(origin);
-
+    const authHeader = req.headers.get('Authorization');
+    const admin = await requireAdmin(supabase, authHeader);
     const body = (await req.json().catch(() => ({}))) as GenerarEmbeddingsRequest;
+    // Cron nocturno (pg_cron): solo puede pedir solo_faltantes, con el token de cron en BD.
+    if (!admin.ok && !(body.solo_faltantes === true && !body.todos && !body.producto_id &&
+        !body.producto_ids?.length && (await esTokenCron(supabase, authHeader))))
+      return unauthorized(origin);
+
     if (!body.producto_id && !body.producto_ids?.length && !body.todos && !body.solo_faltantes) {
       return badRequest(
         'Especificar producto_id, producto_ids, todos=true o solo_faltantes=true',
