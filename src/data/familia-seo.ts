@@ -360,9 +360,9 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     description_en:
       'Robot distributors in Colombia: reception, telepresence, autonomous cleaning, AMR logistics and LiDAR SLAM engineering.',
     intro_es:
-      'I-ME distribuye robots de servicio en Colombia y hace la ingeniería de integración: recepción, telepresencia, logística intrahospitalaria, limpieza autónoma y educación, con navegación LiDAR SLAM sobre el plano real de la sede.',
+      'I-ME distribuye robots de servicio en Colombia y hace la ingeniería de integración: recepción, telepresencia, logística interna, limpieza autónoma y educación, con navegación LiDAR SLAM sobre el plano real de la sede.',
     intro_en:
-      'I-ME distributes service robots in Colombia and engineers the integration: reception, telepresence, in-hospital logistics, autonomous cleaning and education, with LiDAR SLAM navigation on the real floor plan.',
+      'I-ME distributes service robots in Colombia and engineers the integration: reception, telepresence, internal logistics, autonomous cleaning and education, with LiDAR SLAM navigation on the real floor plan.',
     body_es: [
       'El catálogo activo reúne ocho referencias: PadBot X3 y PadBot X2 (recepción), Cruzr (humanoide y Open API), PadBot P2 (telepresencia), PadBot W2 (gabinete PIN/QR), PadBot W3s (bandejas), robot C3 (limpieza 3-en-1) y PadBot T2 (educación y acompañamiento).',
       'La comparación empieza por el edificio: recorridos, puertas, ascensores, superficies, puntos de carga y el responsable de operación. La integración multiplanta usa puntos de espera y abordaje de ascensor (módulo IoT E-Box o API Cloud) y puntos de control de acceso.',
@@ -1112,8 +1112,8 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     {
       href_es: '/es/robotica-rehabilitacion/telepresencia/',
       href_en: '/en/robotics-rehabilitation/telepresencia/',
-      label_es: 'Telepresencia médica PadBot P2',
-      label_en: 'PadBot P2 medical telepresence',
+      label_es: 'Telepresencia y comunicación en instalaciones',
+      label_en: 'Telepresence and on-site communication',
     },
   ],
   'movilidad-rehabilitacion': [
