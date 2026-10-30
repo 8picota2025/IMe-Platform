@@ -1523,6 +1523,12 @@ interface ProductoMatch {
   imagen_principal: string | null;
   tipo_comercial: string;
   score: number;
+  sku?: string | null;
+  disponible?: boolean | null;
+  stock_estado?: string | null;
+  invima_estado?: string | null;
+  invima_rs?: string | null;
+  invima_vigencia?: string | null;
 }
 
 interface ProductoDetalle {
@@ -1945,10 +1951,12 @@ async function preguntarAsesorLocal(params: {
 
   // 4. Fallback keyword para productos
   if (!productos.length) {
-    const { data } = await supabase.rpc('buscar_productos_keyword', {
+    // Híbrido sin IA: OR + unaccent + SKU exacto + trigram, fusión RRF y umbral
+    // ("no lo tenemos" cuando no supera el mínimo). El vector local (Ollama) no
+    // comparte espacio con Voyage, por eso no se pasa aquí.
+    const { data } = await supabase.rpc('buscar_productos_hibrido', {
       query_text: params.mensaje,
       match_count: 5,
-      filtro: null,
     });
     productos = (Array.isArray(data) ? data : []) as ProductoMatch[];
   }
@@ -2014,6 +2022,12 @@ async function preguntarAsesorLocal(params: {
           : p.descripcion_corta_es || '',
       descripcion_larga: descLarga.slice(0, 300),
       tipo_comercial: p.tipo_comercial,
+      sku: p.sku ?? null,
+      disponible: p.disponible ?? null,
+      stock_estado: p.stock_estado ?? null,
+      // Única fuente válida del estado INVIMA: no afirmar registro si no es 'vigente'.
+      invima_estado: p.invima_estado ?? 'pendiente',
+      invima_rs: p.invima_estado === 'vigente' ? (p.invima_rs ?? null) : null,
       especificaciones: (d?.especificaciones ?? []).slice(0, 12),
       aplicaciones: (d
         ? ((params.locale === 'en' ? d.aplicaciones_en || d.aplicaciones_es : d.aplicaciones_es) ??

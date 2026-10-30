@@ -27,6 +27,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse } from '../_shared/errors.ts';
 import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { rutaImeia } from '../_shared/imeia-route.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { redactHistorial, redactPii } from '../_shared/pii-redact.ts';
 import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
@@ -36,7 +37,7 @@ import {
   esConsultaContacto,
   esConsultaSitioOLegal,
 } from '../../../src/lib/asesor-knowledge.ts';
-import { detectarAccionHandoff } from '../../../src/lib/asesor-guardrails.ts';
+import { aplicarGuardrailInvima, detectarAccionHandoff } from '../../../src/lib/asesor-guardrails.ts';
 import { IME_WHATSAPP_DISPLAY } from '../../../src/lib/contacto-oficial.ts';
 
 type Locale = 'es' | 'en';
@@ -249,7 +250,7 @@ Deno.serve(async req => {
       );
     }
 
-    const texto = typeof data.reply_texto === 'string' ? data.reply_texto.trim() : '';
+    const texto = typeof data.reply_texto === 'string' ? aplicarGuardrailInvima(data.reply_texto.trim()) : '';
     if (status === 'timeout' || (status === 'failed' && !texto)) {
       const isTimeout = status === 'timeout';
       return errorResponse(
@@ -526,6 +527,9 @@ async function despertarAgente(
     navigationContext: NavigationContext;
   }
 ): Promise<void> {
+  // Failover: con ruta 'hermes' el turno queda 'pending' y lo toma el worker
+  // Hermes en srv (pull por RPC); el widget sigue sondeando igual.
+  if ((await rutaImeia(supabase)) === 'hermes') return;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 10_000);
   try {

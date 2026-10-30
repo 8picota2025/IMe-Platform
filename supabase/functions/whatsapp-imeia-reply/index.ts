@@ -1,5 +1,7 @@
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { replyToWhatsAppBatch } from '../_shared/whatsapp-reply.ts';
+import { aplicarGuardrailInvima } from '../../../src/lib/asesor-guardrails.ts';
+import { esTokenWorkerHermes } from '../_shared/imeia-route.ts';
 import {
   resolveWhatsAppGraphConfig,
   timingSafeEqualString,
@@ -12,7 +14,10 @@ Deno.serve(async req => {
     Deno.env.get('IMEIA_AGENT_WEBHOOK_KEY'),
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
   ];
-  if (!bearer || !secrets.some(secret => secret && timingSafeEqualString(bearer, secret)))
+  const conSecreto =
+    !!bearer && secrets.some(secret => secret && timingSafeEqualString(bearer, secret));
+  // Worker Hermes (failover): token propio verificado por hash en BD.
+  if (!conSecreto && !(await esTokenWorkerHermes(getServerSupabase(), bearer)))
     return new Response(null, { status: 401 });
   const input = await req.json().catch(() => null);
   if (
@@ -34,7 +39,7 @@ Deno.serve(async req => {
       getServerSupabase(),
       graph,
       input.claim_token,
-      input.body.trim()
+      aplicarGuardrailInvima(input.body.trim())
     );
     const payload = result.error ? { ok: false as const, error: result.error } : { ok: result.ok };
     return Response.json(payload, { status: result.status });
