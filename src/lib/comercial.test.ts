@@ -44,6 +44,27 @@ describe('getAccionComercial — precio → carrito', () => {
     expect(accion.tipo).toBe('consultar');
   });
 
+  it('disponible false sin precio consulta, no cotiza', () => {
+    const accion = getAccionComercial({ precio: null, disponible: false }, 'es');
+    expect(accion.tipo).toBe('consultar');
+  });
+
+  it('Zuowei con disponible false usa el CTA de consulta y no el carrito', () => {
+    const es = getAccionComercial(
+      {
+        precio: null,
+        disponible: false,
+        sku: 'ZW568',
+        slug: 'exoesqueleto-rehabilitacion-marcha-zuowei-zw568',
+      },
+      'es'
+    );
+    expect(es.tipo).toBe('consultar');
+    expect(es.label).toBe('No disponible — consúltenos');
+    const en = getAccionComercial({ precio: null, disponible: false, sku: 'ZW502' }, 'en');
+    expect(en.label).toBe('Not available — contact us');
+  });
+
   it('producto sin precio → cotizacion', () => {
     const accion = getAccionComercial({ precio: null, disponible: true }, 'es');
     expect(accion.tipo).toBe('cotizacion');

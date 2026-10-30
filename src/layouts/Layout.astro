@@ -34,6 +34,7 @@ interface Props {
   monolingual?: boolean;
   showAsesor?: boolean;
   showQuoteRequest?: boolean;
+  ocultarMencionesInvima?: boolean;
 }
 
 const {
@@ -52,6 +53,7 @@ const {
   monolingual = false,
   showAsesor = true,
   showQuoteRequest = true,
+  ocultarMencionesInvima = false,
 } = Astro.props;
 
 const commercialBarAllowed =
@@ -97,7 +99,7 @@ const commercialBarAllowed =
       <slot />
     </main>
 
-    <Footer locale={locale} />
+    <Footer locale={locale} ocultarMencionesInvima={ocultarMencionesInvima} />
     {showAsesor && <Asesor locale={locale} />}
     <Carrito locale={locale} />
     <CotizacionDrawer locale={locale} />

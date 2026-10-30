@@ -50,8 +50,8 @@ const rehabCards = rehabZuowei().map(producto => ({
   producto,
   quote: buildWhatsAppHref(
     isEn
-      ? `Hello, I want a quote for the Zuowei ${producto.sku}.`
-      : `Hola, quiero cotizar el Zuowei ${producto.sku}.`
+      ? `Hello, I would like to ask about the Zuowei ${producto.sku}. It is not available for sale.`
+      : `Hola, quiero consultar el Zuowei ${producto.sku}. No está disponible para venta.`
   ),
 }));
 ---
@@ -231,7 +231,9 @@ const rehabCards = rehabZuowei().map(producto => ({
                     </dl>
                     <div class="rbo-card__links">
                       <a href={`${copy.productBase}${producto.slug}/`}>{copy.sheetCta}</a>
-                      <a href={quote} target="_blank" rel="noopener noreferrer">{copy.rehabQuote}</a>
+                      <a href={quote} target="_blank" rel="noopener noreferrer">
+                        {copy.rehabQuote}
+                      </a>
                     </div>
                   </div>
                 </article>

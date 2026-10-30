@@ -7,6 +7,7 @@
 import { t, type Locale } from '../i18n/utils';
 import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
+import { fichaZuoweiSinVenta } from '../lib/zuowei-sin-venta';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 
 interface ProductoCardData {
@@ -30,6 +31,7 @@ interface ProductoCardData {
   stock?: number | null;
   /** Escenario A: disponibilidad en tiempo real provista por el proveedor. */
   disponible?: boolean;
+  sku?: string | null;
   fulfillment_mode?: 'dropship' | 'cotizacion' | 'individualizado';
 }
 
@@ -46,6 +48,7 @@ const { producto, locale, comparable = false, deferImageLoad = false } = Astro.p
 const segment = locale === 'en' ? 'products' : 'productos';
 const href = `/${locale}/${segment}/${producto.slug}/`;
 const noDisponible = producto.disponible === false;
+const sinVenta = fichaZuoweiSinVenta(producto);
 const tienePrecio = tienePrecioPublico(producto.precio);
 const precioFormateado = tienePrecio
   ? formatMoneda(producto.precio, producto.moneda ?? 'COP', locale)
@@ -66,7 +69,7 @@ const imagenFallback =
     </svg>`
   );
 const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
-  `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
+  `${sinVenta ? t(locale, 'producto.sin_venta_cta') : t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
 )}`;
 ---
 
@@ -83,6 +86,7 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
   data-comercial={producto.tipo_comercial ?? ''}
   data-fulfillment={producto.fulfillment_mode ?? ''}
   data-disponible={producto.disponible === false ? '0' : '1'}
+  data-sin-venta={sinVenta ? '1' : '0'}
   data-destacado={producto.destacado ? '1' : '0'}
   data-nuevo={producto.nuevo ? '1' : '0'}
   data-busqueda={producto.texto_busqueda ?? ''}
@@ -153,7 +157,11 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
               <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
             )}
             {noDisponible && (
-              <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
+              <span class="badge badge-gris">
+                {sinVenta
+                  ? t(locale, 'producto.sin_venta_cta')
+                  : t(locale, 'producto.badge_no_disponible')}
+              </span>
             )}
           </div>
         )
@@ -173,7 +181,11 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
         <div class="producto-card__meta-item">
           <span class="producto-card__meta-label">{t(locale, 'producto.ficha_precio')}</span>
           <strong class="producto-card__meta-value">
-            {precioFormateado ?? t(locale, 'producto.precio_solicitud_corto')}
+            {
+              sinVenta
+                ? t(locale, 'producto.sin_venta_cta')
+                : (precioFormateado ?? t(locale, 'producto.precio_solicitud_corto'))
+            }
           </strong>
           {
             tienePrecio && (
@@ -185,11 +197,13 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
           <span class="producto-card__meta-label">{t(locale, 'producto.ficha_stock')}</span>
           <strong class="producto-card__meta-value">
             {
-              noDisponible || producto.stock === 0
-                ? t(locale, 'producto.ficha_no_disponible')
-                : producto.stock != null && producto.stock > 0
-                  ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
-                  : t(locale, 'producto.ficha_disponible')
+              sinVenta
+                ? t(locale, 'producto.sin_venta_cta')
+                : noDisponible || producto.stock === 0
+                  ? t(locale, 'producto.ficha_no_disponible')
+                  : producto.stock != null && producto.stock > 0
+                    ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
+                    : t(locale, 'producto.ficha_disponible')
             }
           </strong>
         </div>

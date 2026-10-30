@@ -1261,8 +1261,9 @@ export function initCatalogo(locale: Locale): () => void {
     const fulfillment = card.dataset['fulfillment'] ?? 'cotizacion';
     const precio = card.dataset['precio'] ?? '';
     const href = card.dataset['href'] ?? '#';
+    const sinVenta = card.dataset['sinVenta'] === '1';
     const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
-      `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${nombre}`
+      `${sinVenta ? t(locale, 'producto.sin_venta_cta') : t(locale, 'producto.cta_consultar_disponibilidad')}: ${nombre}`
     )}`;
 
     quickviewImagen.src = imagen;
@@ -1272,15 +1273,21 @@ export function initCatalogo(locale: Locale): () => void {
     quickviewDescripcion.textContent = descripcion;
     if (quickviewModalidad) quickviewModalidad.textContent = modalidadTexto(fulfillment);
     if (quickviewDisponibilidad)
-      quickviewDisponibilidad.textContent = disponibilidadTexto(disponible);
+      quickviewDisponibilidad.textContent = sinVenta
+        ? t(locale, 'producto.sin_venta_cta')
+        : disponibilidadTexto(disponible);
     if (quickviewStock)
-      quickviewStock.textContent =
-        disponible === '0' || card.dataset['stock'] === '0'
+      quickviewStock.textContent = sinVenta
+        ? t(locale, 'producto.sin_venta_cta')
+        : disponible === '0' || card.dataset['stock'] === '0'
           ? t(locale, 'producto.ficha_no_disponible')
           : card.dataset['stock']
             ? t(locale, 'carrito.stock_limitado').replace('{stock}', card.dataset['stock'] ?? '')
             : t(locale, 'producto.ficha_disponible');
-    if (quickviewPrecio) quickviewPrecio.textContent = precioTexto(card);
+    if (quickviewPrecio)
+      quickviewPrecio.textContent = sinVenta
+        ? t(locale, 'producto.sin_venta_cta')
+        : precioTexto(card);
     if (quickviewFicha) quickviewFicha.href = href;
 
     // Misma política que ProductoCard/Landing/crear-pago (F4.2) — no rutear por tipo_comercial.
@@ -1291,6 +1298,7 @@ export function initCatalogo(locale: Locale): () => void {
       {
         precio: tienePrecioPublico(precioNumero) ? precioNumero : null,
         disponible: disponible !== '0',
+        slug: card.dataset['productoSlug'] ?? '',
         stock: stockNumero !== null && Number.isFinite(stockNumero) ? stockNumero : null,
         gestionar_stock: stockNumero !== null,
       },

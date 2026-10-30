@@ -9,9 +9,11 @@ import { familyCatalogHref } from '../lib/seo-urls';
 
 interface Props {
   locale: Locale;
+  /** Fichas sin registro: no repetir el sello ni enlaces de registro INVIMA. */
+  ocultarMencionesInvima?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, ocultarMencionesInvima = false } = Astro.props;
 
 const familias = [
   { slug: 'monitores', label_es: 'Monitores de Signos Vitales', label_en: 'Patient Monitors' },
@@ -34,7 +36,7 @@ const path = (ruta: string) => getLocalizedPath(ruta, locale);
  * Plegados por defecto en todos los tamaños: <details> nativo, se despliega
  * con clic o teclado sin JavaScript.
  */
-const gruposFooter: Array<{
+const gruposFooterBase: Array<{
   id: string;
   titulo: string;
   enlaces: Array<{ href: string; label: string }>;
@@ -153,6 +155,14 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
   { kind: 'garantias', label: locale === 'en' ? 'Warranty' : 'Garantías' },
   { kind: 'copyright', label: t(locale, 'footer.copyright') },
 ];
+const gruposFooter = ocultarMencionesInvima
+  ? gruposFooterBase
+      .map(grupo => ({
+        ...grupo,
+        enlaces: grupo.enlaces.filter(enlace => !/invima/i.test(`${enlace.href} ${enlace.label}`)),
+      }))
+      .filter(grupo => grupo.enlaces.length > 0)
+  : gruposFooterBase;
 ---
 
 <footer class="footer" role="contentinfo">
@@ -267,9 +277,13 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         <p class="footer__copy">
           &copy; {year} I-ME International Medical Enterprise. {t(locale, 'footer.derechos')}.
         </p>
-        <p class="footer__certif">
-          {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
-        </p>
+        {
+          !ocultarMencionesInvima && (
+            <p class="footer__certif">
+              {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
+            </p>
+          )
+        }
       </div>
       <nav class="footer__legal" aria-label={t(locale, 'footer.legal')}>
         {

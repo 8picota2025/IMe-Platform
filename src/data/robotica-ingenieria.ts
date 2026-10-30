@@ -654,8 +654,8 @@ export const PAGE = {
       'La documentación regulatoria se confirma por referencia. Esta página no publica registros INVIMA, códigos UNSPSC ni precios.',
     rehabTitle: 'Nuevo · Rehabilitación de la marcha',
     rehabLead:
-      'Exoesqueletos Zuowei ZW568 y ZW598, y silla de bipedestación Zuowei ZW518. Precio bajo cotización. Garantía del fabricante Shenzhen Zuowei Technology.',
-    rehabQuote: 'Solicitar cotización',
+      'Exoesqueletos Zuowei ZW568 y ZW598, y silla de bipedestación Zuowei ZW518. Producto sin registro sanitario INVIMA en Colombia; no disponible para venta. Garantía del fabricante Shenzhen Zuowei Technology.',
+    rehabQuote: 'No disponible — consúltenos',
   },
   en: {
     title: 'Robot Distributors in Colombia and Latin America | I-ME',
@@ -714,8 +714,8 @@ export const PAGE = {
       'Applicable documentation is confirmed per reference. This page does not publish INVIMA registrations, UNSPSC codes or prices.',
     rehabTitle: 'New · Gait rehabilitation',
     rehabLead:
-      'Zuowei ZW568 and ZW598 exoskeletons, and the Zuowei ZW518 standing chair. Price on request. Manufacturer warranty from Shenzhen Zuowei Technology.',
-    rehabQuote: 'Request a quote',
+      'Zuowei ZW568 and ZW598 exoskeletons, and the Zuowei ZW518 standing chair. This product has no INVIMA health registration in Colombia; not available for sale. Manufacturer warranty from Shenzhen Zuowei Technology.',
+    rehabQuote: 'Not available — contact us',
   },
 };
 

@@ -44,6 +44,10 @@ describe('decidirCompra', () => {
   it('sin precio público pide cotización', () => {
     expect(decidirCompra({ ...comprable, precio: null }).tipo).toBe('cotizacion');
   });
+
+  it('disponible false sin precio consulta', () => {
+    expect(decidirCompra({ ...comprable, precio: null, disponible: false }).tipo).toBe('consultar');
+  });
 });
 
 describe('siguientePasoPedido', () => {

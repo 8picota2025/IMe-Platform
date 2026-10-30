@@ -11,8 +11,9 @@ import {
   buildUrlItemList,
   combineJsonLd,
 } from '../lib/seo';
-import type { Locale } from '../i18n/utils';
+import { t, type Locale } from '../i18n/utils';
 import type { Producto } from '../lib/datos';
+import { fichaZuoweiSinVenta } from '../lib/zuowei-sin-venta';
 
 interface Faq {
   q: string;
@@ -106,24 +107,38 @@ const jsonLd = combineJsonLd(
     }
     <ul class="tienda-lista" id="tienda-lista">
       {
-        productos.map(producto => (
-          <li
-            data-nombre={producto.nombre.toLocaleLowerCase(locale)}
-            data-precio={tienePrecioPublico(producto.precio) ? String(producto.precio) : ''}
-          >
-            <a href={`${productBase}${producto.slug}/`}>
-              <strong>{producto.nombre}</strong>
-              <span>
-                {tienePrecioPublico(producto.precio)
-                  ? formatMoneda(producto.precio, producto.moneda, locale)
-                  : isEn
-                    ? 'Price on request'
-                    : 'Precio bajo cotización'}
-              </span>
-            </a>
-            <a href={`${quoteBase}${producto.slug}`}>{isEn ? 'Request a quote' : 'Cotizar'}</a>
-          </li>
-        ))
+        productos.map(producto => {
+          const sinVenta = fichaZuoweiSinVenta(producto);
+          const consulta = `https://wa.me/573137247353?text=${encodeURIComponent(
+            `${t(locale, 'producto.sin_venta_cta')}: ${producto.nombre}`
+          )}`;
+          return (
+            <li
+              data-nombre={producto.nombre.toLocaleLowerCase(locale)}
+              data-precio={tienePrecioPublico(producto.precio) ? String(producto.precio) : ''}
+            >
+              <a href={`${productBase}${producto.slug}/`}>
+                <strong>{producto.nombre}</strong>
+                <span>
+                  {sinVenta
+                    ? t(locale, 'producto.sin_venta_cta')
+                    : tienePrecioPublico(producto.precio)
+                      ? formatMoneda(producto.precio, producto.moneda, locale)
+                      : isEn
+                        ? 'Price on request'
+                        : 'Precio bajo cotización'}
+                </span>
+              </a>
+              {sinVenta ? (
+                <a href={consulta} target="_blank" rel="noopener noreferrer">
+                  {t(locale, 'producto.sin_venta_cta')}
+                </a>
+              ) : (
+                <a href={`${quoteBase}${producto.slug}`}>{isEn ? 'Request a quote' : 'Cotizar'}</a>
+              )}
+            </li>
+          );
+        })
       }
     </ul>
     <h2>{isEn ? 'Shipping' : 'Envío'}</h2>

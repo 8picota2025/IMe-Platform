@@ -6,6 +6,7 @@
 import type { Locale } from '../i18n/utils';
 import { IME_WHATSAPP_TEL, IME_WHATSAPP_URL } from './contacto-oficial';
 import { normalizarMoneda, tienePrecioPublico } from './format';
+import { esFichaZuowei, fichaZuoweiSinVenta } from './zuowei-sin-venta';
 
 const SITE = 'https://i-me.com.co';
 const BRAND = 'I-ME';
@@ -560,8 +561,11 @@ function buildPriceValidUntil(): string {
 /**
  * JSON-LD Product para rich results de producto.
  * Con precio público: Offer con price, priceCurrency y availability.
- * Sin precio: no se emite Product. Un Offer sin price, o un Product sin
- * offers/review/aggregateRating, es el «1 elemento no válido» de Search Console.
+ * Sin precio y a la venta (cotización): no se emite Product. Un Offer sin price,
+ * o un Product sin offers/review/aggregateRating, es el «1 elemento no válido»
+ * de Search Console.
+ * Ficha Zuowei con disponible=false: Product con availability Discontinued y
+ * sin precio, para no prometer una compra.
  * No se inventan precios. shippingDetails y hasMerchantReturnPolicy se omiten:
  * no hay tarifa de flete publicada (el flete no va en el precio) y la garantía
  * es la del fabricante, no una ventana de devolución del comercio.
@@ -585,7 +589,8 @@ export function buildProductJsonLd(
   marca?: string | null,
   opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string | null }
 ): Record<string, unknown> | null {
-  if (!tienePrecioPublico(producto.precio)) return null;
+  const sinVenta = fichaZuoweiSinVenta(producto);
+  if (!tienePrecioPublico(producto.precio) && !sinVenta) return null;
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -595,8 +600,11 @@ export function buildProductJsonLd(
       : `${SITE}${producto.imagen_principal}`
     : DEFAULT_OG_IMAGE;
 
-  const certs = (opts?.certificaciones ?? []).map(c => c.trim()).filter(Boolean);
-  const hasRegulatory = certs.some(c => /invima|ce\b|fda|iso/i.test(c));
+  const certs = (opts?.certificaciones ?? [])
+    .map(c => c.trim())
+    .filter(Boolean)
+    .filter(c => !(esFichaZuowei(producto) && /invima/i.test(c)));
+  const hasRegulatory = !sinVenta && certs.some(c => /invima|ce\b|fda|iso/i.test(c));
 
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -612,20 +620,28 @@ export function buildProductJsonLd(
   };
   const modelo = opts?.model?.trim();
   if (modelo) jsonLd.model = modelo;
-  const priceCurrency = normalizarMoneda(producto.moneda);
-  jsonLd.offers = {
-    '@type': 'Offer',
-    url: canonicalUrl,
-    price: producto.precio,
-    priceCurrency,
-    priceValidUntil: buildPriceValidUntil(),
-    itemCondition: 'https://schema.org/NewCondition',
-    availability:
-      producto.disponible === false
-        ? 'https://schema.org/OutOfStock'
-        : 'https://schema.org/InStock',
-    seller: { '@id': `${SITE}/#organization` },
-  };
+  if (sinVenta) {
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      availability: 'https://schema.org/Discontinued',
+    };
+  } else {
+    const priceCurrency = normalizarMoneda(producto.moneda);
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      price: producto.precio,
+      priceCurrency,
+      priceValidUntil: buildPriceValidUntil(),
+      itemCondition: 'https://schema.org/NewCondition',
+      availability:
+        producto.disponible === false
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
+      seller: { '@id': `${SITE}/#organization` },
+    };
+  }
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';

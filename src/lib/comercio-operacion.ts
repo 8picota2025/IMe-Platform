@@ -32,7 +32,7 @@ export function decidirCompra(product: CommerceProductSignals): DecisionCompraRe
   const tienePrecio = tienePrecioPublico(product.precio);
   let tipo: DecisionCompra = 'cotizacion';
   if (purchase.ok) tipo = 'carrito';
-  else if (tienePrecio) tipo = 'consultar';
+  else if (tienePrecio || product.disponible === false) tipo = 'consultar';
   return {
     tipo,
     tienePrecio,
