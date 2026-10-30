@@ -14,7 +14,7 @@ import {
 const PHONE = '+57 313 724 7353';
 
 describe('catálogo Zuowei', () => {
-  it('publica los 9 modelos como nuevo, destacado y bajo cotización', () => {
+  it('publica los 9 modelos como nuevo y destacado, sin venta', () => {
     expect(ZUOWEI_PRODUCTOS.map(producto => producto.sku)).toEqual([
       'ZW568',
       'ZW598',
@@ -31,6 +31,7 @@ describe('catálogo Zuowei', () => {
         expect(vista.nuevo).toBe(true);
         expect(vista.destacado).toBe(true);
         expect(vista.precio).toBeNull();
+        expect(vista.disponible).toBe(false);
         expect(vista.fulfillment_mode).toBe('cotizacion');
         expect(vista.alt_imagen.length).toBeGreaterThan(10);
         expect(vista.imagen_ancho).toBeGreaterThan(0);
@@ -38,7 +39,11 @@ describe('catálogo Zuowei', () => {
         expect(existsSync(`public${vista.imagen_principal}`)).toBe(true);
         for (const src of vista.galeria) expect(existsSync(`public${src}`)).toBe(true);
         const jsonLd = buildProductJsonLd(vista, locale, 'Zuowei', vista.marca);
-        expect(jsonLd).toBeNull();
+        expect(jsonLd).not.toBeNull();
+        const offers = jsonLd?.offers as { availability?: string; price?: unknown };
+        expect(offers.availability).toBe('https://schema.org/Discontinued');
+        expect(offers.price).toBeUndefined();
+        expect(JSON.stringify(jsonLd)).not.toMatch(/InStock|OutOfStock|INVIMA en tr[aá]mite/i);
       }
     }
   });
@@ -47,7 +52,13 @@ describe('catálogo Zuowei', () => {
     const texto = JSON.stringify(ZUOWEI_PRODUCTOS);
     expect(texto).toContain(PHONE);
     expect(texto).toContain(ZUOWEI_GARANTIA.es);
-    expect(texto).not.toMatch(/Equitronic|Northern|Monnal|INVIMA/);
+    expect(texto).toContain(
+      'Producto sin registro sanitario INVIMA en Colombia; no disponible para venta.'
+    );
+    expect(texto).toContain(
+      'This product has no INVIMA health registration in Colombia; not available for sale.'
+    );
+    expect(texto).not.toMatch(/Equitronic|Northern|Monnal|INVIMA en tr[aá]mite|INVIMA\s+\d/i);
     expect(texto).not.toMatch(/220\s*V/);
     const conCargador = ZUOWEI_PRODUCTOS.filter(producto =>
       JSON.stringify(producto.especificaciones).includes('110–240 V')

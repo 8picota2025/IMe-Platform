@@ -387,6 +387,8 @@
     "ficha_precio": "Precio",
     "ficha_disponible": "Disponible",
     "ficha_no_disponible": "No disponible temporalmente",
+    "sin_venta_cta": "No disponible — consúltenos",
+    "sin_venta_nota": "Producto sin registro sanitario INVIMA en Colombia; no disponible para venta.",
     "iva_incluido": "IVA 19% incluido",
     "envio_colombia": "Envío a Colombia",
     "envio_no_incluido": "Gastos de envío no incluidos; se calculan según destino y se cobran por separado.",

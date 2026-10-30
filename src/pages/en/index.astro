@@ -526,6 +526,15 @@ const servicios = [
                       >
                         Add to cart
                       </button>
+                    ) : getAccionComercial(p, locale).tipo === 'consultar' ? (
+                      <a
+                        class="btn btn-outline btn-sm"
+                        href={`https://wa.me/573137247353?text=${encodeURIComponent(`${getAccionComercial(p, locale).label}: ${p.nombre}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {getAccionComercial(p, locale).label}
+                      </a>
                     ) : (
                       <button
                         type="button"

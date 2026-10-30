@@ -1,6 +1,7 @@
 import { t, type Locale } from '../i18n/utils';
 import { isPurchasable, type CommerceProductSignals } from './commerce-policy';
 import { tienePrecioPublico } from './format';
+import { fichaZuoweiSinVenta } from './zuowei-sin-venta';
 
 export type AccionComercialTipo = 'carrito' | 'cotizacion' | 'consultar';
 
@@ -29,7 +30,10 @@ export function getProductPurchaseMode(producto: ProductoComercial): ProductPurc
  * Con precio pero no comprable ahora (stock/disponible) → consultar.
  * Sin precio → cotización.
  */
-export function getAccionComercial(producto: ProductoComercial, locale: Locale): AccionComercial {
+export function getAccionComercial(
+  producto: ProductoComercial & { sku?: string | null; slug?: string | null },
+  locale: Locale
+): AccionComercial {
   const tienePrecio = tienePrecioPublico(producto.precio);
   const purchase = isPurchasable(producto, { quantity: 1 });
 
@@ -37,10 +41,13 @@ export function getAccionComercial(producto: ProductoComercial, locale: Locale):
     return { tipo: 'carrito', label: t(locale, 'carrito.agregar'), tienePrecio };
   }
 
-  if (tienePrecio) {
+  // disponible=false saca de carrito y de la lista de cotización.
+  if (producto.disponible === false || tienePrecio) {
     return {
       tipo: 'consultar',
-      label: t(locale, 'producto.cta_consultar_disponibilidad'),
+      label: fichaZuoweiSinVenta(producto)
+        ? t(locale, 'producto.sin_venta_cta')
+        : t(locale, 'producto.cta_consultar_disponibilidad'),
       tienePrecio,
     };
   }

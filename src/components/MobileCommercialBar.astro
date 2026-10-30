@@ -107,6 +107,10 @@ const quoteLabel = isEn ? 'Quote' : 'Cotización';
       cursor: pointer;
     }
 
+    .mobile-commercial-bar--consulta {
+      grid-template-columns: 1fr;
+    }
+
     .mobile-commercial-bar__action--whatsapp {
       color: #fff;
       background: #168b54;
@@ -137,7 +141,13 @@ const quoteLabel = isEn ? 'Quote' : 'Cotización';
     // En fichas de producto, sticky CTA debe conservar contexto de producto.
     // Contexto vive en landing para que funcione también con View Transitions.
     const mobileWhatsapp = bar.querySelector<HTMLAnchorElement>('[data-mobile-whatsapp]');
+    const trigger = bar.querySelector<HTMLButtonElement>('[data-mobile-quote-trigger]');
     const productContext = document.querySelector<HTMLElement>('[data-product-context]');
+    const sinVenta = productContext?.dataset.sinVenta === '1';
+    if (sinVenta) {
+      bar.classList.add('mobile-commercial-bar--consulta');
+      trigger?.setAttribute('hidden', '');
+    }
     if (mobileWhatsapp && productContext) {
       const name = productContext.dataset.productName?.trim();
       const model = productContext.dataset.productModel?.trim();
@@ -145,8 +155,21 @@ const quoteLabel = isEn ? 'Quote' : 'Cotización';
       const productUrl = productContext.dataset.productUrl?.trim();
       const datasheet = productContext.dataset.productDatasheet?.trim();
       if (name && productUrl) {
-        const message =
-          bar.dataset.locale === 'en'
+        const message = sinVenta
+          ? bar.dataset.locale === 'en'
+            ? [
+                'Hello, I would like to ask about this product. It is not available for sale.',
+                `Product: ${name}`,
+                model ? `Model: ${model}` : '',
+                `Product page: ${productUrl}`,
+              ]
+            : [
+                'Hola, quiero consultar este producto. No está disponible para venta.',
+                `Producto: ${name}`,
+                model ? `Referencia: ${model}` : '',
+                `Página del producto: ${productUrl}`,
+              ]
+          : bar.dataset.locale === 'en'
             ? [
                 'Hello, I would like to receive information and a quote for:',
                 `Product: ${name}`,
@@ -176,7 +199,6 @@ const quoteLabel = isEn ? 'Quote' : 'Cotización';
     }
 
     mobileCommercialAbort = new AbortController();
-    const trigger = bar.querySelector<HTMLButtonElement>('[data-mobile-quote-trigger]');
     const label = trigger?.dataset.label ?? '';
     trigger?.setAttribute('aria-label', label);
     trigger?.addEventListener(

@@ -17,6 +17,12 @@ import { familyCatalogHref } from '../lib/seo-urls';
 import { enlaceFamiliaTensiometro } from '../lib/tienda-catalogo';
 import { fichaPdfEspejo } from '../lib/fichas-pdf-manifest';
 import { datosConfianzaProducto, GARANTIA_FABRICANTE } from '../lib/producto-confianza';
+import {
+  esFichaZuowei,
+  fichaZuoweiSinVenta,
+  specMencionaInvima,
+  textoSinPromesaDeVenta,
+} from '../lib/zuowei-sin-venta';
 import { muestraPromoPadbot } from '../data/promo-padbot';
 import NotaPromoPadbot from './NotaPromoPadbot.astro';
 
@@ -34,11 +40,18 @@ const { producto, familia, relacionados, locale, seoH1, seoIntro, enlaces = [] }
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 
+const sinVenta = fichaZuoweiSinVenta(producto);
+const fichaZuowei = esFichaZuowei(producto);
 const especificaciones = normalizarEspecificaciones(
   locale === 'en' && producto.especificaciones_en && producto.especificaciones_en.length > 0
     ? producto.especificaciones_en
     : producto.especificaciones
-);
+).filter(item => !(fichaZuowei && specMencionaInvima(item)));
+const notaSinVenta = t(locale, 'producto.sin_venta_nota');
+const ctaSinVenta = t(locale, 'producto.sin_venta_cta');
+const descripcionLarga = sinVenta
+  ? textoSinPromesaDeVenta(producto.descripcion_larga, notaSinVenta)
+  : producto.descripcion_larga;
 const grupos = new Map<string, typeof especificaciones>();
 for (const espec of especificaciones) {
   const grupo = espec.grupo ?? '';
@@ -102,13 +115,15 @@ const modalidadTexto =
     : locale === 'en'
       ? 'Equipment'
       : 'Equipo';
-const disponibilidadTexto = noDisponible
-  ? t(locale, 'producto.ficha_no_disponible')
-  : producto.stock != null && producto.stock > 0
-    ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
-    : producto.stock === 0
-      ? t(locale, 'producto.ficha_no_disponible')
-      : t(locale, 'producto.ficha_disponible');
+const disponibilidadTexto = sinVenta
+  ? ctaSinVenta
+  : noDisponible
+    ? t(locale, 'producto.ficha_no_disponible')
+    : producto.stock != null && producto.stock > 0
+      ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
+      : producto.stock === 0
+        ? t(locale, 'producto.ficha_no_disponible')
+        : t(locale, 'producto.ficha_disponible');
 const productSegment = locale === 'en' ? 'products' : 'productos';
 const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.slug}/`;
 const modelo = especificaciones.find(item => /^(modelo|model)$/i.test(item.clave))?.valor;
@@ -169,7 +184,29 @@ const whatsappMensajeCompra =
         `Producto: ${producto.nombre}`,
         `Página del producto: ${productUrl}`,
       ].join('\n');
-const whatsappMensaje = esCommerce ? whatsappMensajeCompra : whatsappMensajeCotizacion;
+const whatsappMensajeSinVenta =
+  locale === 'en'
+    ? [
+        'Hello, I would like to ask about this product. It is not available for sale.',
+        `Product: ${producto.nombre}`,
+        modelo ? `Model: ${modelo}` : '',
+        `Product page: ${productUrl}`,
+      ]
+        .filter(Boolean)
+        .join('\n')
+    : [
+        'Hola, quiero consultar este producto. No está disponible para venta.',
+        `Producto: ${producto.nombre}`,
+        modelo ? `Referencia: ${modelo}` : '',
+        `Página del producto: ${productUrl}`,
+      ]
+        .filter(Boolean)
+        .join('\n');
+const whatsappMensaje = sinVenta
+  ? whatsappMensajeSinVenta
+  : esCommerce
+    ? whatsappMensajeCompra
+    : whatsappMensajeCotizacion;
 const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(whatsappMensaje)}`;
 
 const migas = [
@@ -201,6 +238,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
   data-family-slug={familia.slug}
   data-product-slug={producto.slug}
   data-product-summary={producto.descripcion_corta}
+  data-sin-venta={sinVenta ? '1' : '0'}
 >
   <!-- Breadcrumb -->
   <nav class="breadcrumb container" aria-label={t(locale, 'catalogo.migas_inicio')}>
@@ -276,7 +314,9 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                   <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
                 )}
                 {noDisponible && (
-                  <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
+                  <span class="badge badge-gris">
+                    {sinVenta ? ctaSinVenta : t(locale, 'producto.badge_no_disponible')}
+                  </span>
                 )}
               </div>
             )
@@ -355,7 +395,10 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
           }
           {
             enlaces.length > 0 && (
-              <nav class="pdp-identity__desc" aria-label={locale === 'en' ? 'Related pages' : 'Páginas relacionadas'}>
+              <nav
+                class="pdp-identity__desc"
+                aria-label={locale === 'en' ? 'Related pages' : 'Páginas relacionadas'}
+              >
                 <ul>
                   {enlaces.map(enlace => (
                     <li>
@@ -400,7 +443,44 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 
         <!-- Panel commerce -->
         {
-          esCommerce && (
+          sinVenta && (
+            <section
+              class="quote-card"
+              id="cta-principal"
+              aria-label={ctaSinVenta}
+              data-sin-venta-panel
+            >
+              <p class="quote-card__estado quote-card__estado--no">
+                <span class="quote-card__dot" aria-hidden="true" />
+                {ctaSinVenta}
+              </p>
+              {referencia && (
+                <p class="quote-card__ref">
+                  {t(locale, 'producto.quote_referencia').replace('{ref}', referencia)}
+                </p>
+              )}
+              <p class="pdp-sin-venta" role="note">
+                {notaSinVenta}
+              </p>
+              <a
+                class="btn-pdp btn-pdp--primary"
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {ctaSinVenta}
+              </a>
+              <p class="quote-card__desc">
+                <a href={contactoHref}>{locale === 'en' ? 'Contact' : 'Contacto'}</a>
+                {' · '}
+                <a href="tel:+573137247353">+57 313 724 7353</a>
+              </p>
+            </section>
+          )
+        }
+
+        {
+          esCommerce && !sinVenta && (
             <section
               class="product-purchase-panel"
               id="cta-principal"
@@ -526,7 +606,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 
         <!-- Panel quote (existente, columna comercial) -->
         {
-          esCotizacion && (
+          esCotizacion && !sinVenta && (
             <section
               class="quote-card"
               id="cta-principal"
@@ -669,7 +749,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
         aria-label={locale === 'en' ? 'Product information' : 'Información del producto'}
       >
         {
-          producto.descripcion_larga && (
+          descripcionLarga && (
             <button
               type="button"
               class="pdp-tabs__tab"
@@ -689,7 +769,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
           role="tab"
           id="tab-specs"
           aria-controls="panel-specs"
-          aria-selected={!producto.descripcion_larga}
+          aria-selected={!descripcionLarga}
           data-pdp-tab="specs"
         >
           {t(locale, 'producto.specs_titulo')}
@@ -742,7 +822,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
       </div>
 
       {
-        producto.descripcion_larga && (
+        descripcionLarga && (
           <div
             class="pdp-tabs__panel"
             role="tabpanel"
@@ -754,9 +834,12 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               {locale === 'en' ? 'Product description' : 'Descripción del producto'}
             </h2>
             <div class="producto-contexto">
-              {producto.descripcion_larga.split('\n\n').map(parrafo => (
-                <p>{parrafo}</p>
-              ))}
+              {descripcionLarga
+                .split('\n\n')
+                .filter(parrafo => parrafo.trim())
+                .map(parrafo => (
+                  <p>{parrafo}</p>
+                ))}
             </div>
             {producto.beneficios.length > 0 && (
               <ul class="pdp-desc-highlights" role="list">
@@ -778,7 +861,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
         id="panel-specs"
         aria-labelledby="tab-specs"
         data-pdp-panel="specs"
-        hidden={producto.descripcion_larga ? true : undefined}
+        hidden={descripcionLarga ? true : undefined}
       >
         <h2 class="sr-only">{t(locale, 'producto.specs_titulo')}</h2>
         {
@@ -926,7 +1009,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
         </a>
       </div>
       {
-        esCotizacion && (
+        esCotizacion && !sinVenta && (
           <div class="pdp-assist-card pdp-assist-card--muted">
             <h2>{locale === 'en' ? 'Institutional quote?' : '¿Cotización para tu institución?'}</h2>
             <p>
@@ -975,11 +1058,12 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     </h2>
     <ul>
       {
-        confianza.invima.map(item => (
-          <li>
-            <strong>INVIMA.</strong> {item.clave}: {item.valor}
-          </li>
-        ))
+        !fichaZuowei &&
+          confianza.invima.map(item => (
+            <li>
+              <strong>INVIMA.</strong> {item.clave}: {item.valor}
+            </li>
+          ))
       }
       <li>
         <strong>{GARANTIA_FABRICANTE[locale]}.</strong>
@@ -1011,7 +1095,12 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
         <a href="tel:+573137247353">+57 313 724 7353</a>.{' '}
         <a href={serviciosHref}>{locale === 'en' ? 'Services' : 'Servicios'}</a>
         {' · '}
-        <a href={contactoHref}>{locale === 'en' ? 'Request a quote' : 'Solicitar cotización'}</a>
+        <a
+          href={sinVenta ? whatsappHref : contactoHref}
+          {...sinVenta ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+        >
+          {sinVenta ? ctaSinVenta : locale === 'en' ? 'Request a quote' : 'Solicitar cotización'}
+        </a>
       </li>
       {
         relacionados.length > 0 && (
@@ -1073,21 +1162,34 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     <div class="container cta-final__inner">
       <h2>
         {
-          esCommerce && isPurchasableProduct
-            ? t(locale, 'producto.commerce_contacto_titulo')
-            : t(locale, 'producto.contacto_titulo')
+          sinVenta
+            ? ctaSinVenta
+            : esCommerce && isPurchasableProduct
+              ? t(locale, 'producto.commerce_contacto_titulo')
+              : t(locale, 'producto.contacto_titulo')
         }
       </h2>
       <p>
         {
-          esCommerce && isPurchasableProduct
-            ? t(locale, 'producto.commerce_contacto_desc')
-            : t(locale, 'producto.contacto_desc')
+          sinVenta
+            ? notaSinVenta
+            : esCommerce && isPurchasableProduct
+              ? t(locale, 'producto.commerce_contacto_desc')
+              : t(locale, 'producto.contacto_desc')
         }
       </p>
       <div class="cta-final__acciones">
         {
-          accionComercial.tipo === 'carrito' ? (
+          sinVenta ? (
+            <a
+              class="btn-hero-primary"
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {ctaSinVenta}
+            </a>
+          ) : accionComercial.tipo === 'carrito' ? (
             <button type="button" class="btn-hero-primary" data-pdp-add-footer>
               {t(locale, 'producto.commerce_anadir_cesta')}
             </button>
@@ -1164,7 +1266,21 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 
   <!-- CTA sticky -->
   {
-    esCotizacion ? (
+    sinVenta ? (
+      <div class="cta-sticky cta-sticky--quote" id="cta-sticky" hidden>
+        <div class="container cta-sticky__inner">
+          <p class="cta-sticky__precio">{ctaSinVenta}</p>
+          <a
+            class="quote-btn quote-btn--secondary quote-btn--compact"
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {ctaSinVenta}
+          </a>
+        </div>
+      </div>
+    ) : esCotizacion ? (
       <div class="cta-sticky cta-sticky--quote" id="cta-sticky" hidden>
         <div class="container cta-sticky__inner">
           <p class="cta-sticky__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
@@ -2496,6 +2612,16 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     }
   }
 
+  .pdp-sin-venta {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--off2);
+    color: var(--ink);
+    font-weight: 600;
+    line-height: 1.45;
+  }
   .quote-card {
     display: flex;
     flex-direction: column;

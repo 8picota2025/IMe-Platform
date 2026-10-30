@@ -119,6 +119,29 @@ describe('buildProductJsonLd', () => {
     expect(jsonLd.sku).toBe('M12-BIOLIGHT');
   });
 
+  it('ficha Zuowei no disponible emite Discontinued sin precio ni registro', () => {
+    const jsonLd = buildProductJsonLd(
+      {
+        ...producto,
+        precio: null,
+        disponible: false,
+        sku: 'ZW568',
+        slug: 'exoesqueleto-rehabilitacion-marcha-zuowei-zw568',
+        nombre: 'Exoesqueleto de asistencia de marcha Zuowei ZW568',
+      },
+      'es',
+      'Robots',
+      'Zuowei',
+      { certificaciones: ['INVIMA en trámite'] }
+    );
+    expect(jsonLd).not.toBeNull();
+    const offers = (jsonLd as { offers: Record<string, unknown> }).offers;
+    expect(offers.availability).toBe('https://schema.org/Discontinued');
+    expect(offers.price).toBeUndefined();
+    expect(offers.priceCurrency).toBeUndefined();
+    expect(JSON.stringify(jsonLd)).not.toMatch(/INVIMA|InStock|OutOfStock/);
+  });
+
   it('sin precio no emite Product aunque la familia sea de imagen, esterilización o robots', () => {
     for (const familiaSlug of ['radiologia', 'esterilizacion-control-infecciones', 'robots']) {
       expect(

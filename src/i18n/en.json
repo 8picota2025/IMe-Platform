@@ -387,6 +387,8 @@
     "ficha_precio": "Price",
     "ficha_disponible": "Available",
     "ficha_no_disponible": "Temporarily unavailable",
+    "sin_venta_cta": "Not available — contact us",
+    "sin_venta_nota": "This product has no INVIMA health registration in Colombia; not available for sale.",
     "iva_incluido": "19% VAT included",
     "envio_colombia": "Shipping to Colombia",
     "envio_no_incluido": "Shipping costs are not included; they are calculated by destination and charged separately.",

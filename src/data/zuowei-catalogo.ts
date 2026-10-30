@@ -167,19 +167,14 @@ function fabricante(): { es: ZuoweiSpec; en: ZuoweiSpec } {
   return ficha({ es: 'Fabricante', en: 'Manufacturer' }, { es: FABRICANTE, en: FABRICANTE });
 }
 
-function pares(
-  items: Array<{ es: ZuoweiSpec; en: ZuoweiSpec }>
-): { es: ZuoweiSpec[]; en: ZuoweiSpec[] } {
+function pares(items: Array<{ es: ZuoweiSpec; en: ZuoweiSpec }>): {
+  es: ZuoweiSpec[];
+  en: ZuoweiSpec[];
+} {
   return { es: items.map(item => item.es), en: items.map(item => item.en) };
 }
 
-function img(
-  slug: string,
-  file: string,
-  alt: L10n,
-  ancho: number,
-  alto: number
-): ZuoweiImagen {
+function img(slug: string, file: string, alt: L10n, ancho: number, alto: number): ZuoweiImagen {
   return {
     src: `/assets/productos/zuowei/${slug}/${file}`,
     alt_es: alt.es,
@@ -190,8 +185,8 @@ function img(
 }
 
 const cierre = {
-  es: `Precio bajo cotización. ${ZUOWEI_GARANTIA.es} WhatsApp ${PHONE}.`,
-  en: `Price on request. ${ZUOWEI_GARANTIA.en} WhatsApp ${PHONE}.`,
+  es: `Producto sin registro sanitario INVIMA en Colombia; no disponible para venta. ${ZUOWEI_GARANTIA.es} WhatsApp ${PHONE}.`,
+  en: `This product has no INVIMA health registration in Colombia; not available for sale. ${ZUOWEI_GARANTIA.en} WhatsApp ${PHONE}.`,
 };
 
 const S568 = 'exoesqueleto-rehabilitacion-marcha-zuowei-zw568';
@@ -261,10 +256,7 @@ const specs598 = pares([
     { es: 'Motores', en: 'Motors' },
     { es: '2 motores, hasta 16 Nm', en: '2 motors, up to 16 Nm' }
   ),
-  ficha(
-    { es: 'Asistencia', en: 'Assistance' },
-    { es: '6 niveles', en: '6 levels' }
-  ),
+  ficha({ es: 'Asistencia', en: 'Assistance' }, { es: '6 niveles', en: '6 levels' }),
   ficha(
     { es: 'Estructura', en: 'Frame' },
     { es: 'Aleación de aluminio, plegable', en: 'Aluminum alloy, foldable' }
@@ -314,10 +306,7 @@ const specs518 = pares([
     { es: 'Dimensiones de pie', en: 'Standing size' },
     { es: '1000 × 690 × 2000 mm', en: '1000 × 690 × 2000 mm' }
   ),
-  ficha(
-    { es: 'Estatura de usuario', en: 'User height' },
-    { es: '140–180 cm', en: '140–180 cm' }
-  ),
+  ficha({ es: 'Estatura de usuario', en: 'User height' }, { es: '140–180 cm', en: '140–180 cm' }),
   ficha(
     { es: 'Arnés de seguridad', en: 'Safety harness' },
     { es: 'Hasta 150 kg', en: 'Up to 150 kg' }
@@ -334,18 +323,12 @@ const specs302 = pares([
     { es: 'Hidráulica por pedal', en: 'Hydraulic, pedal operated' }
   ),
   ficha({ es: 'Carga máxima', en: 'Maximum load' }, { es: '120 kg', en: '120 kg' }),
-  ficha(
-    { es: 'Recorrido del asiento', en: 'Seat travel' },
-    { es: '20 cm', en: '20 cm' }
-  ),
+  ficha({ es: 'Recorrido del asiento', en: 'Seat travel' }, { es: '20 cm', en: '20 cm' }),
   ficha(
     { es: 'Asiento', en: 'Seat' },
     { es: 'Dividido, apertura 180°', en: 'Split seat, 180° opening' }
   ),
-  ficha(
-    { es: 'Uso', en: 'Use' },
-    { es: 'Hogar y residencias', en: 'Home and care residences' }
-  ),
+  ficha({ es: 'Uso', en: 'Use' }, { es: 'Hogar y residencias', en: 'Home and care residences' }),
   garantia(),
 ]);
 
@@ -364,20 +347,11 @@ const specs365 = pares([
   ficha({ es: 'Carga máxima', en: 'Maximum load' }, { es: '200 kg', en: '200 kg' }),
   ficha({ es: 'Recorrido', en: 'Travel' }, { es: '30 cm', en: '30 cm' }),
   ficha({ es: 'Motor', en: 'Motor' }, { es: '100 W', en: '100 W' }),
-  ficha(
-    { es: 'Entrada del cargador', en: 'Charger input' },
-    { es: '110–240 V', en: '110–240 V' }
-  ),
+  ficha({ es: 'Entrada del cargador', en: 'Charger input' }, { es: '110–240 V', en: '110–240 V' }),
   ficha({ es: 'Salida', en: 'Output' }, { es: '29,4 V', en: '29.4 V' }),
-  ficha(
-    { es: 'Batería', en: 'Battery' },
-    { es: '25,2 V 3.200 mAh', en: '25.2 V 3,200 mAh' }
-  ),
+  ficha({ es: 'Batería', en: 'Battery' }, { es: '25,2 V 3.200 mAh', en: '25.2 V 3,200 mAh' }),
   ficha({ es: 'Tiempo de carga', en: 'Charge time' }, { es: '3,5 h', en: '3.5 h' }),
-  ficha(
-    { es: 'Velocidad de elevación', en: 'Lift speed' },
-    { es: '≤4 mm/s', en: '≤4 mm/s' }
-  ),
+  ficha({ es: 'Velocidad de elevación', en: 'Lift speed' }, { es: '≤4 mm/s', en: '≤4 mm/s' }),
   ficha(
     { es: 'Indicador', en: 'Indicator' },
     { es: 'Pantalla LED de batería', en: 'Battery LED display' }
@@ -438,14 +412,8 @@ const specs501 = pares([
   ),
   ficha({ es: 'Peso bruto', en: 'Gross weight' }, { es: '27 kg', en: '27 kg' }),
   ficha({ es: 'Carga máxima', en: 'Maximum load' }, { es: '120 kg', en: '120 kg' }),
-  ficha(
-    { es: 'Freno', en: 'Brake' },
-    { es: 'Electromagnético', en: 'Electromagnetic' }
-  ),
-  ficha(
-    { es: 'Batería', en: 'Battery' },
-    { es: 'Litio extraíble', en: 'Removable lithium' }
-  ),
+  ficha({ es: 'Freno', en: 'Brake' }, { es: 'Electromagnético', en: 'Electromagnetic' }),
+  ficha({ es: 'Batería', en: 'Battery' }, { es: 'Litio extraíble', en: 'Removable lithium' }),
   garantia(),
 ]);
 
@@ -493,14 +461,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Exoesqueleto de marcha Zuowei ZW568 | I-ME Colombia',
       description:
-        'Exoesqueleto de cadera Zuowei ZW568 con doble unidad de potencia y 5 niveles de asistencia para entrenamiento de marcha. Cotiza con I-ME en Colombia.',
+        'Exoesqueleto de cadera Zuowei ZW568 con doble unidad de potencia y 5 niveles de asistencia para entrenamiento de marcha. No está a la venta.',
       h1: 'Exoesqueleto de asistencia de marcha Zuowei ZW568',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW568 gait exoskeleton | I-ME Colombia',
       description:
-        'Zuowei ZW568 hip exoskeleton with dual power units and 5 assistance levels for gait training. Request a quote from I-ME in Colombia.',
+        'Zuowei ZW568 hip exoskeleton with dual power units and 5 assistance levels for gait training. Not available for sale in Colombia.',
       h1: 'Zuowei ZW568 gait assistance exoskeleton',
       intro: '',
     },
@@ -615,14 +583,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Exoesqueleto ultraligero Zuowei ZW598 2,4 kg | I-ME',
       description:
-        'Exoesqueleto portátil Zuowei ZW598 de 2,4 kg con doble motor de hasta 16 Nm y 6 niveles de asistencia. Plegable, para uso diario. Cotiza con I-ME.',
+        'Exoesqueleto portátil Zuowei ZW598 de 2,4 kg con doble motor de hasta 16 Nm y 6 niveles de asistencia. Plegable, para uso diario. No está a la venta.',
       h1: 'Exoesqueleto portátil ultraligero Zuowei ZW598',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW598 ultralight exoskeleton, 2.4 kg | I-ME',
       description:
-        'Portable Zuowei ZW598 exoskeleton, 2.4 kg, with a dual motor up to 16 Nm and 6 assistance levels. Foldable, for daily use. Request a quote from I-ME.',
+        'Portable Zuowei ZW598 exoskeleton, 2.4 kg, with a dual motor up to 16 Nm and 6 assistance levels. Foldable, for daily use. Not available for sale.',
       h1: 'Zuowei ZW598 ultralight portable exoskeleton',
       intro: '',
     },
@@ -700,14 +668,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Silla eléctrica con bipedestación Zuowei ZW518 | I-ME',
       description:
-        'Zuowei ZW518: silla de ruedas eléctrica y equipo de bipedestación y marcha asistida en uno, con freno electromagnético y joystick. Cotiza con I-ME.',
+        'Zuowei ZW518: silla de ruedas eléctrica y equipo de bipedestación y marcha asistida en uno, con freno electromagnético y joystick. No está a la venta.',
       h1: 'Silla de ruedas eléctrica con bipedestación y marcha Zuowei ZW518',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW518 standing power wheelchair | I-ME',
       description:
-        'Zuowei ZW518 combines a power wheelchair with standing and assisted gait, electromagnetic brake and joystick. Request a quote from I-ME.',
+        'Zuowei ZW518 combines a power wheelchair with standing and assisted gait, electromagnetic brake and joystick. Not available for sale.',
       h1: 'Zuowei ZW518 power wheelchair with standing and gait',
       intro: '',
     },
@@ -819,14 +787,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Silla de transferencia hidráulica Zuowei ZW302 | I-ME',
       description:
-        'Silla de transferencia Zuowei ZW302 con elevación hidráulica por pedal, asiento dividido 180° y 120 kg de carga. Para hogar y residencias. Cotiza con I-ME.',
+        'Silla de transferencia Zuowei ZW302 con elevación hidráulica por pedal, asiento dividido 180° y 120 kg de carga. No está a la venta.',
       h1: 'Silla de transferencia hidráulica Zuowei ZW302',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW302 hydraulic transfer chair | I-ME',
       description:
-        'Zuowei ZW302 transfer chair with pedal hydraulic lift, 180° split seat and 120 kg load. For home and care residences. Request a quote from I-ME.',
+        'Zuowei ZW302 transfer chair with pedal hydraulic lift, 180° split seat and 120 kg load. For home and care residences. Not available for sale.',
       h1: 'Zuowei ZW302 hydraulic transfer chair',
       intro: '',
     },
@@ -904,14 +872,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Silla de transferencia eléctrica Zuowei ZW365D-2 | I-ME',
       description:
-        'Silla de transferencia eléctrica Zuowei ZW365D-2: elevación de 30 cm, asiento de 51 cm, 200 kg de carga y pantalla LED de batería. Cotiza con I-ME.',
+        'Silla de transferencia eléctrica Zuowei ZW365D-2: elevación de 30 cm, asiento de 51 cm, 200 kg de carga y pantalla LED de batería. No está a la venta.',
       h1: 'Silla de transferencia eléctrica Zuowei ZW365D-2',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW365D-2 electric transfer chair | I-ME',
       description:
-        'Zuowei ZW365D-2 electric transfer chair: 30 cm lift, 51 cm seat, 200 kg load and battery LED display. Request a quote from I-ME.',
+        'Zuowei ZW365D-2 electric transfer chair: 30 cm lift, 51 cm seat, 200 kg load and battery LED display. Not available for sale.',
       h1: 'Zuowei ZW365D-2 electric transfer chair',
       intro: '',
     },
@@ -989,14 +957,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Silla de transferencia manual Zuowei ZW366S | I-ME',
       description:
-        'Silla de transferencia Zuowei ZW366S con elevación por manivela, asiento dividido 180° y 120 kg de carga. Sin batería. Cotiza con I-ME Colombia.',
+        'Silla de transferencia Zuowei ZW366S con elevación por manivela, asiento dividido 180° y 120 kg de carga. Sin batería. No está a la venta.',
       h1: 'Silla de transferencia manual con manivela Zuowei ZW366S',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW366S manual transfer chair | I-ME',
       description:
-        'Zuowei ZW366S transfer chair with crank lift, 180° split seat and 120 kg load. No battery. Request a quote from I-ME in Colombia.',
+        'Zuowei ZW366S transfer chair with crank lift, 180° split seat and 120 kg load. No battery. Not available for sale in Colombia.',
       h1: 'Zuowei ZW366S manual crank transfer chair',
       intro: '',
     },
@@ -1074,14 +1042,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Ducha portátil para pacientes en cama Zuowei ZW186 | I-ME',
       description:
-        'Zuowei ZW186: máquina de ducha portátil para el aseo de pacientes encamados. Higiene en cama, con atención a la dignidad. Cotiza con I-ME Colombia.',
+        'Zuowei ZW186: máquina de ducha portátil para el aseo de pacientes encamados. Higiene en cama, con atención a la dignidad. No está a la venta.',
       h1: 'Máquina de ducha portátil para pacientes encamados Zuowei ZW186',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW186 portable bed shower | I-ME',
       description:
-        'Zuowei ZW186 portable shower for bathing people who are in bed. In-bed hygiene, with attention to dignity. Request a quote from I-ME in Colombia.',
+        'Zuowei ZW186 portable shower for bathing people who are in bed. In-bed hygiene, with attention to dignity. Not available for sale in Colombia.',
       h1: 'Zuowei ZW186 portable shower for people in bed',
       intro: '',
     },
@@ -1159,14 +1127,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Scooter eléctrico plegable Zuowei ZW501 | I-ME',
       description:
-        'Scooter de movilidad Zuowei ZW501: plegado en 3 segundos, 6,4 km/h, hasta 30 km con dos baterías de litio y 120 kg de carga. Cotiza con I-ME Colombia.',
+        'Scooter de movilidad Zuowei ZW501: plegado en 3 segundos, 6,4 km/h, hasta 30 km con dos baterías de litio y 120 kg de carga. No está a la venta.',
       h1: 'Scooter eléctrico de movilidad plegable Zuowei ZW501',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW501 foldable mobility scooter | I-ME',
       description:
-        'Zuowei ZW501 mobility scooter: folds in 3 seconds, 6.4 km/h, up to 30 km with two lithium batteries and a 120 kg load. Request a quote from I-ME.',
+        'Zuowei ZW501 mobility scooter: folds in 3 seconds, 6.4 km/h, up to 30 km with two lithium batteries and a 120 kg load. Not available for sale.',
       h1: 'Zuowei ZW501 foldable mobility scooter',
       intro: '',
     },
@@ -1174,7 +1142,11 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     especificaciones_en: specs501.en,
     aplicaciones_es: ['Movilidad personal en interiores y exteriores, según la ficha'],
     aplicaciones_en: ['Personal mobility indoors and outdoors, as described on the sheet'],
-    beneficios_es: ['Plegado en 3 segundos', 'Batería de litio extraíble', 'Freno electromagnético'],
+    beneficios_es: [
+      'Plegado en 3 segundos',
+      'Batería de litio extraíble',
+      'Freno electromagnético',
+    ],
     beneficios_en: ['Folds in 3 seconds', 'Removable lithium battery', 'Electromagnetic brake'],
     seo_keywords_es: ['scooter eléctrico plegable', 'Zuowei ZW501', 'movilidad'],
     seo_keywords_en: ['foldable mobility scooter', 'Zuowei ZW501'],
@@ -1244,14 +1216,14 @@ export const ZUOWEI_PRODUCTOS: readonly ZuoweiProducto[] = [
     seo_es: {
       title: 'Scooter 4 ruedas ultraligero Zuowei ZW502 16 kg | I-ME',
       description:
-        'Scooter eléctrico Zuowei ZW502 de 4 ruedas en aluminio: 16 kg, plegado en 1 s y 8 km/h. Cabe en el baúl. Cotiza con I-ME.',
+        'Scooter eléctrico Zuowei ZW502 de 4 ruedas en aluminio: 16 kg, plegado en 1 s y 8 km/h. Cabe en el baúl. No está a la venta.',
       h1: 'Scooter eléctrico de 4 ruedas plegable Zuowei ZW502',
       intro: '',
     },
     seo_en: {
       title: 'Zuowei ZW502 ultralight 4-wheel scooter, 16 kg | I-ME',
       description:
-        'Zuowei ZW502 four-wheel aluminum scooter: 16 kg, folds in 1 s and travels at 8 km/h. Fits in a trunk. Request a quote from I-ME.',
+        'Zuowei ZW502 four-wheel aluminum scooter: 16 kg, folds in 1 s and travels at 8 km/h. Fits in a trunk. Not available for sale.',
       h1: 'Zuowei ZW502 foldable 4-wheel electric scooter',
       intro: '',
     },
@@ -1425,7 +1397,7 @@ export interface VistaZuowei {
   moneda: 'COP';
   sku: string;
   stock: null;
-  disponible: true;
+  disponible: false;
   destacado: true;
   nuevo: true;
   activo: true;
@@ -1466,7 +1438,7 @@ export function vistasZuowei(locale: Locale): VistaZuowei[] {
       moneda: 'COP',
       sku: producto.sku,
       stock: null,
-      disponible: true,
+      disponible: false,
       destacado: true,
       nuevo: true,
       activo: true,
@@ -1539,12 +1511,12 @@ export function sqlZuowei(): string {
       'equipo',
       'cotizacion',
       NULL, NULL, NULL, 'COP',
-      NULL, false, true, true, true, true,
+      NULL, false, false, true, true, true,
       ${producto.orden}
     )`;
   }).join(',\n');
 
-  return `-- Catálogo Zuowei: 9 modelos, precio bajo cotización, nuevo y destacado.
+  return `-- Catálogo Zuowei: 9 modelos, sin venta (sin registro INVIMA), nuevo y destacado.
 INSERT INTO tipos (id, familia_id, slug, nombre_es, nombre_en, orden, activo)
 VALUES
 ${tipos}
@@ -1590,7 +1562,7 @@ ON CONFLICT (slug) DO UPDATE SET
   moneda = EXCLUDED.moneda,
   stock = NULL,
   gestionar_stock = false,
-  disponible = true,
+  disponible = false,
   destacado = true,
   nuevo = true,
   activo = true,

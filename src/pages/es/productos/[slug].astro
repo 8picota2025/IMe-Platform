@@ -25,6 +25,7 @@ import { seleccionarRelacionados } from '../../../lib/relacion-accesorios';
 import { normalizarEspecificaciones } from '../../../lib/especificaciones';
 import { getProductoSeoCopy } from '../../../data/producto-seo-copy';
 import { enlacesZuowei } from '../../../data/zuowei-catalogo';
+import { esFichaZuowei, fichaZuoweiSinVenta } from '../../../lib/zuowei-sin-venta';
 
 const locale = 'es';
 
@@ -87,7 +88,8 @@ const especificaciones = normalizarEspecificaciones(producto.especificaciones);
 const certificaciones = especificaciones
   .filter(item => /normativ/i.test(item.grupo ?? ''))
   .map(item => [item.clave, item.valor].filter(Boolean).join(': '))
-  .filter(Boolean);
+  .filter(Boolean)
+  .filter(item => !(esFichaZuowei(producto) && /invima/i.test(item)));
 const modelo = especificaciones.find(item => /^modelo$/i.test(item.clave))?.valor;
 
 const jsonLd = combineJsonLd(
@@ -117,6 +119,7 @@ const jsonLd = combineJsonLd(
   ogImage={seo.ogImage}
   jsonLd={jsonLd}
   noindex={noindex}
+  ocultarMencionesInvima={fichaZuoweiSinVenta(producto)}
 >
   <ProductoLanding
     producto={producto}
