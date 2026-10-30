@@ -28,6 +28,7 @@ import {
   type OutboundEventRow,
 } from '../../../src/lib/whatsapp-imeia-dispatch.ts';
 import { esAcuseTrivial } from '../../../src/lib/whatsapp-espera.ts';
+import { encolarHermes, rutaImeia } from './imeia-route.ts';
 
 const WAKE_TIMEOUT_MS = 120_000;
 const RECENT_OUTBOUND_MS = 10 * 60 * 1000;
@@ -358,14 +359,37 @@ async function despertarLote(
   );
   const token = latest.out_claim_token;
   const texto = (latest.out_body ?? '').trim();
-  if (!wakeUrl || !wakeKey) {
-    await fallarReclamo(supabase, token, 'wake_configuration_missing');
-    return false;
-  }
   const phoneNumberId = latest.out_phone_number_id ?? graph?.phoneNumberId ?? null;
   const recentOutbound = await contextoSalidaReciente(supabase, fromWa);
   // Un lote de solo acuses se despierta igual: el agente decide. No se cierra aquí.
   const trivialAck = filas.every(fila => esAcuseTrivial(fila.out_body ?? ''));
+  const payload = {
+    source: 'whatsapp-cloud',
+    channel: 'imeia',
+    from: fromWa,
+    text: texto,
+    claim_token: token,
+    sender_id: fromWa,
+    recipient: whatsAppRecipient(recipientId),
+    reply_endpoint: 'whatsapp-imeia-reply',
+    messages: filas.map(row => ({ wamid: row.out_wamid, body: row.out_body })),
+    recent_outbound: recentOutbound,
+    trivial_ack: trivialAck,
+    wamid: latest.out_wamid,
+    phone_number_id: phoneNumberId,
+    locale: detectarLocaleWhatsApp(filas.map(fila => fila.out_body ?? '').join('\n')),
+    received_at: latest.out_created_at,
+  };
+  if ((await rutaImeia(supabase)) === 'hermes') {
+    // Failover sin tokens: el worker Hermes (srv) recoge el mismo payload por pull.
+    if (await encolarHermes(supabase, 'whatsapp', token, payload)) return true;
+    await fallarReclamo(supabase, token, 'hermes_queue_failed');
+    return false;
+  }
+  if (!wakeUrl || !wakeKey) {
+    await fallarReclamo(supabase, token, 'wake_configuration_missing');
+    return false;
+  }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), WAKE_TIMEOUT_MS);
   try {
@@ -376,23 +400,7 @@ async function despertarLote(
         Authorization: `Bearer ${wakeKey}`,
         'X-Webhook-Key': wakeKey,
       },
-      body: JSON.stringify({
-        source: 'whatsapp-cloud',
-        channel: 'imeia',
-        from: fromWa,
-        text: texto,
-        claim_token: token,
-        sender_id: fromWa,
-        recipient: whatsAppRecipient(recipientId),
-        reply_endpoint: 'whatsapp-imeia-reply',
-        messages: filas.map(row => ({ wamid: row.out_wamid, body: row.out_body })),
-        recent_outbound: recentOutbound,
-        trivial_ack: trivialAck,
-        wamid: latest.out_wamid,
-        phone_number_id: phoneNumberId,
-        locale: detectarLocaleWhatsApp(filas.map(fila => fila.out_body ?? '').join('\n')),
-        received_at: latest.out_created_at,
-      }),
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
     if (!res.ok) {

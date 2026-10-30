@@ -344,3 +344,33 @@ export function composeGroundedAsesorReply(params: {
   const texto = [apertura, '', ...lineas, '', cta].join('\n');
   return { texto, slugs, modo: products.length ? 'keyword_degradado' : 'sin_resultados' };
 }
+
+
+// Guardrail INVIMA: ninguna respuesta saliente puede afirmar un registro
+// sanitario que el catálogo no tenga verificado (invima_estado='vigente').
+const INVIMA_RS_CODE_REGEX = /\b(?:INVIMA\s*)?\d{4}\s*(?:DM|EBC|RD|DV|M)\s*-?\s*\d{4,}(?:-R\d+)?\b/gi;
+const INVIMA_CLAIM_SENTENCE_REGEX =
+  /[^.!?\n]*\b(?:cuenta(?:n)? con|tiene(?:n)?|posee(?:n)?|con)\s+(?:el\s+|su\s+)?registro(?:\s+sanitario)?\s+(?:INVIMA\s+)?(?:vigente|aprobado|INVIMA)[^.!?\n]*[.!?]?/gi;
+export const INVIMA_GUARDRAIL_TEXT =
+  'El estado del registro sanitario INVIMA de este equipo lo confirma nuestro equipo comercial antes de cotizar.';
+
+export function aplicarGuardrailInvima(texto: string, rsVerificados: readonly string[] = []): string {
+  if (!texto) return texto;
+  const ok = new Set(rsVerificados.map((r) => r.replace(/\s+/g, '').toUpperCase()));
+  let cambiado = false;
+  let out = texto.replace(INVIMA_RS_CODE_REGEX, (m) => {
+    const norm = m.replace(/^INVIMA/i, '').replace(/\s+/g, '').toUpperCase();
+    if (ok.has(norm) || ok.has(m.replace(/\s+/g, '').toUpperCase())) return m;
+    cambiado = true;
+    return '[registro en verificación]';
+  });
+  if (ok.size === 0) {
+    out = out.replace(INVIMA_CLAIM_SENTENCE_REGEX, () => {
+      cambiado = true;
+      return '';
+    });
+  }
+  if (!cambiado) return texto;
+  out = out.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  return out.includes(INVIMA_GUARDRAIL_TEXT) ? out : `${out}\n\n${INVIMA_GUARDRAIL_TEXT}`.trim();
+}
