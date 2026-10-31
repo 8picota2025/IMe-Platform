@@ -50,6 +50,22 @@ TURNSTILE_SITE_KEY=           # Cloudflare Turnstile (pública; formularios)
 TURNSTILE_SECRET_KEY=         # Turnstile secreta — SOLO Edge Functions
 PUBLIC_ASESOR_TURNSTILE=      # true solo si se reactiva el muro en el chat IMEIA
 CI_DEPLOY_HOOK=               # Hook para trigger-rebuild desde CMS
+# Transferencia bancaria (cotizaciones) — ver COMMERCE_GUIDE.md
+TRANSFERENCIA_BANCO=
+TRANSFERENCIA_TITULAR=
+TRANSFERENCIA_NIT=
+TRANSFERENCIA_NUMERO=
+TRANSFERENCIA_SWIFT=
+# Siigo (emisión FE) — SOLO Edge Functions; ver COMMERCE_GUIDE.md
+SIIGO_USERNAME=
+SIIGO_ACCESS_KEY=
+SIIGO_PARTNER_ID=
+SIIGO_DOCUMENT_TYPE_ID=
+SIIGO_TAX_MAP=
+# Consulta razón social por NIT (no emisión) — ver COMMERCE_GUIDE.md
+DIAN_PROVIDER_NAME=
+DIAN_PROVIDER_API_URL=
+DIAN_PROVIDER_API_TOKEN=
 ```
 
 ## Reindexado de embeddings

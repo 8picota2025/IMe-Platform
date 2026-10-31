@@ -135,6 +135,94 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
   pasarela. Las notificaciones automaticas al proveedor se disparan desde los
   webhooks/post-pago cuando el pedido queda pagado.
 
+### Flujo de cotizacion con oferta formal
+
+Para equipos que requieren precio acordado antes del pago (ver `COMMERCE_GUIDE.md`):
+
+1. **Revisar solicitud** — Abrir detalle en `/admin#cotizaciones`. Estados de
+   seguimiento: `nueva`, `en_revision`, `respondida`, `cerrada`, `convertida`
+   (ver `docs/decisions/0004-cotizaciones-estado-seguimiento.md`).
+2. **Armar oferta** — Formulario **Oferta comercial** (editable completo):
+   - Contacto: nombre, empresa, email, teléfono.
+   - Fiscal: NIT/identificación, checkbox **Responsable de IVA**.
+   - **Tratamiento tributario:** marcar _Los precios ofrecidos ya incluyen IVA
+     cuando aplica_ (`impuestos_incluidos`) — **obligatorio** si el cliente
+     solicitará factura electrónica al formalizar.
+   - Moneda `COP` o `USD`, validez, líneas con precio unitario.
+   - Direcciones de envío y facturación (texto libre).
+   - **Adjuntos** (PDF/Office/imagen, máx. 25 MB total) → bucket privado
+     `cotizaciones-adjuntos`; se envían adjuntos al correo con la oferta.
+   - Condiciones/observaciones (obligatorio antes de enviar).
+   - Pulsar **Guardar oferta** (persiste en `solicitudes_cotizacion`).
+3. **Enviar al cliente** — **Enviar al cliente** invoca `enviar-cotizacion`:
+   - Genera token de formalizacion (hash SHA-256 en BD).
+   - Email con enlace `/es/cotizacion/formalizar?id=…&token=…` (EN: `/en/quote/formalize`).
+   - Adjunta documentos comerciales si los hay.
+   - Marca `oferta_enviada_at`.
+4. **Formalizacion del cliente** — Dos caminos:
+   - **Transferencia bancaria:** el cliente registra referencia + comprobante
+     (+ datos fiscales opcionales para FE);
+     se crea pedido `pendiente_validacion` con `proveedor_pago=transferencia`.
+   - **Pago online:** desde admin, **Convertir a pedido** (`convertir-cotizacion-pedido`)
+     genera checkout Wompi con precios bloqueados de la oferta.
+5. **Validar transferencia** — En detalle de pedido con estado
+   `pendiente_validacion`:
+   - **Ver / descargar comprobante** (bucket privado `comprobantes-pago`).
+   - **Validar transferencia** → `validar-transferencia` → `pagado` + post-pago
+     (emails, dropship, factura DIAN si aplica, sync Twenty).
+   - **Rechazar comprobante** → pedido `rechazado`, cotizacion reabierta con
+     nuevo token; el cliente recibe email para reintentar.
+
+Errores frecuentes del panel (codigos de `enviar-cotizacion` / `formalizar-cotizacion`):
+
+| Codigo                                    | Accion                                                    |
+| ----------------------------------------- | --------------------------------------------------------- |
+| `OFERTA_SIN_PRECIO`                       | Completar precios y guardar oferta antes de enviar        |
+| `OFERTA_SIN_CONDICIONES`                  | Completar condiciones y guardar oferta                    |
+| `SIN_EMAIL`                               | La solicitud no tiene email de contacto                   |
+| `ADJUNTOS_INVALIDOS`                      | Revisar archivos en bucket o límite 25 MB                 |
+| `TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO` | Marcar impuestos incluidos en oferta o revisar cotización |
+| `COTIZACION_YA_CONVERTIDA`                | Ya existe pedido vinculado                                |
+
+### Datos fiscales: clientes, pedidos y NIT DIAN
+
+En detalle de **cliente** (`#/cliente`) y **pedido** (`#/pedido`):
+
+- Sección **Datos fiscales DIAN** con tipo documento, número, razón social,
+  email facturación y dirección.
+- **Verificar NIT** — validación local de formato y dígito de verificación
+  (`src/lib/nit-dian.ts`).
+- **Importar datos DIAN** — invoca Edge Function `consultar-nit-dian` (requiere
+  `DIAN_PROVIDER_*` en secrets; ver `COMMERCE_GUIDE.md`) y rellena el formulario
+  con razón social, tipo persona, dirección y responsable IVA cuando el
+  proveedor responde.
+
+Tras corregir NIT en un pedido con factura fallida, usar **Reemitir DIAN** en el
+mismo detalle o desde el panel Facturas.
+
+### Panel Facturas (`#/facturas`)
+
+Vista operativa de `facturas_electronicas` (Siigo/DIAN):
+
+- Filtro por estado (`emitida`, `error`, `rechazada`, `anulada`, …) y búsqueda
+  por número, CUFE o mensaje de error.
+- Detalle (`#/factura?id=…`): número, CUFE, payload/respuesta JSON, NIT en
+  borrador DIAN.
+- **Reemitir DIAN** — reinvoca `emitir-factura-dian` con `force_live: true`.
+- Enlace rápido al pedido para editar datos fiscales del cliente.
+
+La anulación (`anular-factura-dian`) aún no tiene botón en UI; ver
+`COMMERCE_GUIDE.md`.
+
+### Facturacion electronica en pedidos
+
+- El checkout y la formalizacion pueden solicitar factura DIAN (`facturacion_electronica_solicitada`).
+- Tras pago confirmado, `emitir-factura-dian` se dispara automaticamente (Siigo).
+- Revisar en detalle de pedido: `facturacion_electronica_estado`
+  (`pendiente_envio`, `emitida`, `rechazada`, `error`).
+- Registro completo en tabla `facturas_electronicas` y panel `#/facturas`.
+- Reemisión manual: botones **Reemitir DIAN** en pedido o detalle de factura.
+
 ## Legales y auditoría F5
 
 - Las páginas legales viven en `/es/legal/*` y `/en/legal/*`.
@@ -147,3 +235,5 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - Login falla: el usuario no existe en Supabase Auth o la contrasena es incorrecta.
 - Tablas vacias con sesion valida: revisar que `schema.sql` se haya ejecutado en el proyecto correcto.
 - Publicacion falla: faltan `CI_DEPLOY_HOOK` o `GITHUB_TOKEN`/`GITHUB_REPOSITORY`.
+- Factura DIAN en error: revisar `SIIGO_TAX_MAP`, NIT del cliente y botón Reemitir tras corrección.
+- Importar DIAN falla: configurar `DIAN_PROVIDER_*` o verificar NIT localmente antes de importar.
