@@ -406,6 +406,8 @@ export const MCP_TOOLS = [
   'confirmar_reembolso',
   'preparar_precio_bajo_piso',
   'confirmar_precio_bajo_piso',
+  'preparar_cambio_stock',
+  'confirmar_cambio_stock',
   'preparar_afirmacion_invima',
   'confirmar_afirmacion_invima',
   'preparar_borrado_crm',

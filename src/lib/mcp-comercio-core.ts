@@ -1021,20 +1021,35 @@ export async function ejecutarComercio(
   }
 
   if (nombre === 'proponer_stock') {
+    // crear-pago confía en disponible + stock: un agente con el bearer HTTP no
+    // puede reactivar venta ni inflar cupo sin aprobación owner/admin en el CMS.
     const id = String(args.producto_id ?? '');
+    if (!id) return { ok: false, error: 'Hace falta producto_id.' };
     const patch: Json = {};
-    if (args.stock != null && args.stock !== '') patch.stock = Number(args.stock);
+    if (args.stock != null && args.stock !== '') {
+      const stock = Number(args.stock);
+      if (!Number.isFinite(stock) || stock < 0 || !Number.isInteger(stock)) {
+        return { ok: false, error: 'stock debe ser un entero ≥ 0.' };
+      }
+      patch.stock = stock;
+    }
     if (typeof args.disponible === 'boolean') patch.disponible = args.disponible;
-    const { error } = await db.from('productos').update(patch).eq('id', id);
-    if (error) return { ok: false, error: error.message };
-    await registrar(db, {
-      ...quien,
-      herramienta: nombre,
-      entidad: 'productos',
-      entidadId: id,
-      despues: patch,
-    });
-    return { ok: true, aplicado: patch };
+    if (Object.keys(patch).length === 0) {
+      return { ok: false, error: 'Indica stock y/o disponible.' };
+    }
+    if (!quien.motivo) return { ok: false, error: 'Hace falta un motivo.' };
+    const pendiente = await preparar(
+      db,
+      { ...args, payload: patch, entidad_id: id },
+      'preparar_cambio_stock',
+      'productos'
+    );
+    if (!pendiente.ok) return pendiente;
+    return {
+      ...pendiente,
+      nota: 'stock/disponible no cambian hasta que un owner/admin apruebe en el CMS y se ejecute confirmar_cambio_stock.',
+      propuesto: patch,
+    };
   }
 
   if (nombre === 'redactar_recordatorio_carrito') {
@@ -1077,6 +1092,23 @@ export async function ejecutarComercio(
         .from('productos')
         .update({ precio_regular: precio })
         .eq('id', fila.entidad_id);
+      if (error) return { ok: false, error: error.message };
+    }
+    if (nombre === 'confirmar_cambio_stock' && fila.entidad_id) {
+      const payload = fila.payload as Json;
+      const patch: Json = {};
+      if (payload.stock != null && payload.stock !== '') {
+        const stock = Number(payload.stock);
+        if (!Number.isFinite(stock) || stock < 0 || !Number.isInteger(stock)) {
+          return { ok: false, error: 'La confirmación trae un stock inválido.' };
+        }
+        patch.stock = stock;
+      }
+      if (typeof payload.disponible === 'boolean') patch.disponible = payload.disponible;
+      if (Object.keys(patch).length === 0) {
+        return { ok: false, error: 'La confirmación no trae stock ni disponible.' };
+      }
+      const { error } = await db.from('productos').update(patch).eq('id', fila.entidad_id);
       if (error) return { ok: false, error: error.message };
     }
     if (nombre === 'confirmar_reembolso' && fila.entidad_id) {
@@ -1615,6 +1647,10 @@ const inputSchema = {
 };
 
 const DESCRIPCIONES_HERRAMIENTA: Partial<Record<McpToolName, string>> = {
+  proponer_stock:
+    'Propone stock y/o disponible. No escribe en productos: crea preparar_cambio_stock para aprobación owner/admin; luego confirmar_cambio_stock.',
+  confirmar_cambio_stock:
+    'Aplica un cambio de stock/disponible ya aprobado en el CMS (confirmacion_id + motivo).',
   proponer_ficha:
     'Propone cambios de contenido (ES/EN, atributos de landing, ficha_pdf) a un producto existente. Una persona los aplica en el admin.',
   proponer_producto:
