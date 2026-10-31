@@ -38,12 +38,53 @@ import sys as _ime_sys
 from pathlib import Path as _ImePath
 _ime_sys.path.insert(0, str(_ImePath(__file__).resolve().parent))
 import ime_log
+import panel_salud
 log = ime_log.get_logger("ime-ops-hub")
 
 import importlib.util as _ilu
-_DOCUMENSO_SPEC = _ilu.spec_from_file_location("ime_documenso_firmas", "/home/shoky/bin/ime-documenso-firmas.py")
-ime_documenso = _ilu.module_from_spec(_DOCUMENSO_SPEC)
-_DOCUMENSO_SPEC.loader.exec_module(ime_documenso)
+ime_documenso = None
+_documenso_import_error = None
+try:
+    _DOCUMENSO_SPEC = _ilu.spec_from_file_location("ime_documenso_firmas", "/home/shoky/bin/ime-documenso-firmas.py")
+    if _DOCUMENSO_SPEC is None or _DOCUMENSO_SPEC.loader is None:
+        _documenso_import_error = "modulo ausente"
+    else:
+        ime_documenso = _ilu.module_from_spec(_DOCUMENSO_SPEC)
+        _DOCUMENSO_SPEC.loader.exec_module(ime_documenso)
+except Exception as exc:
+    ime_documenso = None
+    _documenso_import_error = exc.__class__.__name__
+
+DOC_CACHE = {"state": None, "error": None}
+_sonda_doc = panel_salud.SondaUnica()
+
+
+def refrescar_documenso():
+    if ime_documenso is None:
+        DOC_CACHE["state"] = None
+        DOC_CACHE["error"] = _documenso_import_error or "modulo ausente"
+        return
+    valor, err = _sonda_doc.lanzar(ime_documenso.get_full_status, 3.0)
+    if err == "timeout" and DOC_CACHE.get("state") is not None:
+        return
+    if err:
+        DOC_CACHE["state"] = None
+        DOC_CACHE["error"] = err
+        return
+    DOC_CACHE["state"] = valor
+    DOC_CACHE["error"] = None
+
+
+def responder_documenso_ausente(handler) -> bool:
+    if ime_documenso is not None:
+        return False
+    body = b'{"ok":false,"error":"documenso_no_disponible"}'
+    handler.send_response(503)
+    handler.send_header("Content-Type", "application/json; charset=utf-8")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.end_headers()
+    handler.wfile.write(body)
+    return True
 
 
 def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
@@ -119,13 +160,16 @@ def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
         </div>
         """
 
-    api_badge = "✅ ACTIVO Y VERIFICADO (HTTP 200 OK · .documenso.env + MCP)" if svc.get("api_key_configured_in_env") else "⏳ Token DB 'Grockbot' detectado (Pendiente pegar api_... en .documenso.env)"
+    version_txt = panel_salud.texto_version_documenso(svc, None)
+    pie_txt = panel_salud.texto_equipo(svc) + " · " + panel_salud.texto_cert(svc)
+    wh_txt = panel_salud.texto_webhook(wh)
+    api_badge = panel_salud.texto_api(svc)
     return f"""
     <div class="kpi-row">
-      <div class="kpi"><div class="lbl">Documenso (firmas.i-me.com.co)</div><div class="val" style="color:#10b981;">v2.18.0 UP</div><div class="foot">Team IME (#7) · Cert P12 Activo</div></div>
-      <div class="kpi"><div class="lbl">Sobres Firmados / En Curso</div><div class="val">{counts.get('COMPLETED',0)} / {counts.get('PENDING',0)}</div><div class="foot">{counts.get('DRAFT',0)} Borradores en firmas.i-me.com.co</div></div>
-      <div class="kpi"><div class="lbl">Webhook Cierre Automático</div><div class="val" style="color:#38bdf8;">ACTIVO</div><div class="foot">POST /webhook/documenso ({html.escape(wh.get('id',''))})</div></div>
-      <div class="kpi"><div class="lbl">Estado API Token MCP</div><div class="val" style="font-size:15px;">Token #1 (Grockbot)</div><div class="foot">{api_badge}</div></div>
+      <div class="kpi"><div class="lbl">Documenso (firmas.i-me.com.co)</div><div class="val" style="color:#10b981;">{html.escape(version_txt)}</div><div class="foot">{html.escape(pie_txt)}</div></div>
+      <div class="kpi"><div class="lbl">Sobres Firmados / En Curso</div><div class="val">{counts.get('COMPLETED',0)} / {counts.get('PENDING',0)}</div><div class="foot">{counts.get('DRAFT',0)} Borradores en el listado vivo</div></div>
+      <div class="kpi"><div class="lbl">Webhook Cierre Automático</div><div class="val" style="color:#38bdf8;">{html.escape(wh_txt)}</div><div class="foot">POST /webhook/documenso</div></div>
+      <div class="kpi"><div class="lbl">Estado API Token</div><div class="val" style="font-size:15px;">{html.escape(api_badge)}</div><div class="foot">solo lo que confirma la sonda</div></div>
     </div>
 
     <div class="board-wrap">
@@ -364,7 +408,7 @@ def verify_session_cookie(cookie_val):
 # --- MONITOR EN TIEMPO REAL DE LOS 10 SERVICIOS CRÍTICOS ---
 UPTIME_CACHE = {
     "updated_cot": now_cot_str(),
-    "summary": {"up": 0, "total": 10, "health_pct": 100.0},
+    "summary": panel_salud.resumen_servicios([]),
     "services": [],
     "history": []
 }
@@ -407,24 +451,31 @@ def poll_10_services():
         ("i-me.com.co (HTTPS)", "Portal Web Corporativo Público", "http", "https://i-me.com.co")
     ]
     results = []
-    up_count = 0
     for name, role, kind, target in specs:
+        ambito = panel_salud.ambito_de(name)
+        espera = 1.2 if ambito == "remoto" else 2.5
         if kind == "tcp":
-            ok, ms, detail = check_tcp(target[0], target[1])
+            ok, ms, detail = check_tcp(target[0], target[1], timeout=espera)
         elif kind == "tcp_dual":
-            ok1, ms1, _ = check_tcp(target[0], target[1])
-            ok2, ms2, _ = check_tcp(target[0], target[2])
+            ok1, ms1, _ = check_tcp(target[0], target[1], timeout=espera)
+            ok2, ms2, _ = check_tcp(target[0], target[2], timeout=espera)
             ok = ok1 and ok2
             ms = round((ms1 + ms2) / 2, 1)
             detail = f"SMB:445={'UP' if ok1 else 'DOWN'} SSH:22={'UP' if ok2 else 'DOWN'}"
         else:
-            ok, ms, detail = check_http(target)
-        if ok:
-            up_count += 1
-        results.append({"name": name, "role": role, "up": ok, "latency_ms": ms, "detail": detail, "checked_cot": now_cot_str()})
+            ok, ms, detail = check_http(target, timeout=espera + 1)
+        results.append({
+            "name": name,
+            "role": role,
+            "up": ok,
+            "latency_ms": ms,
+            "detail": detail,
+            "checked_cot": now_cot_str(),
+            "ambito": ambito,
+        })
     UPTIME_CACHE["updated_cot"] = now_cot_str()
     UPTIME_CACHE["services"] = results
-    UPTIME_CACHE["summary"] = {"up": up_count, "total": len(specs), "health_pct": round((up_count / len(specs)) * 100, 1)}
+    UPTIME_CACHE["summary"] = panel_salud.resumen_servicios(results)
     try:
         with open(UPTIME_STATE_JSON, "w", encoding="utf-8") as f:
             json.dump(UPTIME_CACHE, f, ensure_ascii=False, indent=2)
@@ -434,10 +485,68 @@ def poll_10_services():
 def background_poller():
     while True:
         try:
+            refrescar_documenso()
+        except Exception:
+            log.exception("ime-ops-hub")
+        try:
             poll_10_services()
         except Exception:
             log.exception("ime-ops-hub")
         time.sleep(60)
+
+
+KANBAN_LOCALES = (
+    "Kanban-Aprobaciones.md",
+    "Kanban-1-Cotizaciones-y-RFQs.md",
+    "Kanban-2-Proveedores-e-INVIMA.md",
+    "Kanban-3-Cola-Enjambre-Hermes.md",
+)
+
+
+def construir_healthz():
+    servicios = UPTIME_CACHE.get("services") or []
+    resumen = panel_salud.resumen_servicios(servicios)
+    if resumen["estado"] == "sin_dato":
+        motivo_sem = "sonda aún vacía"
+    elif resumen["estado"] == "ok":
+        motivo_sem = f"srv1715444 {resumen['up']}/{resumen['total']} UP"
+    else:
+        motivo_sem = f"srv1715444 {resumen['up']}/{resumen['total']} UP"
+    boveda_info, boveda_err = panel_salud.con_limite(lambda: panel_salud.sonda_boveda(VAULT_DIR), 1.0)
+    if boveda_err:
+        boveda = {"estado": "degradado", "motivo": "la bóveda no respondió a tiempo"}
+    else:
+        boveda = panel_salud.estado_boveda(boveda_info)
+    try:
+        presentes = sum(1 for nombre in KANBAN_LOCALES if os.path.isfile(os.path.join(PANEL_DIR, nombre)))
+        kanban = panel_salud.estado_kanban(len(KANBAN_LOCALES), presentes)
+    except OSError:
+        kanban = {"estado": "roto", "motivo": "no se pudo leer el directorio de kanbans"}
+    try:
+        tokens_ok = os.path.isfile(USAGE_JSONL) and os.path.getsize(USAGE_JSONL) > 0
+    except OSError:
+        tokens_ok = False
+    tokens = panel_salud.estado_tokens(os.path.isfile(USAGE_JSONL), 1 if tokens_ok else 0)
+    try:
+        precios = panel_salud.estado_precios(os.path.isfile(PRICE_DB))
+    except OSError:
+        precios = {"estado": "roto", "motivo": "no se pudo mirar la base de precios"}
+    doc = panel_salud.estado_documenso_desde_state(
+        DOC_CACHE.get("state") if isinstance(DOC_CACHE.get("state"), dict) else None,
+        None if DOC_CACHE.get("state") else DOC_CACHE.get("error"),
+    )
+    cuerpo = panel_salud.ensamblar({
+        "kanban": kanban,
+        "boveda": boveda,
+        "semaforo": {"estado": resumen["estado"], "motivo": motivo_sem},
+        "tokens": tokens,
+        "precios": precios,
+        "documenso": doc,
+    })
+    cuerpo["service"] = "ime-ops-hub"
+    cuerpo["domain"] = "ops.i-me.com.co"
+    cuerpo["time_cot"] = now_cot_str()
+    return cuerpo
 
 def get_token_and_ai_metrics():
     ov_calls = 0
@@ -518,14 +627,18 @@ def get_token_and_ai_metrics():
             log.exception("ime-ops-hub")
 
     cache_hit_pct = round((cached_toks / prompt_toks) * 100, 1) if prompt_toks > 0 else 0.0
-    l0_files = 0
-    try:
+
+    def _contar_l0():
+        n = 0
         for _, _, files in os.walk(VAULT_DIR):
             for fn in files:
                 if fn in (".abstract.md", ".overview.md"):
-                    l0_files += 1
-    except Exception:
-        log.exception("ime-ops-hub")
+                    n += 1
+        return n
+
+    l0_box, l0_err = panel_salud.con_limite(_contar_l0, 1.5)
+    l0_medido = l0_err is None and l0_box is not None
+    l0_files = l0_box if l0_medido else 0
 
     return {
         "ov_calls": ov_calls,
@@ -535,7 +648,9 @@ def get_token_and_ai_metrics():
         "cached_tokens": cached_toks,
         "cache_hit_pct": cache_hit_pct,
         "l0_l1_index_files": l0_files,
-        "estimated_l0_l1_savings_pct": 82.4,
+        "l0_medido": l0_medido,
+        "fuente_presente": os.path.isfile(USAGE_JSONL),
+        "estimated_l0_l1_savings_pct": None,
         "by_model": by_model,
         "bot_wakeups": bot_wakeups,
         "emails_sent": emails_sent
@@ -735,8 +850,6 @@ LOGIN_HTML = """<!DOCTYPE html>
 """
 
 def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-Panel-Control/Dashboard-Operativo.md", search_q="", saved_msg=""):
-    if len(UPTIME_CACHE.get("services", [])) == 0:
-        poll_10_services()
     metrics = get_token_and_ai_metrics()
     k_aprob = parse_obsidian_kanban(os.path.join(PANEL_DIR, "Kanban-Aprobaciones.md"))
     k_1 = parse_obsidian_kanban(os.path.join(PANEL_DIR, "Kanban-1-Cotizaciones-y-RFQs.md")) or parse_obsidian_kanban(os.path.join(PANEL_DIR, "Kanban-Comercial.md"))
@@ -754,7 +867,25 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
         with open(full_note, "r", encoding="utf-8", errors="ignore") as f:
             note_content = f.read()
 
-    notes_list = list_vault_notes(search_q)
+    notes_box, notes_err = panel_salud.con_limite(lambda: list_vault_notes(search_q), 2.0)
+    if notes_err:
+        notes_list = []
+        boveda_val, boveda_foot = "sin dato", "la bóveda no respondió; el panel no espera a main"
+    else:
+        notes_list = notes_box or []
+        info_boveda = {"existe": True, "legible": True, "notas": len(notes_list)}
+        if not notes_list:
+            sonda, sonda_err = panel_salud.con_limite(lambda: panel_salud.sonda_boveda(VAULT_DIR), 1.0)
+            if sonda_err:
+                boveda_val, boveda_foot = "sin dato", "la bóveda no respondió; el panel no espera a main"
+                info_boveda = None
+            else:
+                sonda["notas"] = 0 if sonda.get("existe") else 0
+                info_boveda = sonda
+        if info_boveda is not None:
+            est_boveda = panel_salud.estado_boveda(info_boveda)
+            boveda_val = "local" if est_boveda["estado"] == "ok" else est_boveda["estado"].replace("_", " ")
+            boveda_foot = est_boveda["motivo"]
     notes_links = []
     for nrel in notes_list:
         sel_cls = "note-item active" if nrel == clean_rel else "note-item"
@@ -816,10 +947,12 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
     for s in UPTIME_CACHE.get("services", []):
         dot = "🟢 UP" if s["up"] else "🔴 DOWN"
         cls = "svc-card st-up" if s["up"] else "svc-card st-down"
+        ambito = s.get("ambito") or panel_salud.ambito_de(s["name"])
+        marca = "srv1715444" if ambito == "srv1715444" else "remoto · no bloquea"
         svcs_html.append(f"""
         <div class="{cls}">
           <div class="svc-top"><strong>{html.escape(s['name'])}</strong><span class="pill">{dot} · {s['latency_ms']} ms</span></div>
-          <div class="svc-role">{html.escape(s['role'])}</div>
+          <div class="svc-role">{html.escape(s['role'])} · {html.escape(marca)}</div>
           <div class="svc-det">{html.escape(s['detail'])} · <small>{html.escape(s['checked_cot'])}</small></div>
         </div>""")
 
@@ -828,6 +961,8 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
         tot = st["prompt"] + st["completion"]
         ch = round((st["cached"] / st["prompt"]) * 100, 1) if st["prompt"] > 0 else 0.0
         models_rows.append(f"<tr><td><b>{html.escape(m)}</b></td><td>{st['calls']}</td><td>{st['prompt']:,}</td><td>{st['completion']:,}</td><td>{st['cached']:,} ({ch}%)</td><td><b>{tot:,}</b></td></tr>")
+    if not models_rows:
+        models_rows.append("<tr><td colspan='6'>sin dato: usage.jsonl no tiene llamadas</td></tr>")
 
     hermes_rows = []
     for t in hermes_tasks[:15]:
@@ -869,16 +1004,38 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
             f"<td style='color:#a7f3d0;font-weight:700;'>${wp['ime_quote_con_iva_plus30_cop']:,.0f}</td>"
             f"<td><button type='button' class='btn-mini ok' onclick='loadCalc({json.dumps(wp["equipment_name"])}, {wp["web_max_cop_iva"]}, {wp["base_max_sin_iva_cop"]})'>Calcular</button></td></tr>"
         )
-    up_sum = UPTIME_CACHE.get("summary", {"up": 10, "total": 10, "health_pct": 100.0})
-    try:
-        doc_state = ime_documenso.get_full_status()
+    up_sum = UPTIME_CACHE.get("summary") or panel_salud.resumen_servicios([])
+    cluster_val, cluster_foot = panel_salud.texto_cluster(up_sum)
+    remoto = up_sum.get("remoto") or {}
+    if not metrics.get("fuente_presente"):
+        tokens_val, tokens_foot = "sin dato", "no está usage.jsonl en srv1715444"
+    elif metrics.get("ov_calls", 0) <= 0:
+        tokens_val, tokens_foot = "sin dato", "usage.jsonl no tiene llamadas"
+    else:
+        tokens_val = f"{metrics['total_tokens']:,}"
+        tokens_foot = f"{metrics['ov_calls']} llamadas en usage.jsonl · cache {metrics['cache_hit_pct']}%"
+    ahorro_val = panel_salud.texto_ahorro(metrics.get("estimated_l0_l1_savings_pct"))
+    if metrics.get("l0_medido"):
+        ahorro_foot = f"{metrics['l0_l1_index_files']} índices locales · sin porcentaje inventado"
+    else:
+        ahorro_foot = "sin medición de ahorro"
+    doc_state = DOC_CACHE.get("state") if isinstance(DOC_CACHE.get("state"), dict) else None
+    doc_err = None if doc_state else DOC_CACHE.get("error")
+    if doc_state:
         doc_compact_html = render_documenso_sections(doc_state, compact=True)
         doc_full_html = render_documenso_sections(doc_state, compact=False)
         doc_counts = doc_state.get("counts", {})
-    except Exception as _de:
-        doc_compact_html = f"<div class='board-wrap'>Error Documenso: {html.escape(str(_de))}</div>"
+        doc_tab = f"{doc_counts.get('COMPLETED', 0)}/{doc_counts.get('PENDING', 0)}"
+    elif doc_err:
+        doc_compact_html = f"<div class='board-wrap'>Documenso sin respuesta ({html.escape(str(doc_err))}). El resto del panel sigue.</div>"
         doc_full_html = doc_compact_html
-        doc_counts = {"COMPLETED": 0, "PENDING": 0}
+        doc_counts = {}
+        doc_tab = "sin dato"
+    else:
+        doc_compact_html = "<div class='board-wrap'>Documenso: sin sonda todavía.</div>"
+        doc_full_html = doc_compact_html
+        doc_counts = {}
+        doc_tab = "sin dato"
     saved_banner = f'<div style="background:rgba(16,185,129,.2);border:1px solid #10b981;color:#a7f3d0;padding:10px 14px;border-radius:10px;margin-bottom:14px;font-size:13px;">✅ {html.escape(saved_msg)}</div>' if saved_msg else ""
 
     def tab_cls(tid, is_pane=False):
@@ -1050,19 +1207,19 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
 <div class="nav-tabs">
   <button class="{tab_cls('tab-kanban')}" onclick="showTab('tab-kanban', this)">📋 1. Kanbans & Aprobaciones</button>
   <button class="{tab_cls('tab-vault')}" onclick="showTab('tab-vault', this)">📓 2. Bóveda Obsidian Móvil (IME-Vault)</button>
-  <button class="{tab_cls('tab-uptime')}" onclick="showTab('tab-uptime', this)">🟢 3. Semáforo 10 Servicios ({up_sum['up']}/{up_sum['total']})</button>
+  <button class="{tab_cls('tab-uptime')}" onclick="showTab('tab-uptime', this)">🟢 3. Semáforo srv1715444 ({up_sum['up']}/{up_sum['total']})</button>
   <button class="{tab_cls('tab-tokens')}" onclick="showTab('tab-tokens', this)">📊 4. Consumo IA & Correo</button>
   <button class="{tab_cls('tab-prices')}" onclick="showTab('tab-prices', this)">💰 5. Inteligencia de Precios & Calculadora</button>
-  <button class="{tab_cls('tab-documenso')}" onclick="showTab('tab-documenso', this)">✍️ 6. Firmas Documenso ({doc_counts.get('COMPLETED',0)}/{doc_counts.get('PENDING',0)})</button>
+  <button class="{tab_cls('tab-documenso')}" onclick="showTab('tab-documenso', this)">✍️ 6. Firmas Documenso ({doc_tab})</button>
 </div>
 
 <div class="container">
   {saved_banner}
   <div class="kpi-row">
-    <div class="kpi"><div class="lbl">Salud Clúster</div><div class="val">{up_sum['up']} / {up_sum['total']} UP</div><div class="foot">Uptime Kuma en :8444 / :3002</div></div>
-    <div class="kpi"><div class="lbl">Tokens IA (OpenViking)</div><div class="val">{metrics['total_tokens']:,}</div><div class="foot">{metrics['ov_calls']} llamadas · {metrics['cache_hit_pct']}% Cache Hit</div></div>
-    <div class="kpi"><div class="lbl">Ahorro Contexto L0/L1</div><div class="val">~{metrics['estimated_l0_l1_savings_pct']}%</div><div class="foot">{metrics['l0_l1_index_files']} índices activos</div></div>
-    <div class="kpi"><div class="lbl">Bóveda Obsidian Móvil</div><div class="val">Web + WebDAV</div><div class="foot">Sincronizada con main (.80) y noa (.10)</div></div>
+    <div class="kpi"><div class="lbl">Salud srv1715444</div><div class="val">{cluster_val}</div><div class="foot">{cluster_foot}</div></div>
+    <div class="kpi"><div class="lbl">Tokens IA</div><div class="val">{tokens_val}</div><div class="foot">{tokens_foot}</div></div>
+    <div class="kpi"><div class="lbl">Ahorro Contexto L0/L1</div><div class="val">{ahorro_val}</div><div class="foot">{ahorro_foot}</div></div>
+    <div class="kpi"><div class="lbl">Bóveda Obsidian</div><div class="val">{boveda_val}</div><div class="foot">{boveda_foot}</div></div>
   </div>
 
   <!-- TAB 1: KANBANS -->
@@ -1089,7 +1246,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
       <div class="svc-grid" style="margin-bottom:0;">
         <div class="svc-card">
           <div class="svc-top"><strong>Opción A · Editor Web Directo (Aquí abajo)</strong><span class="pill">0 INSTALACIONES</span></div>
-          <div class="svc-det">Busca, lee y edita cualquier nota de <code>IME-Vault</code> aquí mismo. Al guardar, Syncthing lo replica en 2s a <code>main (.80)</code> y <code>noa (.10)</code>.</div>
+          <div class="svc-det">Busca, lee y edita las notas que están en el disco de <code>srv1715444</code>. Este panel no espera a main ni a noa para abrir la bóveda.</div>
         </div>
         <div class="svc-card">
           <div class="svc-top"><strong>Opción B · App Oficial Obsidian Android + WebDAV</strong><span class="pill">RECOMENDADA</span></div>
@@ -1136,7 +1293,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
   <div id="tab-uptime" class="{tab_cls('tab-uptime', True)}">
     <div class="board-wrap">
       <div class="board-hdr">
-        <h3>🟢 Semáforo en Tiempo Real — 10 Servicios Críticos I-ME</h3>
+        <h3>🟢 Semáforo srv1715444 ({up_sum['up']}/{up_sum['total']}) · main/noa {remoto.get('up', 0)}/{remoto.get('total', 0)} no bloquean</h3>
         <div style="display:flex;gap:8px;">
           <a href="https://ops.i-me.com.co:8444" target="_blank" class="btn-mini ok">Abrir Uptime Kuma Completo (:8444)</a>
           <a href="https://ops.i-me.com.co:8445" target="_blank" class="btn-mini blue">Abrir Vikunja Completo (:8445)</a>
@@ -1149,7 +1306,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
   <!-- TAB 4: TOKENS IA -->
   <div id="tab-tokens" class="{tab_cls('tab-tokens', True)}">
     <div class="table-wrap">
-      <h3 style="margin:0 0 10px;font-size:15px;">🧠 Consumo de Tokens por Modelo IA (<code>OpenViking Meter :18646</code>)</h3>
+      <h3 style="margin:0 0 10px;font-size:15px;">🧠 Consumo leído de <code>usage.jsonl</code> en srv1715444</h3>
       <table>
         <thead><tr><th>Modelo</th><th>Ejecuciones</th><th>Prompt</th><th>Completion</th><th>Cached (L0/L1)</th><th>Total</th></tr></thead>
         <tbody>{''.join(models_rows)}</tbody>
@@ -1492,8 +1649,11 @@ class OpsHubHandler(BaseHTTPRequestHandler):
                 return
 
         if parsed.path == "/healthz":
-            body = json.dumps({"status": "ok", "service": "ime-ops-hub", "domain": "ops.i-me.com.co", "time_cot": now_cot_str()}).encode("utf-8")
-            self.send_response(200)
+            payload = construir_healthz()
+            estricto = qs.get("estricto", ["0"])[0] == "1"
+            code = 503 if estricto and payload.get("status") != "ok" else 200
+            body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            self.send_response(code)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_security_headers()
             self.end_headers()
@@ -1555,6 +1715,8 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/documenso":
+            if responder_documenso_ausente(self):
+                return
             body = json.dumps(ime_documenso.get_full_status(), ensure_ascii=False, indent=2).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -1564,6 +1726,8 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/documenso/delete":
+            if responder_documenso_ausente(self):
+                return
             qs = urllib.parse.parse_qs(parsed.query)
             env_id = (qs.get("envelope_id", [""])[0]).strip()
             res = ime_documenso.delete_envelope(env_id)
@@ -1574,6 +1738,8 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/documenso/download":
+            if responder_documenso_ausente(self):
+                return
             env_id = qs.get("envelope_id", [""])[0]
             client_c = qs.get("client", [""])[0]
             res = ime_documenso.download_signed_pdfs(env_id, client_code=client_c)
@@ -1611,8 +1777,6 @@ class OpsHubHandler(BaseHTTPRequestHandler):
                     "timestamp": now_cot_str()
                 }
             else:
-                if len(UPTIME_CACHE.get("services", [])) == 0:
-                    poll_10_services()
                 payload = {"uptime": UPTIME_CACHE, "metrics": get_token_and_ai_metrics(), "timestamp": now_cot_str()}
             body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
             self.send_response(200)
@@ -1652,6 +1816,8 @@ class OpsHubHandler(BaseHTTPRequestHandler):
         )
 
         if parsed.path == "/webhook/documenso":
+            if responder_documenso_ausente(self):
+                return
             sig = self.headers.get("X-Documenso-Secret", "")
             try:
                 payload_json = json.loads(raw_body or "{}")
@@ -1741,6 +1907,8 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/documenso/prepare":
+            if responder_documenso_ausente(self):
+                return
             send_now = form.get("send_mode") == "send_authorized"
             try:
                 res = ime_documenso.create_envelope_from_quote(
@@ -1762,6 +1930,8 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/documenso/token":
+            if responder_documenso_ausente(self):
+                return
             if role == "admin":
                 api_k = form.get("api_key", "").strip()
                 ime_documenso.save_documenso_api_key(api_k)
