@@ -397,6 +397,7 @@ class Http(unittest.TestCase):
             (raiz / "Kanban-Aprobaciones.md").write_text(tablero_real(), encoding="utf-8")
             os.environ["IME_OPS_KANBAN_DIR"] = str(raiz)
             os.environ["IME_OPS_DB"] = str(raiz / "ops-hub.db")
+            os.environ["IME_LOG_DIR"] = str(raiz / "logs")
             os.environ.pop("IME_OPS_TOKEN", None)
             servidor = ime_ops_hub.ThreadingHTTPServer(("127.0.0.1", 0), ime_ops_hub.Hub)
             hilo = threading.Thread(target=servidor.serve_forever, daemon=True)
@@ -426,12 +427,17 @@ class Http(unittest.TestCase):
                 self.assertTrue(cuerpo["ok"])
                 self.assertEqual(llamadas[0]["usuario"], "shoky")
                 self.assertEqual(llamadas[0]["envia"], False)
+                texto = (raiz / "logs" / "ime-ops-hub.log").read_text(encoding="utf-8")
+                self.assertIn("usuario=shoky", texto)
+                self.assertIn("accion=aprobada", texto)
+                self.assertRegex(texto, r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} COT")
             finally:
                 ime_ops_hub.decidir = original
                 servidor.shutdown()
                 servidor.server_close()
                 os.environ.pop("IME_OPS_KANBAN_DIR", None)
                 os.environ.pop("IME_OPS_DB", None)
+                os.environ.pop("IME_LOG_DIR", None)
 
 
 if __name__ == "__main__":

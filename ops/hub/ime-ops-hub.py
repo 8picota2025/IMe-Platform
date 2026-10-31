@@ -20,6 +20,13 @@ from acciones import AccionError, Pedido, decidir
 from almacen import Almacen
 from kanban_md import parse
 from registro import log
+import sys as _ime_sys
+from pathlib import Path as _ImePath
+
+_ime_sys.path.insert(0, str(_ImePath(__file__).resolve().parents[1] / "srv1715444"))
+import ime_log
+
+bitacora = ime_log.get_logger("ime-ops-hub")
 import secretos
 
 TABLERO_DEFECTO = "Kanban-Aprobaciones.md"
@@ -139,6 +146,12 @@ class Hub(BaseHTTPRequestHandler):
             return
         if not self._autorizado():
             log("acceso rechazado", "ERROR")
+            bitacora.info(
+                "usuario=- ip=%s accion=%s objetivo=%s resultado=rechazado",
+                self.client_address[0],
+                ruta,
+                "-",
+            )
             self._enviar(401, {"ok": False, "error": "no autorizado"})
             return
         try:
@@ -162,6 +175,14 @@ class Hub(BaseHTTPRequestHandler):
                 almacen.close()
         except AccionError as exc:
             log(str(exc), "ERROR")
+            bitacora.info(
+                "usuario=%s ip=%s accion=%s objetivo=%s resultado=error status=%s",
+                pedido.usuario or "-",
+                self.client_address[0],
+                pedido.decision,
+                pedido.tarjeta_id,
+                exc.status,
+            )
             self._enviar(exc.status, {"ok": False, "error": str(exc)})
             return
         except json.JSONDecodeError:
@@ -175,6 +196,14 @@ class Hub(BaseHTTPRequestHandler):
         self._enviar(
             resultado.status,
             {"ok": resultado.ok, "idempotente": resultado.idempotente, "mensaje": resultado.mensaje},
+        )
+        bitacora.info(
+            "usuario=%s ip=%s accion=%s objetivo=%s resultado=%s",
+            pedido.usuario,
+            self.client_address[0],
+            pedido.decision,
+            pedido.tarjeta_id,
+            resultado.mensaje,
         )
 
     def _entrar(self) -> None:
