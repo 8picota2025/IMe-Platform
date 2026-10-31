@@ -8,6 +8,10 @@ import {
   splitNombreApellido,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  indexProductosPorSlug,
+  validarDisponibilidadLineasOferta,
+} from '../../../src/lib/cotizacion-disponibilidad.ts';
 import { desgloseDeLineas } from './cotizacion-pago.ts';
 
 type SupabaseLike = {
@@ -29,6 +33,45 @@ function totalAPagar(
   return calcularTotalOfertado(lineas);
 }
 
+async function cargarYValidarProductosOferta(
+  supabase: SupabaseLike,
+  lineas: ReturnType<typeof parseLineasOferta>
+): Promise<
+  | { ok: true; porSlug: Map<string, Record<string, unknown>> }
+  | { ok: false; code: string; message: string }
+> {
+  const slugs = lineas.map(l => l.slug);
+  const { data: productos, error } = await supabase
+    .from('productos')
+    .select('id, slug, nombre_es, familia_id, activo, disponible')
+    .in('slug', slugs);
+  if (error) {
+    return {
+      ok: false,
+      code: 'PRODUCTOS_LOOKUP_ERROR',
+      message: error.message ?? 'No se pudieron validar productos',
+    };
+  }
+  const rows = (productos ?? []) as Array<Record<string, unknown>>;
+  const gate = validarDisponibilidadLineasOferta(
+    lineas,
+    indexProductosPorSlug(
+      rows.map(p => ({
+        slug: String(p.slug ?? ''),
+        activo: p.activo as boolean | null | undefined,
+        disponible: p.disponible as boolean | null | undefined,
+      }))
+    )
+  );
+  if (!gate.ok) {
+    return { ok: false, code: gate.code, message: gate.message };
+  }
+  return {
+    ok: true,
+    porSlug: new Map(rows.map(p => [String(p.slug), p])),
+  };
+}
+
 /**
  * Inserta pedido pendiente + reclama la cotización (estado convertida).
  * Si ya hay pedido con la misma cotización y proveedor wompi pendiente, lo reutiliza.
@@ -39,6 +82,17 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
   opts?: { referenciaPasarelaOverride?: string | null }
 ): Promise<PedidoWompiDesdeCotizacion> {
   const id = String(row.id);
+  const lineas = parseLineasOferta(row.productos);
+  if (lineas.length === 0) {
+    return { ok: false, code: 'OFERTA_INCOMPLETA', message: 'Oferta sin lineas' };
+  }
+
+  // Escenario A: catálogo vivo (activo/disponible) antes de cobrar o reusar pendiente.
+  const catalogo = await cargarYValidarProductosOferta(supabase, lineas);
+  if (!catalogo.ok) {
+    return { ok: false, code: catalogo.code, message: catalogo.message };
+  }
+
   if (row.pedido_id) {
     const { data: existente } = await supabase
       .from('pedidos')
@@ -63,11 +117,6 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
       code: 'COTIZACION_YA_CONVERTIDA',
       message: 'Esta cotizacion ya fue formalizada',
     };
-  }
-
-  const lineas = parseLineasOferta(row.productos);
-  if (lineas.length === 0) {
-    return { ok: false, code: 'OFERTA_INCOMPLETA', message: 'Oferta sin lineas' };
   }
   const moneda = lineas[0]?.moneda || String(row.moneda ?? 'COP');
   if (moneda.toUpperCase() !== 'COP') {
@@ -101,14 +150,7 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
   const pedidoId = crypto.randomUUID();
   const referenciaPasarela = String(opts?.referenciaPasarelaOverride ?? '').trim() || pedidoId;
 
-  const slugs = lineas.map(l => l.slug);
-  const { data: productos } = await supabase
-    .from('productos')
-    .select('id, slug, nombre_es, familia_id')
-    .in('slug', slugs);
-  const porSlug = new Map(
-    ((productos ?? []) as Array<Record<string, unknown>>).map(p => [String(p.slug), p])
-  );
+  const porSlug = catalogo.porSlug;
   const itemsSnapshot = lineas.map(linea => {
     const producto = porSlug.get(linea.slug);
     return {

@@ -65,6 +65,11 @@ import {
   type FilaEstadoCotizacion,
   type PlanOk,
 } from '../../../src/lib/cotizacion-estado.ts';
+import {
+  esSupervisorCotizacion,
+  filtroListadoEquipo,
+  puedeOperarCotizacion,
+} from '../../../src/lib/cotizacion-ownership.ts';
 
 const FN_NAME = 'comercial-cotizacion';
 type ComercialRol = 'ventas' | 'admin' | 'owner';
@@ -311,12 +316,12 @@ Deno.serve(
         if (action === 'pdf') {
           const id = url.searchParams.get('id') ?? '';
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
-          return await handlePdf(supabase, id, origin, url);
+          return await handlePdf(supabase, profile, id, origin, url);
         }
         const id = url.searchParams.get('id');
         if (id) {
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
-          return await handleGetDetail(supabase, id, origin);
+          return await handleGetDetail(supabase, profile, id, origin);
         }
         return await handleGetList(supabase, profile, url, origin);
       }
@@ -446,6 +451,11 @@ async function handleGetList(
       ? tabParam
       : 'pendientes';
   const equipo = url.searchParams.get('equipo') === '1';
+  const listFilter = filtroListadoEquipo({
+    rol: profile.rol,
+    userId: profile.user_id,
+    equipo,
+  });
   const q = cleanText(url.searchParams.get('q'), 80);
   const page = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1', 10) || 1);
   const pageSize = 20;
@@ -458,7 +468,7 @@ async function handleGetList(
   });
 
   let cols = DETAIL_COLUMNS;
-  let useCreatedBy = !equipo;
+  let ownershipMode = listFilter.mode;
   let useNumero = Boolean(q);
   let useUpdatedAt = true;
   let filtrarArchivo = archivo !== 'todas';
@@ -477,7 +487,12 @@ async function handleGetList(
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1);
 
-    if (useCreatedBy) query = query.eq('created_by', profile.user_id);
+    // F-06: service_role salta RLS — el filtro de dueño va en la query.
+    if (ownershipMode === 'own') {
+      query = query.eq('created_by', profile.user_id);
+    } else if (ownershipMode === 'own_or_unassigned') {
+      query = query.or(`created_by.eq.${profile.user_id},created_by.is.null`);
+    }
     if (q) {
       const safe = q.replace(/[%_,]/g, '');
       if (safe) {
@@ -521,15 +536,35 @@ async function handleGetList(
     } else {
       cols = DETAIL_COLUMNS_SAFE;
     }
-    if (/created_by/.test(error.message)) useCreatedBy = false;
+    // Sin columna created_by no hay aislamiento horizontal fiable: no ampliar a "all".
+    if (/created_by/.test(error.message)) ownershipMode = 'own';
     if (/numero/.test(error.message)) useNumero = false;
     if (/updated_at/.test(error.message)) useUpdatedAt = false;
   }
   return internalError(lastError || 'list', origin);
 }
 
+async function assertPuedeOperar(
+  profile: AdminProfileRow,
+  createdBy: string | null | undefined,
+  origin: string | null
+): Promise<Response | null> {
+  if (
+    puedeOperarCotizacion({
+      rol: profile.rol,
+      userId: profile.user_id,
+      createdBy,
+    })
+  ) {
+    return null;
+  }
+  // 404 (no 403): no filtrar existencia de UUIDs ajenos.
+  return notFound(origin);
+}
+
 async function handleGetDetail(
   supabase: ServerSupabase,
+  profile: AdminProfileRow,
   id: string,
   origin: string | null
 ): Promise<Response> {
@@ -537,6 +572,8 @@ async function handleGetDetail(
   if (error) return internalError(error.message, origin);
   if (!data) return notFound(origin);
   const row = data as CotizacionOfertaRow & { updated_at?: string; created_at?: string };
+  const denied = await assertPuedeOperar(profile, row.created_by, origin);
+  if (denied) return denied;
   const names = await nombresPorUsuario(supabase, row.created_by ? [row.created_by] : []);
   return json({ quote: publicRow(row, names.get(String(row.created_by ?? '')) ?? null) }, origin);
 }
@@ -563,6 +600,7 @@ async function handleSearch(
 
 async function handlePdf(
   supabase: ServerSupabase,
+  profile: AdminProfileRow,
   id: string,
   origin: string | null,
   url: URL
@@ -571,6 +609,8 @@ async function handlePdf(
   if (error) return internalError(error.message, origin);
   if (!data) return notFound(origin);
   const row = data as CotizacionOfertaRow;
+  const denied = await assertPuedeOperar(profile, row.created_by, origin);
+  if (denied) return denied;
 
   const metadata =
     row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
@@ -827,9 +867,20 @@ async function handleSave(
       .eq('id', id)
       .maybeSingle();
     if (existing.error && isMissingSchema(existing.error.message)) {
+      // created_by es obligatorio para F-06; si falta la columna, no mutar.
+      if (/created_by/.test(existing.error.message) && !esSupervisorCotizacion(profile.rol)) {
+        return errorResponse(
+          {
+            code: 'MIGRACION_PENDIENTE',
+            message: 'Falta la columna created_by; no se puede aislar la cotizacion.',
+          },
+          409,
+          origin
+        );
+      }
       existing = await supabase
         .from('solicitudes_cotizacion')
-        .select('id, estado, pedido_id')
+        .select('id, estado, pedido_id, created_by')
         .eq('id', id)
         .maybeSingle();
     }
@@ -838,9 +889,12 @@ async function handleSave(
     const row = existing.data as {
       estado: string;
       updated_at?: string | null;
+      created_by?: string | null;
       pedido_id: string | null;
       archived_at?: string | null;
     };
+    const denied = await assertPuedeOperar(profile, row.created_by, origin);
+    if (denied) return denied;
     if (row.archived_at) {
       return errorResponse(
         {
@@ -953,6 +1007,8 @@ async function handleDuplicar(
   if (error) return internalError(error.message, origin);
   if (!data) return notFound(origin);
   const row = data as CotizacionOfertaRow;
+  const denied = await assertPuedeOperar(profile, row.created_by, origin);
+  if (denied) return denied;
   const moneda = normalizarMonedaOferta(row.moneda);
   const productos = sanitizarLineasComercial(row.productos, moneda);
   const insertFull = {
@@ -1018,7 +1074,7 @@ async function handleDuplicar(
 }
 
 function isAdminRole(rol: string): boolean {
-  return rol === 'admin' || rol === 'owner';
+  return esSupervisorCotizacion(rol);
 }
 
 const FILA_ACCION =
@@ -1158,6 +1214,29 @@ async function handleAccionAdmin(
   const cargada = await cargarFilaAccion(supabase, id);
   if (cargada.error) return internalError(cargada.error, origin);
   if (!cargada.fila) return notFound(origin);
+  // created_by no está en FILA_ACCION — cargar para F-06.
+  const ownerLookup = await supabase
+    .from('solicitudes_cotizacion')
+    .select('created_by')
+    .eq('id', id)
+    .maybeSingle();
+  if (ownerLookup.error) {
+    if (!esSupervisorCotizacion(profile.rol)) {
+      return errorResponse(
+        {
+          code: 'MIGRACION_PENDIENTE',
+          message: 'No se pudo verificar el dueño de la cotizacion.',
+          details: ownerLookup.error.message,
+        },
+        409,
+        origin
+      );
+    }
+  } else {
+    const createdBy = (ownerLookup.data as { created_by?: string | null } | null)?.created_by;
+    const denied = await assertPuedeOperar(profile, createdBy, origin);
+    if (denied) return denied;
+  }
   const ctx = {
     motivo: String(body.motivo ?? ''),
     actor: profile.email,
