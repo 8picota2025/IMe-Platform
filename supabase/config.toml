@@ -432,6 +432,10 @@ verify_jwt = false
 [functions.whatsapp-imeia-reply]
 verify_jwt = false
 
+# Tablón de respaldo. Bearer opaco (worker, routine o service role), no JWT.
+[functions.ops-respaldo]
+verify_jwt = false
+
 # Own opaque bearer authentication in the handler; never public browser access.
 [functions.mcp-comercio]
 verify_jwt = false

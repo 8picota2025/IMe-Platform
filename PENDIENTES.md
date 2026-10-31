@@ -399,6 +399,10 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 - [ ] `BLOQUEANTE_BACKEND` Aplicar `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql` en la base real antes de desplegar `comercial-cotizacion`. Sin esa migración, `perdida` / `declinada` y el archivo responden `MIGRACION_PENDIENTE`. No se ha ejecutado contra cotizaciones reales.
 
+## NO_EJECUTADO_ENTORNO — Respaldo Grok/Hermes (2026-10-31)
+
+- [ ] NO_EJECUTADO_ENTORNO — Integrador: aplicar `supabase/migrations/20261031190000_imeia_respaldo_latido_manual.sql`, publicar `ops-respaldo` y copiar `ops/respaldo/` a `~/.hermes/scripts/respaldo/` en srv1715444. El cron queda en dry-run. No activa EmilioH, no envía correo y no reescribe el manual legado. Runbook: `ops/respaldo/DESPLIEGUE.md`.
+
 ## BACKLOG_V2
 
 Ver BACKLOG_V2.md
