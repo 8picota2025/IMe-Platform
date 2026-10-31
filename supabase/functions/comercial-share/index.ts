@@ -27,6 +27,7 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
+import { contieneNoEnviar } from '../_shared/guarda-envio.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { normalizeE164, maskPhone } from '../_shared/phone.ts';
 import { buildProductListHtml, buildProductListText } from '../_shared/comercial-templates.ts';
@@ -263,6 +264,11 @@ async function handleCreate(
 
   const medicalCenterName = (body.medicalCenterName ?? '').trim().slice(0, 200) || null;
   const message = (body.message ?? '').trim().slice(0, 4000);
+  // GUARDA 31-10-2026: mensaje marcado NO ENVIAR no sale.
+  if (contieneNoEnviar(message)) {
+    return errorResponse({ code: 'NO_ENVIAR_MARCADO', message: 'Mensaje marcado "NO ENVIAR".' }, 409, origin);
+  }
+
 
   if (body.consentContact !== true) {
     return badRequest('consentContact es obligatorio para contactar a un tercero', origin);

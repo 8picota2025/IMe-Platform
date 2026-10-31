@@ -9,6 +9,7 @@ import { badRequest, unauthorized, notFound } from '../_shared/errors.ts';
 import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
+import { verificarNoEnviar } from '../_shared/guarda-envio.ts';
 
 interface NotificarClienteBody {
   pedido_id?: string;
@@ -301,6 +302,21 @@ Deno.serve(async req => {
     typeof pedido.metadata?.solicitud_cotizacion_id === 'string'
       ? pedido.metadata.solicitud_cotizacion_id
       : null;
+  // GUARDA 31-10-2026: no notificar si la cotización de origen está marcada NO ENVIAR.
+  if (cotizacionOrigen) {
+    const { data: cotOrigen } = await supabase
+      .from('solicitudes_cotizacion')
+      .select('condiciones, condiciones_en, notas_internas, metadata')
+      .eq('id', cotizacionOrigen)
+      .maybeSingle();
+    const g = verificarNoEnviar(cotOrigen as Record<string, unknown> | null);
+    if (!g.ok) {
+      return new Response(JSON.stringify({ ok: false, error: { code: g.code, message: g.message } }), {
+        status: 409,
+        headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
+      });
+    }
+  }
   const resultado = await enviarEmailPlantilla(
     supabase,
     `pedido_estado_${aEstado}_${locale}`,
