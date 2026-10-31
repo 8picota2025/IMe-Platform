@@ -1,0 +1,16 @@
+[Unit]
+Description=Hub de ops.i-me.com.co
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/bin/ime-ops-hub
+ExecStart=/usr/bin/python3 %h/bin/ime-ops-hub/ime-ops-hub.py
+Environment=IME_OPS_BIND=127.0.0.1
+Environment=IME_OPS_PORT=18880
+EnvironmentFile=-%h/.config/ime-ops-hub.env
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

@@ -841,7 +841,7 @@ Deno.serve(async req => {
       estado: 'pendiente_validacion',
       total,
       moneda,
-      email_cliente_enviado: emailCliente.ok,
+      email_cliente_enviado: emailCliente.ok && emailCliente.encolado !== true,
       facturacion_solicitada: fiscalCliente.solicitar_factura_electronica,
     }),
     {

@@ -1,0 +1,28 @@
+# Diff de crontab de usuario shoky. No aplicar sin OK de Shoky.
+# Cada línea de la izquierda descarta la salida. La de la derecha la deja en ~/logs.
+--- crontab.actual
++++ crontab.propuesto
+@@
+-*/2 * * * * /usr/bin/python3 $HOME/bin/ime-cluster-ha.py >/dev/null 2>&1
++*/2 * * * * /usr/bin/python3 $HOME/bin/ime-cluster-ha.py >> $HOME/logs/ime-cluster-ha.log 2>&1
+@@
+-*/10 * * * * $HOME/healthcheck.sh >/dev/null 2>&1
++*/10 * * * * $HOME/healthcheck.sh >> $HOME/logs/healthcheck.log 2>&1
+@@
+-*/5 * * * * $HOME/scripts/ai-watchdog.sh >/dev/null 2>&1
++*/5 * * * * $HOME/scripts/ai-watchdog.sh >> $HOME/logs/ai-watchdog.log 2>&1
+@@
+-15 7 * * * $HOME/bin/ime-backup-stage-noa.sh >/dev/null 2>&1
++15 7 * * * $HOME/bin/ime-backup-stage-noa.sh >> $HOME/logs/ime-backup-stage-noa.log 2>&1
+@@
+-35 3 * * * $HOME/scripts/rotate-user-logs.sh >/dev/null 2>&1
++35 3 * * * $HOME/scripts/rotate-user-logs.sh >> $HOME/logs/rotate-user-logs.log 2>&1
+@@
+-40 3 * * * $HOME/scripts/backup-critical-config.sh >/dev/null 2>&1
++40 3 * * * $HOME/scripts/backup-critical-config.sh >> $HOME/logs/backup-critical-config.log 2>&1
+@@
+-45 3 * * * $HOME/scripts/exposure-audit.sh >/dev/null 2>&1
++45 3 * * * $HOME/scripts/exposure-audit.sh >> $HOME/logs/exposure-audit.log 2>&1
+@@
+-50 3 * * * $HOME/scripts/update-readiness-check.sh >/dev/null 2>&1
++50 3 * * * $HOME/scripts/update-readiness-check.sh >> $HOME/logs/update-readiness-check.log 2>&1

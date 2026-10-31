@@ -233,8 +233,8 @@ Deno.serve(async req => {
       estado: 'rechazado',
       cotizacion_id: cotizacionId || null,
       formalizar_url: formalizarUrl,
-      email_enviado: envio.ok,
-      email_error: envio.ok ? null : (envio.detalle ?? 'EMAIL_FALLIDO'),
+      email_enviado: envio.ok && envio.encolado !== true,
+      email_error: envio.encolado ? 'ENCOLADO_EMILIO' : envio.ok ? null : (envio.detalle ?? 'EMAIL_FALLIDO'),
     }),
     {
       status: 200,

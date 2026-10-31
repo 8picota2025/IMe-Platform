@@ -7,7 +7,7 @@
 import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { resultadoPlantillaInactiva } from '../../../src/lib/cotizacion-oferta.ts';
-import { construirPayloadResend } from '../../../src/lib/email-payload.ts';
+import { encolarCorreoEmilio } from './cola-emilio.ts';
 
 export const DESTINATARIOS_INTERNOS = (
   Deno.env.get('MAILER_INTERNAL') ?? 'root@i-me.com.co,comercial1@i-me.com.co'
@@ -295,10 +295,11 @@ function render(tpl: string, vars: Record<string, string>): string {
 
 export interface EnvioResultado {
   ok: boolean;
+  encolado?: boolean;
+  colaId?: string;
   detalle?: string;
-  /** Id del mensaje en Resend del último destinatario enviado (si el proveedor lo devolvió). */
+  /** Emilio todavía no entrega el mensaje. Este id queda vacío. */
   messageId?: string;
-  /** Ids por destinatario, en orden de envío. */
   messageIds?: string[];
 }
 
@@ -313,32 +314,15 @@ export interface EnviarEmailOpciones {
   subjectOverride?: string;
   /** Dirección Reply-To (p. ej. el email del asesor). Sin valor no se envía el header. */
   replyTo?: string;
-}
-
-const EMAIL_MAX_ATTEMPTS = 3;
-
-function emailErrorRetryable(status: number): boolean {
-  return status === 429 || status >= 500;
-}
-
-function emailRetryDelayMs(response: Response, attempt: number): number {
-  const retryAfter = Number(response.headers.get('retry-after') ?? 0);
-  if (Number.isFinite(retryAfter) && retryAfter > 0) {
-    return Math.min(retryAfter * 1000, 10_000);
-  }
-  return 1000 * 2 ** attempt;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  /** Quién pide el correo. Si falta, se registra como no-indicado. */
+  solicitante?: string;
+  /** Función o flujo que pide el envío. */
+  origen?: string;
 }
 
 /**
- * Renderiza la plantilla `clave` (DB con fallback a defaults) y la envia a
- * cada destinatario. `vars` deben venir ya escapadas si contienen input de
- * usuario (usar escapeHtml / itemsToHtml).
- *
- * `failOnInactive`: oferta send must pass true. Other callers keep skip-as-ok.
+ * Renderiza la plantilla y la deja en la cola de Emilio.
+ * Esta función no envía el correo.
  */
 export interface PrevisualizacionPlantilla {
   ok: boolean;
@@ -380,9 +364,6 @@ export async function enviarEmailPlantilla(
   adjuntos: EmailAdjunto[] = [],
   options: EnviarEmailOpciones = {}
 ): Promise<EnvioResultado> {
-  const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) return { ok: false, detalle: 'MAILER_API_KEY no configurada' };
-
   let asunto: string;
   let html: string;
   const { data } = await supabase
@@ -409,77 +390,46 @@ export async function enviarEmailPlantilla(
   let body = render(html, vars);
   if (vars.pago_wompi_html && !html.includes('pago_wompi_html')) body += vars.pago_wompi_html;
   if (vars.iva_resumen && !html.includes('iva_resumen')) body += `<p>${vars.iva_resumen}</p>`;
-  const resultados: string[] = [];
-  const messageIds: string[] = [];
-  let todosOk = true;
-
+  const solicitante = options.solicitante?.trim() || 'no-indicado';
+  const encolado = await encolarCorreoEmilio(supabase, {
+    solicitante,
+    origen: options.origen?.trim() || clave,
+    destinatarios,
+    asunto: subject,
+    html: body,
+    referencia: referencia ?? null,
+    reply_to: options.replyTo ?? null,
+    remitente: from,
+    adjuntos: adjuntos.map(item => ({ filename: item.filename, bytes: item.content.length })),
+  });
   for (const to of destinatarios) {
-    let status: 'enviado' | 'fallido' = 'enviado';
-    let errorTxt: string | null = null;
-    const idempotencyKey = options.idempotencyKey
-      ? `${options.idempotencyKey}:${to}`.slice(0, 256)
-      : '';
-    for (let attempt = 0; attempt < EMAIL_MAX_ATTEMPTS; attempt += 1) {
-      try {
-        const res = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
-          },
-          body: JSON.stringify(
-            construirPayloadResend({
-              from,
-              to,
-              subject,
-              html: body,
-              adjuntos,
-              replyTo: options.replyTo,
-            })
-          ),
-        });
-        if (res.ok || (res.status === 409 && idempotencyKey)) {
-          status = 'enviado';
-          errorTxt = null;
-          if (res.ok) {
-            const enviado = (await res.json().catch(() => null)) as { id?: unknown } | null;
-            if (typeof enviado?.id === 'string') messageIds.push(enviado.id);
-          }
-          break;
-        }
-        status = 'fallido';
-        errorTxt = `HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`;
-        if (!emailErrorRetryable(res.status) || attempt === EMAIL_MAX_ATTEMPTS - 1) break;
-        await sleep(emailRetryDelayMs(res, attempt));
-      } catch (err) {
-        status = 'fallido';
-        errorTxt = err instanceof Error ? err.message : 'error desconocido';
-        if (attempt === EMAIL_MAX_ATTEMPTS - 1) break;
-        await sleep(1000 * 2 ** attempt);
-      }
-    }
-    if (status === 'fallido') {
-      todosOk = false;
-      resultados.push(`${to}: ${errorTxt}`);
-    }
     try {
       await supabase.from('email_log').insert({
         destinatario: to,
         plantilla: clave,
         referencia: referencia ?? null,
-        status,
-        error: errorTxt,
+        status: encolado.ok ? 'encolado' : 'fallido',
+        error: encolado.ok ? null : encolado.detalle,
       });
-    } catch {
-      // log best-effort
+    } catch (error) {
+      console.log(
+        JSON.stringify({
+          ts: new Date().toISOString(),
+          nivel: 'error',
+          accion: 'email_log',
+          actor: solicitante,
+          origen: clave,
+          error: error instanceof Error ? error.message : 'email_log',
+        })
+      );
     }
   }
-
+  if (!encolado.ok) return { ok: false, encolado: false, detalle: encolado.detalle };
   return {
-    ok: todosOk,
-    detalle: resultados.join('; ') || undefined,
-    ...(messageIds.length > 0 ? { messageId: messageIds[messageIds.length - 1], messageIds } : {}),
+    ok: true,
+    encolado: true,
+    colaId: encolado.colaId,
+    detalle: 'ENCOLADO_EMILIO',
   };
 }
 
