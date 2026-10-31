@@ -144,8 +144,16 @@ async function cargarPausados(
     console.warn('[whatsapp-dispatch] whatsapp_contact_pauses aún no existe');
     return [];
   }
-  console.error('[whatsapp-dispatch] pausas:', error.message);
-  return null;
+  // No se corta el despacho: canDispatch() vuelve a mirar pausas en SQL
+  // (whatsapp_dispatch_drop_reason) antes de cada wake o espera.
+  console.error(
+    '[whatsapp-dispatch] pausas (se sigue con canDispatch):',
+    (error as { code?: string }).code ?? '',
+    error.message,
+    (error as { details?: string }).details ?? '',
+    (error as { hint?: string }).hint ?? ''
+  );
+  return [];
 }
 
 async function cargarSnapshot(
@@ -404,8 +412,8 @@ async function despertarLote(
       signal: controller.signal,
     });
     if (!res.ok) {
-      console.error('[whatsapp-dispatch] wake HTTP', res.status, cola(fromWa));
-      await res.body?.cancel().catch(() => undefined);
+      const detalle = await cuerpoErrorSeguro(res, wakeKey);
+      console.error('[whatsapp-dispatch] wake HTTP', res.status, cola(fromWa), 'body:', detalle);
       await fallarReclamo(supabase, token, `wake_http_${res.status}`);
       return false;
     }
@@ -449,6 +457,39 @@ async function contextoSalidaReciente(
     .filter(fila => typeof fila.created_at === 'string' && fila.created_at.length > 0)
     .reverse()
     .map(fila => ({ time: fila.created_at as string, text: fila.body ?? '' }));
+}
+
+const WAKE_ERROR_BODY_MAX = 300;
+
+/**
+ * Hasta 300 caracteres del cuerpo de un error del wake, sin secretos:
+ * quita la clave del wake, Bearer/JWT y pares tipo token/key/secret/password.
+ */
+export async function cuerpoErrorSeguro(res: Response, wakeKey: string): Promise<string> {
+  let texto = '';
+  try {
+    texto = await res.text();
+  } catch {
+    return '(cuerpo ilegible)';
+  }
+  return redactarErrorWake(texto, wakeKey);
+}
+
+export function redactarErrorWake(texto: string, wakeKey: string): string {
+  let limpio = texto.slice(0, 4000);
+  if (wakeKey) limpio = limpio.split(wakeKey).join('[redacted]');
+  limpio = limpio
+    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, 'Bearer [redacted]')
+    .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*/g, '[jwt]')
+    .replace(
+      /("?(?:[a-z_-]*(?:token|key|secret|password|authorization)[a-z_-]*)"?\s*[:=]\s*)("[^"]*"|[^\s,}&]+)/gi,
+      '$1[redacted]'
+    )
+    .replace(/\s+/g, ' ')
+    .trim();
+  return limpio.length > WAKE_ERROR_BODY_MAX
+    ? `${limpio.slice(0, WAKE_ERROR_BODY_MAX)}…`
+    : limpio || '(vacío)';
 }
 
 function cola(fromWa: string): string {
