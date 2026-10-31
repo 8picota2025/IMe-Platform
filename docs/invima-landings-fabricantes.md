@@ -62,3 +62,37 @@ La vista previa local está en `.ime-watch/invima-preview/`. No es un artefacto
 para desplegar: contiene el indicador de borrador y usa los datos de respaldo
 del resto del sitio. No se pudo revisar visualmente porque esta sesión no tiene
 un navegador disponible; sí se verificó el HTML generado.
+
+## Landing comercial para fabricantes extranjeros (2026-10)
+
+Además del hub y artículos de conocimiento, hay una **landing comercial** B2B orientada a
+fabricantes internacionales que buscan registro sanitario en Colombia.
+
+| Idioma | Ruta | Componente |
+| ------ | ---- | ---------- |
+| ES | `/es/registro-sanitario-invima-fabricantes/` | `InvimaFabricantesLanding.astro` |
+| EN | `/en/medical-device-registration-colombia/` | mismo |
+
+Constantes y copy: `src/data/invima-fabricantes-landing.ts`  
+(`INVIMA_FABRICANTES_PATHS`, `INVIMA_FABRICANTES_CAMPAIGN`, `INVIMA_FABRICANTES_FAMILIA`).
+
+### Formulario y leads
+
+- Componente: `InvimaFabricanteForm.astro`
+- Campaña Edge Function `registrar-lead-comercial`: **`invima_fabricantes`** (registrada en
+  `CAMPAIGN_FLAGS` de `src/lib/comercial-leads.ts`).
+- Campo visible **Empresa / Company** → `name="institucion"` (requerido); debe coincidir con la
+  validación del cliente en `comercial-leads.ts` (no usar otro nombre de campo para la razón social).
+- Familia oculta: `invima-regulacion`; tipo: `fabricantes`.
+- Turnstile: `PUBLIC_TURNSTILE_SITE_KEY` / site key en el formulario.
+
+### Enlaces internos
+
+CTAs desde hub de conocimiento INVIMA, artículos relacionados (`PaginaTema.astro`) y footer.
+Hreflang y sitemap: cubiertos por `scripts/sitemap-seo.mjs` y tests en `src/lib/sitemap-seo.test.ts`.
+
+### Guardrails de copy
+
+Igual que el resto de contenido INVIMA del proyecto: sin cifras inventadas de expedientes,
+plazos garantizados, porcentajes de ahorro ni promesa de aprobación INVIMA. La landing distingue
+asesoría comercial de la autoridad regulatoria.
