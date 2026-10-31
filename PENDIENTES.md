@@ -399,6 +399,13 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 - [ ] `BLOQUEANTE_BACKEND` Aplicar `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql` en la base real antes de desplegar `comercial-cotizacion`. Sin esa migración, `perdida` / `declinada` y el archivo responden `MIGRACION_PENDIENTE`. No se ha ejecutado contra cotizaciones reales.
 
+## Panel vivo — tablero admin (2026-10-31)
+
+- [ ] BLOQUEANTE_BACKEND — Aplicar `supabase/migrations/20261031183000_panel_vivo.sql` solo con OK de Shoky. El rollback está en `supabase/rollbacks/20261031183000_panel_vivo.down.sql`. No se ha ejecutado.
+- [ ] NO_EJECUTADO_ENTORNO — Desplegar la Edge Function `panel-accion` y cargar los secretos `PANEL_TABLON_WEBHOOK_URL` y, si aplica, `PANEL_TABLON_WEBHOOK_SECRET`.
+- [ ] NO_EJECUTADO_ENTORNO — Importar `ops/n8n/panel-ingesta.json` y `ops/n8n/panel-tablon.json` en n8n y dejarlos inactivos hasta el OK. Twenty sigue en solo lectura, credencial del bot CRM.
+- [ ] NO_EJECUTADO_ENTORNO — Publicar el estático para servir `/admin/panel/`. El E2E (`PANEL_E2E=1`) se corre contra una rama preview, nunca contra `nnfbucwiasuggyfoyydo`.
+
 ## BACKLOG_V2
 
 Ver BACKLOG_V2.md

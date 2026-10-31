@@ -439,3 +439,7 @@ verify_jwt = false
 # Cron nocturno de embeddings: token de cron (no JWT). La función sigue exigiendo admin o token de cron.
 [functions.generar-embeddings]
 verify_jwt = false
+
+# Panel vivo: el gateway acepta el JWT y el handler exige rol admin u owner (403 si no).
+[functions.panel-accion]
+verify_jwt = true

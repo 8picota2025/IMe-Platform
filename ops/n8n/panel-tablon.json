@@ -1,0 +1,39 @@
+{
+  "name": "IME panel tablon — NO ACTIVAR",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": {
+    "ime": "Webhook que recibe el encolado de panel-accion. No envia al cliente ni al proveedor. No activar sin OK de Shoky."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "panel-tablon",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-tablon",
+      "name": "Webhook tablon",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, encolado: true, tarea_id: $json.body.tarea_id, bot_dueno: $json.body.bot_dueno }) }}"
+      },
+      "id": "ack",
+      "name": "Ack",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [280, 0],
+      "notes": "Aqui el worker del bot dueno toma la cola. Este nodo solo confirma. No llama a Correo ni a IMEia."
+    }
+  ],
+  "connections": {
+    "Webhook tablon": { "main": [[{ "node": "Ack", "type": "main", "index": 0 }]] }
+  }
+}

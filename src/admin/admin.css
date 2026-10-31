@@ -2296,9 +2296,93 @@ details.admin-panel > summary {
   margin-left: auto;
 }
 
+.panel-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(12rem, 1fr));
+  gap: 12px;
+  align-items: start;
+  padding: 0 20px 32px;
+}
+
+.panel-column {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  padding: 12px;
+  min-height: 16rem;
+}
+
+.panel-column h2,
+.panel-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.panel-column h2 span,
+.panel-nota,
+.panel-vacio,
+.panel-estado {
+  color: var(--admin-muted);
+  font-weight: 500;
+}
+
+.panel-card {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: var(--admin-bg);
+}
+
+.panel-card p,
+.panel-nota {
+  margin: 0;
+}
+
+.panel-alert {
+  color: var(--admin-accent-2);
+  font-weight: 700;
+}
+
+.panel-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.panel-dialog {
+  width: min(32rem, calc(100% - 2rem));
+  padding: 20px;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  background: var(--admin-panel);
+  color: var(--admin-ink);
+}
+
+.panel-dialog::backdrop {
+  background: color-mix(in srgb, var(--admin-ink) 45%, transparent);
+}
+
+.panel-shell .admin-topbar {
+  padding: 20px;
+}
+
+@media (max-width: 960px) {
+  .panel-board {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .admin-drawer[open] {
+  .admin-drawer[open],
+  .admin-loading__mark,
+  .panel-card,
+  .panel-board,
+  .panel-dialog {
     animation: none;
+    transition: none;
   }
 
   .admin-button:active {
