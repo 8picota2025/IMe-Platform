@@ -12,6 +12,9 @@ datos de clientes. Fecha fija: 05/10/2026.
 Subtotal 26.000 COP, IVA 4.940 COP, total 30.940 COP; las siete líneas pendientes
 no se suman. Las cantidades/precios son datos sintéticos exclusivamente de prueba.
 
+IVA por línea, oferta bilingüe, anexos de ficha, separación contacto I-ME/cliente y CTA Wompi
+→ formalizar: `docs/commercial-quote-dev.md` (sección «Contenido del PDF»).
+
 ## Verificación automatizada
 
 `npx vitest run src/lib/render-quote-pdf.test.ts` extrae el texto y las posiciones
