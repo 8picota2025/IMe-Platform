@@ -8,6 +8,8 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
+import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { encolarCorreoEmilio } from '../_shared/cola-emilio.ts';
 
 const FN_NAME = 'crm-digest';
 const OWNER_ID = Deno.env.get('TWENTY_OWNER_ID')?.trim() || '';
@@ -43,26 +45,16 @@ function extractList(raw: unknown, key: string): Record<string, unknown>[] {
   return Array.isArray(list) ? (list as Record<string, unknown>[]) : [];
 }
 
-async function sendResend(
-  to: string,
-  subject: string,
-  html: string
-): Promise<{ ok: boolean; detail?: string }> {
-  const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) return { ok: false, detail: 'MAILER_API_KEY missing' };
-  const from = Deno.env.get('MAILER_FROM') ?? 'comercial1@i-me.com.co';
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ from, to, subject, html }),
+async function pedirAEmilio(asunto: string, html: string, referencia: string) {
+  return encolarCorreoEmilio(getServerSupabase(), {
+    solicitante: 'crm-digest',
+    origen: 'crm-digest',
+    destinatarios: DIGEST_TO,
+    asunto,
+    html,
+    referencia,
+    remitente: Deno.env.get('MAILER_FROM') ?? 'comercial1@i-me.com.co',
   });
-  if (!res.ok) {
-    return { ok: false, detail: `HTTP ${res.status}: ${(await res.text()).slice(0, 200)}` };
-  }
-  return { ok: true };
 }
 
 function authorized(req: Request): boolean {
@@ -122,21 +114,20 @@ Deno.serve(async req => {
       <p style="color:#666;font-size:12px">Generado por ${FN_NAME}</p>
     `;
 
+    const pedido = await pedirAEmilio(subject, html, `crm-digest:${todayStr}`);
     const results: Record<string, string> = {};
     for (const to of DIGEST_TO) {
-      const sent = await sendResend(to, subject, html);
-      results[to] = sent.ok ? 'sent' : (sent.detail ?? 'failed');
+      results[to] = pedido.ok ? 'encolado_emilio' : pedido.detalle;
     }
-
-    const allOk = Object.values(results).every(v => v === 'sent');
     return new Response(
       JSON.stringify({
-        ok: allOk,
+        ok: pedido.ok,
+        encolado: pedido.ok,
         items: items.length,
         results,
       }),
       {
-        status: allOk ? 200 : 207,
+        status: pedido.ok ? 202 : 502,
         headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
       }
     );

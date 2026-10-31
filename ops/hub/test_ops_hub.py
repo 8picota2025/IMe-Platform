@@ -193,8 +193,9 @@ class Decisiones(unittest.TestCase):
             ),
             self.transporte(),
         )
-        self.assertEqual([nombre for nombre, _ in self.llamadas], ["rpc"])
-        self.assertEqual(self.llamadas[0][1]["por"], "shoky")
+        self.assertEqual([nombre for nombre, _ in self.llamadas], ["rpc", "webhook"])
+        self.assertEqual(self.llamadas[1][1]["ejecutor"], "emilio")
+        self.assertEqual(self.llamadas[1][1]["envia"], False)
 
     def test_si_el_tablon_falla_no_mueve_la_tarjeta(self):
         antes = self.md.read_text(encoding="utf-8")
@@ -333,6 +334,10 @@ class Proceso(unittest.TestCase):
         sync_texto = (RAIZ / "sync_obsidian_kanbans.py").read_text(encoding="utf-8")
         self.assertNotIn("## 1. Cotizaciones", sync_texto)
         self.assertNotIn("cod" + "igo", sync_texto.lower())
+        fuentes = (RAIZ / "fuentes.py").read_text(encoding="utf-8")
+        self.assertIn("mode=ro", fuentes)
+        self.assertNotIn("insert into", fuentes.lower())
+        self.assertNotIn("update ", fuentes.lower())
         for path in RAIZ.rglob("*.py"):
             texto = path.read_text(encoding="utf-8").lower()
             self.assertNotIn("bbraun" + ".com", texto, path.name)

@@ -28,6 +28,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, notFound, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { encolarCorreoEmilio } from '../_shared/cola-emilio.ts';
 import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { postWithRetry } from '../_shared/retry-strategy.ts';
 import { checkProviderRateLimit, logNotificationAttempt } from '../_shared/provider-rate-limit.ts';
@@ -83,6 +84,7 @@ interface NotificacionPayload {
 
 interface ResultadoNotificacion {
   ok: boolean;
+  encolado?: boolean;
   mensaje: string;
 }
 
@@ -168,50 +170,6 @@ function construirEnlaceWhatsapp(telefono: string, payload: NotificacionPayload)
   return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
 }
 
-async function enviarEmail(
-  apiKey: string,
-  to: string,
-  payload: NotificacionPayload
-): Promise<ResultadoNotificacion> {
-  const from = Deno.env.get('MAILER_FROM') ?? 'proveedores@i-me.com.co';
-  const itemsHtml = payload.items
-    .map(i => `<li>${i.cantidad} x ${escapeHtml(i.nombre)} (ref: ${escapeHtml(i.slug)})</li>`)
-    .join('');
-  const html = `
-    <h2>Nuevo pedido ${escapeHtml(payload.referencia)}</h2>
-    <p>Cliente: ${escapeHtml(payload.cliente.nombre)} ${escapeHtml(payload.cliente.apellido)}</p>
-    <p>Email: ${escapeHtml(payload.cliente.email)}</p>
-    <p>Telefono: ${escapeHtml(payload.cliente.telefono)}</p>
-    ${payload.cliente.institucion ? `<p>Institucion: ${escapeHtml(payload.cliente.institucion)}</p>` : ''}
-    <p>Productos:</p>
-    <ul>${itemsHtml}</ul>
-    <p>Fecha: ${escapeHtml(payload.fecha)}</p>
-  `;
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from,
-        to,
-        subject: `Nuevo pedido ${payload.referencia} - I-ME`,
-        html,
-      }),
-    });
-    if (res.ok) return { ok: true, mensaje: `Email enviado a ${to}` };
-    const detalle = await res.text();
-    return {
-      ok: false,
-      mensaje: `Error enviando email (HTTP ${res.status}): ${detalle.slice(0, 200)}`,
-    };
-  } catch (err) {
-    return {
-      ok: false,
-      mensaje: `Error enviando email: ${err instanceof Error ? err.message : 'desconocido'}`,
-    };
-  }
-}
-
 // Usa postWithRetry de retry-strategy.ts (FASE 3)
 
 async function notificarPorCanal(
@@ -273,14 +231,20 @@ async function notificarPorCanal(
           mensaje: `BLOQUEANTE_BACKEND: proveedor ${proveedor.nombre} sin contacto_email configurado.`,
         };
       }
-      const apiKey = Deno.env.get('MAILER_API_KEY');
-      if (!apiKey) {
-        return {
-          ok: false,
-          mensaje: `BLOQUEANTE_BACKEND: MAILER_API_KEY no configurado (TODO_CLIENTE). Notificar manualmente a ${proveedor.contacto_email} sobre el pedido ${payload.referencia}.`,
-        };
-      }
-      return await enviarEmail(apiKey, proveedor.contacto_email, payload);
+      const encolado = await encolarCorreoEmilio(getServerSupabase(), {
+        solicitante: 'notificar-proveedor',
+        origen: 'notificar-proveedor',
+        destinatarios: [proveedor.contacto_email],
+        asunto: `Nuevo pedido ${payload.referencia} - I-ME`,
+        html: `<p>Pedido ${payload.referencia}. El envío lo hace Emilio.</p>`,
+        referencia: payload.referencia,
+        remitente: Deno.env.get('MAILER_FROM') ?? 'proveedores@i-me.com.co',
+      });
+      return {
+        ok: encolado.ok,
+        encolado: encolado.ok,
+        mensaje: encolado.ok ? 'ENCOLADO_EMILIO' : encolado.detalle,
+      };
     }
     case 'whatsapp': {
       if (!proveedor.contacto_whatsapp) {
@@ -394,9 +358,9 @@ async function procesarPedido(
     );
     const ahora = new Date().toISOString();
     const cambios = {
-      estado: resultado.ok ? 'notificado' : 'error',
-      notificado_at: resultado.ok ? ahora : null,
-      error_detalle: resultado.ok ? null : resultado.mensaje,
+      estado: resultado.encolado ? 'pendiente' : resultado.ok ? 'notificado' : 'error',
+      notificado_at: resultado.ok && !resultado.encolado ? ahora : null,
+      error_detalle: resultado.ok ? (resultado.encolado ? 'ENCOLADO_EMILIO' : null) : resultado.mensaje,
       notas: resultado.mensaje,
     };
 
@@ -472,9 +436,9 @@ async function reenviarFulfillment(
   await supabase
     .from('fulfillments')
     .update({
-      estado: resultado.ok ? 'notificado' : 'error',
-      notificado_at: resultado.ok ? ahora : null,
-      error_detalle: resultado.ok ? null : resultado.mensaje,
+      estado: resultado.encolado ? 'pendiente' : resultado.ok ? 'notificado' : 'error',
+      notificado_at: resultado.ok && !resultado.encolado ? ahora : null,
+      error_detalle: resultado.ok ? (resultado.encolado ? 'ENCOLADO_EMILIO' : null) : resultado.mensaje,
       notas: resultado.mensaje,
     })
     .eq('id', fulfillmentId);

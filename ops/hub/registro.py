@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -18,8 +19,15 @@ def marca(momento: datetime | None = None) -> str:
     return (momento or ahora()).astimezone(ZONA).isoformat(timespec="seconds")
 
 
-def log(mensaje: str, nivel: str = "INFO") -> None:
-    linea = f"[{marca()}] {nivel} {mensaje}"
+def log(mensaje: str, nivel: str = "INFO", *, accion: str = "log", **extra: object) -> None:
+    evento = {
+        "ts": marca(),
+        "nivel": nivel,
+        "accion": accion,
+        "mensaje": mensaje,
+    }
+    evento.update({clave: valor for clave, valor in extra.items() if valor is not None})
+    linea = json.dumps(evento, ensure_ascii=False)
     print(linea, file=__import__("sys").stderr)
     destino = os.environ.get("IME_OPS_LOG", "").strip()
     if not destino:

@@ -47,4 +47,7 @@ IME_OPS_KANBAN_DIR=... python3 ~/bin/ime-ops-hub/sync_obsidian_kanbans.py
 
 Si Supabase o Hermes no responden, sale 2 y no pisa los markdown.
 
-8. Probar en el propio servidor, no desde esta PR: aprobar una tarjeta de prueba y ver la fila en `ops-hub.db` (`usuario`, `decidido_at`, `decision`) y el POST al tablón o al RPC. Rechazar no llama al RPC de aprobación.
+8. Probar en el propio servidor, no desde esta PR: aprobar una tarjeta de prueba y ver la fila en `ops-hub.db` (`usuario`, `decidido_at`, `decision`) y el POST al tablón o al RPC. Una cotización aprobada también queda encolada para Emilio (`ejecutor: emilio`) y esta función no envía el correo.
+9. Aplicar `supabase/migrations/20261031193000_cola_emilio.sql` solo con OK, primero en una rama preview. El rollback es `supabase/rollbacks/20261031193000_cola_emilio.down.sql`. Luego desplegar las Edge Functions. Emilio es quien drena `cola_emilio` y envía. El resto del repo solo inserta, con `solicitante`.
+10. No ejecutar `ops/hub/original/`. Es la copia de referencia y conserva los `except` vacíos del servidor. El log de la versión nueva es JSON por línea (`ts`, `nivel`, `accion`, `mensaje`).
+

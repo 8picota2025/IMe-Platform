@@ -428,10 +428,16 @@ async function handleCreate(
         ? {
             subjectOverride:
               'Gracias por conocernos en ACISE | Información de los equipos seleccionados',
+            solicitante: profile.email,
+            origen: 'comercial-share',
           }
-        : undefined
+        : { solicitante: profile.email, origen: 'comercial-share' }
     );
-    if (envio.ok) {
+    if (envio.encolado) {
+      status = 'queued';
+      errorCode = null;
+      errorMessage = 'ENCOLADO_EMILIO';
+    } else if (envio.ok) {
       status = 'sent';
       sentAt = new Date().toISOString();
     } else {

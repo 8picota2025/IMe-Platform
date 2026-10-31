@@ -194,13 +194,16 @@ def decidir(path: Path, almacen: Almacen, pedido: Pedido, transporte: dict | Non
         }
     )
     payload = _payload(pedido, str(guardada["decidido_at"]))
+    if es_marca_cotizacion or (pedido.bot_dueno or "").lower() in {"correo", "emilio"}:
+        payload["ejecutor"] = "emilio"
+    else:
+        payload["ejecutor"] = pedido.bot_dueno
     cola_id = almacen.encolar(pedido.tarjeta_id, pedido.decision, payload)
     rutas = transporte or {"encolar_webhook": encolar_webhook, "marcar_cotizacion": marcar_cotizacion}
     try:
         if es_marca_cotizacion:
             rutas["marcar_cotizacion"](pedido)
-        else:
-            rutas["encolar_webhook"](payload)
+        rutas["encolar_webhook"](payload)
     except AccionError as exc:
         almacen.cerrar_cola(cola_id, "error", str(exc))
         almacen.guardar_decision(_estado_cola(guardada, "error", str(exc)))

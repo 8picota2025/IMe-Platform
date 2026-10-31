@@ -881,6 +881,8 @@ Deno.serve(async req => {
         failOnInactive: true,
         idempotencyKey: `quote-send:${id}:${pdfRevision}`,
         replyTo: asesor.replyTo,
+        solicitante: asesor.correo || correoComercial || 'enviar-cotizacion',
+        origen: 'enviar-cotizacion',
       }
     );
     if (
@@ -899,6 +901,8 @@ Deno.serve(async req => {
           failOnInactive: true,
           idempotencyKey: `quote-send:${id}:${pdfRevision}:es`,
           replyTo: asesor.replyTo,
+          solicitante: asesor.correo || correoComercial || 'enviar-cotizacion',
+          origen: 'enviar-cotizacion',
         }
       );
     }
@@ -916,6 +920,30 @@ Deno.serve(async req => {
         },
         inactive ? 422 : 502,
         origin
+      );
+    }
+    if (envio.encolado) {
+      meta.quote_send_channel = 'cola_emilio';
+      meta.cola_emilio_id = envio.colaId ?? null;
+      await supabase
+        .from('solicitudes_cotizacion')
+        .update({ send_claimed_at: null, send_error: null, metadata: meta })
+        .eq('id', id);
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          encolado: true,
+          canal,
+          cotizacion_id: id,
+          numero,
+          estado: row.estado,
+          cola_id: envio.colaId ?? null,
+          message: 'Solicitud en la cola de Emilio. Esta funcion no envia el correo.',
+        }),
+        {
+          status: 202,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        }
       );
     }
     meta.quote_send_channel = 'email';

@@ -9,6 +9,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, unauthorized, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { escapeHtml } from '../_shared/email.ts';
+import { encolarCorreoEmilio } from '../_shared/cola-emilio.ts';
 
 const FN_NAME = 'reporte-semanal';
 const DEFAULT_TO = 'root@i-me.com.co,info@i-me.com.co';
@@ -769,45 +770,38 @@ Deno.serve(async req => {
 
     const to = recipients();
     const subject = `I-ME reporte semanal ${week.startYmd} → ${week.endYmd} · ${money(pedImporte)} validados`;
-    const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
-    if (!apiKey) return internalError('MAILER_API_KEY missing', origin);
-    const from = Deno.env.get('MAILER_FROM') ?? 'info@i-me.com.co';
+    const pedido = await encolarCorreoEmilio(supabase, {
+      solicitante: 'reporte-semanal',
+      origen: 'reporte-semanal',
+      destinatarios: to,
+      asunto: subject,
+      html,
+      referencia: `reporte-semanal:${week.endYmd}`,
+      remitente: Deno.env.get('MAILER_FROM') ?? 'info@i-me.com.co',
+    });
     const results: Record<string, string> = {};
-
     for (const dest of to) {
-      let status: 'enviado' | 'fallido' = 'enviado';
-      let errorTxt: string | null = null;
-      try {
-        const res = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from, to: dest, subject, html }),
-        });
-        if (!res.ok) {
-          status = 'fallido';
-          errorTxt = `HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`;
-        }
-      } catch (err) {
-        status = 'fallido';
-        errorTxt = err instanceof Error ? err.message : 'error desconocido';
-      }
-      results[dest] = status === 'enviado' ? 'sent' : (errorTxt ?? 'failed');
+      results[dest] = pedido.ok ? 'encolado_emilio' : pedido.detalle;
       try {
         await supabase.from('email_log').insert({
           destinatario: dest,
           plantilla: 'reporte_semanal_interno',
           referencia: `reporte-semanal:${week.endYmd}`,
-          status,
-          error: errorTxt,
+          status: pedido.ok ? 'encolado' : 'fallido',
+          error: pedido.ok ? null : pedido.detalle,
         });
-      } catch {
-        /* best-effort */
+      } catch (error) {
+        console.log(JSON.stringify({
+          ts: new Date().toISOString(),
+          nivel: 'error',
+          accion: 'email_log',
+          actor: 'reporte-semanal',
+          error: error instanceof Error ? error.message : 'email_log',
+        }));
       }
     }
-
-    const allOk = Object.values(results).every(v => v === 'sent');
-    return new Response(JSON.stringify({ ok: allOk, summary, results }), {
-      status: allOk ? 200 : 207,
+    return new Response(JSON.stringify({ ok: pedido.ok, encolado: pedido.ok, summary, results }), {
+      status: pedido.ok ? 202 : 502,
       headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
     });
   } catch (err) {
