@@ -1,0 +1,3 @@
+# Bearer opaco: token de worker, IMEIA_AGENT_WEBHOOK_KEY o service role.
+# La función no cambia imeia_routing por sí sola y no envía correo.
+verify_jwt = false
