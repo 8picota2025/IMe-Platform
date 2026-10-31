@@ -1,0 +1,54 @@
+{
+  "name": "IME panel sync 15 min — NO ACTIVAR",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "ime": "Equivalente al crontab de shoky en srv1715444. No envía correo ni WhatsApp. No activar sin OK de Shoky."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "cron-panel-sync",
+      "name": "Cada 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "command": "python3 ops/panel/sync_vault_state.py"
+      },
+      "id": "run-sync",
+      "name": "sync_vault_state",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [280, 0],
+      "notes": "Requiere IME_VAULT, IME_SENT_LOG, IME_CMS_CACHE y SUPABASE_ACCESS_TOKEN en el entorno del worker. No incluye secretos."
+    }
+  ],
+  "connections": {
+    "Cada 15 min": {
+      "main": [
+        [
+          {
+            "node": "sync_vault_state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
