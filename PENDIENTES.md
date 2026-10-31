@@ -399,6 +399,10 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 - [ ] `BLOQUEANTE_BACKEND` Aplicar `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql` en la base real antes de desplegar `comercial-cotizacion`. Sin esa migración, `perdida` / `declinada` y el archivo responden `MIGRACION_PENDIENTE`. No se ha ejecutado contra cotizaciones reales.
 
+## Panel vivo — hub de ops (2026-10-31)
+
+- [ ] NO_EJECUTADO_ENTORNO — Integrador despliega `ops/hub/` en srv1715444 (servicio de usuario `ime-ops-hub`, `127.0.0.1:18880`). No está instalado. La web principal y `/admin/panel` no sustituyen a ops.i-me.com.co. Pasos en `ops/hub/DESPLIEGUE.md`.
+
 ## BACKLOG_V2
 
 Ver BACKLOG_V2.md
