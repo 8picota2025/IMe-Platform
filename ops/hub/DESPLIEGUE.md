@@ -17,14 +17,32 @@ Los tres scripts que corrían en `/home/shoky/bin` están, ya redactados, en `op
 No están ejecutados.
 
 1. Confirmar que el lanzador de cada 2 minutos ya está parado. Si el proceso viejo de `ime-cluster-ha.py` sigue vivo, pararlo antes de copiar.
-2. Copiar la carpeta, sin borrar el original todavía:
+2. Copiar la carpeta y `ime_log.py`. El hub importa ese módulo y en el servidor no estaba desplegado. `cp -a ops/hub/.` no lo incluye: hay que copiarlo al lado del script.
 
 ```bash
 mkdir -p ~/bin/ime-ops-hub
 cp -a ops/hub/. ~/bin/ime-ops-hub/
+cp -a ops/srv1715444/ime_log.py ~/bin/ime-ops-hub/ime_log.py
 ```
 
-3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y los secretos. El ejemplo trae rutas de marcador.
+Si se sigue usando el panel largo (`ops/srv1715444/ime-ops-hub.py`), copiar también `panel_salud.py` y `ime_log.py` al mismo directorio. Sin `ime_log.py` el proceso sale al arrancar.
+
+3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y secretos nuevos. `chmod 600` ese archivo. Lo carga `ime-ops-hub.service` (`EnvironmentFile=%h/.config/ime-ops-hub.env`, sin guion: si falta, systemd no arranca). `IME_OPS_TOKEN`, `IME_OPS_SECRET` e `IME_OPS_TOTP_SECRET` son obligatorias. El código ya no tiene valores de reserva.
+
+Esos tres secretos estuvieron en el código que corría en srv1715444 y la copia de referencia quedó en git (aunque el commit solo guarda el marcador `<REDACTED:...>`). Hay que rotarlos antes de confiar en el archivo de entorno. No reutilizar el token, el secreto HMAC ni la semilla TOTP anteriores. En el servidor, sin pegar los valores en el historial de la shell si se puede evitar:
+
+```bash
+umask 077
+install -m 600 /dev/null ~/.config/ime-ops-hub.env
+# Editar el archivo. Generar ahí:
+#   IME_OPS_TOKEN=$(openssl rand -hex 32)
+#   IME_OPS_SECRET=$(openssl rand -hex 32)
+#   IME_OPS_TOTP_SECRET: semilla base32 nueva, y volver a enrolar el autenticador.
+chmod 600 ~/.config/ime-ops-hub.env
+```
+
+Al cambiar `IME_OPS_SECRET` mueren las sesiones. El TOTP viejo deja de valer. Quien usara el token anterior tiene que recibir el nuevo por un canal que no sea git. Reiniciar solo después de instalar el código nuevo: `systemctl --user restart ime-ops-hub.service`. No está hecho en esta PR.
+
 4. Ajustar `IME_OPS_KANBAN_DIR` al vault donde están `Kanban-Aprobaciones.md`, `Kanban-1.md`, `Kanban-2.md`, `Kanban-3.md`, `Kanban-Comercial.md` y `Kanban-Proveedores.md`.
 5. Instalar el servicio de usuario y no tocar la unidad del sistema:
 

@@ -23,7 +23,21 @@ from registro import log
 import sys as _ime_sys
 from pathlib import Path as _ImePath
 
-_ime_sys.path.insert(0, str(_ImePath(__file__).resolve().parents[1] / "srv1715444"))
+def _directorio_ime_log() -> _ImePath:
+    """ime_log.py vive en ops/srv1715444 y no iba en el árbol copiado a ~/bin."""
+    aqui = _ImePath(__file__).resolve().parent
+    candidatos = [aqui, aqui.parent / "srv1715444"]
+    for ruta in candidatos:
+        if (ruta / "ime_log.py").is_file():
+            return ruta
+    sys.stderr.write(
+        "falta ime_log.py. Copiar ops/srv1715444/ime_log.py junto a ime-ops-hub.py "
+        "(WorkingDirectory de ime-ops-hub.service).\n"
+    )
+    raise SystemExit(1)
+
+
+_ime_sys.path.insert(0, str(_directorio_ime_log()))
 import ime_log
 
 bitacora = ime_log.get_logger("ime-ops-hub")

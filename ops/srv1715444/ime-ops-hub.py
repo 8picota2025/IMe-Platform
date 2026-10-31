@@ -263,9 +263,25 @@ def authenticate_credentials(username, password):
             if password in spec["passwords"] or (spec["role"] == "admin" and hmac.compare_digest(password, API_TOKEN)):
                 return acct_user, spec["role"]
     return None, None
-API_TOKEN = os.environ.get("IME_OPS_TOKEN", "<REDACTED:IME_OPS_TOKEN>")
-SESSION_SECRET = os.environ.get("IME_OPS_SECRET", "<REDACTED:IME_OPS_SECRET>").encode("utf-8")
-TOTP_SECRET_B32 = os.environ.get("IME_OPS_TOTP_SECRET", "<REDACTED:IME_OPS_TOTP_SECRET>")
+def exigir_secretos_arranque() -> None:
+    """Sin estas tres variables el proceso no escucha. El log no incluye los valores."""
+    requeridas = ("IME_OPS_TOKEN", "IME_OPS_SECRET", "IME_OPS_TOTP_SECRET")
+    faltan = [nombre for nombre in requeridas if not os.environ.get(nombre, "").strip()]
+    if not faltan:
+        return
+    log.error(
+        "arranque abortado: faltan %s. Definirlas en ~/.config/ime-ops-hub.env "
+        "(chmod 600). ime-ops-hub.service las carga con EnvironmentFile. "
+        "No hay valores de reserva en el código.",
+        ", ".join(faltan),
+    )
+    raise SystemExit(1)
+
+
+API_TOKEN = os.environ.get("IME_OPS_TOKEN", "").strip()
+SESSION_SECRET = os.environ.get("IME_OPS_SECRET", "").strip().encode("utf-8")
+TOTP_SECRET_B32 = os.environ.get("IME_OPS_TOTP_SECRET", "").strip()
+exigir_secretos_arranque()
 
 VAULT_DIR = "/home/shoky/IME-Vault"
 PANEL_DIR = "/home/shoky/IME-Vault/00-Panel-Control"

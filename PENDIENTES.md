@@ -402,7 +402,8 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 ## Panel vivo — hub de ops (2026-10-31)
 
 - [ ] NO_EJECUTADO_ENTORNO — Integrador despliega `ops/hub/` en srv1715444 (servicio de usuario `ime-ops-hub`, `127.0.0.1:18880`). No está instalado. La web principal y `/admin/panel` no sustituyen a ops.i-me.com.co. Pasos en `ops/hub/DESPLIEGUE.md`.
-- [ ] NO_EJECUTADO_ENTORNO — El panel que hoy sirve ops.i-me.com.co es `ops/srv1715444/ime-ops-hub.py`. El arreglo de salud por tarjeta (`/healthz` con `tarjetas`, semáforo de srv sin depender de main, KPIs sin cifras fijas) está en el repo y no está copiado al servidor. No redesplegar Edge Functions ni aplicar migraciones para este arreglo. Tras copiar el archivo y `panel_salud.py` al lado, reiniciar solo el proceso del hub y comprobar `curl -sS https://ops.i-me.com.co/healthz`.
+- [ ] NO_EJECUTADO_ENTORNO — El panel que hoy sirve ops.i-me.com.co es `ops/srv1715444/ime-ops-hub.py`. El arreglo de salud por tarjeta (`/healthz` con `tarjetas`, semáforo de srv sin depender de main, KPIs sin cifras fijas) está en el repo y no está copiado al servidor. No redesplegar Edge Functions ni aplicar migraciones para este arreglo. Tras copiar `ime-ops-hub.py`, `panel_salud.py` e `ime_log.py` al mismo directorio, reiniciar solo el proceso del hub y comprobar `curl -sS https://ops.i-me.com.co/healthz`.
+- [ ] NO_EJECUTADO_ENTORNO — Rotar en srv1715444 `IME_OPS_TOKEN`, `IME_OPS_SECRET` e `IME_OPS_TOTP_SECRET`. El código ya no trae reserva; el archivo `~/.config/ime-ops-hub.env` (modo 600, `EnvironmentFile` de `ime-ops-hub.service`) tiene que tener valores nuevos. No reutilizar los que estaban en el `.py` del servidor. Procedimiento en `ops/hub/DESPLIEGUE.md`. No está hecho.
 
 ## BACKLOG_V2
 
