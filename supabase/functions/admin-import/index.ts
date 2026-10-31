@@ -6,6 +6,7 @@ import {
   prepareContactoImportRow,
   prepareInteraccionImportRow,
   prepareProveedorImportRow,
+  sanitizeDropshipImportPayload,
   type ImportFieldError,
 } from '../../../src/lib/proveedor-import.ts';
 
@@ -529,21 +530,9 @@ async function importProveedores(
     const slug = String(item.payload.slug ?? '');
     if (!valid.some(row => row.slug === slug)) continue;
     const current = existing.get(slug);
-    const nextLifecycle = item.payload.lifecycle_status;
-    if (
-      current?.dropship_enabled &&
-      typeof nextLifecycle === 'string' &&
-      nextLifecycle !== 'aprobado'
-    ) {
-      rejected.push({
-        row: item.rowNumber,
-        column: 'lifecycle_status',
-        value: nextLifecycle,
-        message: `Fila ${item.rowNumber}: este proveedor tiene dropshipping activo y el estado debe seguir en aprobado. La importación no cambia el dropshipping.`,
-      });
-      continue;
-    }
-    accepted.push(item.payload);
+    // Dropship live: never let CSV/Excel rewrite notification routing or activo.
+    // Commercial fills (INVIMA, líneas, notas) still apply; secrets stay stripped upstream.
+    accepted.push(sanitizeDropshipImportPayload(item.payload, current));
   }
 
   for (const group of groupRowsByColumns(accepted)) {

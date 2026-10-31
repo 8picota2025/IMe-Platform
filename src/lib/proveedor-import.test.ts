@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  DROPSHIP_PROTECTED_IMPORT_FIELDS,
   PROVEEDOR_CONTACTO_IMPORT_COLUMNS,
   PROVEEDOR_CONTACTO_TEMPLATE_SAMPLE,
   PROVEEDOR_IMPORT_COLUMNS,
@@ -15,6 +16,7 @@ import {
   parseCsv,
   prepareContactoImportRow,
   prepareProveedorImportRow,
+  sanitizeDropshipImportPayload,
   suggestContactsFromNote,
 } from './proveedor-import';
 
@@ -271,6 +273,50 @@ describe('CSV interno de proveedores', () => {
     expect(mapped.invimaTitularSugerido?.toLowerCase()).toContain('ultrashall');
     expect(mapped.proveedor.lineas_equipos).toBeTruthy();
     expect(String(mapped.proveedor.lineas_equipos)).not.toMatch(/ultrashall/i);
+  });
+});
+
+describe('sanitizeDropshipImportPayload', () => {
+  it('no altera filas sin dropship', () => {
+    const payload = {
+      slug: 'acme',
+      nombre: 'Acme',
+      canal: 'whatsapp',
+      contacto_email: 'nuevo@acme.test',
+      activo: false,
+      lifecycle_status: 'contactado',
+      lineas_equipos: 'Monitores',
+    };
+    expect(sanitizeDropshipImportPayload(payload, undefined)).toEqual(payload);
+    expect(sanitizeDropshipImportPayload(payload, { dropship_enabled: false })).toEqual(payload);
+  });
+
+  it('quita routing y estado en proveedores dropship sin tocar fills comerciales', () => {
+    const payload = {
+      slug: 'acme',
+      nombre: 'Acme',
+      canal: 'email',
+      contacto_email: 'spoof@evil.test',
+      contacto_whatsapp: '+573001111111',
+      activo: false,
+      lifecycle_status: 'prospect',
+      lineas_equipos: 'Monitores UCI',
+      estado_invima: 'titular_marca',
+      notas: 'Actualización INVIMA',
+    };
+    const sanitized = sanitizeDropshipImportPayload(payload, {
+      dropship_enabled: true,
+    });
+    for (const field of DROPSHIP_PROTECTED_IMPORT_FIELDS) {
+      expect(sanitized).not.toHaveProperty(field);
+    }
+    expect(sanitized).toMatchObject({
+      slug: 'acme',
+      nombre: 'Acme',
+      lineas_equipos: 'Monitores UCI',
+      estado_invima: 'titular_marca',
+      notas: 'Actualización INVIMA',
+    });
   });
 });
 
