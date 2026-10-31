@@ -21,6 +21,7 @@ from acciones import AccionError, Pedido, decidir  # noqa: E402
 from almacen import Almacen  # noqa: E402
 from fuentes import FuenteNoDisponible, leer_cotizaciones, leer_hermes  # noqa: E402
 from kanban_md import Tarjeta, fusionar, parse, render, tablero_vacio  # noqa: E402
+import secretos  # noqa: E402
 import sync_obsidian_kanbans as sync  # noqa: E402
 
 
@@ -44,6 +45,8 @@ PY = [
     "sync_obsidian_kanbans.py",
     "ime-ops-hub.py",
     "ime-cluster-ha.py",
+    "secretos.py",
+    "contactos.py",
 ]
 
 
@@ -330,6 +333,40 @@ class Proceso(unittest.TestCase):
         sync_texto = (RAIZ / "sync_obsidian_kanbans.py").read_text(encoding="utf-8")
         self.assertNotIn("## 1. Cotizaciones", sync_texto)
         self.assertNotIn("cod" + "igo", sync_texto.lower())
+        for path in RAIZ.rglob("*.py"):
+            texto = path.read_text(encoding="utf-8").lower()
+            self.assertNotIn("bbraun" + ".com", texto, path.name)
+            self.assertNotIn("fresenius-kabi" + ".com", texto, path.name)
+
+
+class Login(unittest.TestCase):
+    def test_la_pagina_no_muestra_la_contrasena(self):
+        import tempfile
+
+        clave = "clave-que-no-puede-verse"
+        os.environ["OPS_ADMIN_PASSWORD"] = clave
+        os.environ["IME_OPS_SECRET"] = "semilla-hmac-de-prueba"
+        os.environ.pop("IME_OPS_TOTP_SECRET", None)
+        with tempfile.TemporaryDirectory() as tmp:
+            os.environ["IME_OPS_KANBAN_DIR"] = tmp
+            servidor = ime_ops_hub.ThreadingHTTPServer(("127.0.0.1", 0), ime_ops_hub.Hub)
+            hilo = threading.Thread(target=servidor.serve_forever, daemon=True)
+            hilo.start()
+            try:
+                puerto = servidor.server_address[1]
+                with urllib.request.urlopen(f"http://127.0.0.1:{puerto}/") as respuesta:
+                    cuerpo = respuesta.read().decode()
+                self.assertNotIn(clave, cuerpo)
+                self.assertNotIn("REDACTED", cuerpo)
+                self.assertIn("type='password'", cuerpo)
+                self.assertIn("no se muestra", cuerpo)
+                self.assertIsNone(secretos.autenticar("shoky", "<REDACTED:OPS_ADMIN_PASSWORD_1>"))
+                self.assertEqual(secretos.autenticar("shoky", clave)[1], "admin")
+            finally:
+                servidor.shutdown()
+                servidor.server_close()
+                for nombre in ("OPS_ADMIN_PASSWORD", "IME_OPS_SECRET", "IME_OPS_KANBAN_DIR"):
+                    os.environ.pop(nombre, None)
 
     def test_cluster_no_reescribe(self):
         import tempfile

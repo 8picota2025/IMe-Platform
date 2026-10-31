@@ -20,6 +20,7 @@ from acciones import AccionError, Pedido, decidir
 from almacen import Almacen
 from kanban_md import parse
 from registro import log
+import secretos
 
 TABLERO_DEFECTO = "Kanban-Aprobaciones.md"
 
@@ -62,16 +63,37 @@ class Hub(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _cookie(self) -> str:
+        for parte in self.headers.get("Cookie", "").split(";"):
+            nombre, _, valor = parte.strip().partition("=")
+            if nombre == "ime_ops_session":
+                return valor
+        return ""
+
+    def _sesion(self) -> tuple[str, str] | None:
+        try:
+            return secretos.leer_sesion(self._cookie())
+        except RuntimeError as exc:
+            log(str(exc), "ERROR")
+            return None
+
     def _autorizado(self) -> bool:
-        esperado = os.environ.get("IME_OPS_TOKEN", "").strip()
-        if not esperado:
+        if not secretos.auth_activa():
             return True
+        if self._sesion():
+            return True
+        esperado = secretos.token()
+        if not esperado:
+            return False
         recibido = self.headers.get("X-Ops-Token", "").strip()
+        autorizacion = self.headers.get("Authorization", "")
+        if autorizacion.lower().startswith("bearer "):
+            recibido = autorizacion[7:].strip()
         if len(recibido) != len(esperado):
             return False
         distinto = 0
-        for a, b in zip(recibido, esperado):
-            distinto |= ord(a) ^ ord(b)
+        for izquierda, derecha in zip(recibido, esperado):
+            distinto |= ord(izquierda) ^ ord(derecha)
         return distinto == 0
 
     def _usuario(self, campos: dict[str, str]) -> str:
@@ -93,11 +115,15 @@ class Hub(BaseHTTPRequestHandler):
         return {clave: valores[-1] if valores else "" for clave, valores in parsed.items()}
 
     def do_GET(self) -> None:  # noqa: N802
-        if self.path.split("?", 1)[0] == "/salud":
+        ruta = self.path.split("?", 1)[0]
+        if ruta == "/salud":
             self._enviar(200, {"ok": True, "servicio": "ime-ops-hub"})
             return
-        if self.path.split("?", 1)[0] not in {"/", "/kanban"}:
+        if ruta not in {"/", "/kanban", "/login"}:
             self._enviar(404, {"ok": False, "error": "no existe"})
+            return
+        if secretos.auth_activa() and not self._sesion():
+            self._enviar(200, _html_login(), "text/html; charset=utf-8")
             return
         path = ruta_tablero(TABLERO_DEFECTO)
         texto = path.read_text(encoding="utf-8") if path.is_file() else ""
@@ -105,11 +131,14 @@ class Hub(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         ruta = self.path.split("?", 1)[0]
+        if ruta == "/login":
+            self._entrar()
+            return
         if ruta not in {"/post/approve", "/post/reject"}:
             self._enviar(404, {"ok": False, "error": "no existe"})
             return
         if not self._autorizado():
-            log("token de ops rechazado", "ERROR")
+            log("acceso rechazado", "ERROR")
             self._enviar(401, {"ok": False, "error": "no autorizado"})
             return
         try:
@@ -147,6 +176,57 @@ class Hub(BaseHTTPRequestHandler):
             resultado.status,
             {"ok": resultado.ok, "idempotente": resultado.idempotente, "mensaje": resultado.mensaje},
         )
+
+    def _entrar(self) -> None:
+        try:
+            campos = self._campos()
+        except AccionError as exc:
+            self._enviar(exc.status, {"ok": False, "error": str(exc)})
+            return
+        except json.JSONDecodeError:
+            self._enviar(400, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
+            return
+        if not secretos.verificar_totp(campos.get("totp", "")):
+            log("totp rechazado", "ERROR")
+            self._enviar(401, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
+            return
+        quien = secretos.autenticar(campos.get("username", ""), campos.get("password", ""))
+        if not quien:
+            log("login rechazado", "ERROR")
+            self._enviar(401, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
+            return
+        try:
+            cookie = secretos.firmar_sesion(*quien)
+        except RuntimeError as exc:
+            log(str(exc), "ERROR")
+            self._enviar(500, {"ok": False, "error": "falta el secreto de sesion"})
+            return
+        cuerpo = _html_login("Sesión abierta.").encode()
+        self.send_response(303)
+        self.send_header("Set-Cookie", f"ime_ops_session={cookie}; HttpOnly; SameSite=Strict; Path=/")
+        self.send_header("Location", "/")
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(cuerpo)))
+        self.end_headers()
+        self.wfile.write(cuerpo)
+
+
+def _html_login(mensaje: str = "") -> str:
+    aviso = f"<p role='alert'>{_e(mensaje)}</p>" if mensaje else ""
+    return (
+        "<!DOCTYPE html><html lang='es'><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+        "<title>Ops IME</title></head><body>"
+        "<h1>Ops</h1>"
+        "<p>La contraseña no se muestra en esta página. Está solo en el entorno del servidor.</p>"
+        f"{aviso}"
+        "<form method='post' action='/login'>"
+        "<label>Usuario <input name='username' autocomplete='username' required></label>"
+        "<label>Contraseña <input type='password' name='password' autocomplete='current-password' required></label>"
+        "<label>Código <input name='totp' inputmode='numeric' maxlength='6' autocomplete='one-time-code'></label>"
+        "<button type='submit'>Entrar</button>"
+        "</form></body></html>"
+    )
 
 
 def _html(tablero) -> str:

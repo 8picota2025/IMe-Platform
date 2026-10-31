@@ -2,7 +2,7 @@
 
 ops.i-me.com.co no es la web principal. Sigue en srv1715444, detrás de nginx, en `127.0.0.1:18880`. `/admin/panel` de la PR del CMS no lo sustituye.
 
-Los tres scripts de `/home/shoky/bin` no están en el repo ni se pudieron copiar desde Slack, Drive o GitHub. Esta carpeta es la versión corregida a partir del diagnóstico del 31-10 13:11 COT. Antes de reemplazar nada, Integrador compara con los archivos que están corriendo.
+Los tres scripts que corrían en `/home/shoky/bin` están, ya redactados, en `ops/hub/original/`. La versión nueva no trae token, secreto HMAC, semilla TOTP ni contraseñas: se leen de `~/.config/ime-ops-hub.env`. El login no muestra ninguna contraseña. Los correos de B. Braun y Fresenius salen de `IME_CONTACTO_BBRAUN` y `IME_CONTACTO_FRESENIUS`.
 
 ## Qué cambia
 
