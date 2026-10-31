@@ -1,0 +1,8 @@
+name: integrador
+version: "2026.10.31"
+description: Perfil Hermes integrador en modo sombra. Se copia a mano; no usar hermes-perfiles-aplicar.sh.
+required_env:
+  - INTEGRADOR_MODO
+  - SUPABASE_ACCESS_TOKEN
+  - TWENTY_API_KEY
+  - IMERVIS_TOKEN

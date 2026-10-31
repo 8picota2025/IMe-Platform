@@ -399,6 +399,11 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 - [ ] `BLOQUEANTE_BACKEND` Aplicar `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql` en la base real antes de desplegar `comercial-cotizacion`. Sin esa migración, `perdida` / `declinada` y el archivo responden `MIGRACION_PENDIENTE`. No se ha ejecutado contra cotizaciones reales.
 
+## Hermes integrador en sombra (31-10-2026)
+
+- [ ] `NO_EJECUTADO_ENTORNO` Copiar `hermes/profiles/integrador/` y `hermes/scripts/integrador/` a srv1715444 y suscribir `integrador` en el tablón. Lo hace Integrador, no el CI. El webhook y el flujo de n8n conservan su id. El perfil queda en `INTEGRADOR_MODO=sombra` y sin `ACTIVO_AUTORIZADO`.
+- [ ] `NO_EJECUTADO_ENTORNO` Antes de esa copia, comparar `skills/reglas-ime/SKILL.md` secciones 1–11 con el archivo vivo de otro perfil Hermes. Si difiere, gana el vivo y se conserva la sección 12 (regla suprema de envío del 31-10).
+
 ## BACKLOG_V2
 
 Ver BACKLOG_V2.md

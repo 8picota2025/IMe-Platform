@@ -1,0 +1,119 @@
+{
+  "jobs": [
+    {
+      "id": "reenvio",
+      "name": "Reenvío",
+      "modo": "sombra",
+      "prompt": "MODO sombra. Ejecuta solo scripts/reenvio.py. No emitas, no escribas fuera del registro ni de los locks del tablón.",
+      "skills": ["integrador-reenvio", "reglas-ime", "integrador-sombra"],
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 8 * * 1-6",
+        "display": "L-S 08:00 America/Bogota"
+      },
+      "timezone": "America/Bogota",
+      "deliver": "local",
+      "script": "integrador/reenvio.py",
+      "no_agent": true,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": {"times": null, "completed": 0}
+    },
+    {
+      "id": "tablon",
+      "name": "Tablón",
+      "modo": "sombra",
+      "disparo": "evento",
+      "prompt": "MODO sombra. El despertador pasa la orden a scripts/despertar.py. No emitas y no ejecutes efectos.",
+      "skills": ["integrador-tablon", "reglas-ime", "integrador-sombra"],
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 3 * * 0",
+        "display": "por evento del tablón; barrido dominical 03:00 America/Bogota por si quedó una orden sin despertar"
+      },
+      "timezone": "America/Bogota",
+      "deliver": "local",
+      "script": "integrador/tablon.py",
+      "no_agent": true,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": {"times": null, "completed": 0}
+    },
+    {
+      "id": "vigilancia",
+      "name": "Vigilancia",
+      "modo": "sombra",
+      "prompt": "MODO sombra. Ejecuta solo scripts/vigilancia.py. Lectura. El informe al tablón queda anotado, no publicado.",
+      "skills": ["integrador-vigilancia", "reglas-ime", "integrador-sombra"],
+      "schedule": {
+        "kind": "cron",
+        "expr": "15 8 * * 1-6",
+        "display": "L-S 08:15 America/Bogota"
+      },
+      "timezone": "America/Bogota",
+      "deliver": "local",
+      "script": "integrador/vigilancia.py",
+      "no_agent": true,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": {"times": null, "completed": 0}
+    },
+    {
+      "id": "comparador",
+      "name": "Comparador",
+      "modo": "sombra",
+      "prompt": "MODO sombra. Ejecuta solo scripts/comparador.py. Escribe la comparación del día en el registro local.",
+      "skills": ["integrador-sombra", "reglas-ime"],
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 21 * * *",
+        "display": "diario 21:30 America/Bogota"
+      },
+      "timezone": "America/Bogota",
+      "deliver": "local",
+      "script": "integrador/comparador.py",
+      "no_agent": true,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": {"times": null, "completed": 0}
+    },
+    {
+      "id": "caducidades",
+      "name": "Caducidades",
+      "modo": "pausada",
+      "prompt": "Apagada. No revisar caducidades hasta un OK de Shoky.",
+      "skills": ["reglas-ime"],
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 8 * * 1",
+        "display": "lunes 08:00 America/Bogota, apagada"
+      },
+      "timezone": "America/Bogota",
+      "deliver": "local",
+      "script": null,
+      "no_agent": false,
+      "enabled": false,
+      "state": "paused",
+      "repeat": {"times": null, "completed": 0}
+    },
+    {
+      "id": "search-console",
+      "name": "Search Console",
+      "modo": "pausada",
+      "prompt": "Apagada. No consultar Search Console hasta un OK de Shoky.",
+      "skills": ["reglas-ime"],
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * 3",
+        "display": "miércoles 09:00 America/Bogota, apagada"
+      },
+      "timezone": "America/Bogota",
+      "deliver": "local",
+      "script": null,
+      "no_agent": false,
+      "enabled": false,
+      "state": "paused",
+      "repeat": {"times": null, "completed": 0}
+    }
+  ]
+}
