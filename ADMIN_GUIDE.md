@@ -24,7 +24,11 @@
 - `Guardar borrador` crea o actualiza el producto.
 - `activo=false` mantiene el producto fuera del sitio publico.
 - `activo=true` lo deja listo para el siguiente rebuild estatico.
-- `precio` es el unico precio publico en COP. `precio_costo` vive solo en proveedor_producto y nunca debe exponerse al cliente.
+- `precio_regular` (y `precio_oferta` con fechas) es la **base neta en COP** guardada en BD.
+  El storefront muestra precio **con IVA 19 %** via `resolvePrecioPublico` (`src/lib/format.ts`);
+  el checkout recalcula IVA server-side sobre la misma base. Ver
+  `docs/decisions/0011-public-pricing-iva-colombia.md`.
+- `precio_costo` vive solo en `proveedor_producto` y nunca debe exponerse al cliente.
 - Para consumibles con compra futura, el precio real debe estar aprobado antes de activar checkout.
 
 ## Uploads
@@ -92,17 +96,24 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 
 ## Proveedores y productos asignados
 
-- Cada proveedor muestra cuantos productos tiene asignados y un boton "Productos"
-  que abre la vista de asignacion.
-- En esa vista se listan los productos ya asignados (con `precio_costo`, moneda,
-  prioridad y estado) y un formulario para asignar un producto nuevo del catalogo
-  (solo se ofrecen productos aun no asignados a ese proveedor).
+Runbook completo: `docs/supplier-directory.md`.
+
+- Menu **Proveedores** (`#/proveedores`): directorio interno de fabricantes/distribuidores.
+  Rol minimo: `operaciones` (+ owner/admin). No es el menu **Transportistas**.
+- Listado con filtros (tipo, validacion, dropship, fechas), alta manual e import/export Excel
+  (solo datos operativos publicos; nunca tokens ni costos masivos sin revision).
+- Ficha `#/proveedor?id=…`: datos maestros, pipeline de validacion (`lifecycle_status`),
+  contactos por rol, fuentes trazables, canales de pedido (destinos publicos) y documentos.
+- `dropship_enabled` solo es valido con `lifecycle_status = aprobado` (CHECK en BD).
+  Los prospectos se crean inactivos y sin dropshipping.
+- Vista **Productos** (`#/proveedor-productos`): asignaciones con `precio_costo`, SKU,
+  disponibilidad, lead time e `association_status` para vinculos catálogo–marca.
 - `precio_costo` es **CONFIDENCIAL**: solo visible en este panel admin, nunca en
-  el sitio publico ni en `dist/`.
+  el sitio publico ni en `dist/`. Las asociaciones automaticas por marca pueden tener
+  `precio_costo = NULL` hasta verificacion comercial.
 - `prioridad` (1 = preferente) define el orden de preferencia entre proveedores
   para un mismo producto.
-- "Quitar" elimina la asignacion proveedor-producto (no afecta al producto ni al
-  proveedor).
+- Integracion externa (webhooks del proveedor): `PROVIDER_INTEGRATION_GUIDE.md`.
 
 ## Fulfillments / Transportistas
 
