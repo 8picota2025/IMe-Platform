@@ -28,6 +28,7 @@ import {
 import { perfilComercialActivo, perfilPorUsuario } from '../_shared/asesor.ts';
 import { resolverAsesor } from '../../../src/lib/cotizacion-asesor.ts';
 import { validarEnvioCotizacion } from '../../../src/lib/cotizacion-envio.ts';
+import { verificarEnvioPermitido } from '../_shared/guarda-envio.ts';
 import { resumenIvaTexto } from '../../../src/lib/cotizacion-iva.ts';
 import { desgloseDeLineas, htmlBotonWompiViaFormalizar } from '../_shared/cotizacion-pago.ts';
 import { normalizeVisitorPhone } from '../../../src/lib/visitor-phone.ts';
@@ -560,6 +561,13 @@ Deno.serve(async req => {
         headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       }
     );
+  }
+
+  // GUARDA 31-10-2026: nunca enviar sin aprobación ni con marca "NO ENVIAR" (incidente 27-10).
+  // Se evalúa sobre la fila ya persistida (incluye condiciones recién guardadas) y vale para email y WhatsApp.
+  const guarda = verificarEnvioPermitido(row as unknown as Record<string, unknown>);
+  if (!guarda.ok) {
+    return errorResponse({ code: guarda.code, message: guarda.message }, 409, origin);
   }
 
   // Numeración: RPC si existe; si no (sandbox sin migración PDF), metadata/fallback.
