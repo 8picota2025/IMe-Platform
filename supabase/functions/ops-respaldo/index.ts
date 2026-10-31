@@ -1,4 +1,3 @@
-import { esTokenWorkerHermes } from '../_shared/imeia-route.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 
 const COMANDO =
@@ -6,6 +5,10 @@ const COMANDO =
 const ORIGENES_MANUAL = new Set(['grok-tablon', 'hermes', 'telegram', 'cli']);
 const ORIGENES_LATIDO = new Set([...ORIGENES_MANUAL, 'emilio', 'rutina']);
 const ESTADOS = new Set(['ok', 'fallo', 'sin_tokens']);
+const ALCANCES = ['worker', 'respaldo_lectura', 'respaldo_latido'] as const;
+
+type Necesidad = 'pull' | 'latido' | 'worker';
+type RpcError = { message?: string; code?: string; details?: string };
 
 function mismoSecreto(left: string, right: string): boolean {
   const encoder = new TextEncoder();
@@ -43,11 +46,51 @@ function json(body: unknown, status: number): Response {
   });
 }
 
-function estadoHttp(error: { message?: string; code?: string }): number {
-  const message = error.message ?? '';
+function textoError(error: RpcError): string {
+  return `${error.message ?? ''} ${error.details ?? ''}`;
+}
+
+function funcionAusente(error: RpcError): boolean {
+  return /does not exist|schema cache|Could not find the function/i.test(textoError(error));
+}
+
+function estadoHttp(error: RpcError): number {
+  const message = textoError(error);
+  if (/forbidden/i.test(message)) return 403;
   if (error.code === '42501' || /unauthorized/i.test(message)) return 401;
   if (/does not exist|schema cache|Could not find the function/i.test(message)) return 503;
   return 400;
+}
+
+function necesidadDe(method: string, input: Record<string, unknown> | null): Necesidad | 'invalida' {
+  if (method === 'GET') return 'pull';
+  if (!input) return 'invalida';
+  const accion = input.accion;
+  if (accion === 'estado') return 'pull';
+  if (accion === 'latido') return 'latido';
+  if (accion === 'expirar') return 'worker';
+  if (accion === 'comando') {
+    if (typeof input.texto !== 'string') return 'invalida';
+    try {
+      const parsed = parseComando(input.texto);
+      return parsed.accion === 'estado' ? 'pull' : 'worker';
+    } catch {
+      return 'invalida';
+    }
+  }
+  if (accion === 'manual') {
+    if (input.comando === 'estado') return 'pull';
+    if (input.comando === 'on' || input.comando === 'off') return 'worker';
+    return 'invalida';
+  }
+  return 'invalida';
+}
+
+function permite(alcances: ReadonlySet<string>, necesidad: Necesidad): boolean {
+  if (alcances.has('worker')) return true;
+  if (necesidad === 'pull') return alcances.has('respaldo_lectura');
+  if (necesidad === 'latido') return alcances.has('respaldo_latido');
+  return false;
 }
 
 Deno.serve(async req => {
@@ -61,38 +104,74 @@ Deno.serve(async req => {
   const conSecreto =
     (webhook !== null && mismoSecreto(bearer, webhook)) ||
     (service !== null && mismoSecreto(bearer, service));
-  if (!conSecreto && !(await esTokenWorkerHermes(supabase, bearer))) {
-    return json({ ok: false, error: 'unauthorized' }, 401);
+  if (!conSecreto && bearer.length < 32) return json({ ok: false, error: 'unauthorized' }, 401);
+
+  let alcances: ReadonlySet<string> | 'servicio' = 'servicio';
+  if (!conSecreto) {
+    const consultas = await Promise.all(
+      ALCANCES.map(async nombre => {
+        const { data, error } = await supabase.rpc('imeia_token_alcance_ok', {
+          p_token: bearer,
+          p_alcance: nombre,
+        });
+        return { nombre, data, error: error as RpcError | null };
+      }),
+    );
+    if (consultas.some(item => item.error && funcionAusente(item.error))) {
+      return json({ ok: false, error: 'migracion_pendiente' }, 503);
+    }
+    const activos = new Set<string>();
+    for (const item of consultas) {
+      if (!item.error && item.data === true) activos.add(item.nombre);
+    }
+    if (activos.size === 0) return json({ ok: false, error: 'unauthorized' }, 401);
+    alcances = activos;
+  }
+
+  let input: Record<string, unknown> | null = null;
+  if (req.method === 'POST') {
+    const raw = await req.text();
+    if (raw.length > 8000) return json({ ok: false, error: 'peticion_invalida' }, 400);
+    try {
+      const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+      if (parsed !== null && (typeof parsed !== 'object' || Array.isArray(parsed))) {
+        return json({ ok: false, error: 'peticion_invalida' }, 400);
+      }
+      input = parsed as Record<string, unknown> | null;
+    } catch {
+      return json({ ok: false, error: 'peticion_invalida' }, 400);
+    }
+  }
+
+  const necesidad = necesidadDe(req.method, input);
+  if (necesidad === 'invalida') return json({ ok: false, error: 'peticion_invalida' }, 400);
+  if (alcances !== 'servicio' && !permite(alcances, necesidad)) {
+    return json({ ok: false, error: 'forbidden' }, 403);
   }
 
   const tokenRpc = conSecreto ? '' : bearer;
   const rpc = async (nombre: string, args: Record<string, unknown>) => {
     const { data, error } = await supabase.rpc(nombre, { ...args, p_token: tokenRpc });
     if (error) {
-      const status = estadoHttp(error);
+      const status = estadoHttp(error as RpcError);
       const code =
-        status === 401 ? 'unauthorized' : status === 503 ? 'migracion_pendiente' : 'peticion_invalida';
+        status === 403 ? 'forbidden'
+        : status === 401 ? 'unauthorized'
+        : status === 503 ? 'migracion_pendiente'
+        : 'peticion_invalida';
       return json({ ok: false, error: code }, status);
     }
     return json({ ok: true, data }, 200);
   };
 
-  if (req.method === 'GET') return rpc('imeia_respaldo_pull', {});
+  if (req.method === 'GET' || input?.accion === 'estado') return rpc('imeia_respaldo_pull', {});
 
-  const raw = await req.text();
-  if (raw.length > 8000) return json({ ok: false, error: 'peticion_invalida' }, 400);
-
+  const cuerpo = input ?? {};
   try {
-    const input = raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
-    if (!input || typeof input !== 'object' || Array.isArray(input)) {
-      return json({ ok: false, error: 'peticion_invalida' }, 400);
-    }
-    const accion = input.accion;
-    if (accion === 'estado') return rpc('imeia_respaldo_pull', {});
-    if (accion === 'latido') {
-      const estado = input.estado;
-      const quien = input.quien;
-      const origen = input.origen;
+    if (cuerpo.accion === 'latido') {
+      const estado = cuerpo.estado;
+      const quien = cuerpo.quien;
+      const origen = cuerpo.origen;
       if (typeof estado !== 'string' || !ESTADOS.has(estado)) return json({ ok: false, error: 'peticion_invalida' }, 400);
       if (typeof quien !== 'string' || typeof origen !== 'string' || !ORIGENES_LATIDO.has(origen)) {
         return json({ ok: false, error: 'peticion_invalida' }, 400);
@@ -101,37 +180,37 @@ Deno.serve(async req => {
         p_estado: estado,
         p_quien: quien,
         p_origen: origen,
-        p_detalle: typeof input.detalle === 'string' ? input.detalle : null,
-        p_utc: typeof input.utc === 'string' ? input.utc : null,
+        p_detalle: typeof cuerpo.detalle === 'string' ? cuerpo.detalle : null,
+        p_utc: typeof cuerpo.utc === 'string' ? cuerpo.utc : null,
       });
     }
-    if (accion === 'expirar') {
-      if (typeof input.quien !== 'string' || typeof input.origen !== 'string') {
+    if (cuerpo.accion === 'expirar') {
+      if (typeof cuerpo.quien !== 'string' || typeof cuerpo.origen !== 'string') {
         return json({ ok: false, error: 'peticion_invalida' }, 400);
       }
-      return rpc('imeia_respaldo_expirar', { p_quien: input.quien, p_origen: input.origen });
+      return rpc('imeia_respaldo_expirar', { p_quien: cuerpo.quien, p_origen: cuerpo.origen });
     }
     let comando: 'on' | 'off' | 'estado' | null = null;
     let horas: number | null = null;
-    if (accion === 'comando') {
-      if (typeof input.texto !== 'string') return json({ ok: false, error: 'peticion_invalida' }, 400);
-      const parsed = parseComando(input.texto);
+    if (cuerpo.accion === 'comando') {
+      if (typeof cuerpo.texto !== 'string') return json({ ok: false, error: 'peticion_invalida' }, 400);
+      const parsed = parseComando(cuerpo.texto);
       comando = parsed.accion;
       horas = parsed.horas;
-    } else if (accion === 'manual') {
-      if (input.comando === 'on' || input.comando === 'off' || input.comando === 'estado') comando = input.comando;
-      if (typeof input.horas === 'number') horas = input.horas;
+    } else if (cuerpo.accion === 'manual') {
+      if (cuerpo.comando === 'on' || cuerpo.comando === 'off' || cuerpo.comando === 'estado') comando = cuerpo.comando;
+      if (typeof cuerpo.horas === 'number') horas = cuerpo.horas;
     }
     if (comando === 'estado') return rpc('imeia_respaldo_pull', {});
     if (comando !== 'on' && comando !== 'off') return json({ ok: false, error: 'peticion_invalida' }, 400);
-    if (typeof input.quien !== 'string' || typeof input.origen !== 'string' || !ORIGENES_MANUAL.has(input.origen)) {
+    if (typeof cuerpo.quien !== 'string' || typeof cuerpo.origen !== 'string' || !ORIGENES_MANUAL.has(cuerpo.origen)) {
       return json({ ok: false, error: 'peticion_invalida' }, 400);
     }
     return rpc('imeia_respaldo_set', {
       p_accion: comando,
-      p_quien: input.quien,
-      p_motivo: typeof input.motivo === 'string' ? input.motivo : '',
-      p_origen: input.origen,
+      p_quien: cuerpo.quien,
+      p_motivo: typeof cuerpo.motivo === 'string' ? cuerpo.motivo : '',
+      p_origen: cuerpo.origen,
       ...(horas === null ? {} : { p_horas: horas }),
     });
   } catch {

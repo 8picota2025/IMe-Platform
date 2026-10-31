@@ -34,9 +34,17 @@ export async function encolarHermes(
   return !error;
 }
 
-/** Verifica el token del worker Hermes contra su hash en BD (nunca en claro). */
+/**
+ * Token de alcance worker (hash en BD, nunca en claro).
+ * Si la migración de alcance aún no está, cae a imeia_worker_token_ok para no
+ * cortar WhatsApp. Con la migración aplicada, un token de lectura o latido no pasa.
+ */
 export async function esTokenWorkerHermes(supabase: SupabaseClient, bearer: string): Promise<boolean> {
   if (!bearer || bearer.length < 32) return false;
-  const { data, error } = await supabase.rpc('imeia_worker_token_ok', { p_token: bearer });
-  return !error && data === true;
+  const alcance = await supabase.rpc('imeia_token_alcance_ok', { p_token: bearer, p_alcance: 'worker' });
+  if (!alcance.error) return alcance.data === true;
+  const message = alcance.error.message ?? '';
+  if (!/does not exist|schema cache|Could not find the function/i.test(message)) return false;
+  const legacy = await supabase.rpc('imeia_worker_token_ok', { p_token: bearer });
+  return !legacy.error && legacy.data === true;
 }

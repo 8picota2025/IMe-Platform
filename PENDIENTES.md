@@ -401,7 +401,8 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 ## NO_EJECUTADO_ENTORNO — Respaldo Grok/Hermes (2026-10-31)
 
-- [ ] NO_EJECUTADO_ENTORNO — Integrador: aplicar `supabase/migrations/20261031190000_imeia_respaldo_latido_manual.sql`, publicar `ops-respaldo` y copiar `ops/respaldo/` a `~/.hermes/scripts/respaldo/` en srv1715444. El cron queda en dry-run. No activa EmilioH, no envía correo y no reescribe el manual legado. Runbook: `ops/respaldo/DESPLIEGUE.md`.
+- [ ] NO_EJECUTADO_ENTORNO — Respaldo en srv1715444: la migración `20261031190000` y la función `ops-respaldo` ya están en Supabase `nnfbucwiasuggyfoyydo`. Sigue pendiente copiar `ops/respaldo/` a `~/.hermes/scripts/respaldo/` si aún no se hizo, con el cron en dry-run. No activa EmilioH, no envía correo y no reescribe el manual legado. Runbook: `ops/respaldo/DESPLIEGUE.md`.
+- [ ] NO_EJECUTADO_ENTORNO — Alcance de `imeia_worker_tokens`: aplicar `supabase/migrations/20261031230000_imeia_worker_token_alcance.sql` antes de mergear la función `ops-respaldo` que lo exige. No desplegado, no se tocó srv1715444 y no se envió correo. Runbook: `ops/respaldo/DESPLIEGUE.md` (sección Alcance del token).
 
 ## BACKLOG_V2
 

@@ -31,6 +31,79 @@ Auditoría local: `estado/auditoria.jsonl` con `utc`, `quien`, `accion`, `origen
 
 Alerta si falta latido, si está caducado (más de 15 min), si viene `fallo` o `sin_tokens`: una línea en `estado/alertas.jsonl`. No hay MTA.
 
+## Alcance del token
+
+`supabase/migrations/20261031230000_imeia_worker_token_alcance.sql` añade `imeia_worker_tokens.alcance`. Los tokens que ya están en la base quedan `worker` y siguen pudiendo hacerlo todo. La migración no inserta tokens y no modifica `imeia_routing`.
+
+| alcance | Puede | No puede |
+| --- | --- | --- |
+| `worker` | latido, pull, ON/OFF, expirar, modo, ruta, cola y RAG | — |
+| `respaldo_lectura` | pull y ESTADO | ON/OFF, latido, ruta, cola y RAG |
+| `respaldo_latido` | registrar latido | pull, ON/OFF, ruta, cola y RAG |
+
+`anon` y `authenticated` no leen la tabla ni ejecutan `imeia_token_alcance_ok`. Siguen pudiendo llamar a los RPC que ya tenían concedidos; el alcance se comprueba dentro. Un token malo o inactivo es 401 `unauthorized`. Un token vivo del alcance equivocado es 403 `forbidden`.
+
+`volcar.py` no cambia. En el servidor, `IMEIA_WORKER_TOKEN` tiene que seguir siendo alcance `worker`: `volcar.py` llama a `imeia_respaldo_expirar` y a `imeia_respaldo_pull`, y el detector a `imeia_modo_reportar`. Un token de solo lectura deja un aviso en el expirado y no informa el modo.
+
+### Orden
+
+1. `20261031190000_imeia_respaldo_latido_manual.sql` ya está aplicada en `nnfbucwiasuggyfoyydo`. No repetirla.
+2. Aplicar `20261031230000_imeia_worker_token_alcance.sql` con el workflow manual **Deploy Supabase Migrations**. Hasta este paso el token que ya existe sigue igual.
+3. Crear tokens de otro alcance solo si hacen falta. A la base entra el hash, no el secreto.
+4. Merge de este PR después de la migración. **Deploy Supabase Functions** publica `ops-respaldo`. Si el merge va antes, un Bearer de token recibe `503 migracion_pendiente` y no cambia la ruta. El Bearer que es `IMEIA_AGENT_WEBHOOK_KEY` o la service role sigue entrando.
+5. No hace falta volver a copiar `ops/respaldo/` al servidor ni quitar el dry-run. No enviar correo y no entrar por SSH para este cambio.
+
+### Crear un token y guardar solo el hash
+
+El hash es SHA-256 del secreto en UTF-8, sin salto de línea. `openssl dgst` y `extensions.digest(..., 'sha256')` coinciden.
+
+```bash
+TOKEN=$(openssl rand -hex 32)
+HASH=$(printf '%s' "$TOKEN" | openssl dgst -sha256 -hex | awk '{print $NF}')
+# TOKEN se anota una sola vez fuera de git (chmod 600). HASH es lo único que va a SQL.
+printf '%s\n' "$HASH"
+```
+
+```sql
+insert into public.imeia_worker_tokens (nombre, token_sha256, alcance)
+values ('respaldo-lectura-grok', '<hash sha256 hex de 64 caracteres>', 'respaldo_lectura');
+```
+
+Alcances válidos: `worker`, `respaldo_lectura`, `respaldo_latido`. `nombre` es único y es lo que se usa para revocar. No pegar el secreto en la sentencia ni en el historial de psql.
+
+Para ver que quedó bien, sin el hash:
+
+```sql
+select nombre, alcance, activo from public.imeia_worker_tokens order by nombre;
+```
+
+Latido (Bearer de alcance `respaldo_latido` o `worker`):
+
+```bash
+curl -sS -X POST "$SUPABASE_URL/functions/v1/ops-respaldo" \
+  -H "Authorization: Bearer $IMEIA_TOKEN_LATIDO" \
+  -H "Content-Type: application/json" \
+  -d '{"accion":"latido","estado":"ok","quien":"emilio","origen":"rutina"}'
+```
+
+Lectura (Bearer de alcance `respaldo_lectura` o `worker`): `GET` o `{"accion":"estado"}`. ON/OFF solo con alcance `worker`.
+
+### Revocar
+
+```sql
+update public.imeia_worker_tokens set activo = false where nombre = 'respaldo-lectura-grok';
+```
+
+La fila y el hash se quedan. Un token inactivo responde `unauthorized` (401), no `forbidden`.
+
+### Deshacer el alcance
+
+Ejecutar a mano el bloque entre `ROLLBACK_BEGIN` y `ROLLBACK_END` de `supabase/migrations/20261031230000_imeia_worker_token_alcance.sql`, quitando el prefijo `-- ` de esas líneas.
+
+Eso restaura las funciones anteriores, borra `imeia_token_alcance_ok` e `imeia_exige_alcance`, y quita la columna `alcance`. No toca `imeia_routing`, ni la cola Hermes, ni las tablas del latido. Las filas de `imeia_worker_tokens` siguen; sin la columna, cualquier token activo vuelve a servir para todo.
+
+Si `ops-respaldo` de este PR ya se publicó, hay que redesplegar la función del commit anterior: sin `imeia_token_alcance_ok` responde `migracion_pendiente`. WhatsApp, si esa función no existe, sigue comprobando `imeia_worker_token_ok`.
+
 ## Antes de tocar el servidor
 
 1. No borrar `estado/modo.json` ni `estado/modo-respaldo.manual`.
@@ -41,8 +114,8 @@ cp -a ~/.hermes/scripts/respaldo ~/.hermes/scripts/respaldo.bak-20261031
 cp -a ~/.hermes/estado/modo.json ~/.hermes/estado/modo-respaldo.manual /tmp/ 2>/dev/null || true
 ```
 
-3. Aplicar la migración con el workflow manual **Deploy Supabase Migrations** (o `supabase db push` contra la base ya revisada). No hace falta para probar los scripts en local.
-4. El token de worker ya existe en `imeia_worker_tokens`. No hace falta crear otro ni commitear su valor. En el servidor, fuera de git:
+3. La migración del latido (`20261031190000`) ya está aplicada. La de alcance va aparte, antes de mergear este PR: ver «Alcance del token». No hace falta ninguna de las dos para probar los scripts en local.
+4. El token de worker ya existe en `imeia_worker_tokens` y, tras la migración de alcance, queda en `worker`. No hace falta crear otro para el servidor ni commitear su valor. En el servidor, fuera de git:
 
 ```bash
 # ~/.hermes/scripts/respaldo/respaldo.env  (chmod 600)
@@ -173,6 +246,7 @@ cp /tmp/modo.json ~/.hermes/estado/modo.json
 supabase functions delete ops-respaldo --project-ref nnfbucwiasuggyfoyydo
 ```
 
-6. Deshacer la base con el bloque rollback del final de `supabase/migrations/20261031190000_imeia_respaldo_latido_manual.sql`. Solo borra `imeia_latido`, `imeia_respaldo_manual`, `imeia_modo_reportado`, `imeia_respaldo_auditoria` y sus funciones. No toca `imeia_routing` ni la cola Hermes. Ejecutarlo a mano en la base; no hay una migración posterior que lo haga sola.
+6. Si se aplicó la migración de alcance, deshacerla primero con su bloque `ROLLBACK_BEGIN` (ver arriba). No borra el latido ni `imeia_routing`.
+7. Deshacer el resto de la base con el bloque rollback del final de `supabase/migrations/20261031190000_imeia_respaldo_latido_manual.sql`. Solo borra `imeia_latido`, `imeia_respaldo_manual`, `imeia_modo_reportado`, `imeia_respaldo_auditoria` y sus funciones. No toca `imeia_routing` ni la cola Hermes. Ejecutarlo a mano en la base; no hay una migración posterior que lo haga sola.
 
 Los ficheros `auditoria.jsonl` y `alertas.jsonl` se pueden dejar o borrar. No contienen el token.
