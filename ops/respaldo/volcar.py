@@ -3,16 +3,33 @@
 
 from __future__ import annotations
 
+import os
 import sys
 
 from cli_comun import ahora_de, emitir, parser_base, raiz_de
-from respaldo_lib import fusionar_remoto, reintentar_salida, transport_desde_entorno
+from respaldo_lib import fusionar_remoto, post_rpc, reintentar_salida, transport_desde_entorno
+
+
+def transport_volcar():
+    """Token de alcance respaldo_lectura. Si no está, vale el de worker (también puede pull y expirar)."""
+    lectura = os.environ.get("IMEIA_TOKEN_LECTURA", "").strip()
+    if not lectura:
+        return transport_desde_entorno()
+    url = os.environ.get("SUPABASE_URL", "").strip()
+    anon = (os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("IMEIA_SUPABASE_ANON_KEY") or "").strip()
+    if not (url and anon):
+        return None
+
+    def transport(rpc: str, body: dict) -> dict:
+        return post_rpc(url, anon, lectura, rpc, body)
+
+    return transport
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = parser_base("Vuelca el tablón remoto a ~/.hermes/estado. Sin credenciales no toca nada.")
     args = parser.parse_args(argv)
-    transport = transport_desde_entorno()
+    transport = transport_volcar()
     if transport is None:
         return emitir({"sync": "omitido", "motivo": "sin_credenciales", "dry_run": args.dry_run})
     if not args.dry_run:
