@@ -5,4 +5,4 @@ description: Rutina de reenvío de lunes a sábado a las 08:00 COT. En sombra cu
 
 # integrador-reenvio
 
-Ejecuta `scripts/reenvio.py`. Mira la cola y las órdenes `tarea: reenvio`. Deja cada pieza donde está. Al terminar, el comparador escribe `comparacion-YYYYMMDD.md` en el registro.
+El job está `enabled: false`. En sombra `scripts/reenvio.py` no corre por el reloj. Las órdenes `tarea: reenvio` que estén en `tablon/eventos/` las ve el barrido del despertador y no se reenvían.

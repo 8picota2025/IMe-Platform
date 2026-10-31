@@ -401,8 +401,9 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 ## Hermes integrador en sombra (31-10-2026)
 
-- [ ] `NO_EJECUTADO_ENTORNO` Copiar `hermes/profiles/integrador/` y `hermes/scripts/integrador/` a srv1715444 y suscribir `integrador` en el tablón. Lo hace Integrador, no el CI. El webhook y el flujo de n8n conservan su id. El perfil queda en `INTEGRADOR_MODO=sombra` y sin `ACTIVO_AUTORIZADO`.
-- [ ] `NO_EJECUTADO_ENTORNO` Antes de esa copia, comparar `skills/reglas-ime/SKILL.md` secciones 1–11 con el archivo vivo de otro perfil Hermes. Si difiere, gana el vivo y se conserva la sección 12 (regla suprema de envío del 31-10).
+- [x] Copia inicial en srv1715444, modo sombra, commit `c894d8e` (31-10-2026). Lo hizo Integrador.
+- [ ] `NO_EJECUTADO_ENTORNO` Copiar el ajuste que lee `tablon/eventos/` y deja `cron/jobs.json` con `enabled: false`. Lo hace Integrador. Sigue en sombra, sin `ACTIVO_AUTORIZADO`.
+- [ ] `NO_EJECUTADO_ENTORNO` Comparar `skills/reglas-ime/SKILL.md` secciones 1–11 con el archivo vivo de otro perfil Hermes. Si difiere, gana el vivo y se conserva la sección 12 (regla suprema de envío del 31-10).
 
 ## BACKLOG_V2
 

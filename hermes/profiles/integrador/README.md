@@ -6,7 +6,7 @@ El despliegue lo hace Integrador, copiando carpetas. No usa `hermes-perfiles-apl
 
 ## Qué hace en sombra
 
-Con `INTEGRADOR_MODO=sombra` (el valor del `.env.example`) cada orden `para: integrador` toma el lock `~/.hermes/shared/tablon/locks/<tarea>.lock`, y si el id es nuevo escribe una línea en `~/logs/integrador/decisiones.jsonl`:
+Con `INTEGRADOR_MODO=sombra` (el valor del `.env.example`) el despertador barre `~/.hermes/shared/tablon/eventos/*.json`. Cada orden `para: integrador` toma el lock `~/.hermes/shared/tablon/locks/<tarea>.lock`, y si el id es nuevo escribe una línea en `~/logs/integrador/decisiones.jsonl`:
 
 - `ts` en hora de Colombia
 - `orden`
@@ -29,14 +29,16 @@ Si Grok vuelve, el perfil regresa a sombra aunque el archivo siga ahí. Sin el a
 
 ## Jobs
 
-| id | cuándo | estado |
+| id | cuándo, si algún día se habilita | ahora |
 | --- | --- | --- |
-| reenvio | L-S 08:00 COT | sombra, `no_agent` |
-| tablon | por evento; barrido dominical 03:00 COT | sombra, `no_agent` |
-| vigilancia | L-S 08:15 COT | sombra, `no_agent` |
-| comparador | diario 21:30 COT | sombra, `no_agent` |
-| caducidades | lunes 08:00 COT | `enabled: false` |
-| search-console | miércoles 09:00 COT | `enabled: false` |
+| reenvio | L-S 08:00 COT | `enabled: false`, `state: paused` |
+| tablon | por evento del despertador, no por el reloj | `enabled: false`, `state: paused` |
+| vigilancia | L-S 08:15 COT | `enabled: false`, `state: paused` |
+| comparador | diario 21:30 COT | `enabled: false`, `state: paused` |
+| caducidades | lunes 08:00 COT | `enabled: false`, `state: paused` |
+| search-console | miércoles 09:00 COT | `enabled: false`, `state: paused` |
+
+Hermes puede cargar `cron/jobs.json` y no dispara ninguno: todos van con `enabled: false`. Las rutinas de reloj, si algo las llamara igual, tampoco escriben mientras el modo efectivo sea sombra. El despertador sí llama a `scripts/tablon.py`, y ese barrido lee `eventos/` y registra.
 
 El cron de Hermes resuelve `script` bajo `~/.hermes/scripts/`. Por eso el puente vive en `hermes/scripts/integrador/` y llama al script del perfil.
 

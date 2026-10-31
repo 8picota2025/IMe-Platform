@@ -5,7 +5,7 @@ description: Comprobaciones de solo lectura del Integrador (GPU, colas, panel, n
 
 # integrador-vigilancia
 
-Ejecuta `scripts/vigilancia.py`. Lee, no crea las fuentes que falten.
+El job está `enabled: false`. En sombra el reloj no ejecuta `scripts/vigilancia.py`. Si se corre a mano fuera de sombra, lee y no crea las fuentes que falten.
 
 - `~/.local/state/franja/log`
 - cola de contenidos

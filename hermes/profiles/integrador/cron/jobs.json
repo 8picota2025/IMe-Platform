@@ -9,14 +9,14 @@
       "schedule": {
         "kind": "cron",
         "expr": "0 8 * * 1-6",
-        "display": "L-S 08:00 America/Bogota"
+        "display": "L-S 08:00 America/Bogota; no lo lanza Hermes en sombra"
       },
       "timezone": "America/Bogota",
       "deliver": "local",
       "script": "integrador/reenvio.py",
       "no_agent": true,
-      "enabled": true,
-      "state": "scheduled",
+      "enabled": false,
+      "state": "paused",
       "repeat": {"times": null, "completed": 0}
     },
     {
@@ -29,14 +29,14 @@
       "schedule": {
         "kind": "cron",
         "expr": "0 3 * * 0",
-        "display": "por evento del tablón; barrido dominical 03:00 America/Bogota por si quedó una orden sin despertar"
+        "display": "por evento; Hermes no lo lanza. Lo barre el despertador en tablon/eventos/"
       },
       "timezone": "America/Bogota",
       "deliver": "local",
       "script": "integrador/tablon.py",
       "no_agent": true,
-      "enabled": true,
-      "state": "scheduled",
+      "enabled": false,
+      "state": "paused",
       "repeat": {"times": null, "completed": 0}
     },
     {
@@ -48,14 +48,14 @@
       "schedule": {
         "kind": "cron",
         "expr": "15 8 * * 1-6",
-        "display": "L-S 08:15 America/Bogota"
+        "display": "L-S 08:15 America/Bogota; no lo lanza Hermes en sombra"
       },
       "timezone": "America/Bogota",
       "deliver": "local",
       "script": "integrador/vigilancia.py",
       "no_agent": true,
-      "enabled": true,
-      "state": "scheduled",
+      "enabled": false,
+      "state": "paused",
       "repeat": {"times": null, "completed": 0}
     },
     {
@@ -67,14 +67,14 @@
       "schedule": {
         "kind": "cron",
         "expr": "30 21 * * *",
-        "display": "diario 21:30 America/Bogota"
+        "display": "diario 21:30 America/Bogota; no lo lanza Hermes en sombra"
       },
       "timezone": "America/Bogota",
       "deliver": "local",
       "script": "integrador/comparador.py",
       "no_agent": true,
-      "enabled": true,
-      "state": "scheduled",
+      "enabled": false,
+      "state": "paused",
       "repeat": {"times": null, "completed": 0}
     },
     {

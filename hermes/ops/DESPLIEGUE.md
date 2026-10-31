@@ -9,7 +9,7 @@ Cuando Shoky dé el OK de copiar el perfil, todavía en sombra:
 3. Copiar `hermes/scripts/integrador/` a `/home/shoky/.hermes/scripts/integrador/`.
 4. Crear `.env` desde `.env.example` y dejarlo en modo 600. No commitearlo.
 5. Añadir la línea `integrador` a `~/.hermes/shared/tablon/bots.txt` si no está.
-6. Añadir `hermes/ops/despertador.fragmento.sh` al despertador existente. El webhook y el flujo de n8n conservan su id.
+6. Añadir `hermes/ops/despertador.fragmento.sh` al despertador existente. El barrido lee `tablon/eventos/`, no `entrada/`. El webhook y el flujo de n8n conservan su id. Los jobs quedan con `enabled: false`: Hermes puede cargar el perfil y no los lanza.
 7. No crear `ACTIVO_AUTORIZADO`. `INTEGRADOR_MODO` se queda en `sombra`.
 
 ## Vuelta atrás

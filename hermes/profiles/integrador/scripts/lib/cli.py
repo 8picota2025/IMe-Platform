@@ -69,9 +69,9 @@ def main_rutina(nombre: str, argv: list[str] | None = None) -> int:
         elif nombre == "comparador":
             rutina_comparador(ctx)
         elif nombre == "tablon":
-            from .orden import barrer_entrada
+            from .orden import barrer_eventos
 
-            barrer_entrada(ctx)
+            barrer_eventos(ctx)
         else:
             raise ValueError("rutina desconocida")
     except (OSError, ValueError, PermissionError) as exc:

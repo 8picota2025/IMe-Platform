@@ -20,9 +20,9 @@ from lib.avisos import aviso_interno
 from lib.bitacora import configurar
 from lib.comparador import comparar
 from lib.ensayo import preparar_env, suscribir
-from lib.jobs import cargar_jobs
+from lib.jobs import cargar_jobs, jobs_lanzables
 from lib.modo import modo_efectivo
-from lib.orden import procesar_orden, rutina_vigilancia
+from lib.orden import barrer_eventos, procesar_orden, rutina_reenvio, rutina_vigilancia
 from lib.rollback import rollback
 from lib.vigilancia import informe
 from lib.webhook import mismo_id
@@ -74,6 +74,44 @@ class Sombra(unittest.TestCase):
     def test_orden_ajena_no_registra(self) -> None:
         self.assertEqual(procesar_orden(self.ctx, orden(para="enlace", id="OTRA")), "ajena")
         self.assertFalse((self.datos["logs"] / "decisiones.jsonl").exists())
+
+    def test_barre_eventos_aunque_el_cron_este_apagado(self) -> None:
+        (self.datos["tablon"] / "entrada" / "vieja.json").write_text(
+            json.dumps(orden(id="VIEJA")),
+            encoding="utf-8",
+        )
+        (self.datos["tablon"] / "eventos" / "ENC-REAL.json").write_text(
+            json.dumps({"para": "integrador", "fuente": "grok", "texto": "orden real"}),
+            encoding="utf-8",
+        )
+        (self.datos["tablon"] / "eventos" / "lista.json").write_text(
+            json.dumps({"para": ["enlace", "integrador"], "id": "LISTA-1", "mensaje": "para los dos"}),
+            encoding="utf-8",
+        )
+        (self.datos["tablon"] / "eventos" / "ajena.json").write_text(
+            json.dumps({"para": "enlace", "id": "DE-ENLACE", "texto": "no"}),
+            encoding="utf-8",
+        )
+        (self.datos["tablon"] / "eventos" / "roto.json").write_text("{", encoding="utf-8")
+        sensibles = [
+            self.datos["tmp"] / "crontab.txt",
+            self.datos["tmp"] / "supabase.sql",
+            self.datos["tmp"] / "n8n.json",
+            self.datos["tmp"] / "profiles" / "enlace" / "SOUL.md",
+        ]
+        antes = {path: huella(path) for path in sensibles}
+        resultados = barrer_eventos(self.ctx)
+        self.assertEqual(resultados.count("registrada"), 2)
+        self.assertIn("ilegible", resultados)
+        self.assertIn("ajena", resultados)
+        lineas = (self.datos["logs"] / "decisiones.jsonl").read_text(encoding="utf-8").splitlines()
+        self.assertEqual({json.loads(linea)["orden"] for linea in lineas}, {"ENC-REAL", "LISTA-1"})
+        self.assertTrue(all(json.loads(linea)["modo"] == "sombra" for linea in lineas))
+        self.assertFalse((self.datos["tablon"] / "salida").exists())
+        for path, digest in antes.items():
+            self.assertEqual(huella(path), digest, path.name)
+        self.assertEqual(rutina_reenvio(self.ctx), [])
+        self.assertEqual(len((self.datos["logs"] / "decisiones.jsonl").read_text(encoding="utf-8").splitlines()), 2)
 
     def test_dos_despertares_una_ejecucion(self) -> None:
         entrada = self.datos["tmp"] / "orden.json"
@@ -177,15 +215,13 @@ class JobsYComparador(unittest.TestCase):
     def test_jobs(self) -> None:
         jobs = {str(job["id"]): job for job in cargar_jobs(PERFIL_REPO)}
         self.assertEqual(jobs["reenvio"]["modo"], "sombra")
-        self.assertTrue(jobs["reenvio"]["enabled"])
         self.assertEqual(jobs["reenvio"]["schedule"]["expr"], "0 8 * * 1-6")
         self.assertEqual(jobs["tablon"]["modo"], "sombra")
         self.assertEqual(jobs["tablon"]["disparo"], "evento")
-        self.assertTrue(jobs["tablon"]["enabled"])
-        self.assertFalse(jobs["caducidades"]["enabled"])
-        self.assertFalse(jobs["search-console"]["enabled"])
-        self.assertTrue(jobs["reenvio"]["no_agent"])
-        self.assertEqual(jobs["reenvio"]["deliver"], "local")
+        self.assertEqual(jobs_lanzables(list(jobs.values())), [])
+        for job in jobs.values():
+            self.assertIs(job["enabled"], False)
+            self.assertEqual(job["state"], "paused")
 
     def test_comparador_diario(self) -> None:
         with TemporaryDirectory() as carpeta:
@@ -244,8 +280,10 @@ class JobsYComparador(unittest.TestCase):
             with patch.dict(os.environ, {"INTEGRADOR_MODO": "sombra"}):
                 self.assertEqual(
                     rutina_vigilancia(contexto(datos), datetime(2026, 10, 31, 8, 15, tzinfo=COT)),
-                    "registrada",
+                    "no_lanzada",
                 )
+                self.assertEqual(rutina_reenvio(contexto(datos), datetime(2026, 10, 31, 8, 0, tzinfo=COT)), [])
+            self.assertFalse((datos["logs"] / "decisiones.jsonl").exists())
             self.assertIn("ausente", texto)
             self.assertIn("avisos-telegram: http 200, activo", texto)
             self.assertIn("ops-hub: http 200", texto)
