@@ -936,6 +936,11 @@ function shellHtml(title: string, body: string): string {
         <div class="admin-brand"><strong>I-ME</strong><span>Biomedical commerce admin</span></div>
         <nav class="admin-nav" aria-label="Admin">
           ${navHtml}
+          ${
+            state.rol === 'owner' || state.rol === 'admin'
+              ? '<a class="admin-nav__panel" href="/admin/panel/">Panel vivo</a>'
+              : ''
+          }
         </nav>
         <button class="admin-button admin-button--sidebar" data-logout type="button">Salir</button>
       </aside>

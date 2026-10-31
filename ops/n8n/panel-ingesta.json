@@ -1,0 +1,64 @@
+{
+  "name": "IME panel ingesta — NO ACTIVAR",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": {
+    "ime": "Borrador. No activar sin OK de Shoky. Twenty solo se lee. No hay nodos de correo, WhatsApp ni Telegram."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 15 }] }
+      },
+      "id": "cada-15",
+      "name": "Cada 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.TWENTY_READ_URL}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "leer-twenty",
+      "name": "Leer Twenty",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0],
+      "notes": "Solo GET. La credencial la guarda el bot CRM. Este flujo no escribe en Twenty."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/panel_snapshot_twenty",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ oportunidad_ref: $json.id, estado: $json.stage, payload: $json, synced_at: $now.toISO() }) }}"
+      },
+      "id": "upsert-snapshot",
+      "name": "Upsert snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [540, 0],
+      "notes": "La llave sale del entorno de n8n, no de este JSON."
+    }
+  ],
+  "connections": {
+    "Cada 15 min": { "main": [[{ "node": "Leer Twenty", "type": "main", "index": 0 }]] },
+    "Leer Twenty": { "main": [[{ "node": "Upsert snapshot", "type": "main", "index": 0 }]] }
+  }
+}
