@@ -30,3 +30,5 @@ src/data/generated/
 /public/assets/productos/*/ficha-tecnica.pdf
 
 tmp/
+__pycache__/
+*.pyc
