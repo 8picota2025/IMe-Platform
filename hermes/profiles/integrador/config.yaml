@@ -1,0 +1,50 @@
+# Clon mínimo para el perfil integrador. Sin adaptadores de salida activos.
+# La clave de OmniRoute va en .env (OMNIROUTE_API_KEY), nunca en este archivo.
+# No usar hermes-perfiles-aplicar.sh: lo copia Integrador a mano tras el OK.
+
+timezone: America/Bogota
+
+model:
+  provider: custom
+  default: codex/gpt-6.1-sol
+  base_url: http://100.80.80.81:20128/v1
+
+fallback_providers:
+  - provider: openai-codex
+    model: gpt-6.1-sol
+  - provider: anthropic
+    model: claude-sonnet-5-5
+
+auxiliary:
+  compression:
+    provider: custom
+    model: codex/gpt-5.6-luna
+    base_url: http://100.80.80.81:20128/v1
+
+cron:
+  allow_agent_scheduling: false
+
+platforms:
+  telegram:
+    enabled: false
+  discord:
+    enabled: false
+  slack:
+    enabled: false
+  signal:
+    enabled: false
+  email:
+    enabled: false
+  sms:
+    enabled: false
+
+terminal:
+  backend: local
+  cwd: "."
+  timeout: 120
+
+stt:
+  enabled: false
+
+streaming:
+  enabled: false
