@@ -52,10 +52,10 @@ def _reportes_grok(ctx: Contexto) -> list[dict[str, str]]:
     reportes: list[dict[str, str]] = []
     if ctx.grok_log is not None:
         reportes.extend(_leer_jsonl(ctx.grok_log))
-    entrada = ctx.tablon / "entrada"
+    eventos = ctx.tablon / "eventos"
     candidatos = []
-    if entrada.is_dir():
-        candidatos.extend(sorted(entrada.glob("*.json")))
+    if eventos.is_dir():
+        candidatos.extend(sorted(eventos.glob("*.json")))
     if ctx.tablon.is_dir():
         candidatos.extend(sorted(ctx.tablon.glob("*.json")))
     for path in candidatos:

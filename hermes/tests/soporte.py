@@ -26,6 +26,7 @@ def copiar_perfil(tmp: Path) -> Path:
 def mundo(tmp: Path) -> dict[str, Path]:
     perfil = copiar_perfil(tmp)
     tablon = tmp / "tablon"
+    (tablon / "eventos").mkdir(parents=True)
     (tablon / "entrada").mkdir(parents=True)
     (tablon / "bots.txt").write_text("enlace\nintegrador\n", encoding="utf-8")
     (tablon / "despertador.sh").write_text("#!/bin/sh\n# despertador de ensayo\n", encoding="utf-8")

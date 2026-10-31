@@ -13,7 +13,6 @@ from .candado import candado_tarea
 from .comparador import comparar
 from .contexto import Contexto
 from .decisiones import anexar, ids_registrados, marcar_tiempo
-from .jobs import cargar_jobs, job_de, job_habilitado
 from .modo import ahora_cot, modo_efectivo
 from .vigilancia import guardar_informe, informe
 
@@ -48,11 +47,6 @@ def procesar_orden(ctx: Contexto, orden: dict[str, Any], ahora: datetime | None 
     tarea = orden.get("tarea") if isinstance(orden.get("tarea"), str) else "tablon"
     if tarea not in TAREAS_CONOCIDAS:
         tarea = "tablon"
-    jobs = cargar_jobs(ctx.perfil)
-    job = job_de(jobs, tarea)
-    if not job_habilitado(job):
-        log.info("job %s apagado, no se ejecuta", tarea)
-        return "job_apagado"
     momento = ahora or ahora_cot()
     with candado_tarea(ctx, tarea):
         with candado_tarea(ctx, "idempotencia"):
@@ -84,10 +78,18 @@ def procesar_orden(ctx: Contexto, orden: dict[str, Any], ahora: datetime | None 
     return "registrada"
 
 
-def barrer_entrada(ctx: Contexto, tarea: str | None = None, ahora: datetime | None = None) -> list[str]:
+def barrer_eventos(ctx: Contexto, tarea: str | None = None, ahora: datetime | None = None) -> list[str]:
+    """Lee tablon/eventos/*.json. La carpeta entrada/ no es el tablón vivo."""
+    log = configurar(ctx)
     resultados: list[str] = []
-    for path in _entradas(ctx):
-        orden = _leer_orden(path)
+    for path in _eventos(ctx):
+        try:
+            bruto = _leer_orden(path)
+        except (OSError, ValueError) as exc:
+            log.warning("evento ilegible %s: %s", path.name, type(exc).__name__)
+            resultados.append("ilegible")
+            continue
+        orden = normalizar_evento(bruto, path)
         if tarea is not None and orden.get("tarea") not in {tarea, None}:
             continue
         resultados.append(procesar_orden(ctx, orden, ahora))
@@ -95,7 +97,9 @@ def barrer_entrada(ctx: Contexto, tarea: str | None = None, ahora: datetime | No
 
 
 def rutina_reenvio(ctx: Contexto, ahora: datetime | None = None) -> list[str]:
-    resultados = barrer_entrada(ctx, "reenvio", ahora)
+    if _cron_en_sombra(ctx, ahora):
+        return []
+    resultados = barrer_eventos(ctx, "reenvio", ahora)
     momento = ahora or ahora_cot()
     dia = momento.strftime("%Y%m%d")
     resumen = {
@@ -119,6 +123,8 @@ def rutina_reenvio(ctx: Contexto, ahora: datetime | None = None) -> list[str]:
 
 
 def rutina_vigilancia(ctx: Contexto, ahora: datetime | None = None) -> str:
+    if _cron_en_sombra(ctx, ahora):
+        return "no_lanzada"
     momento = ahora or ahora_cot()
     texto = informe(ctx, ahora=momento)
     guardar_informe(ctx, texto, momento)
@@ -133,6 +139,8 @@ def rutina_vigilancia(ctx: Contexto, ahora: datetime | None = None) -> str:
 
 
 def rutina_comparador(ctx: Contexto, ahora: datetime | None = None) -> str:
+    if _cron_en_sombra(ctx, ahora):
+        return "no_lanzada"
     momento = ahora or ahora_cot()
     destino = comparar(ctx, momento)
     orden = {
@@ -204,11 +212,51 @@ def _publicar_salida(ctx: Contexto, orden_id: str, accion: str, esperado: str) -
     )
 
 
-def _entradas(ctx: Contexto) -> list[Path]:
-    carpeta = ctx.tablon / "entrada"
+def _cron_en_sombra(ctx: Contexto, ahora: datetime | None) -> bool:
+    """El reloj no corre en sombra. El despertador sí puede barrer eventos."""
+    if modo_efectivo(ctx, ahora) != "sombra":
+        return False
+    configurar(ctx).info("cron no se lanza en sombra")
+    return True
+
+
+def normalizar_evento(bruto: dict[str, Any], path: Path) -> dict[str, Any]:
+    crudo_id = bruto.get("id") if isinstance(bruto.get("id"), str) else bruto.get("orden")
+    if not isinstance(crudo_id, str) or not crudo_id.strip():
+        crudo_id = path.stem
+    para = bruto.get("para", bruto.get("destinatario"))
+    if isinstance(para, list):
+        textos = [str(item) for item in para]
+        para = "integrador" if "integrador" in textos else ""
+    elif not isinstance(para, str):
+        para = ""
+    texto = bruto.get("texto", bruto.get("mensaje", bruto.get("cuerpo", "")))
+    if not isinstance(texto, str):
+        texto = json.dumps(texto, ensure_ascii=False)
+    fuente = bruto.get("fuente", bruto.get("de", bruto.get("origen", "tablon")))
+    if not isinstance(fuente, str) or not fuente.strip():
+        fuente = "tablon"
+    tarea = bruto.get("tarea")
+    if not isinstance(tarea, str) or not tarea.strip():
+        tarea = "tablon"
+    autorizado = bruto.get("autorizado_por")
+    cita = bruto.get("cita")
+    return {
+        "id": crudo_id.strip(),
+        "para": para.strip(),
+        "tarea": tarea.strip(),
+        "fuente": fuente.strip(),
+        "texto": texto,
+        "autorizado_por": autorizado if isinstance(autorizado, str) else "",
+        "cita": cita if isinstance(cita, str) else "",
+    }
+
+
+def _eventos(ctx: Contexto) -> list[Path]:
+    carpeta = ctx.tablon / "eventos"
     if not carpeta.is_dir():
         return []
-    return sorted(path for path in carpeta.glob("*.json") if path.is_file())
+    return sorted(path for path in carpeta.glob("*.json") if path.is_file() and not path.name.startswith("."))
 
 
 def _leer_orden(path: Path) -> dict[str, Any]:

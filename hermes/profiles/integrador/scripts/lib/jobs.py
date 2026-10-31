@@ -31,3 +31,16 @@ def job_habilitado(job: dict[str, object] | None) -> bool:
     if job is None:
         return False
     return job.get("enabled") is True
+
+
+def jobs_lanzables(jobs: list[dict[str, object]]) -> list[dict[str, object]]:
+    """Los que el scheduler de Hermes dispararía al cargar el perfil.
+
+    El scheduler obedece `enabled`. `state: paused` cubre un lector que
+    mire el estado y no la bandera.
+    """
+    return [
+        job
+        for job in jobs
+        if job.get("enabled") is True and job.get("state") != "paused"
+    ]
