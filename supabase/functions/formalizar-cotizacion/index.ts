@@ -12,6 +12,7 @@ import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
+import { verificarNoEnviar } from '../_shared/guarda-envio.ts';
 import {
   datosBancariosTexto,
   getDatosBancariosTransferencia,
@@ -98,6 +99,11 @@ async function loadCotizacionValidada(
   if (!data) return { ok: false, response: notFound(origin) };
 
   const row = data as CotizacionOfertaRow;
+  // GUARDA 31-10-2026: cotización marcada NO ENVIAR no se formaliza ni dispara correos.
+  const guardaNoEnviar = verificarNoEnviar(row as unknown as Record<string, unknown>);
+  if (!guardaNoEnviar.ok) {
+    return { ok: false, response: errorResponse({ code: guardaNoEnviar.code, message: guardaNoEnviar.message }, 409, origin) };
+  }
   const yaConvertida = Boolean(row.pedido_id) || row.estado === 'convertida';
   if (yaConvertida) {
     if (opts?.permitirWompiPendiente && row.pedido_id) {
