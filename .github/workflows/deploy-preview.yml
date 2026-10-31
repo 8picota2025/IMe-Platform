@@ -110,14 +110,43 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # Guardas: solo borrar <ruta absoluta de previews>/<número>. Nunca la raíz ni rutas vacías.
+          # Guardas: solo borrar la carpeta numerada de ESA vista previa. Nunca la raíz,
+          # ni una ruta con comillas, ni un segmento que no sea el número del PR.
           case "$PR_NUMBER" in ''|*[!0-9]*) echo "Número de PR no válido: $PR_NUMBER"; exit 1 ;; esac
-          case "$PREVIEW_PATH" in /*[a-zA-Z0-9]*) ;; *) echo "HOSTINGER_PREVIEW_PATH debe ser una ruta absoluta no vacía"; exit 1 ;; esac
-          target="${PREVIEW_PATH%/}/${PR_NUMBER}"
+          # El deploy usa server-dir "${HOSTINGER_PREVIEW_PATH}/${PR}/".
+          # Con el secreto vacío (lo que hay hoy) eso es "/${PR}/" en la raíz FTP,
+          # publicada en https://i-me.com.co/<PR>/. Exigir ruta absoluta aquí hacía
+          # fallar el job en cuanto se cerraba un PR, sin borrar nada, y la cuota
+          # del hosting se llenaba de vistas previas.
+          if [ -z "${PREVIEW_PATH}" ]; then
+            target="/${PR_NUMBER}"
+          else
+            case "$PREVIEW_PATH" in
+              /*) ;;
+              *) echo "HOSTINGER_PREVIEW_PATH debe ser una ruta absoluta"; exit 1 ;;
+            esac
+            target="${PREVIEW_PATH%/}/${PR_NUMBER}"
+          fi
+          case "$target" in
+            *\'*|*\"*|*..*|*' '*|*'\\'*) echo "Destino rechazado: caracteres no permitidos"; exit 1 ;;
+          esac
+          base="${target##*/}"
+          parent="${target%/*}"
+          # "/251" pierde el padre al quitar el último segmento: el padre es la raíz FTP.
+          if [ -z "$parent" ]; then parent="/"; fi
+          if [ "$base" != "$PR_NUMBER" ] || [ "$target" = "/" ]; then
+            echo "Destino rechazado: $target"
+            exit 1
+          fi
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
           lftp -u "$FTP_USER","$FTP_PASSWORD" "ftp://$FTP_HOST" -e "rm -r '$target'; bye" || true
-          # Si la carpeta sigue listándose, el borrado falló: el job queda en rojo.
-          remaining="$(lftp -u "$FTP_USER","$FTP_PASSWORD" "ftp://$FTP_HOST" -e "cls -1 '$target' 2>/dev/null; bye" || true)"
-          if [ -n "$remaining" ]; then echo "La carpeta sigue existiendo: $target"; exit 1; fi
+          # cls del directorio padre: el nombre del PR tiene que desaparecer.
+          # Un cls del propio directorio lista su contenido y un fallo de lftp
+          # en stdout dejaba el job en rojo aunque la carpeta no existiera.
+          listing="$(lftp -u "$FTP_USER","$FTP_PASSWORD" "ftp://$FTP_HOST" -e "set cmd:fail-exit yes; cls -1 '$parent'; bye")"
+          if printf '%s\n' "$listing" | grep -Fxq "$PR_NUMBER" || printf '%s\n' "$listing" | grep -Fxq "${PR_NUMBER}/"; then
+            echo "La carpeta sigue existiendo: $target"
+            exit 1
+          fi
           echo "Vista previa eliminada (o inexistente): $target"

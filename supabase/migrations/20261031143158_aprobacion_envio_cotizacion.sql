@@ -1,4 +1,7 @@
--- BORRADOR 31-10-2026 — NO APLICADO. Requiere OK de Shoky.
+-- Aplicada en producción el 2026-10-31 con versión 20261031143158.
+-- El archivo nació como 20261031120000; si el nombre no coincide con schema_migrations,
+-- el siguiente `supabase db push` aborta ("Remote migration versions not found").
+-- El 409 sin aprobación o con NO ENVIAR es intencional: no revertir.
 -- Marca de aprobación para enviar cotizaciones (incidente 27-10: 6 envíos sin OK).
 begin;
 
