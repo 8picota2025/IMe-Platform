@@ -111,10 +111,14 @@ Deno.serve(async req => {
   }
 
   const eventId = `transferencia-validada:${pedidoId}:${Date.now()}`;
-  await registrarPedidoPagado(supabase, pedidoId, 'transferencia', eventId, {
+  const pagado = await registrarPedidoPagado(supabase, pedidoId, 'transferencia', eventId, {
     deEstado,
   });
-  await notificarFulfillmentDropship(supabase, pedidoId, pedido.items ?? []);
+  if (pagado.stockOk) {
+    await notificarFulfillmentDropship(supabase, pedidoId, pedido.items ?? []);
+  } else {
+    console.error('validar-transferencia: skip dropship por stock_deficit', pedidoId);
+  }
 
   return new Response(
     JSON.stringify({

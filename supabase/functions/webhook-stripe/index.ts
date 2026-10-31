@@ -141,8 +141,12 @@ Deno.serve(
       .eq('event_id', evento.event_id);
 
     if (!eraPagado && nuevoEstado === 'pagado') {
-      await registrarPedidoPagado(supabase, pedidoRow.id, 'stripe', evento.event_id);
-      await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
+      const pagado = await registrarPedidoPagado(supabase, pedidoRow.id, 'stripe', evento.event_id);
+      if (pagado.stockOk) {
+        await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
+      } else {
+        console.error('webhook-stripe: skip dropship por stock_deficit', pedidoRow.id);
+      }
       void trackEvent(FN_NAME, 'pago_confirmado', {
         pedido_id: pedidoRow.id,
         proveedor_pago: 'stripe',

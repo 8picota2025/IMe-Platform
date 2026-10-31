@@ -3,6 +3,7 @@
  */
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+export { pedidoDebeLiberarReserva } from '../../../src/lib/stock-availability.ts';
 
 export interface ReservaStockResult {
   ok: boolean;
@@ -11,7 +12,15 @@ export interface ReservaStockResult {
   motivo: string;
 }
 
+export interface ConsumoStockResult {
+  /** true si no hace falta stock o se consumió / re-reservó con éxito */
+  ok: boolean;
+  consumidas: number;
+  motivo: string;
+}
+
 type RpcClient = Pick<SupabaseClient, 'rpc'>;
+type QueryClient = Pick<SupabaseClient, 'rpc' | 'from'>;
 
 function parseReservaRow(data: unknown): ReservaStockResult {
   const row = Array.isArray(data) ? data[0] : data;
@@ -84,12 +93,94 @@ export async function liberarReservasPedido(
   return typeof data === 'number' ? data : Number(data) || 0;
 }
 
-/** Estados de pedido que deben liberar reserva (no venta). */
-export function pedidoDebeLiberarReserva(estado: string): boolean {
-  return (
-    estado === 'rechazado' ||
-    estado === 'expirado' ||
-    estado === 'cancelado' ||
-    estado === 'error_verificacion'
+interface PedidoLineaStock {
+  producto_id?: string;
+  cantidad?: number;
+}
+
+/**
+ * Consume reservas activas; si ya se liberaron (TTL / bug de decline) intenta
+ * re-reservar antes de permitir fulfillment. Idempotente si ya hay `consumida`.
+ */
+export async function asegurarConsumoStockPedido(
+  supabase: QueryClient,
+  pedidoId: string,
+  items: PedidoLineaStock[]
+): Promise<ConsumoStockResult> {
+  const { count: yaConsumidas, error: countError } = await supabase
+    .from('stock_reservas')
+    .select('id', { count: 'exact', head: true })
+    .eq('pedido_id', pedidoId)
+    .eq('estado', 'consumida');
+
+  if (countError) {
+    console.error('asegurarConsumoStockPedido: count consumida', countError.message);
+    return { ok: false, consumidas: 0, motivo: countError.message };
+  }
+  if ((yaConsumidas ?? 0) > 0) {
+    return { ok: true, consumidas: yaConsumidas ?? 0, motivo: 'ya_consumido' };
+  }
+
+  let consumidas = await consumirReservasPedido(supabase, pedidoId);
+  if (consumidas > 0) {
+    return { ok: true, consumidas, motivo: 'consumido' };
+  }
+
+  const lineas = items
+    .map(i => ({
+      producto_id: typeof i.producto_id === 'string' ? i.producto_id : '',
+      cantidad: Math.max(1, Math.floor(Number(i.cantidad) || 1)),
+    }))
+    .filter(i => i.producto_id.length > 0);
+
+  if (lineas.length === 0) {
+    return { ok: true, consumidas: 0, motivo: 'sin_items' };
+  }
+
+  const productoIds = [...new Set(lineas.map(l => l.producto_id))];
+  const { data: productos, error: prodError } = await supabase
+    .from('productos')
+    .select('id, stock, gestionar_stock')
+    .in('id', productoIds);
+
+  if (prodError) {
+    console.error('asegurarConsumoStockPedido: productos', prodError.message);
+    return { ok: false, consumidas: 0, motivo: prodError.message };
+  }
+
+  const managedIds = new Set(
+    (
+      (productos ?? []) as Array<{
+        id: string;
+        stock: number | null;
+        gestionar_stock: boolean | null;
+      }>
+    )
+      .filter(p => !(p.stock === null && p.gestionar_stock !== true))
+      .map(p => p.id)
   );
+
+  if (managedIds.size === 0) {
+    return { ok: true, consumidas: 0, motivo: 'sin_gestion_stock' };
+  }
+
+  const correlationId = `reclaim:${pedidoId}`;
+  for (const linea of lineas) {
+    if (!managedIds.has(linea.producto_id)) continue;
+    const reserva = await reservarStockProducto(supabase, {
+      productoId: linea.producto_id,
+      cantidad: linea.cantidad,
+      pedidoId,
+      correlationId,
+    });
+    if (!reserva.ok && reserva.motivo !== 'sin_gestion_stock') {
+      return { ok: false, consumidas: 0, motivo: reserva.motivo };
+    }
+  }
+
+  consumidas = await consumirReservasPedido(supabase, pedidoId);
+  if (consumidas === 0) {
+    return { ok: false, consumidas: 0, motivo: 'consumo_vacio_tras_re_reserva' };
+  }
+  return { ok: true, consumidas, motivo: 're_reservado_y_consumido' };
 }
