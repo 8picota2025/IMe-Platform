@@ -38,12 +38,12 @@ Alerta si falta latido, si está caducado (más de 15 min), si viene `fallo` o `
 | alcance | Puede | No puede |
 | --- | --- | --- |
 | `worker` | latido, pull, ON/OFF, expirar, modo, ruta, cola y RAG | — |
-| `respaldo_lectura` | pull y ESTADO | ON/OFF, latido, ruta, cola y RAG |
+| `respaldo_lectura` | pull, ESTADO y expirar un manual ya caducado | ON/OFF, latido, modo, ruta, cola y RAG |
 | `respaldo_latido` | registrar latido | pull, ON/OFF, ruta, cola y RAG |
 
 `anon` y `authenticated` no leen la tabla ni ejecutan `imeia_token_alcance_ok`. Siguen pudiendo llamar a los RPC que ya tenían concedidos; el alcance se comprueba dentro. Un token malo o inactivo es 401 `unauthorized`. Un token vivo del alcance equivocado es 403 `forbidden`.
 
-`volcar.py` no cambia. En el servidor, `IMEIA_WORKER_TOKEN` tiene que seguir siendo alcance `worker`: `volcar.py` llama a `imeia_respaldo_expirar` y a `imeia_respaldo_pull`, y el detector a `imeia_modo_reportar`. Un token de solo lectura deja un aviso en el expirado y no informa el modo.
+`volcar.py` en el servidor usa un token `respaldo_lectura` (`IMEIA_TOKEN_LECTURA`). Sus llamadas son `imeia_respaldo_expirar` y `imeia_respaldo_pull`. Expirar solo apaga un manual cuyo `expires_at` ya pasó; un manual vigente no cambia. No hace ON/OFF, no informa el modo, no toca la ruta, la cola ni el RAG. Si `IMEIA_TOKEN_LECTURA` no está, sigue con `IMEIA_WORKER_TOKEN`. El detector (`imeia_modo_reportar`), el latido y `respaldo.sh` no usan ese token de lectura.
 
 ### Orden
 
@@ -69,7 +69,7 @@ insert into public.imeia_worker_tokens (nombre, token_sha256, alcance)
 values ('respaldo-lectura-grok', '<hash sha256 hex de 64 caracteres>', 'respaldo_lectura');
 ```
 
-Alcances válidos: `worker`, `respaldo_lectura`, `respaldo_latido`. `nombre` es único y es lo que se usa para revocar. No pegar el secreto en la sentencia ni en el historial de psql.
+Alcances válidos: `worker`, `respaldo_lectura`, `respaldo_latido`. `nombre` es único y es lo que se usa para revocar. No pegar el secreto en la sentencia ni en el historial de psql. El de `respaldo_lectura` va en `IMEIA_TOKEN_LECTURA` (solo `volcar.py`). El de `worker` sigue en `IMEIA_WORKER_TOKEN`.
 
 Para ver que quedó bien, sin el hash:
 
@@ -121,6 +121,9 @@ cp -a ~/.hermes/estado/modo.json ~/.hermes/estado/modo-respaldo.manual /tmp/ 2>/
 # ~/.hermes/scripts/respaldo/respaldo.env  (chmod 600)
 SUPABASE_URL=https://<proyecto>.supabase.co
 SUPABASE_ANON_KEY=<anon>
+# volcar.py. Alcance respaldo_lectura. No sirve para ON/OFF ni para el modo.
+IMEIA_TOKEN_LECTURA=<token respaldo_lectura>
+# detector, latido.py y respaldo.sh. Alcance worker.
 IMEIA_WORKER_TOKEN=<token de worker ya provisionado>
 RESPALDO_QUIEN=hermes
 ```

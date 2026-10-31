@@ -540,5 +540,59 @@ class Cli(unittest.TestCase):
         self.assertEqual(manual["origen"], "telegram")
 
 
+class VolcarLectura(unittest.TestCase):
+    def test_usa_el_token_de_lectura_y_solo_expira_y_lee(self) -> None:
+        import io
+        import tempfile
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+
+        import volcar
+
+        vistos: list[tuple[str, str]] = []
+
+        def post_rpc(url: str, anon: str, token: str, rpc: str, body: dict) -> dict:
+            del url, anon, body
+            vistos.append((token, rpc))
+            if rpc == "imeia_respaldo_set":
+                raise RuntimeError("forbidden")
+            if rpc == "imeia_respaldo_pull":
+                return {"latido": None, "manual": None, "modo": None}
+            if rpc == "imeia_respaldo_expirar":
+                return {"expirado": False}
+            raise AssertionError(rpc)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            outbox = Path(tmp) / "outbox.jsonl"
+            outbox.write_text(
+                json.dumps({"rpc": "imeia_respaldo_set", "body": {"accion": "on", "quien": "x", "origen": "cli"}}) + "\n",
+                encoding="utf-8",
+            )
+            env = {
+                "HERMES_ESTADO_DIR": tmp,
+                "SUPABASE_URL": "https://example.supabase.co",
+                "SUPABASE_ANON_KEY": "anon-de-prueba",
+                "IMEIA_WORKER_TOKEN": "token-worker-no-usar",
+                "IMEIA_TOKEN_LECTURA": "token-lectura-de-prueba",
+            }
+            with patch.dict(os.environ, env, clear=False):
+                with patch("volcar.post_rpc", post_rpc):
+                    with redirect_stdout(io.StringIO()):
+                        codigo = volcar.main([])
+            self.assertEqual(codigo, 0)
+            self.assertEqual(
+                vistos,
+                [
+                    ("token-lectura-de-prueba", "imeia_respaldo_expirar"),
+                    ("token-lectura-de-prueba", "imeia_respaldo_pull"),
+                    ("token-lectura-de-prueba", "imeia_respaldo_set"),
+                ],
+            )
+            self.assertNotIn("token-worker-no-usar", [token for token, _rpc in vistos])
+            pendiente = outbox.read_text(encoding="utf-8")
+            self.assertIn("imeia_respaldo_set", pendiente)
+            self.assertNotIn("token-lectura-de-prueba", pendiente)
+
+
 if __name__ == "__main__":
     unittest.main()

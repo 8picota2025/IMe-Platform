@@ -5,7 +5,7 @@
 -- Aplicar con el workflow manual de migraciones. Rollback al final, comentado.
 --
 -- worker: todo (latido, pull, ON/OFF, expirar, modo, ruta, cola, RAG).
--- respaldo_lectura: solo imeia_respaldo_pull.
+-- respaldo_lectura: imeia_respaldo_pull e imeia_respaldo_expirar (solo un manual ya caducado).
 -- respaldo_latido: solo imeia_latido_registrar.
 -- imeia_worker_token_ok pasa a significar alcance worker. Un token de otro
 -- alcance deja de colar en los caller que solo miraban "token activo".
@@ -264,7 +264,7 @@ declare
   v_quien text;
   v_row public.imeia_respaldo_manual;
 begin
-  perform public.imeia_exige_alcance(p_token, array['worker'], true);
+  perform public.imeia_exige_alcance(p_token, array['worker', 'respaldo_lectura'], true);
   if p_origen not in ('grok-tablon', 'hermes', 'telegram', 'cli', 'emilio', 'rutina') then
     raise exception 'origen invalido';
   end if;

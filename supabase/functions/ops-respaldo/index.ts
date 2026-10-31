@@ -7,7 +7,7 @@ const ORIGENES_LATIDO = new Set([...ORIGENES_MANUAL, 'emilio', 'rutina']);
 const ESTADOS = new Set(['ok', 'fallo', 'sin_tokens']);
 const ALCANCES = ['worker', 'respaldo_lectura', 'respaldo_latido'] as const;
 
-type Necesidad = 'pull' | 'latido' | 'worker';
+type Necesidad = 'pull' | 'latido' | 'expirar' | 'worker';
 type RpcError = { message?: string; code?: string; details?: string };
 
 function mismoSecreto(left: string, right: string): boolean {
@@ -68,7 +68,7 @@ function necesidadDe(method: string, input: Record<string, unknown> | null): Nec
   const accion = input.accion;
   if (accion === 'estado') return 'pull';
   if (accion === 'latido') return 'latido';
-  if (accion === 'expirar') return 'worker';
+  if (accion === 'expirar') return 'expirar';
   if (accion === 'comando') {
     if (typeof input.texto !== 'string') return 'invalida';
     try {
@@ -88,7 +88,7 @@ function necesidadDe(method: string, input: Record<string, unknown> | null): Nec
 
 function permite(alcances: ReadonlySet<string>, necesidad: Necesidad): boolean {
   if (alcances.has('worker')) return true;
-  if (necesidad === 'pull') return alcances.has('respaldo_lectura');
+  if (necesidad === 'pull' || necesidad === 'expirar') return alcances.has('respaldo_lectura');
   if (necesidad === 'latido') return alcances.has('respaldo_latido');
   return false;
 }

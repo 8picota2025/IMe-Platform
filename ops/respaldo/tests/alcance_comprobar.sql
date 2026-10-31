@@ -164,9 +164,8 @@ call pg_temp.espera(
 call pg_temp.espera(
   $$select public.rag_chunks_guardar('token-lectura-prueba-alcance-0001','00000000-0000-0000-0000-000000000001'::uuid,'h','[]'::jsonb)$$,
   'forbidden');
-call pg_temp.espera(
-  $$select public.imeia_respaldo_expirar('token-lectura-prueba-alcance-0001','t','hermes')$$,
-  'forbidden');
+call pg_temp.ok(
+  $$select public.imeia_respaldo_expirar('token-lectura-prueba-alcance-0001','detector','hermes')$$);
 call pg_temp.espera(
   $$select public.imeia_modo_reportar('token-lectura-prueba-alcance-0001','normal','m','t','hermes')$$,
   'forbidden');
@@ -306,3 +305,40 @@ do $$ begin
     raise exception 'el worker no pudo cambiar la ruta';
   end if;
 end $$;
+
+-- Lo que hace volcar.py: expirar un manual ya caducado y leer. No es ON/OFF.
+do $volcar$
+declare
+  v jsonb;
+begin
+  v := public.imeia_respaldo_expirar('token-lectura-prueba-alcance-0001', 'detector', 'hermes');
+  if coalesce((v->>'expirado')::boolean, true) then
+    raise exception 'expirar no apaga un manual vigente: %', v;
+  end if;
+  if (select activo from public.imeia_respaldo_manual where id) is not true then
+    raise exception 'el manual vigente se apago con el token de lectura';
+  end if;
+  update public.imeia_respaldo_manual set expires_at = now() - interval '1 minute' where id;
+  v := public.imeia_respaldo_expirar('token-lectura-prueba-alcance-0001', 'detector', 'hermes');
+  if coalesce((v->>'expirado')::boolean, false) is not true then
+    raise exception 'el token de lectura no expiro el manual caducado: %', v;
+  end if;
+  if (select activo from public.imeia_respaldo_manual where id) then
+    raise exception 'el manual caducado sigue activo';
+  end if;
+  perform public.imeia_respaldo_pull('token-lectura-prueba-alcance-0001');
+end
+$volcar$;
+
+call pg_temp.espera(
+  $$select public.imeia_respaldo_set('token-lectura-prueba-alcance-0001','on','t','m','cli',1)$$,
+  'forbidden');
+call pg_temp.espera(
+  $$select public.imeia_set_route('token-lectura-prueba-alcance-0001','grokbot','no',null)$$,
+  'forbidden');
+call pg_temp.espera(
+  $$select * from public.imeia_worker_claim('token-lectura-prueba-alcance-0001',1)$$,
+  'forbidden');
+call pg_temp.espera(
+  $$select public.rag_embed_set_endpoint('token-lectura-prueba-alcance-0001','http://127.0.0.1/embed','x')$$,
+  'forbidden');
