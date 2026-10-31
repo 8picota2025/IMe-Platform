@@ -29,12 +29,12 @@ import {
   textoBancarioCuentaIdioma,
 } from '../../../src/lib/cotizacion-recaudo.ts';
 import {
-  calcularTotalOfertado,
   hashTokenSha256,
   ofertaCompleta,
   parseLineasOferta,
   splitNombreApellido,
   tokenExpirado,
+  totalCobroOfertaLocked,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 import {
@@ -289,10 +289,8 @@ Deno.serve(async req => {
     impuestosIncluidos,
     moneda,
   });
-  const total =
-    desglose.total > 0
-      ? desglose.total
-      : Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
+  // Cobro = total ofertado al enviar (no el desglose con IVA de catálogo vivo).
+  const total = totalCobroOfertaLocked(row, desglose.total, lineas);
   const locale = row.locale === 'en' ? 'en' : 'es';
   const idioma = resolverIdiomaCotizacion({
     moneda,
