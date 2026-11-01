@@ -27,9 +27,9 @@ cp -a ops/srv1715444/ime_log.py ~/bin/ime-ops-hub/ime_log.py
 
 Si se sigue usando el panel largo (`ops/srv1715444/ime-ops-hub.py`), copiar también `panel_salud.py` y `ime_log.py` al mismo directorio. Sin `ime_log.py` el proceso sale al arrancar.
 
-3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y secretos nuevos. `chmod 600` ese archivo. Lo carga `ime-ops-hub.service` (`EnvironmentFile=%h/.config/ime-ops-hub.env`, sin guion: si falta, systemd no arranca). Son obligatorias `IME_OPS_TOKEN`, `IME_OPS_SECRET`, `IME_OPS_2FA_EMAIL`, `IME_OPS_SMTP_HOST`, `IME_OPS_SMTP_PORT`, `IME_OPS_SMTP_USER`, `IME_OPS_SMTP_PASS` e `IME_OPS_SMTP_FROM`. El código ya no tiene valores de reserva y ya no lee `IME_OPS_TOTP_SECRET`.
+3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y secretos nuevos. `chmod 600` ese archivo. Lo carga `ime-ops-hub.service` (`EnvironmentFile=%h/.config/ime-ops-hub.env`, sin guion: si falta, systemd no arranca). Siempre hacen falta `IME_OPS_TOKEN` e `IME_OPS_SECRET`. El código ya no tiene valores de reserva y ya no lee `IME_OPS_TOTP_SECRET`.
 
-El segundo factor es un código de 6 dígitos por correo: caduca a los 10 minutos, un solo uso, máximo 5 intentos, y el envío está limitado a 1 por minuto y 5 por hora. El destinatario es solo `IME_OPS_2FA_EMAIL` (no hay campo para cambiarlo en la web). El SMTP exige TLS (puerto 465 con SSL, o STARTTLS en el resto). El log anota el envío y la verificación sin el código ni las claves.
+`IME_OPS_2FA` vale `off` o `on`. Si no está, es `off`. Con `off` el panel entra con usuario y clave, lo deja escrito en el log (`2fa correo apagado`) y no pide SMTP. Con `on` el segundo factor es un código de 6 dígitos por correo: caduca a los 10 minutos, un solo uso, máximo 5 intentos, y el envío está limitado a 1 por minuto y 5 por hora. Entonces sí son obligatorias `IME_OPS_2FA_EMAIL`, `IME_OPS_SMTP_HOST`, `IME_OPS_SMTP_PORT`, `IME_OPS_SMTP_USER`, `IME_OPS_SMTP_PASS` e `IME_OPS_SMTP_FROM`. El destinatario es solo `IME_OPS_2FA_EMAIL` (no hay campo para cambiarlo en la web). El SMTP exige TLS (puerto 465 con SSL, o STARTTLS en el resto). El log anota el envío y la verificación sin el código ni las claves.
 
 `IME_OPS_TOKEN` e `IME_OPS_SECRET` estuvieron en el código que corría en srv1715444. Hay que rotarlos. La semilla TOTP vieja se descarta: ya no entra al panel. En el servidor, sin pegar los valores en el historial de la shell si se puede evitar:
 
@@ -39,7 +39,8 @@ install -m 600 /dev/null ~/.config/ime-ops-hub.env
 # Editar el archivo. Generar ahí:
 #   IME_OPS_TOKEN=$(openssl rand -hex 32)
 #   IME_OPS_SECRET=$(openssl rand -hex 32)
-#   IME_OPS_2FA_EMAIL=correo fijo que recibe el código
+#   IME_OPS_2FA=off
+#   IME_OPS_2FA_EMAIL=correo fijo que recibe el código (solo si IME_OPS_2FA=on)
 #   IME_OPS_SMTP_HOST / PORT (587 o 465) / USER / PASS / FROM
 chmod 600 ~/.config/ime-ops-hub.env
 ```

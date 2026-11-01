@@ -162,10 +162,15 @@ class Correo(unittest.TestCase):
         self.assertEqual(error.exception.tipo, "sin_starttls")
         self.assertNotIn("111111", " ".join(bitacora.lineas))
 
-    def test_el_arranque_no_pide_totp(self):
-        faltan = correo_2fa.variables_faltantes({})
+    def test_el_interruptor_viene_apagado_y_on_pide_smtp(self):
+        self.assertEqual(correo_2fa.interruptor({}), "off")
+        self.assertEqual(correo_2fa.interruptor({"IME_OPS_2FA": "off"}), "off")
+        self.assertEqual(correo_2fa.interruptor({"IME_OPS_2FA": "ON"}), "on")
+        self.assertEqual(correo_2fa.interruptor({"IME_OPS_2FA": "si"}), "invalido")
+        self.assertFalse(correo_2fa.activo({}))
+        self.assertEqual(correo_2fa.variables_faltantes({}), [])
         self.assertEqual(
-            faltan,
+            correo_2fa.variables_faltantes({"IME_OPS_2FA": "on"}),
             [
                 "IME_OPS_2FA_EMAIL",
                 "IME_OPS_SMTP_HOST",
@@ -175,7 +180,7 @@ class Correo(unittest.TestCase):
                 "IME_OPS_SMTP_FROM",
             ],
         )
-        self.assertNotIn("IME_OPS_TOTP_SECRET", faltan)
+        self.assertNotIn("IME_OPS_TOTP_SECRET", correo_2fa.variables_faltantes({"IME_OPS_2FA": "on"}))
 
 
 if __name__ == "__main__":

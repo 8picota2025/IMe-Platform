@@ -264,11 +264,18 @@ def authenticate_credentials(username, password):
                 return acct_user, spec["role"]
     return None, None
 def exigir_secretos_arranque() -> None:
-    """Sin token, secreto de sesión o SMTP el proceso no escucha. El log no incluye los valores."""
+    """Sin token o secreto de sesión el proceso no escucha. SMTP solo si IME_OPS_2FA=on."""
+    if correo_2fa.interruptor(os.environ) == "invalido":
+        log.error(
+            "arranque abortado: IME_OPS_2FA debe ser off u on. "
+            "Definirla en ~/.config/ime-ops-hub.env (chmod 600). "
+            "ime-ops-hub.service la carga con EnvironmentFile."
+        )
+        raise SystemExit(1)
     faltan = [nombre for nombre in ("IME_OPS_TOKEN", "IME_OPS_SECRET") if not os.environ.get(nombre, "").strip()]
     faltan.extend(correo_2fa.variables_faltantes(os.environ))
     puerto = os.environ.get("IME_OPS_SMTP_PORT", "").strip()
-    if puerto and not puerto.isdigit() and "IME_OPS_SMTP_PORT" not in faltan:
+    if correo_2fa.activo() and puerto and not puerto.isdigit() and "IME_OPS_SMTP_PORT" not in faltan:
         log.error(
             "arranque abortado: IME_OPS_SMTP_PORT no es un número. "
             "Definirlas en ~/.config/ime-ops-hub.env (chmod 600). "
@@ -276,6 +283,8 @@ def exigir_secretos_arranque() -> None:
         )
         raise SystemExit(1)
     if not faltan:
+        if not correo_2fa.activo():
+            log.info("2fa correo apagado (IME_OPS_2FA=off); no se exige código ni SMTP")
         return
     log.error(
         "arranque abortado: faltan %s. Definirlas en ~/.config/ime-ops-hub.env "
@@ -1902,6 +1911,16 @@ class OpsHubHandler(BaseHTTPRequestHandler):
                 log.info("2fa envio usuario=%s ip=%s resultado=credenciales", u or "-", ip)
                 self.send_response(302)
                 self.send_header("Location", "/login?err=1")
+                self.send_security_headers()
+                self.end_headers()
+                return
+            if not correo_2fa.activo():
+                log.info("2fa verificar usuario=%s ip=%s resultado=apagado", acct_user, ip)
+                cookie = make_session_cookie(acct_user, role)
+                log_security(ip, "login_success", f"user={acct_user} role={role}")
+                self.send_response(302)
+                self.send_header("Set-Cookie", f"ime_ops_session={cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200")
+                self.send_header("Location", "/")
                 self.send_security_headers()
                 self.end_headers()
                 return

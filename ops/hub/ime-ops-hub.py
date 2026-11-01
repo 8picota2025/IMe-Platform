@@ -271,6 +271,23 @@ class Hub(BaseHTTPRequestHandler):
             bitacora.info("2fa envio usuario=%s resultado=credenciales", campos.get("username") or "-")
             self._enviar(401, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
             return
+        if not correo_2fa.activo():
+            bitacora.info("2fa verificar usuario=%s resultado=apagado", quien[0])
+            try:
+                cookie = secretos.firmar_sesion(*quien)
+            except RuntimeError as exc:
+                log(str(exc), "ERROR")
+                self._enviar(500, {"ok": False, "error": "falta el secreto de sesion"})
+                return
+            cuerpo = _html_login("Sesión abierta.").encode()
+            self.send_response(303)
+            self.send_header("Set-Cookie", f"ime_ops_session={cookie}; HttpOnly; SameSite=Strict; Path=/")
+            self.send_header("Location", "/")
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(cuerpo)))
+            self.end_headers()
+            self.wfile.write(cuerpo)
+            return
         try:
             reto = gestor_2fa().pedir(*quien)
         except correo_2fa.LimiteEnvio as exc:
@@ -415,11 +432,16 @@ def main() -> None:
     if bind not in {"127.0.0.1", "localhost", "::1"}:
         log("IME_OPS_BIND solo puede ser loopback", "ERROR")
         sys.exit(1)
+    if correo_2fa.interruptor(os.environ) == "invalido":
+        log("arranque abortado: IME_OPS_2FA debe ser off u on", "ERROR")
+        sys.exit(1)
     faltan = [nombre for nombre in ("IME_OPS_TOKEN", "IME_OPS_SECRET") if not os.environ.get(nombre, "").strip()]
     faltan.extend(correo_2fa.variables_faltantes(os.environ))
     if faltan:
         log("arranque abortado: faltan " + ", ".join(faltan), "ERROR")
         sys.exit(1)
+    if not correo_2fa.activo():
+        log("2fa correo apagado (IME_OPS_2FA=off); no se exige código ni SMTP")
     puerto = int(os.environ.get("IME_OPS_PORT", "18880"))
     try:
         directorio_kanban()

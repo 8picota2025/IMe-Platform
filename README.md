@@ -39,9 +39,9 @@ npm run dev   # http://localhost:44334
 
 El panel no es la web de Astro. Corre en srv1715444 con `ime-ops-hub.service` y el archivo `~/.config/ime-ops-hub.env` en modo 600 (`ops/hub/DESPLIEGUE.md`). No se despliega desde este README.
 
-Tras usuario y clave, el segundo factor es un código de 6 dígitos por correo (10 minutos, un solo uso, 5 intentos, 1 envío por minuto y 5 por hora). El destinatario es fijo. Ya no se usa TOTP ni `IME_OPS_TOTP_SECRET`.
+`IME_OPS_2FA` vale `off` o `on`. Si no está, es `off`: entra con usuario y clave, lo deja en el log y no pide SMTP. Con `on`, tras la clave hay un código de 6 dígitos por correo (10 minutos, un solo uso, 5 intentos, 1 envío por minuto y 5 por hora). El destinatario es fijo. Ya no se usa TOTP ni `IME_OPS_TOTP_SECRET`.
 
-Variables nuevas, todas obligatorias, sin valor de reserva:
+Variables del correo, obligatorias solo con `IME_OPS_2FA=on`:
 
 - `IME_OPS_2FA_EMAIL`
 - `IME_OPS_SMTP_HOST`

@@ -403,7 +403,7 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 - [ ] NO_EJECUTADO_ENTORNO — Integrador despliega `ops/hub/` en srv1715444 (servicio de usuario `ime-ops-hub`, `127.0.0.1:18880`). No está instalado. La web principal y `/admin/panel` no sustituyen a ops.i-me.com.co. Pasos en `ops/hub/DESPLIEGUE.md`.
 - [ ] NO_EJECUTADO_ENTORNO — El panel que hoy sirve ops.i-me.com.co es `ops/srv1715444/ime-ops-hub.py`. El arreglo de salud por tarjeta (`/healthz` con `tarjetas`, semáforo de srv sin depender de main, KPIs sin cifras fijas) está en el repo y no está copiado al servidor. No redesplegar Edge Functions ni aplicar migraciones para este arreglo. Tras copiar `ime-ops-hub.py`, `panel_salud.py` e `ime_log.py` al mismo directorio, reiniciar solo el proceso del hub y comprobar `curl -sS https://ops.i-me.com.co/healthz`.
-- [ ] NO_EJECUTADO_ENTORNO — Rotar en srv1715444 `IME_OPS_TOKEN` e `IME_OPS_SECRET`. El segundo factor ya no es TOTP: hace falta `IME_OPS_2FA_EMAIL` y `IME_OPS_SMTP_HOST`, `IME_OPS_SMTP_PORT`, `IME_OPS_SMTP_USER`, `IME_OPS_SMTP_PASS`, `IME_OPS_SMTP_FROM` en `~/.config/ime-ops-hub.env` (modo 600). Descartar la semilla TOTP vieja. Procedimiento en `ops/hub/DESPLIEGUE.md`. No está hecho.
+- [ ] NO_EJECUTADO_ENTORNO — Rotar en srv1715444 `IME_OPS_TOKEN` e `IME_OPS_SECRET`. `IME_OPS_2FA` queda `off` salvo que se ponga `on`; solo entonces hacen falta `IME_OPS_2FA_EMAIL` y las variables `IME_OPS_SMTP_*` en `~/.config/ime-ops-hub.env` (modo 600). Descartar la semilla TOTP vieja. Procedimiento en `ops/hub/DESPLIEGUE.md`. No está hecho.
 
 ## BACKLOG_V2
 

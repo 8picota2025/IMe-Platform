@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import os
 import secrets
 import smtplib
 import ssl
@@ -43,7 +44,24 @@ class EnvioError(Exception):
         super().__init__(tipo)
 
 
+def interruptor(entorno: dict[str, str]) -> str:
+    """off por defecto. Solo on activa el código. Cualquier otro texto es invalido."""
+    valor = str(entorno.get("IME_OPS_2FA", "off")).strip().lower()
+    if valor in {"", "off"}:
+        return "off"
+    if valor == "on":
+        return "on"
+    return "invalido"
+
+
+def activo(entorno: dict[str, str] | None = None) -> bool:
+    fuente = os.environ if entorno is None else entorno
+    return interruptor(fuente) == "on"
+
+
 def variables_faltantes(entorno: dict[str, str]) -> list[str]:
+    if interruptor(entorno) != "on":
+        return []
     faltan = []
     for nombre in VARIABLES_SMTP:
         if not str(entorno.get(nombre, "")).strip():
