@@ -10,7 +10,10 @@ Environment=IME_OPS_BIND=127.0.0.1
 Environment=IME_OPS_PORT=18880
 # El archivo es obligatorio y debe ser modo 600. Sin el prefijo «-»:
 # si no existe, systemd no arranca el proceso.
-# Obligatorio: IME_OPS_TOKEN, IME_OPS_SECRET, IME_OPS_TOTP_SECRET.
+# Obligatorio: IME_OPS_TOKEN, IME_OPS_SECRET, IME_OPS_2FA_EMAIL,
+# IME_OPS_SMTP_HOST, IME_OPS_SMTP_PORT, IME_OPS_SMTP_USER,
+# IME_OPS_SMTP_PASS, IME_OPS_SMTP_FROM.
+# IME_OPS_TOTP_SECRET ya no se usa.
 EnvironmentFile=%h/.config/ime-ops-hub.env
 Restart=on-failure
 RestartSec=2

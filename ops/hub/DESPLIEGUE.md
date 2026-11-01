@@ -27,9 +27,11 @@ cp -a ops/srv1715444/ime_log.py ~/bin/ime-ops-hub/ime_log.py
 
 Si se sigue usando el panel largo (`ops/srv1715444/ime-ops-hub.py`), copiar también `panel_salud.py` y `ime_log.py` al mismo directorio. Sin `ime_log.py` el proceso sale al arrancar.
 
-3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y secretos nuevos. `chmod 600` ese archivo. Lo carga `ime-ops-hub.service` (`EnvironmentFile=%h/.config/ime-ops-hub.env`, sin guion: si falta, systemd no arranca). `IME_OPS_TOKEN`, `IME_OPS_SECRET` e `IME_OPS_TOTP_SECRET` son obligatorias. El código ya no tiene valores de reserva.
+3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y secretos nuevos. `chmod 600` ese archivo. Lo carga `ime-ops-hub.service` (`EnvironmentFile=%h/.config/ime-ops-hub.env`, sin guion: si falta, systemd no arranca). Son obligatorias `IME_OPS_TOKEN`, `IME_OPS_SECRET`, `IME_OPS_2FA_EMAIL`, `IME_OPS_SMTP_HOST`, `IME_OPS_SMTP_PORT`, `IME_OPS_SMTP_USER`, `IME_OPS_SMTP_PASS` e `IME_OPS_SMTP_FROM`. El código ya no tiene valores de reserva y ya no lee `IME_OPS_TOTP_SECRET`.
 
-Esos tres secretos estuvieron en el código que corría en srv1715444 y la copia de referencia quedó en git (aunque el commit solo guarda el marcador `<REDACTED:...>`). Hay que rotarlos antes de confiar en el archivo de entorno. No reutilizar el token, el secreto HMAC ni la semilla TOTP anteriores. En el servidor, sin pegar los valores en el historial de la shell si se puede evitar:
+El segundo factor es un código de 6 dígitos por correo: caduca a los 10 minutos, un solo uso, máximo 5 intentos, y el envío está limitado a 1 por minuto y 5 por hora. El destinatario es solo `IME_OPS_2FA_EMAIL` (no hay campo para cambiarlo en la web). El SMTP exige TLS (puerto 465 con SSL, o STARTTLS en el resto). El log anota el envío y la verificación sin el código ni las claves.
+
+`IME_OPS_TOKEN` e `IME_OPS_SECRET` estuvieron en el código que corría en srv1715444. Hay que rotarlos. La semilla TOTP vieja se descarta: ya no entra al panel. En el servidor, sin pegar los valores en el historial de la shell si se puede evitar:
 
 ```bash
 umask 077
@@ -37,11 +39,12 @@ install -m 600 /dev/null ~/.config/ime-ops-hub.env
 # Editar el archivo. Generar ahí:
 #   IME_OPS_TOKEN=$(openssl rand -hex 32)
 #   IME_OPS_SECRET=$(openssl rand -hex 32)
-#   IME_OPS_TOTP_SECRET: semilla base32 nueva, y volver a enrolar el autenticador.
+#   IME_OPS_2FA_EMAIL=correo fijo que recibe el código
+#   IME_OPS_SMTP_HOST / PORT (587 o 465) / USER / PASS / FROM
 chmod 600 ~/.config/ime-ops-hub.env
 ```
 
-Al cambiar `IME_OPS_SECRET` mueren las sesiones. El TOTP viejo deja de valer. Quien usara el token anterior tiene que recibir el nuevo por un canal que no sea git. Reiniciar solo después de instalar el código nuevo: `systemctl --user restart ime-ops-hub.service`. No está hecho en esta PR.
+Al cambiar `IME_OPS_SECRET` mueren las sesiones. Quien usara el token anterior tiene que recibir el nuevo por un canal que no sea git. Reiniciar solo después de instalar el código nuevo: `systemctl --user restart ime-ops-hub.service`. No está hecho en esta PR.
 
 4. Ajustar `IME_OPS_KANBAN_DIR` al vault donde están `Kanban-Aprobaciones.md`, `Kanban-1.md`, `Kanban-2.md`, `Kanban-3.md`, `Kanban-Comercial.md` y `Kanban-Proveedores.md`.
 5. Instalar el servicio de usuario y no tocar la unidad del sistema:

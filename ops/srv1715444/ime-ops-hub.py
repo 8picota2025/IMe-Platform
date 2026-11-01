@@ -27,7 +27,6 @@ import re
 import socket
 import sqlite3
 import ssl
-import struct
 import threading
 import time
 import urllib.parse
@@ -37,6 +36,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import sys as _ime_sys
 from pathlib import Path as _ImePath
 _ime_sys.path.insert(0, str(_ImePath(__file__).resolve().parent))
+import correo_2fa
 import ime_log
 import panel_salud
 log = ime_log.get_logger("ime-ops-hub")
@@ -264,9 +264,17 @@ def authenticate_credentials(username, password):
                 return acct_user, spec["role"]
     return None, None
 def exigir_secretos_arranque() -> None:
-    """Sin estas tres variables el proceso no escucha. El log no incluye los valores."""
-    requeridas = ("IME_OPS_TOKEN", "IME_OPS_SECRET", "IME_OPS_TOTP_SECRET")
-    faltan = [nombre for nombre in requeridas if not os.environ.get(nombre, "").strip()]
+    """Sin token, secreto de sesión o SMTP el proceso no escucha. El log no incluye los valores."""
+    faltan = [nombre for nombre in ("IME_OPS_TOKEN", "IME_OPS_SECRET") if not os.environ.get(nombre, "").strip()]
+    faltan.extend(correo_2fa.variables_faltantes(os.environ))
+    puerto = os.environ.get("IME_OPS_SMTP_PORT", "").strip()
+    if puerto and not puerto.isdigit() and "IME_OPS_SMTP_PORT" not in faltan:
+        log.error(
+            "arranque abortado: IME_OPS_SMTP_PORT no es un número. "
+            "Definirlas en ~/.config/ime-ops-hub.env (chmod 600). "
+            "ime-ops-hub.service las carga con EnvironmentFile. No hay valores de reserva en el código."
+        )
+        raise SystemExit(1)
     if not faltan:
         return
     log.error(
@@ -280,8 +288,28 @@ def exigir_secretos_arranque() -> None:
 
 API_TOKEN = os.environ.get("IME_OPS_TOKEN", "").strip()
 SESSION_SECRET = os.environ.get("IME_OPS_SECRET", "").strip().encode("utf-8")
-TOTP_SECRET_B32 = os.environ.get("IME_OPS_TOTP_SECRET", "").strip()
 exigir_secretos_arranque()
+
+
+def _enviar_codigo_2fa(destino: str, codigo: str) -> None:
+    correo_2fa.enviar_smtp(
+        destino,
+        codigo,
+        host=os.environ["IME_OPS_SMTP_HOST"].strip(),
+        port=int(os.environ["IME_OPS_SMTP_PORT"].strip()),
+        user=os.environ["IME_OPS_SMTP_USER"].strip(),
+        password=os.environ["IME_OPS_SMTP_PASS"],
+        remitente=os.environ["IME_OPS_SMTP_FROM"].strip(),
+        logger=log,
+    )
+
+
+GESTOR_2FA = correo_2fa.Gestor(
+    ahora=time.time,
+    enviar=_enviar_codigo_2fa,
+    pepper=SESSION_SECRET,
+    destinatario=os.environ.get("IME_OPS_2FA_EMAIL", ""),
+)
 
 VAULT_DIR = "/home/shoky/IME-Vault"
 PANEL_DIR = "/home/shoky/IME-Vault/00-Panel-Control"
@@ -359,38 +387,6 @@ def record_failed_login(ip):
     attempts = [t for t in FAILED_LOGINS.get(ip, []) if now - t < LOCKOUT_WINDOW]
     attempts.append(now)
     FAILED_LOGINS[ip] = attempts
-
-def verify_totp(code_str, secret_b32=TOTP_SECRET_B32):
-    if not code_str or not code_str.isdigit() or len(code_str) != 6:
-        return False
-    try:
-        pad = "=" * ((8 - len(secret_b32) % 8) % 8)
-        key = base64.b32decode((secret_b32 + pad).upper(), casefold=True)
-        counter = int(time.time()) // 30
-        for offset in (-1, 0, 1):
-            msg = struct.pack(">Q", counter + offset)
-            digest = hmac.new(key, msg, hashlib.sha1).digest()
-            pos = digest[-1] & 0x0F
-            val = (struct.unpack(">I", digest[pos:pos+4])[0] & 0x7FFFFFFF) % 1000000
-            if f"{val:06d}" == code_str:
-                return True
-    except Exception:
-        log.exception("ime-ops-hub")
-    return False
-
-def current_totp(secret_b32=TOTP_SECRET_B32):
-    try:
-        pad = "=" * ((8 - len(secret_b32) % 8) % 8)
-        key = base64.b32decode((secret_b32 + pad).upper(), casefold=True)
-        counter = int(time.time()) // 30
-        msg = struct.pack(">Q", counter)
-        digest = hmac.new(key, msg, hashlib.sha1).digest()
-        pos = digest[-1] & 0x0F
-        val = (struct.unpack(">I", digest[pos:pos+4])[0] & 0x7FFFFFFF) % 1000000
-        return f"{val:06d}"
-    except Exception:
-        log.exception("ime-ops-hub")
-        return "000000"
 
 def make_session_cookie(user, role="admin"):
     exp = int(time.time()) + 43200
@@ -856,14 +852,38 @@ LOGIN_HTML = """<!DOCTYPE html>
       <input type="text" name="username" value="root@i-me.com.co" autocomplete="username" required>
       <label>Contraseña</label>
       <input type="password" name="password" placeholder="Contraseña" autocomplete="current-password" required>
-      <label>Código 2FA TOTP (Opcional)</label>
-      <input type="text" name="totp" placeholder="6 dígitos (opcional)" inputmode="numeric" maxlength="6">
       <button type="submit">Entrar a ops.i-me.com.co →</button>
     </form>
   </div>
 </body>
 </html>
 """
+
+CODIGO_HTML = LOGIN_HTML.replace(
+    """    <form method="POST" action="/login">
+      <label>Usuario / Correo</label>
+      <input type="text" name="username" value="root@i-me.com.co" autocomplete="username" required>
+      <label>Contraseña</label>
+      <input type="password" name="password" placeholder="Contraseña" autocomplete="current-password" required>
+      <button type="submit">Entrar a ops.i-me.com.co →</button>
+    </form>""",
+    """    <p>Te enviamos un código de 6 dígitos al correo de operaciones configurado en el servidor. Caduca en 10 minutos y solo sirve una vez.</p>
+    <form method="POST" action="/login/codigo">
+      <label>Código</label>
+      <input type="text" name="codigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required>
+      <button type="submit">Confirmar código →</button>
+    </form>""",
+)
+
+def _cookie_2fa(reto_id: str) -> str:
+    return f"ime_ops_2fa={reto_id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600"
+
+def _reto_2fa(header_cookie: str) -> str:
+    for parte in (header_cookie or "").split(";"):
+        parte = parte.strip()
+        if parte.startswith("ime_ops_2fa="):
+            return parte.split("=", 1)[1]
+    return ""
 
 def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-Panel-Control/Dashboard-Operativo.md", search_q="", saved_msg=""):
     metrics = get_token_and_ai_metrics()
@@ -1686,9 +1706,20 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
+        if parsed.path == "/login/codigo":
+            err_msg = '<div class="err">Código incorrecto, caducado o ya usado.</div>' if "err" in qs else ""
+            body = CODIGO_HTML.replace("__ERR_BLOCK__", err_msg).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_security_headers()
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
         if parsed.path == "/logout":
             self.send_response(302)
             self.send_header("Set-Cookie", "ime_ops_session=deleted; Path=/; HttpOnly; Max-Age=0")
+            self.send_header("Set-Cookie", "ime_ops_2fa=deleted; Path=/; HttpOnly; Max-Age=0")
             self.send_header("Location", "/login")
             self.send_security_headers()
             self.end_headers()
@@ -1696,7 +1727,14 @@ class OpsHubHandler(BaseHTTPRequestHandler):
 
         user, role = self.get_authenticated_session()
         if not user:
-            err_msg = '<div class="err">Credenciales inválidas. Verifica tu usuario y contraseña.</div>' if "err" in qs else ""
+            if "limite" in qs:
+                err_msg = '<div class="err">Espera antes de pedir otro código (máximo 1 por minuto y 5 por hora).</div>'
+            elif "correo" in qs:
+                err_msg = '<div class="err">No se pudo enviar el código. Inténtalo de nuevo en un momento.</div>'
+            elif "err" in qs:
+                err_msg = '<div class="err">Credenciales inválidas. Verifica tu usuario y contraseña.</div>'
+            else:
+                err_msg = ""
             body = LOGIN_HTML.replace("__ERR_BLOCK__", err_msg).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -1857,26 +1895,58 @@ class OpsHubHandler(BaseHTTPRequestHandler):
                 return
             u = form.get("username", "").strip()
             p = form.get("password", "").strip()
-            totp = form.get("totp", "").strip()
-
             acct_user, role = authenticate_credentials(u, p)
-            valid_2fa = (not totp) or verify_totp(totp)
-
-            if acct_user and valid_2fa:
-                cookie = make_session_cookie(acct_user, role)
-                log_security(ip, "login_success", f"user={acct_user} role={role}")
-                self.send_response(302)
-                self.send_header("Set-Cookie", f"ime_ops_session={cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200")
-                self.send_header("Location", "/")
-                self.send_security_headers()
-                self.end_headers()
-            else:
+            if not acct_user:
                 record_failed_login(ip)
                 log_security(ip, "login_failed", f"user={u}")
+                log.info("2fa envio usuario=%s ip=%s resultado=credenciales", u or "-", ip)
                 self.send_response(302)
                 self.send_header("Location", "/login?err=1")
                 self.send_security_headers()
                 self.end_headers()
+                return
+            try:
+                reto = GESTOR_2FA.pedir(acct_user, role)
+            except correo_2fa.LimiteEnvio as exc:
+                log.info("2fa envio usuario=%s ip=%s resultado=%s", acct_user, ip, exc.motivo)
+                self.send_response(302)
+                self.send_header("Location", "/login?limite=1")
+                self.send_security_headers()
+                self.end_headers()
+                return
+            except correo_2fa.EnvioError as exc:
+                log.error("2fa envio usuario=%s ip=%s resultado=error tipo=%s", acct_user, ip, exc.tipo)
+                self.send_response(302)
+                self.send_header("Location", "/login?correo=1")
+                self.send_security_headers()
+                self.end_headers()
+                return
+            log.info("2fa envio usuario=%s ip=%s resultado=enviado", acct_user, ip)
+            self.send_response(302)
+            self.send_header("Set-Cookie", _cookie_2fa(reto))
+            self.send_header("Location", "/login/codigo")
+            self.send_security_headers()
+            self.end_headers()
+            return
+
+        if parsed.path == "/login/codigo":
+            reto = _reto_2fa(self.headers.get("Cookie", ""))
+            usuario, _rol, motivo = GESTOR_2FA.verificar(reto, form.get("codigo", ""))
+            log.info("2fa verificar usuario=%s ip=%s resultado=%s", usuario or "-", ip, motivo)
+            if motivo != "ok":
+                self.send_response(302)
+                self.send_header("Location", "/login/codigo?err=1")
+                self.send_security_headers()
+                self.end_headers()
+                return
+            cookie = make_session_cookie(usuario, _rol)
+            log_security(ip, "login_success", f"user={usuario} role={_rol}")
+            self.send_response(302)
+            self.send_header("Set-Cookie", f"ime_ops_session={cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200")
+            self.send_header("Set-Cookie", "ime_ops_2fa=deleted; Path=/; HttpOnly; Max-Age=0")
+            self.send_header("Location", "/")
+            self.send_security_headers()
+            self.end_headers()
             return
 
         user, role = self.get_authenticated_session()

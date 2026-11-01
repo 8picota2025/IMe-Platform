@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs
@@ -38,10 +39,37 @@ def _directorio_ime_log() -> _ImePath:
 
 
 _ime_sys.path.insert(0, str(_directorio_ime_log()))
+import correo_2fa
 import ime_log
 
 bitacora = ime_log.get_logger("ime-ops-hub")
 import secretos
+
+_GESTOR_2FA = None
+
+
+def gestor_2fa() -> correo_2fa.Gestor:
+    global _GESTOR_2FA
+    if _GESTOR_2FA is None:
+        def enviar(destino: str, codigo: str) -> None:
+            correo_2fa.enviar_smtp(
+                destino,
+                codigo,
+                host=os.environ["IME_OPS_SMTP_HOST"].strip(),
+                port=int(os.environ["IME_OPS_SMTP_PORT"].strip()),
+                user=os.environ["IME_OPS_SMTP_USER"].strip(),
+                password=os.environ["IME_OPS_SMTP_PASS"],
+                remitente=os.environ["IME_OPS_SMTP_FROM"].strip(),
+                logger=bitacora,
+            )
+
+        _GESTOR_2FA = correo_2fa.Gestor(
+            ahora=time.time,
+            enviar=enviar,
+            pepper=secretos.secreto_hmac(),
+            destinatario=os.environ.get("IME_OPS_2FA_EMAIL", ""),
+        )
+    return _GESTOR_2FA
 
 TABLERO_DEFECTO = "Kanban-Aprobaciones.md"
 
@@ -140,6 +168,9 @@ class Hub(BaseHTTPRequestHandler):
         if ruta == "/salud":
             self._enviar(200, {"ok": True, "servicio": "ime-ops-hub"})
             return
+        if ruta == "/login/codigo":
+            self._enviar(200, _html_codigo(), "text/html; charset=utf-8")
+            return
         if ruta not in {"/", "/kanban", "/login"}:
             self._enviar(404, {"ok": False, "error": "no existe"})
             return
@@ -154,6 +185,9 @@ class Hub(BaseHTTPRequestHandler):
         ruta = self.path.split("?", 1)[0]
         if ruta == "/login":
             self._entrar()
+            return
+        if ruta == "/login/codigo":
+            self._confirmar_codigo()
             return
         if ruta not in {"/post/approve", "/post/reject"}:
             self._enviar(404, {"ok": False, "error": "no existe"})
@@ -229,17 +263,50 @@ class Hub(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             self._enviar(400, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
             return
-        if not secretos.verificar_totp(campos.get("totp", "")):
-            log("totp rechazado", "ERROR")
-            self._enviar(401, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
-            return
         quien = secretos.autenticar(campos.get("username", ""), campos.get("password", ""))
         if not quien:
             log("login rechazado", "ERROR")
+            bitacora.info("2fa envio usuario=%s resultado=credenciales", campos.get("username") or "-")
             self._enviar(401, _html_login("Credenciales inválidas."), "text/html; charset=utf-8")
             return
         try:
-            cookie = secretos.firmar_sesion(*quien)
+            reto = gestor_2fa().pedir(*quien)
+        except correo_2fa.LimiteEnvio as exc:
+            bitacora.info("2fa envio usuario=%s resultado=%s", quien[0], exc.motivo)
+            self._enviar(429, _html_login("Espera antes de pedir otro código."), "text/html; charset=utf-8")
+            return
+        except (correo_2fa.EnvioError, RuntimeError) as exc:
+            tipo = getattr(exc, "tipo", exc.__class__.__name__)
+            bitacora.error("2fa envio usuario=%s resultado=error tipo=%s", quien[0], tipo)
+            self._enviar(502, _html_login("No se pudo enviar el código."), "text/html; charset=utf-8")
+            return
+        bitacora.info("2fa envio usuario=%s resultado=enviado", quien[0])
+        cuerpo = _html_codigo().encode()
+        self.send_response(200)
+        self.send_header("Set-Cookie", f"ime_ops_2fa={reto}; HttpOnly; SameSite=Strict; Path=/; Max-Age=600")
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(cuerpo)))
+        self.end_headers()
+        self.wfile.write(cuerpo)
+
+    def _confirmar_codigo(self) -> None:
+        try:
+            campos = self._campos()
+        except (AccionError, json.JSONDecodeError):
+            self._enviar(400, _html_codigo("Código inválido."), "text/html; charset=utf-8")
+            return
+        reto = ""
+        for parte in (self.headers.get("Cookie") or "").split(";"):
+            parte = parte.strip()
+            if parte.startswith("ime_ops_2fa="):
+                reto = parte.split("=", 1)[1]
+        usuario, rol, motivo = gestor_2fa().verificar(reto, campos.get("codigo", ""))
+        bitacora.info("2fa verificar usuario=%s resultado=%s", usuario or "-", motivo)
+        if motivo != "ok":
+            self._enviar(401, _html_codigo("Código incorrecto, caducado o ya usado."), "text/html; charset=utf-8")
+            return
+        try:
+            cookie = secretos.firmar_sesion(usuario, rol)
         except RuntimeError as exc:
             log(str(exc), "ERROR")
             self._enviar(500, {"ok": False, "error": "falta el secreto de sesion"})
@@ -247,6 +314,7 @@ class Hub(BaseHTTPRequestHandler):
         cuerpo = _html_login("Sesión abierta.").encode()
         self.send_response(303)
         self.send_header("Set-Cookie", f"ime_ops_session={cookie}; HttpOnly; SameSite=Strict; Path=/")
+        self.send_header("Set-Cookie", "ime_ops_2fa=deleted; HttpOnly; SameSite=Strict; Path=/; Max-Age=0")
         self.send_header("Location", "/")
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(cuerpo)))
@@ -266,8 +334,24 @@ def _html_login(mensaje: str = "") -> str:
         "<form method='post' action='/login'>"
         "<label>Usuario <input name='username' autocomplete='username' required></label>"
         "<label>Contraseña <input type='password' name='password' autocomplete='current-password' required></label>"
-        "<label>Código <input name='totp' inputmode='numeric' maxlength='6' autocomplete='one-time-code'></label>"
         "<button type='submit'>Entrar</button>"
+        "</form></body></html>"
+    )
+
+
+def _html_codigo(mensaje: str = "") -> str:
+    aviso = f"<p role='alert'>{_e(mensaje)}</p>" if mensaje else ""
+    return (
+        "<!DOCTYPE html><html lang='es'><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+        "<title>Ops IME</title></head><body>"
+        "<h1>Código por correo</h1>"
+        "<p>Enviamos un código de 6 dígitos al correo configurado en el servidor. "
+        "Caduca en 10 minutos y solo sirve una vez. El destinatario no se edita aquí.</p>"
+        f"{aviso}"
+        "<form method='post' action='/login/codigo'>"
+        "<label>Código <input name='codigo' inputmode='numeric' maxlength='6' autocomplete='one-time-code' required></label>"
+        "<button type='submit'>Confirmar</button>"
         "</form></body></html>"
     )
 
@@ -328,6 +412,11 @@ def main() -> None:
     bind = os.environ.get("IME_OPS_BIND", "127.0.0.1").strip() or "127.0.0.1"
     if bind not in {"127.0.0.1", "localhost", "::1"}:
         log("IME_OPS_BIND solo puede ser loopback", "ERROR")
+        sys.exit(1)
+    faltan = [nombre for nombre in ("IME_OPS_TOKEN", "IME_OPS_SECRET") if not os.environ.get(nombre, "").strip()]
+    faltan.extend(correo_2fa.variables_faltantes(os.environ))
+    if faltan:
+        log("arranque abortado: faltan " + ", ".join(faltan), "ERROR")
         sys.exit(1)
     puerto = int(os.environ.get("IME_OPS_PORT", "18880"))
     try:

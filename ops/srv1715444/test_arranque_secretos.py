@@ -16,7 +16,16 @@ ORIGINAL = RAIZ / "ops" / "hub" / "original" / "ime-ops-hub.py"
 SERVICIO = RAIZ / "ops" / "hub" / "systemd" / "ime-ops-hub.service"
 DESPLIEGUE = RAIZ / "ops" / "hub" / "DESPLIEGUE.md"
 IME_LOG = RAIZ / "ops" / "srv1715444" / "ime_log.py"
-NOMBRES = ("IME_OPS_TOKEN", "IME_OPS_SECRET", "IME_OPS_TOTP_SECRET")
+NOMBRES = (
+    "IME_OPS_TOKEN",
+    "IME_OPS_SECRET",
+    "IME_OPS_2FA_EMAIL",
+    "IME_OPS_SMTP_HOST",
+    "IME_OPS_SMTP_PORT",
+    "IME_OPS_SMTP_USER",
+    "IME_OPS_SMTP_PASS",
+    "IME_OPS_SMTP_FROM",
+)
 RESERVA = re.compile(r'os\.environ\.get\("IME_OPS_(?:TOKEN|SECRET|TOTP_SECRET)",\s*"[^"]+"\)')
 
 
@@ -53,6 +62,7 @@ class Arranque(unittest.TestCase):
             self.assertNotIn("<REDACTED:", salida)
             self.assertIn("chmod 600", salida)
             self.assertIn("ime-ops-hub.service", salida)
+            self.assertNotIn("IME_OPS_TOTP_SECRET", salida)
 
     def test_el_servicio_exige_el_env_y_el_despliegue_copia_ime_log(self):
         self.assertTrue(IME_LOG.is_file())
