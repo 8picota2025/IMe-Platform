@@ -46,12 +46,15 @@ export function verificarEnvioPermitido(row: Record<string, unknown>): BloqueoEn
   }
   const por = String(row.aprobado_por ?? '').trim();
   const at = String(row.aprobado_at ?? '').trim();
-  if (!por || !at) {
+  // exigimos también aprobacion_hash: forjar solo por/at vía PostgREST no basta
+  // (la RPC aprobar_cotizacion_envio siempre escribe la huella).
+  const hash = String(row.aprobacion_hash ?? '').trim();
+  if (!por || !at || !hash) {
     return {
       ok: false,
       code: 'SIN_APROBACION',
       message:
-        'Falta la marca de aprobación (aprobado_por/aprobado_at). Requiere OK de Shoky o validación de costeo y margen aprobada.',
+        'Falta la marca de aprobación (aprobado_por/aprobado_at/aprobacion_hash). Requiere OK de Shoky o validación de costeo y margen aprobada.',
     };
   }
   return { ok: true };

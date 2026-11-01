@@ -28,17 +28,36 @@ describe('guardado ignora el estado', () => {
     expect(CAMPOS_GUARDADO_COTIZACION).not.toContain('archived_at');
   });
 
+  it('la allowlist no incluye marca de aprobación de envío', () => {
+    for (const campo of [
+      'aprobado_por',
+      'aprobado_at',
+      'aprobacion_tipo',
+      'aprobacion_ref',
+      'margen_validado',
+      'aprobacion_hash',
+    ]) {
+      expect(CAMPOS_GUARDADO_COTIZACION).not.toContain(campo);
+    }
+  });
+
   it('proyectarGuardadoCotizacion descarta estado aunque el body lo traiga', () => {
     const patch = proyectarGuardadoCotizacion({
       nombre: 'Ana',
       estado: 'enviada',
       oferta_enviada_at: '2026-10-11T00:00:00Z',
       leida: true,
+      aprobado_por: 'shoky',
+      aprobado_at: '2026-10-31',
+      aprobacion_hash: 'forjado',
     });
     expect(patch).toEqual({ nombre: 'Ana', leida: true });
     expect(patch).not.toHaveProperty('estado');
+    expect(patch).not.toHaveProperty('aprobado_por');
+    expect(patch).not.toHaveProperty('aprobacion_hash');
   });
 });
+
 
 describe('planCambioEstado', () => {
   it('cambia a perdida, declinada o enviada sin campos de envío', () => {
