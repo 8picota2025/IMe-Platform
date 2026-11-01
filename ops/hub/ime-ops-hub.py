@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Hub de ops.i-me.com.co. Escucha en 127.0.0.1:18880, detrás de nginx.
 
-POST /post/approve y POST /post/reject registran usuario, hora y decisión
-y encolan al bot dueño. No envían correo ni WhatsApp.
+Tras usuario y clave, el segundo factor es un código por correo
+(IME_OPS_2FA_EMAIL). POST /post/approve y POST /post/reject registran
+usuario, hora y decisión y encolan al bot dueño. Esas acciones no envían
+correo ni WhatsApp.
 """
 
 from __future__ import annotations
