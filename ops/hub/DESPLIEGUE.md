@@ -17,14 +17,36 @@ Los tres scripts que corrían en `/home/shoky/bin` están, ya redactados, en `op
 No están ejecutados.
 
 1. Confirmar que el lanzador de cada 2 minutos ya está parado. Si el proceso viejo de `ime-cluster-ha.py` sigue vivo, pararlo antes de copiar.
-2. Copiar la carpeta, sin borrar el original todavía:
+2. Copiar la carpeta y `ime_log.py`. El hub importa ese módulo y en el servidor no estaba desplegado. `cp -a ops/hub/.` no lo incluye: hay que copiarlo al lado del script.
 
 ```bash
 mkdir -p ~/bin/ime-ops-hub
 cp -a ops/hub/. ~/bin/ime-ops-hub/
+cp -a ops/srv1715444/ime_log.py ~/bin/ime-ops-hub/ime_log.py
 ```
 
-3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y los secretos. El ejemplo trae rutas de marcador.
+Si se sigue usando el panel largo (`ops/srv1715444/ime-ops-hub.py`), copiar también `panel_salud.py` y `ime_log.py` al mismo directorio. Sin `ime_log.py` el proceso sale al arrancar.
+
+3. Crear `~/.config/ime-ops-hub.env` desde `ime-ops-hub.env.example` con las rutas reales y secretos nuevos. `chmod 600` ese archivo. Lo carga `ime-ops-hub.service` (`EnvironmentFile=%h/.config/ime-ops-hub.env`, sin guion: si falta, systemd no arranca). Siempre hacen falta `IME_OPS_TOKEN` e `IME_OPS_SECRET`. El código ya no tiene valores de reserva y ya no lee `IME_OPS_TOTP_SECRET`.
+
+`IME_OPS_2FA` vale `off` o `on`. Si no está, es `off`. Con `off` el panel entra con usuario y clave, lo deja escrito en el log (`2fa correo apagado`) y no pide SMTP. Con `on` el segundo factor es un código de 6 dígitos por correo: caduca a los 10 minutos, un solo uso, máximo 5 intentos, y el envío está limitado a 1 por minuto y 5 por hora. Entonces sí son obligatorias `IME_OPS_2FA_EMAIL`, `IME_OPS_SMTP_HOST`, `IME_OPS_SMTP_PORT`, `IME_OPS_SMTP_USER`, `IME_OPS_SMTP_PASS` e `IME_OPS_SMTP_FROM`. El destinatario es solo `IME_OPS_2FA_EMAIL` (no hay campo para cambiarlo en la web). El SMTP exige TLS (puerto 465 con SSL, o STARTTLS en el resto). El log anota el envío y la verificación sin el código ni las claves.
+
+`IME_OPS_TOKEN` e `IME_OPS_SECRET` estuvieron en el código que corría en srv1715444. Hay que rotarlos. La semilla TOTP vieja se descarta: ya no entra al panel. En el servidor, sin pegar los valores en el historial de la shell si se puede evitar:
+
+```bash
+umask 077
+install -m 600 /dev/null ~/.config/ime-ops-hub.env
+# Editar el archivo. Generar ahí:
+#   IME_OPS_TOKEN=$(openssl rand -hex 32)
+#   IME_OPS_SECRET=$(openssl rand -hex 32)
+#   IME_OPS_2FA=off
+#   IME_OPS_2FA_EMAIL=correo fijo que recibe el código (solo si IME_OPS_2FA=on)
+#   IME_OPS_SMTP_HOST / PORT (587 o 465) / USER / PASS / FROM
+chmod 600 ~/.config/ime-ops-hub.env
+```
+
+Al cambiar `IME_OPS_SECRET` mueren las sesiones. Quien usara el token anterior tiene que recibir el nuevo por un canal que no sea git. Reiniciar solo después de instalar el código nuevo: `systemctl --user restart ime-ops-hub.service`. No está hecho en esta PR.
+
 4. Ajustar `IME_OPS_KANBAN_DIR` al vault donde están `Kanban-Aprobaciones.md`, `Kanban-1.md`, `Kanban-2.md`, `Kanban-3.md`, `Kanban-Comercial.md` y `Kanban-Proveedores.md`.
 5. Instalar el servicio de usuario y no tocar la unidad del sistema:
 

@@ -36,6 +36,13 @@ def _cargar(nombre: str, archivo: str):
 ime_cluster_ha = _cargar("ime_cluster_ha", "ime-cluster-ha.py")
 ime_ops_hub = _cargar("ime_ops_hub", "ime-ops-hub.py")
 
+
+class ModuloLog(unittest.TestCase):
+    def test_el_hub_importa_ime_log_del_repo(self):
+        origen = Path(ime_ops_hub.ime_log.__file__).resolve()
+        self.assertEqual(origen.name, "ime_log.py")
+        self.assertEqual(origen.parent.name, "srv1715444")
+
 PY = [
     "registro.py",
     "kanban_md.py",
