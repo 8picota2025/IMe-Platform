@@ -83,8 +83,7 @@ def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
                 f"<a href='{html.escape(surl)}' target='_blank' style='color:#38bdf8;font-size:11px;'>[Enlace de firma]</a></div>"
             )
         dl_btn = (
-            f"<a href='/api/documenso/download?envelope_id={urllib.parse.quote(e.get("id",""))}' class='btn-mini ok'>📥 Guardar PDF en 000CLIENTES</a> "
-            f"<a href='/api/documenso/delete?envelope_id={urllib.parse.quote(e.get('id',''))}' class='btn-mini warn'>🗑️ Borrar Sobre</a> "
+            "<span class='btn-mini' style='background:#334155;'>Borrar y guardar PDF desactivados en esta copia</span> "
             f"<a href='https://firmas.i-me.com.co/t/ime/documents/{urllib.parse.quote(e.get("id",""))}' target='_blank' class='btn-mini' style='background:#334155;'>🔗 Ver en Documenso</a>"
         )
         env_rows.append(
@@ -1569,27 +1568,11 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
 
-        if parsed.path == "/api/documenso/delete":
-            qs = urllib.parse.parse_qs(parsed.query)
-            env_id = (qs.get("envelope_id", [""])[0]).strip()
-            res = ime_documenso.delete_envelope(env_id)
-            msg = f"Sobre eliminado: {env_id}" if res.get("ok") else f"Error al borrar: {res.get('error')}"
-            self.send_response(303)
-            self.send_header("Location", f"/?tab=tab-documenso&saved=1&msg={urllib.parse.quote(msg)}")
+        if parsed.path in ("/api/documenso/delete", "/api/documenso/download"):
+            self.send_response(405)
+            self.send_header("Allow", "POST")
             self.end_headers()
-            return
-
-        if parsed.path == "/api/documenso/download":
-            env_id = qs.get("envelope_id", [""])[0]
-            client_c = qs.get("client", [""])[0]
-            res = ime_documenso.download_signed_pdfs(env_id, client_code=client_c)
-            if res.get("ok") and res.get("saved_files"):
-                msg = f"PDF firmado guardado en {res['saved_files'][0]['path']}"
-            else:
-                msg = f"Resultado descarga Documenso: {res.get('error', 'sin archivos')}"
-            self.send_response(302)
-            self.send_header("Location", f"/?tab=tab-documenso&saved=1&msg={urllib.parse.quote(msg)}")
-            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"method_not_allowed"}')
             return
 
         if parsed.path == "/api/prices":
