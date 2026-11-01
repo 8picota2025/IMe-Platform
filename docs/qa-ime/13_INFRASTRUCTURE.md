@@ -4,6 +4,8 @@
 - Backend: Supabase alojado, Edge Functions, Postgres, Auth y Storage.
 - CI/CD: workflows para CI, preprod, preview, producción, funciones, migraciones,
   smoke y canary.
+- Vistas previa de PR: `.github/workflows/deploy-preview.yml` — runbook
+  [`docs/deploy-preview.md`](../deploy-preview.md) (FTP, noindex, cleanup al cerrar PR, cuota hosting).
 - No Docker/systemd/nginx en repo.
 - No se confirmó entorno preprod accesible ni despliegue remoto en esta pasada.
 
