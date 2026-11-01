@@ -94,8 +94,58 @@ Email `referencia` = `numero`, attachment `{numero}.pdf`.
 | TEMPLATE_INACTIVE                                               | 422  | activate plantilla             |
 | SEND_IN_FLIGHT                                                  | 409  | wait 2 min                     |
 | NUMERO_CONFLICT                                                 | 409  | retry                          |
+| **NO_ENVIAR_MARCADO**                                           | 409  | texto "NO ENVIAR" en condiciones/notas |
+| **SIN_APROBACION**                                              | 409  | falta marca de aprobación vigente     |
 | EMAIL_FALLIDO                                                   | 502  | mail not accepted; not enviada |
 | PDF_RENDER_FAILED                                               | 500  | renderer/upload                |
+
+## Guarda de envío (aprobación obligatoria)
+
+Migración: `supabase/migrations/20261031143158_aprobacion_envio_cotizacion.sql` (nombre de archivo debe coincidir con `schema_migrations`; no usar el timestamp `20261031120000` obsoleto).
+
+Motivo: incidente 2026-10-27 — envíos al cliente sin OK explícito.
+
+### Comportamiento
+
+1. **`enviar-cotizacion`** — `supabase/functions/_shared/guarda-envio.ts` → `verificarEnvioPermitido`:
+   - **409 `NO_ENVIAR_MARCADO`** si condiciones, condiciones EN, notas internas, notas o `metadata.nota_envio` / `metadata.notas` contienen "NO ENVIAR" (normalizado: sin tildes; tolera espacios, guiones, puntos).
+   - **409 `SIN_APROBACION`** si faltan `aprobado_por` y `aprobado_at`.
+2. **Trigger** `bloquear_envio_sin_aprobacion` — ninguna vía puede poner `estado = 'enviada'` sin marca ni con "NO ENVIAR" (PostgreSQL `P0409`).
+3. **Huella** `_cotizacion_huella` — si cambian productos, condiciones o precio total tras aprobar, la marca se invalida en el próximo UPDATE (salvo que se vuelva a aprobar).
+
+### Marcar aprobación (solo service_role)
+
+RPC `aprobar_cotizacion_envio(p_id, p_por, p_tipo, p_ref, p_margen)`:
+
+| `p_tipo` | Uso |
+| --- | --- |
+| `ok_shoky` | OK explícito de Shoky (`p_por` ej. `shoky`) |
+| `validacion_costeo_margen` | Agente validador; `p_margen` obligatorio |
+
+`p_ref` obligatorio (id mensaje, chat o informe). Escribe `aprobacion_hash` al aprobar.
+
+```sql
+-- Ejemplo (desde Edge/CRM con service role, no desde el navegador)
+select public.aprobar_cotizacion_envio(
+  '<uuid>'::uuid,
+  'shoky',
+  'ok_shoky',
+  'slack:1234567890.123456',
+  null
+);
+```
+
+### Otros flujos (solo "NO ENVIAR")
+
+`verificarNoEnviar` — **no** exige aprobación, solo bloquea correo si hay marca:
+
+- `formalizar-cotizacion`
+- `notificar-cliente`
+- `comercial-share` (409 `NO_ENVIAR_MARCADO`)
+
+Tests unitarios: `src/lib/guarda-envio.test.ts` (importa el módulo Edge compartido).
+
+Cotizaciones ya en `enviada` antes de la migración no se reescriben; pendientes quedan bloqueadas hasta aprobar cada una.
 
 ## `/comercial` workbench (Phase 2)
 

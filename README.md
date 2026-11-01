@@ -98,6 +98,11 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
 - `docs/mcp-ime-comercio-cotizaciones.md` — herramientas MCP `ime-comercio` para buscar, editar y enviar cotizaciones (envío oficial con asesor y Reply-To)
+- `docs/deploy-preview.md` — deploy FTP de previews por PR, noindex y limpieza
+- `docs/commercial-quote-dev.md` — PDF/correo de cotización y guarda de envío (409)
+- `docs/rag-busqueda-hibrida.md` — INVIMA en catálogo, `buscar_productos_hibrido`, chunks bge-m3
+- `docs/catalogo-zuowei-y-robotica.md` — fichas Zuowei sin venta y landing de robótica
+- `ops/respaldo/DESPLIEGUE.md` — latido Grok, manual con caducidad y alcance de tokens IMEia
 
 ## MCP de comercio para agentes remotos
 
