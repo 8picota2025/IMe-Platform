@@ -38,6 +38,7 @@ from pathlib import Path as _ImePath
 _ime_sys.path.insert(0, str(_ImePath(__file__).resolve().parent))
 import correo_2fa
 import ime_log
+import mutaciones
 import panel_salud
 log = ime_log.get_logger("ime-ops-hub")
 
@@ -87,7 +88,7 @@ def responder_documenso_ausente(handler) -> bool:
     return True
 
 
-def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
+def render_documenso_sections(doc_state: dict, compact: bool = False, csrf: str = "") -> str:
     counts = doc_state.get("counts", {})
     svc = doc_state.get("service", {})
     wh = svc.get("webhook") or {}
@@ -128,10 +129,19 @@ def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
                 f"<div style='margin-bottom:4px;'>{ico} <b>{html.escape(rname)}</b> &lt;{html.escape(remail)}&gt; "
                 f"<a href='{html.escape(surl)}' target='_blank' style='color:#38bdf8;font-size:11px;'>[Enlace de firma]</a></div>"
             )
+        sobre = html.escape(e.get("id", "") or "")
         dl_btn = (
-            f"<a href='/api/documenso/download?envelope_id={urllib.parse.quote(e.get("id",""))}' class='btn-mini ok'>📥 Guardar PDF en 000CLIENTES</a> "
-            f"<a href='/api/documenso/delete?envelope_id={urllib.parse.quote(e.get('id',''))}' class='btn-mini warn'>🗑️ Borrar Sobre</a> "
-            f"<a href='https://firmas.i-me.com.co/t/ime/documents/{urllib.parse.quote(e.get("id",""))}' target='_blank' class='btn-mini' style='background:#334155;'>🔗 Ver en Documenso</a>"
+            "<form method='POST' action='/api/documenso/download' style='display:inline;'>"
+            f"<input type='hidden' name='csrf' value='{html.escape(csrf)}'>"
+            f"<input type='hidden' name='envelope_id' value='{sobre}'>"
+            "<label style='font-size:11px;color:#94a3b8;'><input type='checkbox' name='confirmar' value='GUARDAR' required> Confirmo guardar el PDF</label> "
+            "<button type='submit' class='btn-mini ok'>Guardar PDF en 000CLIENTES</button></form> "
+            "<form method='POST' action='/api/documenso/delete' style='display:inline;'>"
+            f"<input type='hidden' name='csrf' value='{html.escape(csrf)}'>"
+            f"<input type='hidden' name='envelope_id' value='{sobre}'>"
+            "<label style='font-size:11px;color:#fca5a5;'><input type='checkbox' name='confirmar' value='BORRAR' required> Confirmo el borrado permanente</label> "
+            "<button type='submit' class='btn-mini warn'>Borrar sobre</button></form> "
+            f"<a href='https://firmas.i-me.com.co/t/ime/documents/{urllib.parse.quote(e.get('id',''))}' target='_blank' class='btn-mini' style='background:#334155;'>Ver en Documenso</a>"
         )
         env_rows.append(
             f"<tr>"
@@ -189,6 +199,7 @@ def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
         <span class="pill">API v2: POST /api/v2/envelope/create</span>
       </div>
       <form method="POST" action="/api/documenso/prepare" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:end;">
+        <input type="hidden" name="csrf" value="{html.escape(csrf)}">
         <div>
           <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px;">Código Presupuesto (quote_id)</label>
           <input id="doc-quote-id" name="quote_id" type="text" value="IME-Q-2026-000048" required style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#090d1a;color:#fff;">
@@ -243,6 +254,7 @@ def render_documenso_sections(doc_state: dict, compact: bool = False) -> str:
         <span class="pill">Guardado seguro 0600 en /home/shoky/.hermes/.documenso.env</span>
       </div>
       <form method="POST" action="/api/documenso/token" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <input type="hidden" name="csrf" value="{html.escape(csrf)}">
         <input name="api_key" type="password" placeholder="Pegar token api_... de https://firmas.i-me.com.co/t/ime/settings/tokens" style="flex:1;min-width:280px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:#090d1a;color:#fff;">
         <button type="submit" class="btn-mini blue" style="padding:9px 16px;">🔒 Guardar API Token en srv1715444</button>
       </form>
@@ -356,8 +368,11 @@ def get_price_intelligence():
 
 SYNCTHING_ID_SRV = "GVRCHHM-O5GR7QU-NDHE67C-2KHEUQV-SMAY4WA-UKDBML7-UTPHRI3-PYFXUQ4"
 
-os.makedirs(os.path.dirname(UPTIME_STATE_JSON), exist_ok=True)
-os.makedirs(os.path.dirname(SECURITY_LOG), exist_ok=True)
+for _dir_estado in (os.path.dirname(UPTIME_STATE_JSON), os.path.dirname(SECURITY_LOG)):
+    try:
+        os.makedirs(_dir_estado, exist_ok=True)
+    except OSError:
+        log.exception("ime-ops-hub")
 
 FAILED_LOGINS = {}
 LOCKOUT_WINDOW = 900
@@ -895,6 +910,7 @@ def _reto_2fa(header_cookie: str) -> str:
     return ""
 
 def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-Panel-Control/Dashboard-Operativo.md", search_q="", saved_msg=""):
+    csrf_html = f'<input type="hidden" name="csrf" value="{html.escape(mutaciones.token_csrf(SESSION_SECRET, user))}">'
     metrics = get_token_and_ai_metrics()
     k_aprob = parse_obsidian_kanban(os.path.join(PANEL_DIR, "Kanban-Aprobaciones.md"))
     k_1 = parse_obsidian_kanban(os.path.join(PANEL_DIR, "Kanban-1-Cotizaciones-y-RFQs.md")) or parse_obsidian_kanban(os.path.join(PANEL_DIR, "Kanban-Comercial.md"))
@@ -950,6 +966,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
                         btn_approve = f"""
                         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
                           <form method="POST" action="/post/approve" style="display:inline;">
+                            {csrf_html}
                             <input type="hidden" name="board" value="{html.escape(board_file)}">
                             <input type="hidden" name="query" value="{html.escape(c['text'][:48])}">
                             <input type="hidden" name="action" value="approve">
@@ -957,6 +974,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
                             <button type="submit" class="btn-mini ok">Aprobar ✅</button>
                           </form>
                           <form method="POST" action="/post/approve" style="display:inline;">
+                            {csrf_html}
                             <input type="hidden" name="board" value="{html.escape(board_file)}">
                             <input type="hidden" name="query" value="{html.escape(c['text'][:48])}">
                             <input type="hidden" name="action" value="reject">
@@ -967,6 +985,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
                     else:
                         btn_approve = f"""
                         <form method="POST" action="/post/approve" style="margin-top:8px;">
+                          {csrf_html}
                           <input type="hidden" name="board" value="{html.escape(board_file)}">
                           <input type="hidden" name="query" value="{html.escape(c['text'][:48])}">
                           <input type="hidden" name="action" value="approve">
@@ -980,6 +999,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
           <div class="board-hdr">
             <h3>{html.escape(board_title)} <small style="color:#94a3b8;font-weight:400;">({html.escape(board_file)})</small></h3>
             <form method="POST" action="/api/kanban/add" class="add-form">
+              {csrf_html}
               <input type="hidden" name="board" value="{html.escape(board_file)}">
               <input type="text" name="text" placeholder="+ Nueva tarjeta rápida..." required>
               <button type="submit" class="btn-mini blue">Añadir</button>
@@ -1014,9 +1034,9 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
         st = t["status"]
         act_btn = ""
         if st in ("blocked", "todo"):
-            act_btn = f'<form method="POST" action="/api/hermes/status" style="display:inline;"><input type="hidden" name="task_id" value="{html.escape(t["id"])}"><input type="hidden" name="status" value="ready"><button class="btn-mini blue" type="submit">→ Ready</button></form>'
+            act_btn = f'<form method="POST" action="/api/hermes/status" style="display:inline;">{csrf_html}<input type="hidden" name="task_id" value="{html.escape(t["id"])}"><input type="hidden" name="status" value="ready"><button class="btn-mini blue" type="submit">→ Ready</button></form>'
         elif st == "ready":
-            act_btn = f'<form method="POST" action="/api/hermes/status" style="display:inline;"><input type="hidden" name="task_id" value="{html.escape(t["id"])}"><input type="hidden" name="status" value="done"><button class="btn-mini ok" type="submit">✓ Done</button></form>'
+            act_btn = f'<form method="POST" action="/api/hermes/status" style="display:inline;">{csrf_html}<input type="hidden" name="task_id" value="{html.escape(t["id"])}"><input type="hidden" name="status" value="done"><button class="btn-mini ok" type="submit">✓ Done</button></form>'
         hermes_rows.append(f"<tr><td><code>{html.escape(t['id'])}</code></td><td><b>@{html.escape(str(t['assignee']))}</b></td><td><span class='pill'>{html.escape(st.upper())}</span></td><td>{html.escape(t['title'])}</td><td>{act_btn}</td></tr>")
 
     p_intel = get_price_intelligence()
@@ -1067,8 +1087,8 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
     doc_state = DOC_CACHE.get("state") if isinstance(DOC_CACHE.get("state"), dict) else None
     doc_err = None if doc_state else DOC_CACHE.get("error")
     if doc_state:
-        doc_compact_html = render_documenso_sections(doc_state, compact=True)
-        doc_full_html = render_documenso_sections(doc_state, compact=False)
+        doc_compact_html = render_documenso_sections(doc_state, compact=True, csrf=mutaciones.token_csrf(SESSION_SECRET, user))
+        doc_full_html = render_documenso_sections(doc_state, compact=False, csrf=mutaciones.token_csrf(SESSION_SECRET, user))
         doc_counts = doc_state.get("counts", {})
         doc_tab = f"{doc_counts.get('COMPLETED', 0)}/{doc_counts.get('PENDING', 0)}"
     elif doc_err:
@@ -1082,6 +1102,17 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
         doc_counts = {}
         doc_tab = "sin dato"
     saved_banner = f'<div style="background:rgba(16,185,129,.2);border:1px solid #10b981;color:#a7f3d0;padding:10px 14px;border-radius:10px;margin-bottom:14px;font-size:13px;">✅ {html.escape(saved_msg)}</div>' if saved_msg else ""
+
+    form_salir = (
+        f'<form method="POST" action="/logout" style="display:inline;">{csrf_html}'
+        '<input type="hidden" name="confirmar" value="SALIR">'
+        '<button type="submit" class="btn-mini" style="background:#475569;">Confirmar salida</button></form>'
+    )
+    form_refresco = (
+        f'<form method="POST" action="/api/semaforo/refrescar" style="display:inline;">{csrf_html}'
+        '<input type="hidden" name="confirmar" value="REFRESCAR">'
+        '<button type="submit" class="btn-mini" style="background:#334155;">Refrescar sonda</button></form>'
+    )
 
     def tab_cls(tid, is_pane=False):
         base = "tab-pane" if is_pane else "tab-btn"
@@ -1142,8 +1173,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
   </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;">
     <a href="https://ops.i-me.com.co:8445" target="_blank" class="btn-mini blue">📋 Vikunja (:8445)</a>
-    <a href="/" class="btn-mini" style="background:#334155;">🔄 Actualizar</a>
-    <a href="/logout" class="btn-mini" style="background:#475569;">Salir</a>
+    {form_salir}
   </div>
 </header>
 <div class="container">
@@ -1244,8 +1274,8 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
   <div style="display:flex;gap:6px;flex-wrap:wrap;">
     <a href="https://ops.i-me.com.co:8444" target="_blank" class="btn-mini ok">🟢 Uptime Kuma (:8444)</a>
     <a href="https://ops.i-me.com.co:8445" target="_blank" class="btn-mini blue">📋 Vikunja (:8445)</a>
-    <a href="/?refresh=1" class="btn-mini" style="background:#334155;">🔄</a>
-    <a href="/logout" class="btn-mini" style="background:#475569;">Salir</a>
+    {form_refresco}
+    {form_salir}
   </div>
 </header>
 
@@ -1320,6 +1350,7 @@ def render_dashboard(user, role="admin", active_tab="tab-kanban", note_rel="00-P
 
       <div class="vault-editor">
         <form method="POST" action="/api/vault/save">
+          {csrf_html}
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
             <div>
               <strong style="font-size:14px;">📄 {html.escape(clean_rel)}</strong>
@@ -1671,6 +1702,68 @@ class OpsHubHandler(BaseHTTPRequestHandler):
         self.send_security_headers()
         self.end_headers()
 
+    def _mutacion_rechazada(self, user, form, ruta, ip) -> bool:
+        pide = ruta.startswith("/api/vault") or ruta in {
+            "/post/approve",
+            "/api/kanban/action",
+            "/api/kanban/add",
+            "/post/task",
+            "/api/documenso/prepare",
+            "/api/documenso/token",
+            "/api/documenso/delete",
+            "/api/documenso/download",
+            "/api/hermes/status",
+            "/logout",
+            "/api/semaforo/refrescar",
+        }
+        if not pide:
+            return False
+        if not mutaciones.csrf_valido(SESSION_SECRET, user, form.get("csrf", "")):
+            log.info("mutacion rechazada ruta=%s usuario=%s ip=%s resultado=csrf", ruta, user, ip)
+            self.send_response(403)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"csrf"}')
+            return True
+        if not mutaciones.confirmacion_valida(ruta, form.get("confirmar", "")):
+            log.info("mutacion rechazada ruta=%s usuario=%s ip=%s resultado=sin_confirmacion", ruta, user, ip)
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"confirmacion"}')
+            return True
+        return False
+
+    def _borrar_sobre(self, user, form, ip):
+        if responder_documenso_ausente(self):
+            log.info("documenso borrar usuario=%s ip=%s sobre=%s resultado=modulo_ausente", user, ip, form.get("envelope_id", ""))
+            return
+        env_id = form.get("envelope_id", "").strip()
+        res = ime_documenso.delete_envelope(env_id)
+        resultado = "ok" if res.get("ok") else "error"
+        log.info("documenso borrar usuario=%s ip=%s sobre=%s resultado=%s", user, ip, env_id, resultado)
+        msg = f"Sobre eliminado: {env_id}" if res.get("ok") else "No se pudo borrar el sobre"
+        self.send_response(303)
+        self.send_header("Location", f"/?tab=tab-documenso&saved=1&msg={urllib.parse.quote(msg)}")
+        self.end_headers()
+
+    def _guardar_pdf(self, user, form, ip):
+        if responder_documenso_ausente(self):
+            log.info("documenso guardar usuario=%s ip=%s sobre=%s resultado=modulo_ausente", user, ip, form.get("envelope_id", ""))
+            return
+        env_id = form.get("envelope_id", "").strip()
+        client_c = form.get("client", "").strip()
+        res = ime_documenso.download_signed_pdfs(env_id, client_code=client_c)
+        resultado = "ok" if res.get("ok") else "error"
+        log.info("documenso guardar usuario=%s ip=%s sobre=%s resultado=%s", user, ip, env_id, resultado)
+        if res.get("ok") and res.get("saved_files"):
+            msg = "PDF firmado guardado"
+        else:
+            msg = "No se pudo guardar el PDF"
+        self.send_response(303)
+        self.send_header("Location", f"/?tab=tab-documenso&saved=1&msg={urllib.parse.quote(msg)}")
+        self.end_headers()
+
     def do_GET(self):
         if self.path.startswith("/webdav"):
             return self.handle_webdav("GET")
@@ -1705,14 +1798,16 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
 
-        if "token" in qs and hmac.compare_digest(qs["token"][0], API_TOKEN):
-            cookie = make_session_cookie("root@i-me.com.co", "admin")
-            log_security(ip, "magic_token_login_ok")
-            self.send_response(302)
-            self.send_header("Set-Cookie", f"ime_ops_session={cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200")
-            self.send_header("Location", "/")
+        if parsed.path in mutaciones.RUTAS_SOLO_POST or "token" in qs:
+            log.info("mutacion rechazada metodo=GET ruta=%s ip=%s", parsed.path, ip)
+            cuerpo = b'{"ok":false,"error":"method_not_allowed"}'
+            self.send_response(405)
+            self.send_header("Allow", "POST")
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(cuerpo)))
             self.send_security_headers()
             self.end_headers()
+            self.wfile.write(cuerpo)
             return
 
         if parsed.path == "/login/codigo":
@@ -1723,15 +1818,6 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.send_security_headers()
             self.end_headers()
             self.wfile.write(body)
-            return
-
-        if parsed.path == "/logout":
-            self.send_response(302)
-            self.send_header("Set-Cookie", "ime_ops_session=deleted; Path=/; HttpOnly; Max-Age=0")
-            self.send_header("Set-Cookie", "ime_ops_2fa=deleted; Path=/; HttpOnly; Max-Age=0")
-            self.send_header("Location", "/login")
-            self.send_security_headers()
-            self.end_headers()
             return
 
         user, role = self.get_authenticated_session()
@@ -1788,33 +1874,6 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
 
-        if parsed.path == "/api/documenso/delete":
-            if responder_documenso_ausente(self):
-                return
-            qs = urllib.parse.parse_qs(parsed.query)
-            env_id = (qs.get("envelope_id", [""])[0]).strip()
-            res = ime_documenso.delete_envelope(env_id)
-            msg = f"Sobre eliminado: {env_id}" if res.get("ok") else f"Error al borrar: {res.get('error')}"
-            self.send_response(303)
-            self.send_header("Location", f"/?tab=tab-documenso&saved=1&msg={urllib.parse.quote(msg)}")
-            self.end_headers()
-            return
-
-        if parsed.path == "/api/documenso/download":
-            if responder_documenso_ausente(self):
-                return
-            env_id = qs.get("envelope_id", [""])[0]
-            client_c = qs.get("client", [""])[0]
-            res = ime_documenso.download_signed_pdfs(env_id, client_code=client_c)
-            if res.get("ok") and res.get("saved_files"):
-                msg = f"PDF firmado guardado en {res['saved_files'][0]['path']}"
-            else:
-                msg = f"Resultado descarga Documenso: {res.get('error', 'sin archivos')}"
-            self.send_response(302)
-            self.send_header("Location", f"/?tab=tab-documenso&saved=1&msg={urllib.parse.quote(msg)}")
-            self.end_headers()
-            return
-
         if parsed.path == "/api/prices":
             if role != "admin":
                 self.send_response(403)
@@ -1848,9 +1907,6 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
-
-        if "refresh" in qs and role == "admin":
-            poll_10_services()
 
         active_tab = qs.get("tab", ["tab-kanban"])[0]
         note_rel = qs.get("note", ["00-Panel-Control/Dashboard-Operativo.md"])[0]
@@ -1968,10 +2024,59 @@ class OpsHubHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
+        if parsed.path == "/login/token":
+            recibido = form.get("token", "")
+            if recibido and len(recibido) == len(API_TOKEN) and hmac.compare_digest(recibido, API_TOKEN):
+                cookie = make_session_cookie("root@i-me.com.co", "admin")
+                log.info("login token por POST ip=%s resultado=ok", ip)
+                self.send_response(302)
+                self.send_header("Set-Cookie", f"ime_ops_session={cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200")
+                self.send_header("Location", "/")
+                self.send_security_headers()
+                self.end_headers()
+                return
+            log.info("login token por POST ip=%s resultado=rechazado", ip)
+            self.send_response(401)
+            self.end_headers()
+            return
+
         user, role = self.get_authenticated_session()
         if not user:
             self.send_response(401)
             self.end_headers()
+            return
+
+        if self._mutacion_rechazada(user, form, parsed.path, ip):
+            return
+
+        if parsed.path == "/logout":
+            log.info("sesion cerrada usuario=%s ip=%s resultado=ok", user, ip)
+            self.send_response(302)
+            self.send_header("Set-Cookie", "ime_ops_session=deleted; Path=/; HttpOnly; Max-Age=0")
+            self.send_header("Set-Cookie", "ime_ops_2fa=deleted; Path=/; HttpOnly; Max-Age=0")
+            self.send_header("Location", "/login")
+            self.send_security_headers()
+            self.end_headers()
+            return
+
+        if parsed.path == "/api/semaforo/refrescar":
+            if role != "admin":
+                self.send_response(403)
+                self.end_headers()
+                return
+            poll_10_services()
+            log.info("semaforo refresco usuario=%s ip=%s resultado=ok", user, ip)
+            self.send_response(303)
+            self.send_header("Location", "/?tab=tab-uptime")
+            self.end_headers()
+            return
+
+        if parsed.path == "/api/documenso/delete":
+            self._borrar_sobre(user, form, ip)
+            return
+
+        if parsed.path == "/api/documenso/download":
+            self._guardar_pdf(user, form, ip)
             return
 
         if parsed.path.startswith("/api/vault"):

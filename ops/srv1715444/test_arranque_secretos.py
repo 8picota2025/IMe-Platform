@@ -95,16 +95,26 @@ class Arranque(unittest.TestCase):
             env["IME_OPS_TOKEN"] = "token-de-prueba"
             env["IME_OPS_SECRET"] = "secreto-de-prueba"
             env["IME_LOG_DIR"] = tmp
-            proc = subprocess.run(
-                [sys.executable, str(HUB)],
-                cwd=str(HUB.parent),
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=20,
-            )
+            try:
+                proc = subprocess.run(
+                    [sys.executable, str(HUB)],
+                    cwd=str(HUB.parent),
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=3,
+                )
+                salida_proc = proc.stderr + proc.stdout
+            except subprocess.TimeoutExpired as exc:
+                def _txt(valor):
+                    if valor is None:
+                        return ""
+                    if isinstance(valor, bytes):
+                        return valor.decode("utf-8", "replace")
+                    return valor
+                salida_proc = _txt(exc.stderr) + _txt(exc.stdout)
             logs = list(Path(tmp).glob("*.log"))
-            salida = proc.stderr + proc.stdout + (logs[0].read_text(encoding="utf-8") if logs else "")
+            salida = salida_proc + (logs[0].read_text(encoding="utf-8") if logs else "")
             self.assertIn("2fa correo apagado", salida)
             self.assertNotIn("arranque abortado", salida)
             self.assertNotIn("IME_OPS_SMTP_HOST", salida)
