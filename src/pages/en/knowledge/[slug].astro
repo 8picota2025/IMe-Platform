@@ -6,6 +6,7 @@ import {
   buildCanonical,
   buildOrganizationJsonLd,
   buildBreadcrumbJsonLd,
+  buildFaqJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
 import type { Articulo } from '../../../lib/datos';
@@ -15,7 +16,8 @@ import RelacionadosTema from '../../../components/conocimiento/RelacionadosTema.
 import InvimaConversion from '../../../components/conocimiento/InvimaConversion.astro';
 import { stripMarkdown } from '../../../lib/markdown';
 import { descripcionInvima } from '../../../data/invima-seo';
-import { renderArticleBody } from '../../../lib/conocimiento-articulo';
+import { extraerPreguntasFrecuentes, renderArticleBody } from '../../../lib/conocimiento-articulo';
+import { familyCatalogHref } from '../../../lib/seo-urls';
 import {
   resolverImagenArticulo,
   resolverOgImagenArticulo,
@@ -54,7 +56,11 @@ const ctaLabel = esClusterInvima
     ? 'Request INVIMA assessment'
     : t(locale, 'conocimiento.cta_contacto');
 const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
-const title = buildPageTitle(articulo.titulo);
+// Checklist INVIMA: title ≤60 chars (brand suffix included), same wording as the ES page.
+const esChecklistInvima = articulo.slug === 'checklist-invima-compra-equipos-medicos';
+const title = esChecklistInvima
+  ? 'INVIMA checklist for buying medical equipment | I-ME'
+  : buildPageTitle(articulo.titulo);
 const description =
   descripcionInvima(articulo.slug, locale) ??
   truncateMetaDescription(stripMarkdown(articulo.cuerpo || articulo.titulo));
@@ -85,7 +91,8 @@ const jsonLd = combineJsonLd(
       name: 'I-ME International Medical Enterprise',
     },
     mainEntityOfPage: canonical,
-  }
+  },
+  esChecklistInvima ? buildFaqJsonLd(extraerPreguntasFrecuentes(articulo.cuerpo)) : null
 );
 ---
 
@@ -168,6 +175,25 @@ const jsonLd = combineJsonLd(
           />
         </div>
         {esClusterInvima && <InvimaConversion locale={locale} />}
+        {
+          esChecklistInvima && (
+            <section class="invima-valide" aria-labelledby="invima-valide-title">
+              <h2 id="invima-valide-title">Check an INVIMA registration</h2>
+              <p>Check each model's registration before requesting a quote. Browse by family:</p>
+              <ul>
+                <li>
+                  <a href={familyCatalogHref('en', 'mobiliario')}>Furniture</a>
+                </li>
+                <li>
+                  <a href={familyCatalogHref('en', 'monitores')}>Monitors</a>
+                </li>
+                <li>
+                  <a href={familyCatalogHref('en', 'ultrasonido')}>Ultrasound</a>
+                </li>
+              </ul>
+            </section>
+          )
+        }
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
           <a href="/en/knowledge/" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a>

@@ -474,8 +474,8 @@ const EN: InvimaFabricantesCopy = {
       href: '/en/contact/',
     },
     {
-      title: 'Ask I-ME for the INVIMA checklist',
-      href: '/en/contact/',
+      title: 'INVIMA checklist for buying equipment',
+      href: '/en/knowledge/checklist-invima-compra-equipos-medicos/',
     },
   ],
   officialTitle: 'Official sources',

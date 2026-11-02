@@ -1,117 +1,155 @@
 ---
 slug: checklist-invima-compra-equipos-medicos
-titulo_es: Checklist INVIMA para fabricantes de equipos médicos: documentos, costos y tiempos para Colombia
-titulo_en: INVIMA checklist for medical equipment manufacturers: documents, costs and timelines for Colombia
+titulo_es: Checklist INVIMA para comprar equipos médicos
+titulo_en: INVIMA checklist for buying medical equipment
 cluster: invima-regulacion
-tags: checklist, registro-sanitario, fabricantes
+tags: checklist, registro-sanitario, compra
 ---
 
-# Checklist INVIMA para fabricantes de equipos médicos que quieren entrar a Colombia
+# Checklist INVIMA para comprar equipos médicos
 
-Preparar un equipo médico para Colombia exige definir la autorización aplicable, reunir evidencia técnica y legal, y coordinar al fabricante con el titular o importador local. La ruta depende del producto, su riesgo, tecnología y actividad; esta lista es orientativa y no sustituye una evaluación regulatoria.
+Antes de comprar un equipo médico en Colombia, compruebe que tenga registro sanitario o permiso de comercialización vigente y que ampare el modelo exacto que le ofrecen. Esta lista le ayuda a revisar la oferta y la documentación antes de firmar. Es orientativa: no reemplaza la consulta oficial ante el INVIMA ni una asesoría regulatoria.
 
-## Antes de iniciar: delimite el producto y la ruta
+## 1. Pida el registro por modelo
 
-- [ ] **Uso previsto:** describa finalidad, usuarios, población, entorno, contraindicaciones y advertencias. Alinee etiquetas, manuales, evidencia y materiales comerciales.
-- [ ] **Referencias y configuración:** cierre modelos, códigos, accesorios y componentes. Para familias, kits o sistemas, documente cómo se relacionan y qué variantes pretende incluir.
-- [ ] **Clasificación y actividad:** determine la clase de riesgo y aclare si planea fabricar, importar, comercializar, almacenar o acondicionar. Los dispositivos I y IIa pueden tener registro automático cuando aplique; los IIb y III requieren la evaluación prevista. Algunos equipos de tecnología controlada, incluidos ciertos usados o repotenciados, pueden requerir permiso de comercialización. Confirme la ruta con INVIMA. Un marcado CE o una autorización FDA pueden servir de soporte, pero no sustituyen la autorización colombiana que corresponda.
+- [ ] Solicite por escrito el número de registro sanitario o de permiso de comercialización de **cada modelo** ofertado.
+- [ ] Verifique que el número corresponda al equipo concreto y no solo a la marca.
 
-## Expediente técnico y legal que conviene preparar
+## 2. Consulte el registro en el INVIMA
 
-- [ ] **Descripción del producto:** reúna fichas consistentes sobre uso, componentes, funcionamiento, fabricación, empaque, almacenamiento, vida útil y disposición final, según aplique. Identifique fabricante legal, planta y maquiladores.
-- [ ] **Seguridad y desempeño:** organice estudios técnicos, ensayos, normas, análisis de riesgos y evidencia científica. Biocompatibilidad, esterilización, estabilidad y estudios clínicos aplican según diseño, materiales, uso y clase.
-- [ ] **Calidad y fabricación:** reúna controles de producción, liberación y calidad, junto con la certificación o concepto sanitario aplicable a cada fabricante y proceso. Revise requisitos si hay esterilización tercerizada o acondicionamiento en otras sedes.
-- [ ] **Soportes de origen:** para productos importados, confirme el certificado de venta libre u otro soporte exigido y que liste nombres y referencias. Prepare la autorización del fabricante al importador o titular colombiano y los documentos legales correspondientes. Un certificado de exportación no necesariamente reemplaza uno de venta libre.
-- [ ] **Idioma y formalidades:** prepare versiones en castellano y confirme qué documentos requieren traducción oficial, apostilla o legalización según su tipo y origen.
-- [ ] **Etiquetas y manuales:** prepare artes e instrucciones en castellano con los datos exigibles. Para equipos biomédicos, tenga manuales de operación y mantenimiento en castellano y la declaración correspondiente. Compruebe que nombres y modelos coincidan en el expediente.
+- [ ] Busque el número en la [consulta pública de registros sanitarios del INVIMA](https://www.invima.gov.co/consulta-registros-sanitarios).
+- [ ] Confirme el **estado** y la **vigencia** del registro.
+- [ ] Revise el **titular**, el **fabricante** y el **importador** autorizado.
+- [ ] Compruebe que el **modelo o la referencia** ofertados aparecen amparados.
 
-## Roles locales, presupuesto y calendario
+## 3. Compare la oferta con el registro
 
-- [ ] **Defina roles locales:** acuerde solicitante o titular, importador y responsable de obligaciones posteriores. Si el importador almacena o acondiciona, revise si necesita Certificado de Capacidad de Almacenamiento y Acondicionamiento (CCAA). El fabricante debe verificar la certificación o concepto sanitario aplicable.
-- [ ] **Presupueste el proceso:** consulte el manual tarifario vigente del INVIMA y añada estudios, traducciones, formalidades, apoyo regulatorio, ajustes de etiquetas y manuales, certificaciones y horas internas. La tarifa oficial no cubre por sí sola todo el costo de preparación.
-- [ ] **Construya un calendario por hitos:** incluya clasificación y roles, documentos, ensayos, traducciones, preparación, radicación y respuestas a requerimientos. Los términos oficiales no incluyen necesariamente la preparación ni garantizan una fecha de autorización. Confirme términos y tarifas al presentar.
-- [ ] **Revise consistencia antes de radicar:** compare nombre, referencias, fabricante, uso previsto y titular en formularios, certificados, ensayos, etiquetas y manuales. Asigne un responsable, registre versiones y deje identificados documentos pendientes y supuestos del presupuesto.
+- [ ] Titular, fabricante y modelo deben coincidir en el registro, la cotización, la factura y la ficha técnica.
+- [ ] Revise la **clase de riesgo** del producto y que sea coherente con lo que figura en el registro.
+- [ ] Si el registro vence durante el contrato o el periodo de garantía, pregunte por el estado de su renovación.
+- [ ] Aclare si el equipo es **nuevo, usado o repotenciado**. Cada caso puede tener un tratamiento regulatorio distinto.
 
-## Checklist breve para quien compra
+## 4. Confirme importador y garantía
 
-Antes de comprar, pida el número de registro o permiso por modelo y verifique en la [consulta pública del INVIMA](https://www.invima.gov.co/consulta-registros-sanitarios) su estado, vigencia, titular, fabricante, importador y referencias. Confirme que la oferta coincide con el modelo autorizado y solicite etiquetas y manuales en castellano. Aclare si el equipo es nuevo, usado o repotenciado. Si algo difiere, pida una explicación antes de firmar. Consulte la [guía sobre registro sanitario INVIMA de equipos biomédicos](/es/conocimiento/registro-sanitario-invima-equipos-biomedicos).
+- [ ] Pida los datos del **importador autorizado** en Colombia y quién responde ante usted por el equipo.
+- [ ] Solicite por escrito la **garantía del fabricante**: alcance, cobertura, duración y quién la presta en Colombia.
+- [ ] Aclare quién atiende el **soporte técnico**, los **repuestos** y el servicio posventa, y en qué condiciones.
 
-## ¿Qué información ayuda a estimar el proyecto?
+## 5. Pida los documentos técnicos
 
-Con la experiencia de I-ME, podemos buscar el camino más corto evitando reprocesos y sin saltarnos requisitos, y preparar una propuesta de alcance, presupuesto y cronograma. Comparta marca, modelos, país de fabricación, uso previsto, clase de riesgo si está definida, actividad en Colombia, documentos disponibles y objetivo comercial. [Hable con el equipo de I-ME](/es/contacto).
+- [ ] **Manual de operación** y **manual de mantenimiento**, en castellano.
+- [ ] **Ficha técnica** con especificaciones, accesorios y referencias.
+- [ ] **Declaración de conformidad** del fabricante para el producto ofertado.
+- [ ] **Etiqueta** del producto con los datos exigibles, incluido el número de registro.
+- [ ] **Compromiso por escrito** de soporte técnico y disponibilidad de repuestos.
+
+## 6. Antes de firmar
+
+- [ ] Todas las referencias de la cotización aparecen en el registro.
+- [ ] Nombre del producto, modelo y fabricante coinciden en todos los documentos recibidos.
+- [ ] Las preguntas que queden sin respuesta se resuelven por escrito antes de firmar.
+
+Si quiere que revisemos la oferta con usted, escríbanos por WhatsApp al [+57 313 724 7353](https://wa.me/573137247353) o [hable con un asesor de I-ME](/es/contacto). Para entender el trámite de fabricante, lea la [guía sobre el registro sanitario INVIMA de equipos biomédicos](/es/conocimiento/registro-sanitario-invima-equipos-biomedicos).
 
 ## Preguntas frecuentes
 
-### ¿Un fabricante extranjero puede ser titular del registro en Colombia?
+### ¿Un registro vigente garantiza que el equipo es el que me ofrecen?
 
-Depende de la modalidad y los documentos del caso. Defina estos roles con el socio colombiano y confirme requisitos antes de preparar autorizaciones.
+No necesariamente. Verifique que el modelo, la referencia, el titular y el fabricante figuren en el registro consultado.
 
-### ¿Las clases I y IIa siempre se resuelven automáticamente?
+### ¿Dónde compruebo el registro sanitario?
 
-INVIMA contempla esa ruta para productos I y IIa que cumplan las condiciones aplicables. Tecnología controlada, actividad y requisitos documentales pueden cambiarla; verifique el caso concreto.
+En la consulta pública de registros sanitarios del INVIMA, buscando por número de registro o por nombre del producto.
 
-### ¿Cuánto cuestan y cuánto tardan el registro y la preparación?
+### ¿Qué pasa si el registro está vencido?
 
-No hay una cifra o duración única. Consulte el manual tarifario y calcule aparte documentos, estudios, traducciones, formalidades, certificaciones y coordinación local. El tiempo de evaluación no necesariamente incluye esas tareas ni garantiza una fecha de decisión.
+No firme sin aclarar la situación por escrito con el proveedor. El estado y la vigencia del registro determinan si el equipo puede comercializarse legalmente.
+
+### ¿Un marcado CE o una certificación extranjera reemplaza el registro en Colombia?
+
+No. Puede servir como soporte documental, pero no sustituye la autorización sanitaria colombiana que corresponda.
+
+### ¿Qué documentos conviene pedir antes de comprar?
+
+El número de registro por modelo, la ficha técnica, los manuales en castellano, la declaración de conformidad, la garantía del fabricante y el compromiso de soporte técnico y repuestos.
 
 ## Fuentes oficiales
 
-- INVIMA, [Dispositivos médicos y equipos biomédicos](https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos).
-- INVIMA, [Tarifas y manual tarifario](https://www.invima.gov.co/tramites-y-servicios/tarifas).
+- INVIMA, [consulta de registros sanitarios](https://www.invima.gov.co/consulta-registros-sanitarios).
+- INVIMA, [dispositivos médicos y equipos biomédicos](https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos).
 - Decreto 4725 de 2005, [compilación jurídica del INVIMA](https://normograma.invima.gov.co/compilacion/docs/decreto_4725_2005.htm).
 
 <!-- en -->
 
-# INVIMA checklist for medical equipment manufacturers entering Colombia
+# INVIMA checklist for buying medical equipment
 
-Preparing medical equipment for Colombia means identifying the applicable authorization, assembling technical and legal evidence, and coordinating the manufacturer with the local holder or importer. This checklist helps identify gaps before applying for a sanitary registration or marketing permit. The route depends on the product, its risk classification, technology and intended activity. This is general information and does not replace a regulatory assessment of a specific case.
+Before buying medical equipment in Colombia, confirm that it has a valid sanitary registration or marketing permit that covers the exact model being offered. This checklist helps you review the offer and the documentation before signing. It is general guidance: it does not replace the official check with INVIMA or regulatory advice.
 
-## Before you start: define the product and route
+## 1. Request the registration for each model
 
-- [ ] **Intended use and indications:** describe what the product was designed to do, its users, population, setting, contraindications and warnings. Align this definition across labels, manuals, evidence and promotional materials.
-- [ ] **References and configuration:** finalize the list of models, references, codes, accessories and components. If items will be marketed as a family, kit or system, document how they relate and which variants are intended to be covered.
-- [ ] **Classification and activity:** determine the risk class and clarify whether you plan to manufacture, import, market, store or condition the device. Class I and IIa devices may follow an automatic registration route where applicable; class IIb and III devices require the prescribed evaluation. Some controlled-technology equipment, including certain used or refurbished equipment, may require a marketing permit. Confirm the route with INVIMA. A CE mark or FDA authorization may support the file, but does not replace the applicable Colombian authorization.
+- [ ] Request in writing the sanitary registration or marketing permit number for **each model** offered.
+- [ ] Check that the number corresponds to the specific equipment, not only to the brand.
 
-## Technical and legal file to prepare
+## 2. Check the registration with INVIMA
 
-- [ ] **Controlled product description:** gather technical specifications and descriptions consistent with intended use, components, operating principle, manufacturing, packaging, storage, useful life and final disposal, as applicable. Identify the legal manufacturer, manufacturing site and any other manufacturers or contract manufacturers involved.
-- [ ] **Safety and performance:** organize technical studies, analytical checks, tests and standards supporting the product. Include risk analysis and scientific evidence; biocompatibility, sterilization, stability or clinical studies apply depending on design, materials, use and class. Do not treat a test that does not apply to the product as universally required.
-- [ ] **Quality and manufacturing:** make production, release and quality control records available, along with the certification or sanitary assessment applicable to each manufacturer and process. Check specific requirements if sterilization is outsourced or conditioning or other operations take place at another site.
-- [ ] **Country-of-origin documents:** for imported products, confirm which free-sale certificate or other evidence is required for the specific route and ensure it lists the names and references to be included in the application. Prepare the manufacturer's authorization for the Colombian importer or holder and the applicable corporate existence and representation documents. An export certificate does not necessarily replace a free-sale certificate.
-- [ ] **Language and formalities:** keep the manufacturer's source documents and Spanish versions. Check whether each document needs an official translation, apostille or legalization; this depends on the document type and origin. Confirm the applicable list before starting translations or authentications.
-- [ ] **Labels and manuals:** prepare label artwork, inserts and instructions in Spanish, with product identification and the information required for the requested presentation. For biomedical equipment, prepare Spanish operating and maintenance manuals and the relevant declaration. Check that model names and references match throughout the file.
+- [ ] Search the number in the [INVIMA public database of sanitary registrations](https://www.invima.gov.co/consulta-registros-sanitarios).
+- [ ] Confirm the registration **status** and **validity**.
+- [ ] Review the **holder**, the **manufacturer** and the authorized **importer**.
+- [ ] Confirm that the **quoted model or reference** is covered.
 
-## Local roles, budget and timeline
+## 3. Compare the offer with the registration
 
-- [ ] **Define who does what in Colombia:** agree on the applicant and holder, importer and party responsible for post-market obligations. If the importer will store or condition devices, check whether it needs a Storage and Conditioning Capacity Certificate (CCAA); requirements depend on activities and establishments. Manufacturers should also verify the sanitary certification or assessment applicable to them.
-- [ ] **Budget the full process:** consult INVIMA's current fee manual for the application fee. Separately account for translations, apostilles or legalizations where required, outstanding tests or studies, regulatory support, label and manual updates, establishment certifications and internal staff time. The official fee alone does not represent the full cost of preparing the file.
-- [ ] **Build a milestone-based calendar:** include classification and roles, documents, tests, translations, preparation, filing and responses to requests. Official terms may not include preparation or guarantee an authorization date. Confirm terms and fees when filing.
-- [ ] **Check consistency before filing:** compare product name, references, manufacturer, intended use and holder across forms, certificates, tests, labels and manuals. Assign an owner, track versions and list outstanding documents and budget assumptions.
+- [ ] Holder, manufacturer and model must match across the registration, the quote, the invoice and the technical data sheet.
+- [ ] Review the product's **risk class** and confirm it is consistent with what the registration shows.
+- [ ] If the registration expires during the contract or warranty period, ask about the status of its renewal.
+- [ ] Clarify whether the equipment is **new, used or refurbished**. Each case may have a different regulatory treatment.
 
-## Short checklist for buyers
+## 4. Confirm importer and warranty
 
-Before approving a purchase, request the registration or permit number for each model and check its status, validity, holder, manufacturer, importer and covered references in the [INVIMA public database](https://www.invima.gov.co/consulta-registros-sanitarios). Confirm the offer matches the authorized model and request Spanish labels and manuals. Clarify whether equipment is new, used or refurbished. If anything differs, request an explanation before signing. See the [guide to INVIMA sanitary registration for biomedical equipment](/en/knowledge/registro-sanitario-invima-equipos-biomedicos).
+- [ ] Request the details of the **authorized importer** in Colombia and who is responsible to you for the equipment.
+- [ ] Request the **manufacturer's warranty** in writing: scope, coverage, duration and who provides it in Colombia.
+- [ ] Clarify who provides **technical support**, **spare parts** and after-sales service, and under what conditions.
 
-## What information helps estimate the project?
+## 5. Request the technical documents
 
-With I-ME's experience, we can find the shortest path while avoiding rework and meeting all requirements, then prepare a proposal covering scope, budget and schedule. Share the brand, models, country of manufacture, intended use, risk class if known, planned activity in Colombia, available documents and commercial objective. [Contact the I-ME team](/en/contact).
+- [ ] **Operating manual** and **maintenance manual**, in Spanish.
+- [ ] **Technical data sheet** with specifications, accessories and references.
+- [ ] The manufacturer's **declaration of conformity** for the product offered.
+- [ ] **Product label** with the required information, including the registration number.
+- [ ] **Written commitment** on technical support and spare parts availability.
+
+## 6. Before signing
+
+- [ ] Every reference in the quote appears in the registration.
+- [ ] Product name, model and manufacturer match across all documents received.
+- [ ] Any open questions are answered in writing before signing.
+
+If you would like us to review the offer with you, write to us on WhatsApp at [+57 313 724 7353](https://wa.me/573137247353) or [talk to an I-ME advisor](/en/contact/). To understand the manufacturer route, read the [guide to INVIMA sanitary registration for biomedical equipment](/en/knowledge/registro-sanitario-invima-equipos-biomedicos).
 
 ## Frequently asked questions
 
-### Can a foreign manufacturer hold the registration in Colombia?
+### Does a valid registration guarantee that the equipment is the one offered?
 
-The holder, applicant and authorization of a local importer depend on the route and the documents in the case. Define these roles with your Colombian partner and confirm the applicable requirements before preparing powers of attorney or authorizations.
+Not necessarily. Check that the model, the reference, the holder and the manufacturer appear in the registration you consulted.
 
-### Are class I and IIa applications always automatic?
+### Where can I check the sanitary registration?
 
-INVIMA provides an automatic registration route for class I and IIa products that meet the applicable conditions. Class alone does not answer every question: controlled technology, activity, product type and documentary requirements may change the route. Verify the specific case.
+In INVIMA's public database of sanitary registrations, searching by registration number or product name.
 
-### How much do registration and preparation cost, and how long do they take?
+### What if the registration has expired?
 
-There is no single cost or duration for every product. Check the current fee manual and separately estimate document preparation, studies, translations, formalities, certifications and local coordination. Review time does not necessarily include these activities or guarantee a decision by a specific date.
+Do not sign until the situation is clarified in writing with the supplier. The registration status and validity determine whether the equipment can be legally marketed.
+
+### Does a CE mark or a foreign certification replace the registration in Colombia?
+
+No. It may support the documentation, but it does not replace the applicable Colombian sanitary authorization.
+
+### Which documents should I request before buying?
+
+The registration number for each model, the technical data sheet, the manuals in Spanish, the declaration of conformity, the manufacturer's warranty and the commitment on technical support and spare parts.
 
 ## Official sources
 
-- INVIMA, [Medical devices and biomedical equipment](https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos).
-- INVIMA, [Fees and fee manual](https://www.invima.gov.co/tramites-y-servicios/tarifas).
+- INVIMA, [sanitary registration search](https://www.invima.gov.co/consulta-registros-sanitarios).
+- INVIMA, [medical devices and biomedical equipment](https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos).
 - Decree 4725 of 2005, [INVIMA legal compilation](https://normograma.invima.gov.co/compilacion/docs/decreto_4725_2005.htm).

@@ -7,8 +7,8 @@ const descriptions: Record<string, Record<Locale, string>> = {
     en: 'INVIMA registration for medical device manufacturers: requirements, costs and timelines for entering Colombia. Request support from I-ME.',
   },
   'checklist-invima-compra-equipos-medicos': {
-    es: 'Checklist INVIMA para fabricantes y compradores: documentos, presupuesto, calendario y verificación de equipos médicos en Colombia. Consulte a I-ME.',
-    en: 'INVIMA checklist for manufacturers and buyers: documents, budget, timelines and medical equipment checks in Colombia. Speak with I-ME.',
+    es: 'Antes de firmar, verifique el registro INVIMA del modelo, titular, importador, garantía y documentos técnicos del equipo. Lista para comprar en Colombia.',
+    en: 'Before signing, check the INVIMA registration for the model, holder, importer, warranty and technical documents. A buyer checklist for Colombia.',
   },
 };
 

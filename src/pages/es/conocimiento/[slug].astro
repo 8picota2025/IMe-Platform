@@ -6,6 +6,7 @@ import {
   buildCanonical,
   buildOrganizationJsonLd,
   buildBreadcrumbJsonLd,
+  buildFaqJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
 import type { Articulo } from '../../../lib/datos';
@@ -16,7 +17,7 @@ import InvimaConversion from '../../../components/conocimiento/InvimaConversion.
 import { stripMarkdown } from '../../../lib/markdown';
 import { familyCatalogHref } from '../../../lib/seo-urls';
 import { descripcionInvima } from '../../../data/invima-seo';
-import { renderArticleBody } from '../../../lib/conocimiento-articulo';
+import { extraerPreguntasFrecuentes, renderArticleBody } from '../../../lib/conocimiento-articulo';
 import {
   resolverImagenArticulo,
   resolverOgImagenArticulo,
@@ -90,7 +91,8 @@ const jsonLd = combineJsonLd(
       name: 'I-ME International Medical Enterprise',
     },
     mainEntityOfPage: canonical,
-  }
+  },
+  esChecklistInvima ? buildFaqJsonLd(extraerPreguntasFrecuentes(articulo.cuerpo)) : null
 );
 ---
 
