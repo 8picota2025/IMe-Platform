@@ -8,6 +8,24 @@
         "value": "geist",
         "createdAt": "2026-09-28T00:52:52.451Z",
         "reason": "Agent: Geist is the UI face of the approved Stitch admin design system (design-system/admin/DESIGN.md); dense backoffice favors legibility, personality carried by Sora titles"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/styles/site-faithful.css"
+        ],
+        "createdAt": "2026-11-02T17:54:20.315Z",
+        "reason": "Assistant triage: mv-card::before is a 3px top bar that scales in on hover, not a side border; false positive."
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "src/styles/site-faithful.css"
+        ],
+        "createdAt": "2026-11-02T20:17:34.824Z",
+        "reason": "user confirmed: Inter se mantiene como fuente actual del sitio"
       }
     ]
   }
