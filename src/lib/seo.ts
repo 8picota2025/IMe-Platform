@@ -273,7 +273,7 @@ export function buildHomeSeo(locale: Locale): SeoPageMeta {
     // Título pedido en arreglos011126 (≤60). La marca va al final; "INVIMA" sin afirmar registro de todas las marcas.
     title: isEs
       ? 'Distribuidor de equipos médicos en Colombia | I-ME'
-      : 'Medical Equipment Distributor in Colombia | INVIMA | I-ME',
+      : 'Medical Equipment Distributor in Colombia | I-ME',
     description: isEs
       ? 'I-ME (i-me.com.co): distribuidor de equipos médicos en Colombia. Cotice por WhatsApp +57 313 724 7353.'
       : 'I-ME (i-me.com.co): medical equipment distributor in Colombia. Quote via WhatsApp +57 313 724 7353.',

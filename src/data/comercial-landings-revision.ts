@@ -113,7 +113,7 @@ const REVISION_ES: readonly CampaignLandingRevision[] = [
     id: 'ventiladores_mecanicos',
     path: '/es/ventiladores-mecanicos-uci/',
     h1: 'Ventilador mecánico para UCI',
-    productSlugs: ['ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide'],
+    productSlugs: ['ventilador-mecanico-uci-adulto-pediatrico'],
   },
   {
     id: 'desfibriladores_hospital',

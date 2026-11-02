@@ -351,7 +351,7 @@ It depends on the agreed scheme. Ask for it explicitly in the quote.
 
 La compra de ventilación mecánica impacta UCI, urgencias, transporte y quirófano. El criterio institucional debe unir **perfil de paciente, modos requeridos, utilidades de sala, capacitación y continuidad de soporte** — no solo la ficha de marketing.
 
-Oriéntese con la familia [ventiladores](/es/familias/ventiladores/) y referencias publicadas como el [Monnal T75](/es/productos/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide).
+Oriéntese con la familia [ventiladores](/es/familias/ventiladores/) y las referencias publicadas en el catálogo.
 
 ## 1. Criterios de servicio (antes de comparar marcas)
 
@@ -383,7 +383,7 @@ Oriéntese con la familia [ventiladores](/es/familias/ventiladores/) y referenci
 
 1. Declare el escenario dominante del servicio.
 2. Revise [ventiladores](/es/familias/ventiladores/).
-3. Contraste fichas (p. ej. [Monnal T75](/es/productos/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide)).
+3. Contraste fichas técnicas de las referencias publicadas.
 4. Solicite cotización con alcance técnico en [contacto](/es/contacto/).
 
 ## Preguntas frecuentes
@@ -398,7 +398,7 @@ La demo ayuda, pero la decisión debe incluir utilidades, capacitación, consumi
 
 Mechanical ventilation purchasing affects ICU, ED, transport and OR. Institutional criteria must join **patient profile, required modes, room utilities, training and support continuity** — not marketing sheets alone.
 
-Orient with the [ventilators](/en/families/ventiladores/) family and published references such as [Monnal T75](/en/products/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide).
+Orient with the [ventilators](/en/families/ventiladores/) family and the published references in the catalog.
 
 ## 1. Service criteria (before comparing brands)
 
@@ -430,7 +430,7 @@ Orient with the [ventilators](/en/families/ventiladores/) family and published r
 
 1. State the service’s dominant scenario.
 2. Review [ventilators](/en/families/ventiladores/).
-3. Contrast sheets (e.g. [Monnal T75](/en/products/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide)).
+3. Compare datasheets of the published references.
 4. Request a technically scoped quote via [contact](/en/contact/).
 
 ## FAQ

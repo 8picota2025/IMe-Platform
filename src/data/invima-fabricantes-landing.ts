@@ -470,12 +470,12 @@ const EN: InvimaFabricantesCopy = {
       href: '/en/knowledge/topic/invima-regulacion/',
     },
     {
-      title: 'INVIMA sanitary registration for biomedical equipment',
-      href: '/en/knowledge/registro-sanitario-invima-equipos-biomedicos/',
+      title: 'Ask I-ME about INVIMA sanitary registration',
+      href: '/en/contact/',
     },
     {
-      title: 'INVIMA checklist when buying medical equipment',
-      href: '/en/knowledge/checklist-invima-compra-equipos-medicos/',
+      title: 'Ask I-ME for the INVIMA checklist',
+      href: '/en/contact/',
     },
   ],
   officialTitle: 'Official sources',

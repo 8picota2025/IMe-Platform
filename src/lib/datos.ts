@@ -37,25 +37,14 @@ export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
   'lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec': 'sala-cirugia',
   'lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec': 'sala-cirugia',
   'ref-led-x18-100k-ilumitec': 'sala-cirugia',
-  'ventilador-mecanico-ref-crius-v6-northern': 'ventiladores',
   'ventilador-para-uci-ref-v-1000-advanced': 'ventiladores',
   'ventilador-neonatal-pedriatrico-convencional-ref-6000-sle': 'ventiladores',
-  'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide': 'ventiladores',
   'ventilador-neonatal-pediatrico-alta-frecuencia-plus-convencional-ref-6000-sle': 'ventiladores',
   'ventilador-mecanico-neonatal-pediatrico-adulto-ref-tv-100-bio-med': 'ventiladores',
   'ventilador-neonatal-no-invasivo-ref-nc3-medin': 'ventiladores',
-  'ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide': 'ventiladores',
-  'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide': 'ventiladores',
-  'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide': 'ventiladores',
   'ventilador-mecanico-uci-adulto-pediatrico': 'ventiladores',
-  'monitor-modular-multiparametro-ref-virgo-northern': 'monitores',
   'monitor-multiparametrico-basico': 'monitores',
   'monitor-multiparametrico-uci-avanzado': 'monitores',
-  'monitor-multiparametro-ref-acuarius-northern': 'monitores',
-  'monitor-multiparametro-ref-gemini-northern': 'monitores',
-  'monitor-multiparametro-ref-pisces-northern': 'monitores',
-  'monitor-multiparametro-ref-taurus-northern': 'monitores',
-  'monitor-multiparametro-ref-venus-northern': 'monitores',
   'electrocardiografo-ref-sk-em103-saikang': 'cardiologia',
   'monitor-de-paciente-ref-sk-em005-saikang': 'monitores',
   'monitor-fetal-ref-sk-em006-saikang': 'neonatologia',
@@ -802,7 +791,9 @@ function listaAtributo(atributos: unknown, clave: string): string[] | undefined 
   if (!atributos || typeof atributos !== 'object') return undefined;
   const valor = (atributos as Record<string, unknown>)[clave];
   if (!Array.isArray(valor)) return undefined;
-  const textos = valor.filter((item): item is string => typeof item === 'string' && item.trim() !== '');
+  const textos = valor.filter(
+    (item): item is string => typeof item === 'string' && item.trim() !== ''
+  );
   return textos.length > 0 ? textos : undefined;
 }
 
@@ -815,7 +806,10 @@ function numeroAtributo(atributos: unknown, clave: string): number | undefined {
 function camposZuowei(
   atributos: unknown,
   locale: Locale
-): Pick<Producto, 'alt_imagen' | 'galeria_alt' | 'imagen_ancho' | 'imagen_alto' | 'especificaciones_en'> {
+): Pick<
+  Producto,
+  'alt_imagen' | 'galeria_alt' | 'imagen_ancho' | 'imagen_alto' | 'especificaciones_en'
+> {
   const en = locale === 'en';
   const alt = textoAtributo(atributos, en ? 'alt_imagen_en' : 'alt_imagen_es');
   const galeriaAlt = listaAtributo(atributos, en ? 'galeria_alt_en' : 'galeria_alt_es');

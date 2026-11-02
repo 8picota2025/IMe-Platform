@@ -5,7 +5,7 @@
 import { readFile } from 'node:fs/promises';
 
 const FAMILY_HINTS = [
-  ['Ventiladores', ['ventilador', 'respirador', 'monnal', 'vni', 'vmi']],
+  ['Ventiladores', ['ventilador', 'respirador', 'vni', 'vmi']],
   ['Anestesia y soporte ventilatorio', ['anestesia', 'vaporizador', 'mascara laringea']],
   ['Radiología y Diagnóstico por Imagen', ['radiologia', 'rayos x', 'rx', 'mamogra', 'arco c']],
   ['Ultrasonido', ['ecogra', 'ultrasonido', 'doppler']],
@@ -13,7 +13,7 @@ const FAMILY_HINTS = [
 ];
 
 const TIPO_HINTS = [
-  ['Ventiladores', ['ventilador', 'respirador', 'monnal']],
+  ['Ventiladores', ['ventilador', 'respirador']],
   ['Monitores multiparamétricos', ['monitor multiparam']],
   ['Ecógrafos', ['ecogra', 'ultrasonido']],
 ];

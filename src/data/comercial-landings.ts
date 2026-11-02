@@ -1479,18 +1479,18 @@ const CAMILLAS_MEDICAS: ContentMap = {
 const VENTILADORES_MECANICOS: ContentMap = {
   es: {
     tag: 'UCI · Ventilación mecánica',
-    title: 'Ventilador mecánico UCI | Monnal T75 | I-ME',
+    title: 'Ventilador mecánico UCI adulto y pediátrico | I-ME',
     description:
-      'Ventilador mecánico para UCI adulto y pediátrico: Monnal T75 publicado en el catálogo. TEO y T60 no están activos. Precio bajo cotización.',
+      'Ventilador mecánico para UCI adulto y pediátrico publicado en el catálogo I-ME. Configuración y precio bajo cotización.',
     h1: 'Ventilador mecánico para UCI',
-    lead: 'El ventilador publicado para UCI adulto y pediátrico es el Monnal T75. La configuración se cotiza. TEO y T60 no están en el catálogo activo.',
+    lead: 'Publicamos ventiladores mecánicos para UCI adulto y pediátrico. La configuración se cotiza según población y modos.',
     formIntro:
       'Indique servicio (UCI, urgencias, transporte, neonatología), población y cantidad. Un asesor responde con alternativas publicadas.',
     primaryCta: 'Quiero orientación de ventiladores UCI',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver familia ventiladores',
     heroImage: '/assets/img/ventiladores-mecanicos-uci-es.webp',
-    heroImageAlt: 'Ventilador mecánico Monnal T75 en UCI — I-ME Colombia',
+    heroImageAlt: 'Ventilador mecánico para UCI — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar ventiladores',
     problemBody:
       'Mezclar brief de UCI, quirófano y transporte genera equipos subutilizados o sin soporte local. Definimos tipología, modos y consumibles antes de empujar un SKU.',
@@ -1498,11 +1498,11 @@ const VENTILADORES_MECANICOS: ContentMap = {
     solutions: [
       {
         pain: 'Necesitan ventilador UCI adulto/pediátrico homogéneo',
-        help: 'Partimos del Monnal T75 publicado y validamos población y modos. TEO no está en el catálogo activo.',
+        help: 'Partimos de las referencias publicadas y validamos población y modos.',
       },
       {
         pain: 'Requieren ventilador de transporte intrahospitalario',
-        help: 'El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75 de UCI.',
+        help: 'El brief de traslado se cotiza aparte de la ventilación de UCI.',
       },
       {
         pain: 'Neonatología pide VNI o ventilación convencional',
@@ -1511,7 +1511,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
     ],
     audienceYes: [
       'Hospitales e IPS renovando ventilación en UCI o urgencias',
-      'Biomédica / compras con proyecto Monnal o equivalente documentado',
+      'Biomédica / compras con proyecto de ventilación documentado',
       'Redes que estandarizan flota por servicio',
     ],
     audienceNo: [
@@ -1520,17 +1520,17 @@ const VENTILADORES_MECANICOS: ContentMap = {
       'Urgencias marketplace sin institución',
     ],
     situations: [
-      { title: 'Renovar flota UCI', body: 'Reemplazo del Monnal T75 publicado, con criterio de modos y soporte.' },
+      { title: 'Renovar flota UCI', body: 'Reemplazo de ventiladores UCI existentes, con criterio de modos y soporte.' },
       {
         title: 'Transporte crítico',
-        body: 'El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75.',
+        body: 'El brief de traslado se cotiza aparte de la ventilación de UCI.',
       },
       { title: 'Ampliar camas UCI', body: 'Nuevas unidades compatibles con protocolo existente.' },
     ],
     scopeTitle: 'Qué cubrimos',
     scope: [
       'Tipología por servicio y población',
-      'Referencias Monnal, Medin y SLE del catálogo I-ME',
+      'Referencias de ventilación del catálogo I-ME',
       'Instalación, capacitación y soporte en propuesta',
       'Financiación orientativa institucional',
     ],
@@ -1553,12 +1553,12 @@ const VENTILADORES_MECANICOS: ContentMap = {
     ],
     faqs: [
       {
-        q: '¿Tienen ventilador Monnal T75 en catálogo?',
-        a: 'Sí. El T75 UCI adulto/pediátrico está publicado. Confirmamos configuración y disponibilidad al cotizar.',
+        q: '¿Tienen ventiladores para UCI adulto y pediátrico?',
+        a: 'Sí, hay referencias publicadas. Confirmamos configuración y disponibilidad al cotizar.',
       },
       {
         q: '¿Sirve un ventilador UCI para transporte?',
-        a: 'No siempre. El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75.',
+        a: 'No siempre. El brief de traslado se cotiza aparte de la ventilación de UCI.',
       },
       {
         q: '¿Incluyen instalación y capacitación?',
@@ -1572,7 +1572,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
       { value: 'orientacion', label: 'Aún comparando modelos' },
     ],
     productSlugs: [
-      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide',
+      'ventilador-mecanico-uci-adulto-pediatrico',
     ],
     productsTitle: 'Referencias con demanda real',
     productsNote: 'Modelos del catálogo I-ME. Configuración y consumibles se confirman al cotizar.',
@@ -1580,18 +1580,18 @@ const VENTILADORES_MECANICOS: ContentMap = {
   },
   en: {
     tag: 'ICU · Mechanical ventilation',
-    title: 'ICU mechanical ventilator | Monnal T75 | I-ME',
+    title: 'ICU mechanical ventilator for adults and children | I-ME',
     description:
-      'Mechanical ventilator for adult and pediatric ICU: published Monnal T75. TEO and T60 are not active. Price on request.',
+      'Mechanical ventilator for adult and pediatric ICU, published in the I-ME catalog. Configuration and price on request.',
     h1: 'Mechanical ventilator for the ICU',
-    lead: 'The published adult and pediatric ICU ventilator is the Monnal T75. Configuration is quoted. TEO and T60 are not in the active catalog.',
+    lead: 'We list mechanical ventilators for adult and pediatric ICU. Configuration is quoted by population and modes.',
     formIntro:
       'Share service (ICU, ED, transport, neonatology), population and quantity. An advisor replies with published options.',
     primaryCta: 'I want ICU ventilator guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See ventilators family',
     heroImage: '/assets/img/mechanical-ventilators-icu-en.webp',
-    heroImageAlt: 'Monnal T75 mechanical ventilator in ICU — I-ME Colombia',
+    heroImageAlt: 'Mechanical ventilator in ICU — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying ventilators',
     problemBody:
       'Mixing ICU, OR and transport briefs yields underused equipment or weak local support. We define typology, modes and consumables before pushing a SKU.',
@@ -1599,11 +1599,11 @@ const VENTILADORES_MECANICOS: ContentMap = {
     solutions: [
       {
         pain: 'Need homogeneous adult/pediatric ICU ventilator',
-        help: 'We start from the published Monnal T75 and validate population and modes. TEO is not in the active catalog.',
+        help: 'We start from the published references and validate population and modes.',
       },
       {
         pain: 'Require intrahospital transport ventilator',
-        help: 'The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the ICU T75.',
+        help: 'A transfer brief is quoted separately from ICU ventilation.',
       },
       {
         pain: 'Neonatology asks for NIV or conventional ventilation',
@@ -1612,7 +1612,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
     ],
     audienceYes: [
       'Hospitals and networks renewing ICU or ED ventilation',
-      'Biomed / procurement with a documented Monnal or equivalent project',
+      'Biomed / procurement with a documented ventilation project',
       'Networks standardizing fleet by service',
     ],
     audienceNo: [
@@ -1621,14 +1621,14 @@ const VENTILADORES_MECANICOS: ContentMap = {
       'Marketplace urgency with no institution',
     ],
     situations: [
-      { title: 'Renew ICU fleet', body: 'Replacement of the published Monnal T75, with modes and support criteria.' },
-      { title: 'Critical transport', body: 'The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the ICU T75.' },
+      { title: 'Renew ICU fleet', body: 'Replacement of existing ICU ventilators, with modes and support criteria.' },
+      { title: 'Critical transport', body: 'A transfer brief is quoted separately from ICU ventilation.' },
       { title: 'Expand ICU beds', body: 'New units compatible with existing protocol.' },
     ],
     scopeTitle: 'What we cover',
     scope: [
       'Typology by service and population',
-      'Monnal, Medin and SLE references in the I-ME catalog',
+      'Ventilation references in the I-ME catalog',
       'Installation, training and support in the proposal',
       'Indicative institutional financing',
     ],
@@ -1650,12 +1650,12 @@ const VENTILADORES_MECANICOS: ContentMap = {
     ],
     faqs: [
       {
-        q: 'Do you carry the Monnal T75 ventilator?',
-        a: 'Yes. The adult/pediatric ICU T75 is published. We confirm configuration and availability when quoting.',
+        q: 'Do you carry ventilators for adult and pediatric ICU?',
+        a: 'Yes, published references exist. We confirm configuration and availability when quoting.',
       },
       {
         q: 'Can an ICU ventilator cover transport?',
-        a: 'Not always. The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the T75.',
+        a: 'Not always. A transfer brief is quoted separately from ICU ventilation.',
       },
       {
         q: 'Do you include installation and training?',
@@ -1669,7 +1669,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
       { value: 'orientacion', label: 'Still comparing models' },
     ],
     productSlugs: [
-      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide',
+      'ventilador-mecanico-uci-adulto-pediatrico',
     ],
     productsTitle: 'References with real demand',
     productsNote: 'I-ME catalog models. Configuration and consumables confirmed when quoting.',

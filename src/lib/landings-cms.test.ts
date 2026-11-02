@@ -122,6 +122,11 @@ describe('getCampaignLandingCms', () => {
   });
 });
 
+// Claves cuyo copy se corrigió con un UPDATE posterior (arreglos011126 ítem 6): el seed no las cubre.
+const CLAVES_CORREGIDAS_POR_MIGRACION = new Map([
+  ['ventiladores_mecanicos', '20261102140000_ventiladores_landing_sin_marcas.sql'],
+]);
+
 describe('seed de la tanda 1', () => {
   it('coincide con el copy del código: desde la tanda 1 el texto se edita en el CMS, no aquí', () => {
     const sql = readFileSync(
@@ -138,6 +143,8 @@ describe('seed de la tanda 1', () => {
     ];
     expect(filas.map(f => f[1]).sort()).toEqual([...listCampaignLandingIds()].sort());
     for (const [, clave, es, en] of filas) {
+      // arreglos011126 ítem 6: esta clave tiene una migración posterior con UPDATE; se verifica abajo.
+      if (CLAVES_CORREGIDAS_POR_MIGRACION.has(clave!)) continue;
       const id = clave as ReturnType<typeof listCampaignLandingIds>[number];
       // Si esto falla, alguien cambió el copy en comercial-landings.ts: en producción manda
       // la tabla landings, así que ese cambio no se vería. Hazlo en admin → Landings.
@@ -145,6 +152,26 @@ describe('seed de la tanda 1', () => {
         copyEditableDesdeTs(getCampaignLanding(id, 'es'))
       );
       expect(JSON.parse(en!), `${clave} (en)`).toEqual(
+        copyEditableDesdeTs(getCampaignLanding(id, 'en'))
+      );
+    }
+  });
+
+  it('las correcciones posteriores al seed coinciden con el copy del código', () => {
+    for (const [clave, migracion] of CLAVES_CORREGIDAS_POR_MIGRACION) {
+      const sql = readFileSync(
+        new URL(`../../supabase/migrations/${migracion}`, import.meta.url),
+        'utf8'
+      );
+      const m = sql.match(
+        /contenido_es = \$ime_landing\$(.*?)\$ime_landing\$::jsonb,\s*contenido_en = \$ime_landing\$(.*?)\$ime_landing\$::jsonb/s
+      );
+      expect(m, `${migracion} debe contener el UPDATE de ${clave}`).not.toBeNull();
+      const id = clave as ReturnType<typeof listCampaignLandingIds>[number];
+      expect(JSON.parse(m![1]!), `${clave} (es)`).toEqual(
+        copyEditableDesdeTs(getCampaignLanding(id, 'es'))
+      );
+      expect(JSON.parse(m![2]!), `${clave} (en)`).toEqual(
         copyEditableDesdeTs(getCampaignLanding(id, 'en'))
       );
     }
@@ -197,13 +224,15 @@ describe('tanda 2: landings de fabricante', () => {
       ),
       'utf8'
     );
-    // arreglos011126 ítem 6: fab_northern retirada del código; el seed histórico (ya aplicado) la conserva.
-    const RETIRADAS = new Set(['fab_northern']);
-    const filas = [
+    const todasLasFilas = [
       ...sql.matchAll(
         /\('fabricante', '([a-z_]+)', \$ime_landing\$(.*?)\$ime_landing\$::jsonb, \$ime_landing\$(.*?)\$ime_landing\$::jsonb\)/g
       ),
-    ].filter(f => !RETIRADAS.has(f[1]!));
+    ];
+    // arreglos011126 ítem 6: el seed histórico (ya aplicado) conserva una fila de un fabricante retirado, sin copy en código.
+    const idsCodigo = new Set<string>(listFabricanteLandingIds());
+    expect(todasLasFilas.filter(f => !idsCodigo.has(f[1]!))).toHaveLength(1);
+    const filas = todasLasFilas.filter(f => idsCodigo.has(f[1]!));
     expect(filas.map(f => f[1]).sort()).toEqual([...listFabricanteLandingIds()].sort());
     for (const [, clave, es, en] of filas) {
       const id = clave as ReturnType<typeof listFabricanteLandingIds>[number];

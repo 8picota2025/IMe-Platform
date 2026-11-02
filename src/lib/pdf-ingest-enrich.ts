@@ -16,7 +16,7 @@ export type IngestEnrichedFields = {
 };
 
 const FAMILY_HINTS: Array<[string, string[]]> = [
-  ['Ventiladores', ['ventilador', 'respirador', 'monnal', 'vni', 'vmi']],
+  ['Ventiladores', ['ventilador', 'respirador', 'vni', 'vmi']],
   ['Anestesia y soporte ventilatorio', ['anestesia', 'vaporizador', 'mascara laringea']],
   ['Radiología y Diagnóstico por Imagen', ['radiologia', 'rayos x', 'rx', 'mamogra', 'arco c']],
   ['Ultrasonido', ['ecogra', 'ultrasonido', 'doppler']],
@@ -30,7 +30,7 @@ const FAMILY_HINTS: Array<[string, string[]]> = [
 ];
 
 const TIPO_HINTS: Array<[string, string[]]> = [
-  ['Ventiladores', ['ventilador', 'respirador', 'monnal']],
+  ['Ventiladores', ['ventilador', 'respirador']],
   ['Monitores multiparamétricos', ['monitor multiparam']],
   ['Ecógrafos', ['ecogra', 'ultrasonido']],
 ];

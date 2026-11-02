@@ -193,7 +193,7 @@ describe('buildProductoPageTitle', () => {
 
   it('trunca nombres muy largos cerca del presupuesto', () => {
     const long =
-      'Ventilador Cuidado Intensivo Adulto Pediátrico Monnal Ref. T75 Air Liquide Medical Systems';
+      'Ventilador Cuidado Intensivo Adulto Pediátrico Modelo Ref. T75 Air Liquide Medical Systems';
     const title = buildProductoPageTitle(long, 'es', 'Ventiladores', 'Air Liquide');
     expect(title.endsWith('| I-ME')).toBe(true);
     expect(title.length).toBeLessThanOrEqual(PRODUCT_TITLE_MAX + 12);

@@ -160,7 +160,7 @@ To request an initial assessment, [contact the I-ME team](/en/contact) and inclu
 
 If your organization is buying the equipment, confirm that the registration or permit matches the manufacturer, model, holder, importer, and intended use being offered. Check its status and validity through INVIMA’s official channels, and confirm that accessories, configurations, and presentations are covered where applicable. Request Spanish manuals, technical-support documents, warranty, installation, training, and spare-parts availability. An international certificate alone does not establish authorization to market equipment in Colombia.
 
-Use the [INVIMA checklist for medical equipment manufacturers and buyers](/en/knowledge/checklist-invima-compra-equipos-medicos/) to organize your document review and questions for the supplier.
+To organize your document review and questions for the supplier, [ask I-ME for the INVIMA checklist](/en/contact/).
 
 ## Frequently asked questions
 

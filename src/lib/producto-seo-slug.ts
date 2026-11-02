@@ -39,7 +39,6 @@ const KNOWN_BRANDS: Array<{ label: string; slug: string; match: RegExp }> = [
   { label: 'Konfort Plus', slug: 'konfort-plus', match: /\bkonfort\s*plus\b/i },
   { label: 'Angell', slug: 'angell', match: /\bangell\b/i },
   { label: 'Advanced', slug: 'advanced', match: /\badvanced\b/i },
-  { label: 'Northern', slug: 'northern', match: /\bnorthern\b/i },
   { label: 'Bistos', slug: 'bistos', match: /\bbistos\b/i },
   { label: 'Medin', slug: 'medin', match: /\bmedin\b/i },
   { label: 'Bio-Med', slug: 'bio-med', match: /\bbio-?med\b/i },
@@ -189,7 +188,7 @@ export function extractModelSlug(input: ProductoSeoSlugInput): string | null {
 
   const withoutBrand = name
     .replace(
-      /\b(Fisher\s*&\s*Paykel|Saikang(?:\s+Medical)?|Advanced|Angell(?:\s+Technology)?|Northern|Ilumitec|Belmont|Natus(?:\s+Medical)?|Konfort\s*Plus|Rayto|Biolight|Mindray|Penlon|BenQ|BIOBASE|Medentech|PadBot|Bistos|Medin|Bio-?Med|Air\s*Liquide|Dr\.?\s*Mach|SLE|Mercury|Saniswiss)\b/gi,
+      /\b(Fisher\s*&\s*Paykel|Saikang(?:\s+Medical)?|Advanced|Angell(?:\s+Technology)?|Ilumitec|Belmont|Natus(?:\s+Medical)?|Konfort\s*Plus|Rayto|Biolight|Mindray|Penlon|BenQ|BIOBASE|Medentech|PadBot|Bistos|Medin|Bio-?Med|Air\s*Liquide|Dr\.?\s*Mach|SLE|Mercury|Saniswiss)\b/gi,
       ''
     )
     .trim();
@@ -218,7 +217,7 @@ function descriptionBase(
     name = name.replace(new RegExp(escapeRegExp(brand), 'gi'), ' ');
   }
   name = name.replace(
-    /\b(Saikang(?:\s+Medical)?|Fisher\s*&\s*Paykel|Angell(?:\s+Technology)?|Advanced|Northern|Ilumitec|Belmont|Natus(?:\s+Medical)?|Konfort\s*Plus|Rayto(?:\s+Life[\w\s.,]*)?|Biolight|Mindray|Penlon|BenQ|BIOBASE|Medentech|PadBot|Bistos|Medin|Bio-?Med|Air\s*Liquide|Dr\.?\s*Mach|SLE|Mercury|Saniswiss)\b/gi,
+    /\b(Saikang(?:\s+Medical)?|Fisher\s*&\s*Paykel|Angell(?:\s+Technology)?|Advanced|Ilumitec|Belmont|Natus(?:\s+Medical)?|Konfort\s*Plus|Rayto(?:\s+Life[\w\s.,]*)?|Biolight|Mindray|Penlon|BenQ|BIOBASE|Medentech|PadBot|Bistos|Medin|Bio-?Med|Air\s*Liquide|Dr\.?\s*Mach|SLE|Mercury|Saniswiss)\b/gi,
     ' '
   );
   if (model) {

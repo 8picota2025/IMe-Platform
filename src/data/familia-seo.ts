@@ -767,7 +767,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_en: 'Some SKUs can; others cannot. We confirm from the real datasheet of the quoted unit.',
       },
     ],
-    relatedSlugs: ['ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide'],
+    relatedSlugs: ['ventilador-mecanico-uci-adulto-pediatrico'],
   },
   {
     slug: 'terapia-de-infusion',
@@ -1270,16 +1270,14 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     {
       href_es: '/es/ventiladores-mecanicos-uci/',
       href_en: '/en/mechanical-ventilators-icu/',
-      label_es: 'Guía ventiladores UCI Monnal',
-      label_en: 'Monnal ICU ventilators guide',
+      label_es: 'Guía ventiladores UCI',
+      label_en: 'ICU ventilators guide',
     },
     {
-      href_es:
-        '/es/productos/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/',
-      href_en:
-        '/en/products/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/',
-      label_es: 'Ventilador Monnal T75 UCI',
-      label_en: 'Monnal T75 ICU ventilator',
+      href_es: '/es/productos/ventilador-mecanico-uci-adulto-pediatrico/',
+      href_en: '/en/products/ventilador-mecanico-uci-adulto-pediatrico/',
+      label_es: 'Ventilador mecánico UCI adulto y pediátrico',
+      label_en: 'Adult and pediatric ICU mechanical ventilator',
     },
   ],
   'cardiologia-reanimacion': [

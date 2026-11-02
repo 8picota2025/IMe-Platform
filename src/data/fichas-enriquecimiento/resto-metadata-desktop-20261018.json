@@ -20,14 +20,8 @@
     ],
     "valor_es": "Arco en C ALC-280 Series (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "C-Arm ALC-280 Series (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Fluoroscopia",
-      "Radiografía digital"
-    ],
-    "aplicaciones_en": [
-      "Fluoroscopia",
-      "Radiografía digital"
-    ],
+    "aplicaciones_es": ["Fluoroscopia", "Radiografía digital"],
+    "aplicaciones_en": ["Fluoroscopia", "Radiografía digital"],
     "faq_es": [
       {
         "q": "¿Qué producto es Arco en C ALC-280 Series?",
@@ -131,104 +125,6 @@
     "append_descripcion": false
   },
   {
-    "sku": "Aquarius-LITE",
-    "slug": "oximetro-ref-aquarius-lite-northern",
-    "descripcion_larga_es": "El/La Oxímetro Aquarius LITE de Northern forma parte del catálogo IME para instituciones de salud en Colombia.\n\nOxímetro SPO2 Aquarius LITE adulto\n\nFuente: catálogo IME / metadata Desktop (Aquarius-LITE_Oxímetro_Aquarius_LITE). Modelo / SKU: Aquarius-LITE. Solicite cotización indicando el modelo exacto.",
-    "descripcion_larga_en": "The Pulse Oximeter Aquarius LITE from Northern is listed in the IME catalog for healthcare institutions in Colombia.\n\nOxímetro SPO2 Aquarius LITE adulto\n\nSource: catálogo IME / metadata Desktop (Aquarius-LITE_Oxímetro_Aquarius_LITE). Model / SKU: Aquarius-LITE. Request a quote with the exact model.",
-    "beneficios_es": [
-      "SPO2 Oximetro Adulto"
-    ],
-    "beneficios_en": [
-      "SPO2 Oximetro Adulto"
-    ],
-    "valor_es": "Oxímetro Aquarius LITE (Northern) en catálogo IME — ficha PDF pendiente.",
-    "valor_en": "Pulse Oximeter Aquarius LITE (Northern) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Oxigenación",
-      "Monitoreo de saturación"
-    ],
-    "aplicaciones_en": [
-      "Oxigenación",
-      "Monitoreo de saturación"
-    ],
-    "faq_es": [
-      {
-        "q": "¿Qué producto es Oxímetro Aquarius LITE?",
-        "a": "Equipo Northern del catálogo IME, referencia Aquarius-LITE."
-      },
-      {
-        "q": "¿Hay ficha PDF?",
-        "a": "Aún no publicada en la landing; solicitada al fabricante. IME puede compartir documentación al cotizar."
-      },
-      {
-        "q": "¿Qué datos hay disponibles?",
-        "a": "SPO2 Oximetro Adulto"
-      },
-      {
-        "q": "¿Aplicaciones?",
-        "a": "Oxigenación; Monitoreo de saturación"
-      },
-      {
-        "q": "¿Cómo cotizo?",
-        "a": "Indique el modelo exacto (Aquarius-LITE) y el área clínica a IME."
-      }
-    ],
-    "faq_en": [
-      {
-        "q": "What is Pulse Oximeter Aquarius LITE?",
-        "a": "Northern device in the IME catalog, reference Aquarius-LITE."
-      },
-      {
-        "q": "PDF datasheet?",
-        "a": "Not yet on the landing; requested from manufacturer. IME can share docs when quoting."
-      },
-      {
-        "q": "Available data?",
-        "a": "SPO2 Oximetro Adulto"
-      },
-      {
-        "q": "Applications?",
-        "a": "Oxigenación; Monitoreo de saturación"
-      },
-      {
-        "q": "How to quote?",
-        "a": "Provide exact model (Aquarius-LITE) and clinical area to IME."
-      }
-    ],
-    "seo_keywords_es": [
-      "Oxímetro Aquarius LITE",
-      "Aquarius-LITE Northern",
-      "ficha técnica Aquarius-LITE",
-      "equipo médico Colombia",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Pulse Oximeter Aquarius LITE",
-      "Aquarius-LITE Northern",
-      "Aquarius-LITE datasheet",
-      "medical equipment Colombia",
-      "IME"
-    ],
-    "especificaciones": [
-      {
-        "clave": "Fabricante",
-        "grupo": "Identificación",
-        "valor": "Northern"
-      },
-      {
-        "clave": "Modelo / SKU",
-        "grupo": "Identificación",
-        "valor": "Aquarius-LITE"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "SPO2 Oximetro Adulto"
-      }
-    ],
-    "append_descripcion": false
-  },
-  {
     "sku": "BME002",
     "slug": "sillon-reclinable-bme002-bm-ref-bme002",
     "descripcion_larga_es": "El/La Sillón Reclinable BME002 de BM forma parte del catálogo IME para instituciones de salud en Colombia.\n\nSillón reclinable con motor doble, capacidad 145 kg\n\nFuente: catálogo IME / metadata Desktop (BME002_Sillón_Reclinable_BME002). Modelo / SKU: BME002. Solicite cotización indicando el modelo exacto.",
@@ -247,14 +143,8 @@
     ],
     "valor_es": "Sillón Reclinable BME002 (BM) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recliner Chair BME002 (BM) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Descanso",
-      "Cuidados"
-    ],
-    "aplicaciones_en": [
-      "Descanso",
-      "Cuidados"
-    ],
+    "aplicaciones_es": ["Descanso", "Cuidados"],
+    "aplicaciones_en": ["Descanso", "Cuidados"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sillón Reclinable BME002?",
@@ -357,24 +247,12 @@
     "slug": "silla-reclinable-bme006-bm-ref-bme006",
     "descripcion_larga_es": "El/La Silla Reclinable BME006 de BM forma parte del catálogo IME para instituciones de salud en Colombia.\n\nSilla reclinable con motor doble, capacidad 125 kg\n\nFuente: catálogo IME / metadata Desktop (BME006_Silla_Reclinable_BME006). Modelo / SKU: BME006. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Reclining Chair BME006 from BM is listed in the IME catalog for healthcare institutions in Colombia.\n\nSilla reclinable con motor doble, capacidad 125 kg\n\nSource: catálogo IME / metadata Desktop (BME006_Silla_Reclinable_BME006). Model / SKU: BME006. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Motor doble",
-      "Capacidad: 125 kg"
-    ],
-    "beneficios_en": [
-      "Motor doble",
-      "Capacidad: 125 kg"
-    ],
+    "beneficios_es": ["Motor doble", "Capacidad: 125 kg"],
+    "beneficios_en": ["Motor doble", "Capacidad: 125 kg"],
     "valor_es": "Silla Reclinable BME006 (BM) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Reclining Chair BME006 (BM) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Descanso",
-      "Cuidados"
-    ],
-    "aplicaciones_en": [
-      "Descanso",
-      "Cuidados"
-    ],
+    "aplicaciones_es": ["Descanso", "Cuidados"],
+    "aplicaciones_en": ["Descanso", "Cuidados"],
     "faq_es": [
       {
         "q": "¿Qué producto es Silla Reclinable BME006?",
@@ -462,24 +340,12 @@
     "slug": "sillon-reclinable-bme007-bm-ref-bme007",
     "descripcion_larga_es": "El/La Sillón Reclinable BME007 de BM forma parte del catálogo IME para instituciones de salud en Colombia.\n\nSillón reclinable con motor doble, capacidad 125 kg\n\nFuente: catálogo IME / metadata Desktop (BME007_Sillón_Reclinable_BME007). Modelo / SKU: BME007. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Recliner Chair BME007 from BM is listed in the IME catalog for healthcare institutions in Colombia.\n\nSillón reclinable con motor doble, capacidad 125 kg\n\nSource: catálogo IME / metadata Desktop (BME007_Sillón_Reclinable_BME007). Model / SKU: BME007. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Motor doble",
-      "Capacidad: 125 kg"
-    ],
-    "beneficios_en": [
-      "Motor doble",
-      "Capacidad: 125 kg"
-    ],
+    "beneficios_es": ["Motor doble", "Capacidad: 125 kg"],
+    "beneficios_en": ["Motor doble", "Capacidad: 125 kg"],
     "valor_es": "Sillón Reclinable BME007 (BM) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recliner Chair BME007 (BM) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Descanso",
-      "Cuidados"
-    ],
-    "aplicaciones_en": [
-      "Descanso",
-      "Cuidados"
-    ],
+    "aplicaciones_es": ["Descanso", "Cuidados"],
+    "aplicaciones_en": ["Descanso", "Cuidados"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sillón Reclinable BME007?",
@@ -583,18 +449,8 @@
     ],
     "valor_es": "Sistema de Rayos X DR Montado en Techo (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Ceiling-Mounted DR System (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Urgencias",
-      "Ortopedia",
-      "Digestivo",
-      "Radiología"
-    ],
-    "aplicaciones_en": [
-      "Urgencias",
-      "Ortopedia",
-      "Digestivo",
-      "Radiología"
-    ],
+    "aplicaciones_es": ["Urgencias", "Ortopedia", "Digestivo", "Radiología"],
+    "aplicaciones_en": ["Urgencias", "Ortopedia", "Digestivo", "Radiología"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sistema de Rayos X DR Montado en Techo?",
@@ -716,16 +572,8 @@
     ],
     "valor_es": "Sistema de Rayos X DR Montado en Suelo (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Floor-Mounted DR System (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Radiografía general",
-      "Medición cardiotorácica",
-      "Costura de cuerpo"
-    ],
-    "aplicaciones_en": [
-      "Radiografía general",
-      "Medición cardiotorácica",
-      "Costura de cuerpo"
-    ],
+    "aplicaciones_es": ["Radiografía general", "Medición cardiotorácica", "Costura de cuerpo"],
+    "aplicaciones_en": ["Radiografía general", "Medición cardiotorácica", "Costura de cuerpo"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sistema de Rayos X DR Montado en Suelo?",
@@ -844,18 +692,8 @@
     ],
     "valor_es": "Sistema de Rayos X DR Móvil (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Mobile DR X-Ray System (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "UCI",
-      "Sala de operaciones",
-      "Aislamiento",
-      "Radiografía móvil"
-    ],
-    "aplicaciones_en": [
-      "UCI",
-      "Sala de operaciones",
-      "Aislamiento",
-      "Radiografía móvil"
-    ],
+    "aplicaciones_es": ["UCI", "Sala de operaciones", "Aislamiento", "Radiografía móvil"],
+    "aplicaciones_en": ["UCI", "Sala de operaciones", "Aislamiento", "Radiografía móvil"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sistema de Rayos X DR Móvil?",
@@ -979,16 +817,8 @@
     ],
     "valor_es": "Sistema DR de Mesa Telecomandada (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Remote-Table DR System (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Radiología general",
-      "Fluoroscopia",
-      "Neumoconiosis"
-    ],
-    "aplicaciones_en": [
-      "Radiología general",
-      "Fluoroscopia",
-      "Neumoconiosis"
-    ],
+    "aplicaciones_es": ["Radiología general", "Fluoroscopia", "Neumoconiosis"],
+    "aplicaciones_en": ["Radiología general", "Fluoroscopia", "Neumoconiosis"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sistema DR de Mesa Telecomandada?",
@@ -1112,16 +942,8 @@
     ],
     "valor_es": "DR Dinámico de Brazo-UC (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Dynamic DR with UC Arm (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Radiografía",
-      "Fluoroscopia",
-      "Contraste digital"
-    ],
-    "aplicaciones_en": [
-      "Radiografía",
-      "Fluoroscopia",
-      "Contraste digital"
-    ],
+    "aplicaciones_es": ["Radiografía", "Fluoroscopia", "Contraste digital"],
+    "aplicaciones_en": ["Radiografía", "Fluoroscopia", "Contraste digital"],
     "faq_es": [
       {
         "q": "¿Qué producto es DR Dinámico de Brazo-UC?",
@@ -1245,14 +1067,8 @@
     ],
     "valor_es": "DR Dinámico DTP573 (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Dynamic DR DTP573 (Angell Technology) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Radiografía",
-      "Fluoroscopia"
-    ],
-    "aplicaciones_en": [
-      "Radiografía",
-      "Fluoroscopia"
-    ],
+    "aplicaciones_es": ["Radiografía", "Fluoroscopia"],
+    "aplicaciones_en": ["Radiografía", "Fluoroscopia"],
     "faq_es": [
       {
         "q": "¿Qué producto es DR Dinámico DTP573?",
@@ -1374,12 +1190,8 @@
     ],
     "valor_es": "Sistema de Ultrasonido DUS-3000 (Advanced) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Ultrasound System DUS-3000 (Advanced) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Diagnóstico por imagen"
-    ],
-    "aplicaciones_en": [
-      "Diagnóstico por imagen"
-    ],
+    "aplicaciones_es": ["Diagnóstico por imagen"],
+    "aplicaciones_en": ["Diagnóstico por imagen"],
     "faq_es": [
       {
         "q": "¿Qué producto es Sistema de Ultrasonido DUS-3000?",
@@ -1498,12 +1310,8 @@
     ],
     "valor_es": "Balanza para Bebé Electrónica EBSA-20 (Perlong) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Electronic Baby Scale EBSA-20 (Perlong) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Pesaje neonatal"
-    ],
-    "aplicaciones_en": [
-      "Pesaje neonatal"
-    ],
+    "aplicaciones_es": ["Pesaje neonatal"],
+    "aplicaciones_en": ["Pesaje neonatal"],
     "faq_es": [
       {
         "q": "¿Qué producto es Balanza para Bebé Electrónica EBSA-20?",
@@ -1602,132 +1410,6 @@
         "clave": "URL fabricante",
         "grupo": "Documentación",
         "valor": "https://www.perlong-china.com/Scale-pl6383726.html"
-      }
-    ],
-    "append_descripcion": false
-  },
-  {
-    "sku": "FM-9000",
-    "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
-    "descripcion_larga_es": "El/La Monitor Fetal y Materno FM-9000 de Northern forma parte del catálogo IME para instituciones de salud en Colombia.\n\nMonitor fetal y materno con pantalla LCD TFT de 12.1 pulgadas\n\nFuente: catálogo IME / metadata Desktop (FM-9000-PLUS_Monitor_Fetal_y_Materno_FM-9000_Plus). Modelo / SKU: FM-9000. Solicite cotización indicando el modelo exacto.",
-    "descripcion_larga_en": "The Fetal & Maternal Monitor FM-9000 from Northern is listed in the IME catalog for healthcare institutions in Colombia.\n\nMonitor fetal y materno con pantalla LCD TFT de 12.1 pulgadas\n\nSource: catálogo IME / metadata Desktop (FM-9000-PLUS_Monitor_Fetal_y_Materno_FM-9000_Plus). Model / SKU: FM-9000. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Pantalla LCD TFT a color 12.1\"",
-      "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP",
-      "Batería de ion de litio",
-      "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2",
-      "Grabadora térmica"
-    ],
-    "beneficios_en": [
-      "Pantalla LCD TFT a color 12.1\"",
-      "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP",
-      "Batería de ion de litio",
-      "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2",
-      "Grabadora térmica"
-    ],
-    "valor_es": "Monitor Fetal y Materno FM-9000 (Northern) en catálogo IME — ficha PDF pendiente.",
-    "valor_en": "Fetal & Maternal Monitor FM-9000 (Northern) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Monitoreo fetal",
-      "Monitoreo materno"
-    ],
-    "aplicaciones_en": [
-      "Monitoreo fetal",
-      "Monitoreo materno"
-    ],
-    "faq_es": [
-      {
-        "q": "¿Qué producto es Monitor Fetal y Materno FM-9000?",
-        "a": "Equipo Northern del catálogo IME, referencia FM-9000."
-      },
-      {
-        "q": "¿Hay ficha PDF?",
-        "a": "Aún no publicada en la landing; solicitada al fabricante. IME puede compartir documentación al cotizar."
-      },
-      {
-        "q": "¿Qué datos hay disponibles?",
-        "a": "Pantalla LCD TFT a color 12.1\"; Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP; Batería de ion de litio; Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2; Grabadora térmica"
-      },
-      {
-        "q": "¿Aplicaciones?",
-        "a": "Monitoreo fetal; Monitoreo materno"
-      },
-      {
-        "q": "¿Cómo cotizo?",
-        "a": "Indique el modelo exacto (FM-9000) y el área clínica a IME."
-      }
-    ],
-    "faq_en": [
-      {
-        "q": "What is Fetal & Maternal Monitor FM-9000?",
-        "a": "Northern device in the IME catalog, reference FM-9000."
-      },
-      {
-        "q": "PDF datasheet?",
-        "a": "Not yet on the landing; requested from manufacturer. IME can share docs when quoting."
-      },
-      {
-        "q": "Available data?",
-        "a": "Pantalla LCD TFT a color 12.1\"; Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP; Batería de ion de litio; Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2; Grabadora térmica"
-      },
-      {
-        "q": "Applications?",
-        "a": "Monitoreo fetal; Monitoreo materno"
-      },
-      {
-        "q": "How to quote?",
-        "a": "Provide exact model (FM-9000) and clinical area to IME."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Fetal y Materno FM-9000",
-      "FM-9000 Northern",
-      "ficha técnica FM-9000",
-      "equipo médico Colombia",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Fetal & Maternal Monitor FM-9000",
-      "FM-9000 Northern",
-      "FM-9000 datasheet",
-      "medical equipment Colombia",
-      "IME"
-    ],
-    "especificaciones": [
-      {
-        "clave": "Fabricante",
-        "grupo": "Identificación",
-        "valor": "Northern"
-      },
-      {
-        "clave": "Modelo / SKU",
-        "grupo": "Identificación",
-        "valor": "FM-9000"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Pantalla LCD TFT a color 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Batería de ion de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Grabadora térmica"
       }
     ],
     "append_descripcion": false
@@ -2359,14 +2041,8 @@
     ],
     "valor_es": "Tablero Espinal SKB2A11 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Spinal Board SKB2A11 (Saikang) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Emergencias prehospitalarias",
-      "Inmovilización espinal"
-    ],
-    "aplicaciones_en": [
-      "Emergencias prehospitalarias",
-      "Inmovilización espinal"
-    ],
+    "aplicaciones_es": ["Emergencias prehospitalarias", "Inmovilización espinal"],
+    "aplicaciones_en": ["Emergencias prehospitalarias", "Inmovilización espinal"],
     "faq_es": [
       {
         "q": "¿Qué producto es Tablero Espinal SKB2A11?",
@@ -2473,14 +2149,8 @@
     ],
     "valor_es": "Tablero Espinal SKB2A12 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Spinal Board SKB2A12 (Saikang) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Emergencias",
-      "Rescate acuático"
-    ],
-    "aplicaciones_en": [
-      "Emergencias",
-      "Rescate acuático"
-    ],
+    "aplicaciones_es": ["Emergencias", "Rescate acuático"],
+    "aplicaciones_en": ["Emergencias", "Rescate acuático"],
     "faq_es": [
       {
         "q": "¿Qué producto es Tablero Espinal SKB2A12?",
@@ -3054,22 +2724,12 @@
     "slug": "carrito-de-lavado-ref-skh041-saikang",
     "descripcion_larga_es": "El/La Carrito de Lavado SKH041 de Saikang forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCarrito de lavado con elevación 810-1300 mm\n\nFuente: catálogo IME / metadata Desktop (SKM-B-SKH041-5_Carrito_de_Lavado_SKH041). Modelo / SKU: SKM-B-SKH041-5. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Washing Cart SKH041 from Saikang is listed in the IME catalog for healthcare institutions in Colombia.\n\nCarrito de lavado con elevación 810-1300 mm\n\nSource: catálogo IME / metadata Desktop (SKM-B-SKH041-5_Carrito_de_Lavado_SKH041). Model / SKU: SKM-B-SKH041-5. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Elevación: 810-1300 mm",
-      "Base 5 ruedas Φ500 mm"
-    ],
-    "beneficios_en": [
-      "Elevación: 810-1300 mm",
-      "Base 5 ruedas Φ500 mm"
-    ],
+    "beneficios_es": ["Elevación: 810-1300 mm", "Base 5 ruedas Φ500 mm"],
+    "beneficios_en": ["Elevación: 810-1300 mm", "Base 5 ruedas Φ500 mm"],
     "valor_es": "Carrito de Lavado SKH041 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Washing Cart SKH041 (Saikang) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Lavandería"
-    ],
-    "aplicaciones_en": [
-      "Lavandería"
-    ],
+    "aplicaciones_es": ["Lavandería"],
+    "aplicaciones_en": ["Lavandería"],
     "faq_es": [
       {
         "q": "¿Qué producto es Carrito de Lavado SKH041?",
@@ -3282,16 +2942,8 @@
     "slug": "carro-de-infusion-skr-ref-it625-saikang",
     "descripcion_larga_es": "El/La Carro de Infusión SKR-IT625 de Saikang forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCarro de infusión con cajón mediano\n\nFuente: catálogo IME / metadata Desktop (SKR-IT625_Carro_de_Infusión_SKR-IT625). Modelo / SKU: SKR-IT625. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Infusion Cart SKR-IT625 from Saikang is listed in the IME catalog for healthcare institutions in Colombia.\n\nCarro de infusión con cajón mediano\n\nSource: catálogo IME / metadata Desktop (SKR-IT625_Carro_de_Infusión_SKR-IT625). Model / SKU: SKR-IT625. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Tamaño total: 420×370×110 mm",
-      "Cajón mediano 120 mm",
-      "Base 4 pulgadas"
-    ],
-    "beneficios_en": [
-      "Tamaño total: 420×370×110 mm",
-      "Cajón mediano 120 mm",
-      "Base 4 pulgadas"
-    ],
+    "beneficios_es": ["Tamaño total: 420×370×110 mm", "Cajón mediano 120 mm", "Base 4 pulgadas"],
+    "beneficios_en": ["Tamaño total: 420×370×110 mm", "Cajón mediano 120 mm", "Base 4 pulgadas"],
     "valor_es": "Carro de Infusión SKR-IT625 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Infusion Cart SKR-IT625 (Saikang) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -3388,12 +3040,8 @@
     "slug": "mesita-de-noche-ref-sks002-saikang",
     "descripcion_larga_es": "El/La Mesita de Noche SKS002 de Saikang forma parte del catálogo IME para instituciones de salud en Colombia.\n\nMesita de noche 475×465×745 mm\n\nFuente: catálogo IME / metadata Desktop (SKS002-W_Mesita_de_Noche_SKS002-W). Modelo / SKU: SKS002. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Nightstand SKS002 from Saikang is listed in the IME catalog for healthcare institutions in Colombia.\n\nMesita de noche 475×465×745 mm\n\nSource: catálogo IME / metadata Desktop (SKS002-W_Mesita_de_Noche_SKS002-W). Model / SKU: SKS002. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Dimensiones: 475×465×745±10 mm"
-    ],
-    "beneficios_en": [
-      "Dimensiones: 475×465×745±10 mm"
-    ],
+    "beneficios_es": ["Dimensiones: 475×465×745±10 mm"],
+    "beneficios_en": ["Dimensiones: 475×465×745±10 mm"],
     "valor_es": "Mesita de Noche SKS002 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Nightstand SKS002 (Saikang) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -3496,16 +3144,8 @@
     ],
     "valor_es": "Camilla de Ambulancia SKB2C01 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Ambulance Stretcher SKB2C01 (Saikang) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Rescate",
-      "Helicóptero",
-      "Emergencias"
-    ],
-    "aplicaciones_en": [
-      "Rescate",
-      "Helicóptero",
-      "Emergencias"
-    ],
+    "aplicaciones_es": ["Rescate", "Helicóptero", "Emergencias"],
+    "aplicaciones_en": ["Rescate", "Helicóptero", "Emergencias"],
     "faq_es": [
       {
         "q": "¿Qué producto es Camilla de Ambulancia SKB2C01?",
@@ -3624,18 +3264,8 @@
     ],
     "valor_es": "Silla para Subir Escaleras SKB1C02-1 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Stair-Climbing Chair SKB1C02-1 (Saikang) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Evacuación emergencia",
-      "Hogares mayores",
-      "Hospitales",
-      "Hoteles"
-    ],
-    "aplicaciones_en": [
-      "Evacuación emergencia",
-      "Hogares mayores",
-      "Hospitales",
-      "Hoteles"
-    ],
+    "aplicaciones_es": ["Evacuación emergencia", "Hogares mayores", "Hospitales", "Hoteles"],
+    "aplicaciones_en": ["Evacuación emergencia", "Hogares mayores", "Hospitales", "Hoteles"],
     "faq_es": [
       {
         "q": "¿Qué producto es Silla para Subir Escaleras SKB1C02-1?",
@@ -3879,12 +3509,8 @@
     ],
     "valor_es": "Báscula Corporal Electrónica TCS-200-RT (Perlong) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Electronic Body Scale TCS-200-RT (Perlong) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Pesaje corporal"
-    ],
-    "aplicaciones_en": [
-      "Pesaje corporal"
-    ],
+    "aplicaciones_es": ["Pesaje corporal"],
+    "aplicaciones_en": ["Pesaje corporal"],
     "faq_es": [
       {
         "q": "¿Qué producto es Báscula Corporal Electrónica TCS-200-RT?",
@@ -4129,14 +3755,8 @@
     ],
     "valor_es": "Ventilador para UCI V-1000 (Advanced) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "ICU Ventilator V-1000 (Advanced) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "UCI",
-      "Cuidados intensivos"
-    ],
-    "aplicaciones_en": [
-      "UCI",
-      "Cuidados intensivos"
-    ],
+    "aplicaciones_es": ["UCI", "Cuidados intensivos"],
+    "aplicaciones_en": ["UCI", "Cuidados intensivos"],
     "faq_es": [
       {
         "q": "¿Qué producto es Ventilador para UCI V-1000?",
@@ -4250,18 +3870,8 @@
     ],
     "valor_es": "Bomba de Infusión VP-50 (M) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Infusion Pump VP-50 (M) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "UCI",
-      "Emergencia",
-      "Sala de operaciones",
-      "Hospitalización"
-    ],
-    "aplicaciones_en": [
-      "UCI",
-      "Emergencia",
-      "Sala de operaciones",
-      "Hospitalización"
-    ],
+    "aplicaciones_es": ["UCI", "Emergencia", "Sala de operaciones", "Hospitalización"],
+    "aplicaciones_en": ["UCI", "Emergencia", "Sala de operaciones", "Hospitalización"],
     "faq_es": [
       {
         "q": "¿Qué producto es Bomba de Infusión VP-50?",
@@ -4364,16 +3974,8 @@
     "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
     "descripcion_larga_es": "El/La Balanza para Bebé YRBB-20 de Perlong forma parte del catálogo IME para instituciones de salud en Colombia.\n\nBalanza para bebé capacidad 20 kg\n\nFuente: catálogo IME / metadata Desktop (YRBB-20_Balanza_para_Bebé_YRBB-20). Modelo / SKU: YRBB-20. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Baby Scale YRBB-20 from Perlong is listed in the IME catalog for healthcare institutions in Colombia.\n\nBalanza para bebé capacidad 20 kg\n\nSource: catálogo IME / metadata Desktop (YRBB-20_Balanza_para_Bebé_YRBB-20). Model / SKU: YRBB-20. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Capacidad: 20 kg",
-      "Graduación: 100 g",
-      "Dimensiones: 54.5×34.5×13.5 cm"
-    ],
-    "beneficios_en": [
-      "Capacidad: 20 kg",
-      "Graduación: 100 g",
-      "Dimensiones: 54.5×34.5×13.5 cm"
-    ],
+    "beneficios_es": ["Capacidad: 20 kg", "Graduación: 100 g", "Dimensiones: 54.5×34.5×13.5 cm"],
+    "beneficios_en": ["Capacidad: 20 kg", "Graduación: 100 g", "Dimensiones: 54.5×34.5×13.5 cm"],
     "valor_es": "Balanza para Bebé YRBB-20 (Perlong) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Baby Scale YRBB-20 (Perlong) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -4821,11 +4423,7 @@
       "Angell Technology",
       "Catálogo IME Colombia"
     ],
-    "beneficios_en": [
-      "Model rx-techo-dinamico-qomo",
-      "Angell Technology",
-      "IME Colombia catalog"
-    ],
+    "beneficios_en": ["Model rx-techo-dinamico-qomo", "Angell Technology", "IME Colombia catalog"],
     "valor_es": "Sistema de Radiografía Digital Dinámica de Techo QOMO (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Sistema de Radiografía Digital Dinámica de Techo QOMO (Angell Technology) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -4998,16 +4596,8 @@
     "slug": "rx-multifuncional-uc-arm-ref-dtp580",
     "descripcion_larga_es": "El/La Sistema de Radiografía Digital Dinámica UC-ARM DTP580 de Angell Technology forma parte del catálogo IME para instituciones de salud en Colombia.\n\nSistema de Radiografía Digital Dinámica UC-ARM DTP580. Modelo/ref: dtp580. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: dtp580. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Sistema de Radiografía Digital Dinámica UC-ARM DTP580 from Angell Technology is listed in the IME catalog for healthcare institutions in Colombia.\n\nSistema de Radiografía Digital Dinámica UC-ARM DTP580. Model/ref: dtp580. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: dtp580. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo dtp580",
-      "Angell Technology",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model dtp580",
-      "Angell Technology",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo dtp580", "Angell Technology", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model dtp580", "Angell Technology", "IME Colombia catalog"],
     "valor_es": "Sistema de Radiografía Digital Dinámica UC-ARM DTP580 (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Sistema de Radiografía Digital Dinámica UC-ARM DTP580 (Angell Technology) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5089,16 +4679,8 @@
     "slug": "rx-piso-mtp",
     "descripcion_larga_es": "El/La Sistema Radiográfico de Piso MTP de Angell Technology forma parte del catálogo IME para instituciones de salud en Colombia.\n\nSistema Radiográfico de Piso MTP. Modelo/ref: rx-piso-mtp. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: rx-piso-mtp. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Sistema Radiográfico de Piso MTP from Angell Technology is listed in the IME catalog for healthcare institutions in Colombia.\n\nSistema Radiográfico de Piso MTP. Model/ref: rx-piso-mtp. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: rx-piso-mtp. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo rx-piso-mtp",
-      "Angell Technology",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model rx-piso-mtp",
-      "Angell Technology",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo rx-piso-mtp", "Angell Technology", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model rx-piso-mtp", "Angell Technology", "IME Colombia catalog"],
     "valor_es": "Sistema Radiográfico de Piso MTP (Angell Technology) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Sistema Radiográfico de Piso MTP (Angell Technology) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5271,16 +4853,8 @@
     "slug": "adaptador-ac-dc-para-tensiometro-latidos-ref-latidos-c",
     "descripcion_larga_es": "El/La Adaptador AC-DC para Tensiómetro Latidos de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAdaptador AC-DC para Tensiómetro Latidos. Modelo/ref: latidos-c. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: latidos-c. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Adaptador AC-DC para Tensiómetro Latidos from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nAdaptador AC-DC para Tensiómetro Latidos. Model/ref: latidos-c. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: latidos-c. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo latidos-c",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model latidos-c",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo latidos-c", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model latidos-c", "GMD", "IME Colombia catalog"],
     "valor_es": "Adaptador AC-DC para Tensiómetro Latidos (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Adaptador AC-DC para Tensiómetro Latidos (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5362,16 +4936,8 @@
     "slug": "nebulizador-para-compresor-nube-ref-gmrn-nb",
     "descripcion_larga_es": "El/La Nebulizador para Compresor NUBE de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nNebulizador para Compresor NUBE. Modelo/ref: gmrn-nb. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: gmrn-nb. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Nebulizador para Compresor NUBE from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nNebulizador para Compresor NUBE. Model/ref: gmrn-nb. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: gmrn-nb. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo gmrn-nb",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model gmrn-nb",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo gmrn-nb", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model gmrn-nb", "GMD", "IME Colombia catalog"],
     "valor_es": "Nebulizador para Compresor NUBE (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Nebulizador para Compresor NUBE (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5453,16 +5019,8 @@
     "slug": "patas-en-aluminio-para-comodo-sanitario-kp-ref-kp-parf-2",
     "descripcion_larga_es": "El/La Patas en Aluminio para Cómodo Sanitario KP de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nPatas en Aluminio para Cómodo Sanitario KP. Modelo/ref: kp-parf-2. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp-parf-2. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Patas en Aluminio para Cómodo Sanitario KP from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nPatas en Aluminio para Cómodo Sanitario KP. Model/ref: kp-parf-2. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp-parf-2. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp-parf-2",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp-parf-2",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp-parf-2", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp-parf-2", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Patas en Aluminio para Cómodo Sanitario KP (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Patas en Aluminio para Cómodo Sanitario KP (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5544,16 +5102,8 @@
     "slug": "balde-para-comodo-sanitario-kp-ref-kp-bal-2",
     "descripcion_larga_es": "El/La Balde para Cómodo Sanitario KP de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nBalde para Cómodo Sanitario KP. Modelo/ref: kp-bal-2. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp-bal-2. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Balde para Cómodo Sanitario KP from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nBalde para Cómodo Sanitario KP. Model/ref: kp-bal-2. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp-bal-2. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp-bal-2",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp-bal-2",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp-bal-2", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp-bal-2", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Balde para Cómodo Sanitario KP (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Balde para Cómodo Sanitario KP (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5635,16 +5185,8 @@
     "slug": "frenos-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-fr",
     "descripcion_larga_es": "El/La Frenos para KBE1432RF-MP23L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nFrenos para KBE1432RF-MP23L. Modelo/ref: kbe1432rf-mp23l-fr. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1432rf-mp23l-fr. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Frenos para KBE1432RF-MP23L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nFrenos para KBE1432RF-MP23L. Model/ref: kbe1432rf-mp23l-fr. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1432rf-mp23l-fr. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1432rf-mp23l-fr",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1432rf-mp23l-fr",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1432rf-mp23l-fr", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1432rf-mp23l-fr", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Frenos para KBE1432RF-MP23L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Frenos para KBE1432RF-MP23L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5726,16 +5268,8 @@
     "slug": "llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt",
     "descripcion_larga_es": "El/La Llanta Trasera para SDR KBE1432RF-MP23L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nLlanta Trasera para SDR KBE1432RF-MP23L. Modelo/ref: kbe1432rf-mp23l-llt. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1432rf-mp23l-llt. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Llanta Trasera para SDR KBE1432RF-MP23L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nLlanta Trasera para SDR KBE1432RF-MP23L. Model/ref: kbe1432rf-mp23l-llt. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1432rf-mp23l-llt. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1432rf-mp23l-llt",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1432rf-mp23l-llt",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1432rf-mp23l-llt", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1432rf-mp23l-llt", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Llanta Trasera para SDR KBE1432RF-MP23L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Llanta Trasera para SDR KBE1432RF-MP23L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5817,16 +5351,8 @@
     "slug": "llanta-delantera-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-lld",
     "descripcion_larga_es": "El/La Llanta Delantera para KBE1432RF-MP23L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nLlanta Delantera para KBE1432RF-MP23L. Modelo/ref: kbe1432rf-mp23l-lld. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1432rf-mp23l-lld. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Llanta Delantera para KBE1432RF-MP23L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nLlanta Delantera para KBE1432RF-MP23L. Model/ref: kbe1432rf-mp23l-lld. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1432rf-mp23l-lld. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1432rf-mp23l-lld",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1432rf-mp23l-lld",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1432rf-mp23l-lld", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1432rf-mp23l-lld", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Llanta Delantera para KBE1432RF-MP23L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Llanta Delantera para KBE1432RF-MP23L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5908,16 +5434,8 @@
     "slug": "asiento-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-as",
     "descripcion_larga_es": "El/La Asiento para KBE1432RF-MP23L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAsiento para KBE1432RF-MP23L. Modelo/ref: kbe1432rf-mp23l-as. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1432rf-mp23l-as. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Asiento para KBE1432RF-MP23L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nAsiento para KBE1432RF-MP23L. Model/ref: kbe1432rf-mp23l-as. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1432rf-mp23l-as. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1432rf-mp23l-as",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1432rf-mp23l-as",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1432rf-mp23l-as", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1432rf-mp23l-as", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Asiento para KBE1432RF-MP23L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Asiento para KBE1432RF-MP23L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -5999,16 +5517,8 @@
     "slug": "respaldo-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23-rp",
     "descripcion_larga_es": "El/La Respaldo para KBE1432RF-MP23L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRespaldo para KBE1432RF-MP23L. Modelo/ref: kbe1432rf-mp23-rp. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1432rf-mp23-rp. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Respaldo para KBE1432RF-MP23L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRespaldo para KBE1432RF-MP23L. Model/ref: kbe1432rf-mp23-rp. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1432rf-mp23-rp. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1432rf-mp23-rp",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1432rf-mp23-rp",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1432rf-mp23-rp", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1432rf-mp23-rp", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Respaldo para KBE1432RF-MP23L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Respaldo para KBE1432RF-MP23L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6090,16 +5600,8 @@
     "slug": "reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp",
     "descripcion_larga_es": "El/La Reposapiés para SDR KBO1432RF-MP23 de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReposapiés para SDR KBO1432RF-MP23. Modelo/ref: kbo1432rf-mp23-rp. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbo1432rf-mp23-rp. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Reposapiés para SDR KBO1432RF-MP23 from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nReposapiés para SDR KBO1432RF-MP23. Model/ref: kbo1432rf-mp23-rp. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbo1432rf-mp23-rp. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbo1432rf-mp23-rp",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbo1432rf-mp23-rp",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbo1432rf-mp23-rp", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbo1432rf-mp23-rp", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Reposapiés para SDR KBO1432RF-MP23 (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Reposapiés para SDR KBO1432RF-MP23 (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6181,16 +5683,8 @@
     "slug": "deslizadores-delanteros-para-sdr-kbe1462ff-m23-d-ref-desde-kbe1462ff-m23-d",
     "descripcion_larga_es": "El/La Deslizadores Delanteros para SDR KBE1462FF-M23-D de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nDeslizadores Delanteros para SDR KBE1462FF-M23-D. Modelo/ref: desde-kbe1462ff-m23-d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: desde-kbe1462ff-m23-d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Deslizadores Delanteros para SDR KBE1462FF-M23-D from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nDeslizadores Delanteros para SDR KBE1462FF-M23-D. Model/ref: desde-kbe1462ff-m23-d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: desde-kbe1462ff-m23-d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo desde-kbe1462ff-m23-d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model desde-kbe1462ff-m23-d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo desde-kbe1462ff-m23-d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model desde-kbe1462ff-m23-d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Deslizadores Delanteros para SDR KBE1462FF-M23-D (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Deslizadores Delanteros para SDR KBE1462FF-M23-D (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6272,16 +5766,8 @@
     "slug": "deslizadores-traseros-para-sdr-kbe1462ff-m23-d-ref-des-kbe1462ff-m23-d",
     "descripcion_larga_es": "El/La Deslizadores Traseros para SDR KBE1462FF-M23-D de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nDeslizadores Traseros para SDR KBE1462FF-M23-D. Modelo/ref: des-kbe1462ff-m23-d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: des-kbe1462ff-m23-d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Deslizadores Traseros para SDR KBE1462FF-M23-D from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nDeslizadores Traseros para SDR KBE1462FF-M23-D. Model/ref: des-kbe1462ff-m23-d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: des-kbe1462ff-m23-d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo des-kbe1462ff-m23-d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model des-kbe1462ff-m23-d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo des-kbe1462ff-m23-d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model des-kbe1462ff-m23-d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Deslizadores Traseros para SDR KBE1462FF-M23-D (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Deslizadores Traseros para SDR KBE1462FF-M23-D (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6363,16 +5849,8 @@
     "slug": "pata-con-rueda-sin-freno-en-aluminio-ref-kb225cr-al19-srf",
     "descripcion_larga_es": "El/La Pata con Rueda sin Freno en Aluminio de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nPata con Rueda sin Freno en Aluminio. Modelo/ref: kb225cr-al19-srf. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb225cr-al19-srf. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Pata con Rueda sin Freno en Aluminio from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nPata con Rueda sin Freno en Aluminio. Model/ref: kb225cr-al19-srf. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb225cr-al19-srf. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb225cr-al19-srf",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb225cr-al19-srf",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb225cr-al19-srf", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb225cr-al19-srf", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Pata con Rueda sin Freno en Aluminio (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Pata con Rueda sin Freno en Aluminio (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6454,16 +5932,8 @@
     "slug": "pata-con-rueda-sin-freno-color-blanco-ref-kb225cr-ap1-sfr",
     "descripcion_larga_es": "El/La Pata con Rueda sin Freno color Blanco de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nPata con Rueda sin Freno color Blanco. Modelo/ref: kb225cr-ap1-sfr. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb225cr-ap1-sfr. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Pata con Rueda sin Freno color Blanco from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nPata con Rueda sin Freno color Blanco. Model/ref: kb225cr-ap1-sfr. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb225cr-ap1-sfr. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb225cr-ap1-sfr",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb225cr-ap1-sfr",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb225cr-ap1-sfr", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb225cr-ap1-sfr", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Pata con Rueda sin Freno color Blanco (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Pata con Rueda sin Freno color Blanco (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6545,16 +6015,8 @@
     "slug": "manilares-para-muletas-kp-ref-kb3-2010",
     "descripcion_larga_es": "El/La Manilares para Muletas KP de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nManilares para Muletas KP. Modelo/ref: kb3-2010. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb3-2010. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Manilares para Muletas KP from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nManilares para Muletas KP. Model/ref: kb3-2010. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb3-2010. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb3-2010",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb3-2010",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb3-2010", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb3-2010", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Manilares para Muletas KP (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Manilares para Muletas KP (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6636,16 +6098,8 @@
     "slug": "axilares-para-muletas-ref-kb3-2001l",
     "descripcion_larga_es": "El/La Axilares para Muletas de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAxilares para Muletas. Modelo/ref: kb3-2001l. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb3-2001l. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Axilares para Muletas from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nAxilares para Muletas. Model/ref: kb3-2001l. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb3-2001l. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb3-2001l",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb3-2001l",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb3-2001l", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb3-2001l", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Axilares para Muletas (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Axilares para Muletas (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6727,16 +6181,8 @@
     "slug": "tapon-en-forma-de-x-4-apoyos-ref-kp4-4t-d14",
     "descripcion_larga_es": "El/La Tapón En Forma De X - 4 Apoyos de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nTapón En Forma De X - 4 Apoyos. Modelo/ref: kp4-4t-d14. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4-4t-d14. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Tapón En Forma De X - 4 Apoyos from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nTapón En Forma De X - 4 Apoyos. Model/ref: kp4-4t-d14. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4-4t-d14. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4-4t-d14",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4-4t-d14",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4-4t-d14", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4-4t-d14", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Tapón En Forma De X - 4 Apoyos (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Tapón En Forma De X - 4 Apoyos (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6818,16 +6264,8 @@
     "slug": "kit-de-nebulizacion-del-nube-7000-ref-gmrn818-kitmn",
     "descripcion_larga_es": "El/La Kit de Nebulización Del Nube 7000 de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nKit de Nebulización Del Nube 7000. Modelo/ref: gmrn818-kitmn. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: gmrn818-kitmn. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Kit de Nebulización Del Nube 7000 from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nKit de Nebulización Del Nube 7000. Model/ref: gmrn818-kitmn. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: gmrn818-kitmn. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo gmrn818-kitmn",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model gmrn818-kitmn",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo gmrn818-kitmn", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model gmrn818-kitmn", "GMD", "IME Colombia catalog"],
     "valor_es": "Kit de Nebulización Del Nube 7000 (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Kit de Nebulización Del Nube 7000 (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -6909,16 +6347,8 @@
     "slug": "clenny-kit-para-nube-7000-ref-gmrn818-kit",
     "descripcion_larga_es": "El/La Clenny Kit Para Nube 7000 de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nClenny Kit Para Nube 7000. Modelo/ref: gmrn818-kit. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: gmrn818-kit. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Clenny Kit Para Nube 7000 from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nClenny Kit Para Nube 7000. Model/ref: gmrn818-kit. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: gmrn818-kit. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo gmrn818-kit",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model gmrn818-kit",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo gmrn818-kit", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model gmrn818-kit", "GMD", "IME Colombia catalog"],
     "valor_es": "Clenny Kit Para Nube 7000 (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Clenny Kit Para Nube 7000 (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7000,16 +6430,8 @@
     "slug": "recaton-color-negro-para-baston-de-4-apoyos-ref-kp4-4t-20d",
     "descripcion_larga_es": "El/La Recatón Color Negro para Bastón de 4 Apoyos de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRecatón Color Negro para Bastón de 4 Apoyos. Modelo/ref: kp4-4t-20d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4-4t-20d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Recatón Color Negro para Bastón de 4 Apoyos from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRecatón Color Negro para Bastón de 4 Apoyos. Model/ref: kp4-4t-20d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4-4t-20d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4-4t-20d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4-4t-20d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4-4t-20d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4-4t-20d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Recatón Color Negro para Bastón de 4 Apoyos (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recatón Color Negro para Bastón de 4 Apoyos (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7091,16 +6513,8 @@
     "slug": "recaton-color-gris-para-baston-de-4-apoyos-ref-kp4-4t-19d",
     "descripcion_larga_es": "El/La Recatón Color Gris para Bastón de 4 Apoyos de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRecatón Color Gris para Bastón de 4 Apoyos. Modelo/ref: kp4-4t-19d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4-4t-19d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Recatón Color Gris para Bastón de 4 Apoyos from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRecatón Color Gris para Bastón de 4 Apoyos. Model/ref: kp4-4t-19d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4-4t-19d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4-4t-19d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4-4t-19d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4-4t-19d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4-4t-19d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Recatón Color Gris para Bastón de 4 Apoyos (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recatón Color Gris para Bastón de 4 Apoyos (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7182,16 +6596,8 @@
     "slug": "recaton-color-cafe-para-baston-de-1-apoyo-ref-kp4-1t-26d",
     "descripcion_larga_es": "El/La Recatón Color Café Para Bastón De 1 Apoyo de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRecatón Color Café Para Bastón De 1 Apoyo. Modelo/ref: kp4-1t-26d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4-1t-26d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Recatón Color Café Para Bastón De 1 Apoyo from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRecatón Color Café Para Bastón De 1 Apoyo. Model/ref: kp4-1t-26d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4-1t-26d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4-1t-26d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4-1t-26d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4-1t-26d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4-1t-26d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Recatón Color Café Para Bastón De 1 Apoyo (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recatón Color Café Para Bastón De 1 Apoyo (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7273,16 +6679,8 @@
     "slug": "recaton-color-negro-para-baston-de-1-apoyo-ref-kp4-1t-20d",
     "descripcion_larga_es": "El/La Recatón Color Negro Para Bastón De 1 Apoyo de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRecatón Color Negro Para Bastón De 1 Apoyo. Modelo/ref: kp4-1t-20d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4-1t-20d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Recatón Color Negro Para Bastón De 1 Apoyo from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRecatón Color Negro Para Bastón De 1 Apoyo. Model/ref: kp4-1t-20d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4-1t-20d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4-1t-20d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4-1t-20d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4-1t-20d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4-1t-20d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Recatón Color Negro Para Bastón De 1 Apoyo (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recatón Color Negro Para Bastón De 1 Apoyo (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7364,16 +6762,8 @@
     "slug": "rueda-delantera-sin-tenedor-ref-kbe1462ff-m23d-rst",
     "descripcion_larga_es": "El/La Rueda Delantera sin Tenedor de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRueda Delantera sin Tenedor. Modelo/ref: kbe1462ff-m23d-rst. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1462ff-m23d-rst. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Rueda Delantera sin Tenedor from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRueda Delantera sin Tenedor. Model/ref: kbe1462ff-m23d-rst. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1462ff-m23d-rst. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1462ff-m23d-rst",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1462ff-m23d-rst",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1462ff-m23d-rst", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1462ff-m23d-rst", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Rueda Delantera sin Tenedor (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Rueda Delantera sin Tenedor (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7455,16 +6845,8 @@
     "slug": "pata-con-rueda-y-freno-en-acero-color-blanco-ref-kb225cr-ap1-rf",
     "descripcion_larga_es": "El/La Pata Con Rueda Y Freno En Acero Color Blanco de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nPata Con Rueda Y Freno En Acero Color Blanco. Modelo/ref: kb225cr-ap1-rf. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb225cr-ap1-rf. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Pata Con Rueda Y Freno En Acero Color Blanco from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nPata Con Rueda Y Freno En Acero Color Blanco. Model/ref: kb225cr-ap1-rf. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb225cr-ap1-rf. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb225cr-ap1-rf",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb225cr-ap1-rf",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb225cr-ap1-rf", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb225cr-ap1-rf", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Pata Con Rueda Y Freno En Acero Color Blanco (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Pata Con Rueda Y Freno En Acero Color Blanco (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7546,16 +6928,8 @@
     "slug": "arnes-movil-para-grua-hidraulica-ref-jbs168-00-021",
     "descripcion_larga_es": "El/La Arnés Móvil para Grúa Hidráulica de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nArnés Móvil para Grúa Hidráulica. Modelo/ref: jbs168-00-021. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: jbs168-00-021. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Arnés Móvil para Grúa Hidráulica from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nArnés Móvil para Grúa Hidráulica. Model/ref: jbs168-00-021. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: jbs168-00-021. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo jbs168-00-021",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model jbs168-00-021",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo jbs168-00-021", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model jbs168-00-021", "GMD", "IME Colombia catalog"],
     "valor_es": "Arnés Móvil para Grúa Hidráulica (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Arnés Móvil para Grúa Hidráulica (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7637,16 +7011,8 @@
     "slug": "reposapies-elevables-para-sdr-iron-light-ref-srels-rpe",
     "descripcion_larga_es": "El/La Reposapiés Elevables para SDR Iron Light de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReposapiés Elevables para SDR Iron Light. Modelo/ref: srels-rpe. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: srels-rpe. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Reposapiés Elevables para SDR Iron Light from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nReposapiés Elevables para SDR Iron Light. Model/ref: srels-rpe. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: srels-rpe. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo srels-rpe",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model srels-rpe",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo srels-rpe", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model srels-rpe", "GMD", "IME Colombia catalog"],
     "valor_es": "Reposapiés Elevables para SDR Iron Light (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Reposapiés Elevables para SDR Iron Light (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7728,16 +7094,8 @@
     "slug": "aro-y-tapa-para-comodo-sanitario-ref-kb225cr-ap1-ta",
     "descripcion_larga_es": "El/La Aro Y Tapa Para Cómodo Sanitario de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAro Y Tapa Para Cómodo Sanitario. Modelo/ref: kb225cr-ap1-ta. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb225cr-ap1-ta. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Aro Y Tapa Para Cómodo Sanitario from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nAro Y Tapa Para Cómodo Sanitario. Model/ref: kb225cr-ap1-ta. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb225cr-ap1-ta. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb225cr-ap1-ta",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb225cr-ap1-ta",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb225cr-ap1-ta", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb225cr-ap1-ta", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Aro Y Tapa Para Cómodo Sanitario (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Aro Y Tapa Para Cómodo Sanitario (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7819,16 +7177,8 @@
     "slug": "balde-para-comodo-sanitario-ref-kb215sr-al-b",
     "descripcion_larga_es": "El/La Balde Para Comodo Sanitario de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nBalde Para Comodo Sanitario. Modelo/ref: kb215sr-al-b. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb215sr-al-b. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Balde Para Comodo Sanitario from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nBalde Para Comodo Sanitario. Model/ref: kb215sr-al-b. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb215sr-al-b. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb215sr-al-b",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb215sr-al-b",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb215sr-al-b", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb215sr-al-b", "GMD", "IME Colombia catalog"],
     "valor_es": "Balde Para Comodo Sanitario (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Balde Para Comodo Sanitario (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -7910,16 +7260,8 @@
     "slug": "respaldo-para-comodo-sanitario-kp-ref-kp2-6543cr-al19-r",
     "descripcion_larga_es": "El/La Respaldo Para Cómodo Sanitario KP de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRespaldo Para Cómodo Sanitario KP. Modelo/ref: kp2-6543cr-al19-r. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp2-6543cr-al19-r. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Respaldo Para Cómodo Sanitario KP from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRespaldo Para Cómodo Sanitario KP. Model/ref: kp2-6543cr-al19-r. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp2-6543cr-al19-r. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp2-6543cr-al19-r",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp2-6543cr-al19-r",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp2-6543cr-al19-r", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp2-6543cr-al19-r", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Respaldo Para Cómodo Sanitario KP (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Respaldo Para Cómodo Sanitario KP (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8001,16 +7343,8 @@
     "slug": "tapon-para-comodo-kp2-6542sr-ref-kp2-6542sr-tipn",
     "descripcion_larga_es": "El/La Tapón Para Cómodo KP2-6542SR de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nTapón Para Cómodo KP2-6542SR. Modelo/ref: kp2-6542sr-tipn. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp2-6542sr-tipn. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Tapón Para Cómodo KP2-6542SR from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nTapón Para Cómodo KP2-6542SR. Model/ref: kp2-6542sr-tipn. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp2-6542sr-tipn. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp2-6542sr-tipn",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp2-6542sr-tipn",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp2-6542sr-tipn", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp2-6542sr-tipn", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Tapón Para Cómodo KP2-6542SR (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Tapón Para Cómodo KP2-6542SR (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8092,16 +7426,8 @@
     "slug": "espaldar-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-r",
     "descripcion_larga_es": "El/La Espaldar Para Cómodo Sanitario KP2-6542SR de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nEspaldar Para Cómodo Sanitario KP2-6542SR. Modelo/ref: kp2-6542sr-ap1-r. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp2-6542sr-ap1-r. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Espaldar Para Cómodo Sanitario KP2-6542SR from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nEspaldar Para Cómodo Sanitario KP2-6542SR. Model/ref: kp2-6542sr-ap1-r. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp2-6542sr-ap1-r. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp2-6542sr-ap1-r",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp2-6542sr-ap1-r",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp2-6542sr-ap1-r", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp2-6542sr-ap1-r", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Espaldar Para Cómodo Sanitario KP2-6542SR (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Espaldar Para Cómodo Sanitario KP2-6542SR (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8183,16 +7509,8 @@
     "slug": "asiento-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-a",
     "descripcion_larga_es": "El/La Asiento Para Cómodo Sanitario KP2-6542SR de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAsiento Para Cómodo Sanitario KP2-6542SR. Modelo/ref: kp2-6542sr-ap1-a. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp2-6542sr-ap1-a. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Asiento Para Cómodo Sanitario KP2-6542SR from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nAsiento Para Cómodo Sanitario KP2-6542SR. Model/ref: kp2-6542sr-ap1-a. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp2-6542sr-ap1-a. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp2-6542sr-ap1-a",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp2-6542sr-ap1-a",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp2-6542sr-ap1-a", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp2-6542sr-ap1-a", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Asiento Para Cómodo Sanitario KP2-6542SR (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Asiento Para Cómodo Sanitario KP2-6542SR (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8274,16 +7592,8 @@
     "slug": "reposapies-removibles-para-sdr-iron-light-ref-srels-rpr",
     "descripcion_larga_es": "El/La Reposapiés Removibles para SDR Iron Light de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReposapiés Removibles para SDR Iron Light. Modelo/ref: srels-rpr. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: srels-rpr. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Reposapiés Removibles para SDR Iron Light from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nReposapiés Removibles para SDR Iron Light. Model/ref: srels-rpr. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: srels-rpr. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo srels-rpr",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model srels-rpr",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo srels-rpr", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model srels-rpr", "GMD", "IME Colombia catalog"],
     "valor_es": "Reposapiés Removibles para SDR Iron Light (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Reposapiés Removibles para SDR Iron Light (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8365,16 +7675,8 @@
     "slug": "pad-para-sdr-iron-light-ref-srels-pad",
     "descripcion_larga_es": "El/La Pad para SDR Iron Light de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nPad para SDR Iron Light. Modelo/ref: srels-pad. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: srels-pad. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Pad para SDR Iron Light from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nPad para SDR Iron Light. Model/ref: srels-pad. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: srels-pad. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo srels-pad",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model srels-pad",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo srels-pad", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model srels-pad", "GMD", "IME Colombia catalog"],
     "valor_es": "Pad para SDR Iron Light (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Pad para SDR Iron Light (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8456,16 +7758,8 @@
     "slug": "llanta-trasera-para-sdr-iron-light-ref-srels-lt",
     "descripcion_larga_es": "El/La Llanta Trasera para SDR Iron Light de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nLlanta Trasera para SDR Iron Light. Modelo/ref: srels-lt. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: srels-lt. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Llanta Trasera para SDR Iron Light from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nLlanta Trasera para SDR Iron Light. Model/ref: srels-lt. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: srels-lt. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo srels-lt",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model srels-lt",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo srels-lt", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model srels-lt", "GMD", "IME Colombia catalog"],
     "valor_es": "Llanta Trasera para SDR Iron Light (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Llanta Trasera para SDR Iron Light (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8547,16 +7841,8 @@
     "slug": "reposapies-elevables-para-sdr-kbe1462re-pp23l-ref-kbe1462re-p23l-rp",
     "descripcion_larga_es": "El/La Reposapiés elevables para SDR KBE1462RE-PP23L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReposapiés elevables para SDR KBE1462RE-PP23L. Modelo/ref: kbe1462re-p23l-rp. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1462re-p23l-rp. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Reposapiés elevables para SDR KBE1462RE-PP23L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nReposapiés elevables para SDR KBE1462RE-PP23L. Model/ref: kbe1462re-p23l-rp. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1462re-p23l-rp. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1462re-p23l-rp",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1462re-p23l-rp",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1462re-p23l-rp", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1462re-p23l-rp", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Reposapiés elevables para SDR KBE1462RE-PP23L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Reposapiés elevables para SDR KBE1462RE-PP23L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8638,16 +7924,8 @@
     "slug": "freno-para-sdr-estandar-color-gris-ref-kbe1462-fr",
     "descripcion_larga_es": "El/La Freno para SDR Estándar color Gris de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nFreno para SDR Estándar color Gris. Modelo/ref: kbe1462-fr. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1462-fr. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Freno para SDR Estándar color Gris from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nFreno para SDR Estándar color Gris. Model/ref: kbe1462-fr. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1462-fr. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1462-fr",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1462-fr",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1462-fr", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1462-fr", "GMD", "IME Colombia catalog"],
     "valor_es": "Freno para SDR Estándar color Gris (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Freno para SDR Estándar color Gris (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8729,16 +8007,8 @@
     "slug": "asiento-para-sdr-kbe1462ff-m23-d-ref-kbe1462ff-m23d-a",
     "descripcion_larga_es": "El/La Asiento para SDR KBE1462FF-M23-D de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAsiento para SDR KBE1462FF-M23-D. Modelo/ref: kbe1462ff-m23d-a. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1462ff-m23d-a. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Asiento para SDR KBE1462FF-M23-D from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nAsiento para SDR KBE1462FF-M23-D. Model/ref: kbe1462ff-m23d-a. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1462ff-m23d-a. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1462ff-m23d-a",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1462ff-m23d-a",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1462ff-m23d-a", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1462ff-m23d-a", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Asiento para SDR KBE1462FF-M23-D (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Asiento para SDR KBE1462FF-M23-D (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8820,16 +8090,8 @@
     "slug": "asiento-para-silla-de-ruedas-pediatrica-ref-fs980la-35-a",
     "descripcion_larga_es": "El/La Asiento Para Silla De Ruedas Pediátrica de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nAsiento Para Silla De Ruedas Pediátrica. Modelo/ref: fs980la-35-a. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: fs980la-35-a. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Asiento Para Silla De Ruedas Pediátrica from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nAsiento Para Silla De Ruedas Pediátrica. Model/ref: fs980la-35-a. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: fs980la-35-a. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo fs980la-35-a",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model fs980la-35-a",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo fs980la-35-a", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model fs980la-35-a", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Asiento Para Silla De Ruedas Pediátrica (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Asiento Para Silla De Ruedas Pediátrica (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -8911,16 +8173,8 @@
     "slug": "espaldar-en-nailon-para-silla-de-transporte-ref-fs976abj-43-e",
     "descripcion_larga_es": "El/La Espaldar En Nailon Para Silla De Transporte de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nEspaldar En Nailon Para Silla De Transporte. Modelo/ref: fs976abj-43-e. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: fs976abj-43-e. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Espaldar En Nailon Para Silla De Transporte from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nEspaldar En Nailon Para Silla De Transporte. Model/ref: fs976abj-43-e. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: fs976abj-43-e. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo fs976abj-43-e",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model fs976abj-43-e",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo fs976abj-43-e", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model fs976abj-43-e", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Espaldar En Nailon Para Silla De Transporte (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Espaldar En Nailon Para Silla De Transporte (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9002,16 +8256,8 @@
     "slug": "actuador-hidraulico-para-jbs168-1-ref-jbs168-00-1a",
     "descripcion_larga_es": "El/La Actuador hidráulico para jbs168-1 de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nActuador hidráulico para jbs168-1. Modelo/ref: jbs168-00-1a. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: jbs168-00-1a. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Actuador hidráulico para jbs168-1 from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nActuador hidráulico para jbs168-1. Model/ref: jbs168-00-1a. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: jbs168-00-1a. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo jbs168-00-1a",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model jbs168-00-1a",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo jbs168-00-1a", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model jbs168-00-1a", "GMD", "IME Colombia catalog"],
     "valor_es": "Actuador hidráulico para jbs168-1 (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Actuador hidráulico para jbs168-1 (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9093,16 +8339,8 @@
     "slug": "filtro-par-compresor-nebulizador-panda-ref-gmrn457-1f",
     "descripcion_larga_es": "El/La Filtro Par Compresor Nebulizador Panda de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nFiltro Par Compresor Nebulizador Panda. Modelo/ref: gmrn457-1f. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: gmrn457-1f. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Filtro Par Compresor Nebulizador Panda from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nFiltro Par Compresor Nebulizador Panda. Model/ref: gmrn457-1f. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: gmrn457-1f. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo gmrn457-1f",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model gmrn457-1f",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo gmrn457-1f", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model gmrn457-1f", "GMD", "IME Colombia catalog"],
     "valor_es": "Filtro Par Compresor Nebulizador Panda (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Filtro Par Compresor Nebulizador Panda (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9184,16 +8422,8 @@
     "slug": "recaton-color-gris-para-baston-de-1-apoyo-dc-ref-kp4-1t-19d",
     "descripcion_larga_es": "El/La Recatón Color Gris para Bastón de 1 Apoyo Dc de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRecatón Color Gris para Bastón de 1 Apoyo Dc. Modelo/ref: kp4-1t-19d. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4-1t-19d. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Recatón Color Gris para Bastón de 1 Apoyo Dc from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRecatón Color Gris para Bastón de 1 Apoyo Dc. Model/ref: kp4-1t-19d. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4-1t-19d. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4-1t-19d",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4-1t-19d",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4-1t-19d", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4-1t-19d", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Recatón Color Gris para Bastón de 1 Apoyo Dc (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Recatón Color Gris para Bastón de 1 Apoyo Dc (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9275,16 +8505,8 @@
     "slug": "reposapies-para-sdr-kbe1452ff-m23-d-ref-kbe1462ff-m23d-rp",
     "descripcion_larga_es": "El/La Reposapiés para SDR KBE1452FF-M23-D de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReposapiés para SDR KBE1452FF-M23-D. Modelo/ref: kbe1462ff-m23d-rp. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbe1462ff-m23d-rp. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Reposapiés para SDR KBE1452FF-M23-D from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nReposapiés para SDR KBE1452FF-M23-D. Model/ref: kbe1462ff-m23d-rp. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbe1462ff-m23d-rp. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbe1462ff-m23d-rp",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbe1462ff-m23d-rp",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbe1462ff-m23d-rp", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbe1462ff-m23d-rp", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Reposapiés para SDR KBE1452FF-M23-D (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Reposapiés para SDR KBE1452FF-M23-D (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9366,16 +8588,8 @@
     "slug": "tapon-para-caminador-kp1-816l-color-gris-ref-kp1-816l-tip",
     "descripcion_larga_es": "El/La Tapón para Caminador KP1-816L Color Gris de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nTapón para Caminador KP1-816L Color Gris. Modelo/ref: kp1-816l-tip. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp1-816l-tip. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Tapón para Caminador KP1-816L Color Gris from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nTapón para Caminador KP1-816L Color Gris. Model/ref: kp1-816l-tip. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp1-816l-tip. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp1-816l-tip",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp1-816l-tip",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp1-816l-tip", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp1-816l-tip", "GMD", "IME Colombia catalog"],
     "valor_es": "Tapón para Caminador KP1-816L Color Gris (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Tapón para Caminador KP1-816L Color Gris (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9457,16 +8671,8 @@
     "slug": "rueda-trasera-para-silla-de-transporte-ref-kbo1432rf-mp23-rt",
     "descripcion_larga_es": "El/La Rueda Trasera Para Silla De Transporte de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nRueda Trasera Para Silla De Transporte. Modelo/ref: kbo1432rf-mp23-rt. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbo1432rf-mp23-rt. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Rueda Trasera Para Silla De Transporte from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nRueda Trasera Para Silla De Transporte. Model/ref: kbo1432rf-mp23-rt. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbo1432rf-mp23-rt. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbo1432rf-mp23-rt",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbo1432rf-mp23-rt",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbo1432rf-mp23-rt", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbo1432rf-mp23-rt", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Rueda Trasera Para Silla De Transporte (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Rueda Trasera Para Silla De Transporte (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9548,16 +8754,8 @@
     "slug": "frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr",
     "descripcion_larga_es": "El/La Frenos para SDR KBO1432RF-MP23 de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nFrenos para SDR KBO1432RF-MP23. Modelo/ref: kbo1432rf-mp23-fr. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kbo1432rf-mp23-fr. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Frenos para SDR KBO1432RF-MP23 from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nFrenos para SDR KBO1432RF-MP23. Model/ref: kbo1432rf-mp23-fr. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kbo1432rf-mp23-fr. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kbo1432rf-mp23-fr",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kbo1432rf-mp23-fr",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kbo1432rf-mp23-fr", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kbo1432rf-mp23-fr", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Frenos para SDR KBO1432RF-MP23 (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Frenos para SDR KBO1432RF-MP23 (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9639,16 +8837,8 @@
     "slug": "de-oxigeno-con-cilindro-de-416-l-ref-kit-2",
     "descripcion_larga_es": "El/La Kit 2 De Oxígeno Con Cilindro De 416 l de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nKit 2 De Oxígeno Con Cilindro De 416 l. Modelo/ref: kit-2. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kit-2. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Kit 2 De Oxígeno Con Cilindro De 416 l from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nKit 2 De Oxígeno Con Cilindro De 416 l. Model/ref: kit-2. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kit-2. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kit-2",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kit-2",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kit-2", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kit-2", "GMD", "IME Colombia catalog"],
     "valor_es": "Kit 2 De Oxígeno Con Cilindro De 416 l (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Kit 2 De Oxígeno Con Cilindro De 416 l (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9730,16 +8920,8 @@
     "slug": "cilindro-de-oxigeno-416-l-ref-md15-015",
     "descripcion_larga_es": "El/La Cilindro De Oxígeno 416 L de Luxfer forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCilindro De Oxígeno 416 L. Modelo/ref: md15-015. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: md15-015. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Cilindro De Oxígeno 416 L from Luxfer is listed in the IME catalog for healthcare institutions in Colombia.\n\nCilindro De Oxígeno 416 L. Model/ref: md15-015. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: md15-015. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo md15-015",
-      "Luxfer",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model md15-015",
-      "Luxfer",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo md15-015", "Luxfer", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model md15-015", "Luxfer", "IME Colombia catalog"],
     "valor_es": "Cilindro De Oxígeno 416 L (Luxfer) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Cilindro De Oxígeno 416 L (Luxfer) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9821,16 +9003,8 @@
     "slug": "carra-para-cilindro-680-l-ref-150-0100",
     "descripcion_larga_es": "El/La Carra Para Cilindro - 680 L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCarra Para Cilindro - 680 L. Modelo/ref: 150-0100. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: 150-0100. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Carra Para Cilindro - 680 L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nCarra Para Cilindro - 680 L. Model/ref: 150-0100. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: 150-0100. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo 150-0100",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model 150-0100",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo 150-0100", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model 150-0100", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Carra Para Cilindro - 680 L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Carra Para Cilindro - 680 L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -9912,16 +9086,8 @@
     "slug": "baston-con-empunadura-en-t-ergonomico-color-cromo-ref-kp4102-22-konfort-plus",
     "descripcion_larga_es": "El/La Baston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nBaston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus. Modelo/ref: kp4102-22-konfort-plus. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kp4102-22-konfort-plus. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Baston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nBaston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus. Model/ref: kp4102-22-konfort-plus. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kp4102-22-konfort-plus. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kp4102-22-konfort-plus",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kp4102-22-konfort-plus",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kp4102-22-konfort-plus", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kp4102-22-konfort-plus", "GMD", "IME Colombia catalog"],
     "valor_es": "Baston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Baston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10003,16 +9169,8 @@
     "slug": "tapon-para-silla-ducha-kb2-798l-ref-kb2-798l-t",
     "descripcion_larga_es": "El/La Tapón Para Silla Ducha KB2-798L de Sin marca forma parte del catálogo IME para instituciones de salud en Colombia.\n\nTapón Para Silla Ducha KB2-798L. Modelo/ref: kb2-798l-t. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb2-798l-t. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Tapón Para Silla Ducha KB2-798L from Sin marca is listed in the IME catalog for healthcare institutions in Colombia.\n\nTapón Para Silla Ducha KB2-798L. Model/ref: kb2-798l-t. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb2-798l-t. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb2-798l-t",
-      "Sin marca",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb2-798l-t",
-      "Sin marca",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb2-798l-t", "Sin marca", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb2-798l-t", "Sin marca", "IME Colombia catalog"],
     "valor_es": "Tapón Para Silla Ducha KB2-798L (Sin marca) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Tapón Para Silla Ducha KB2-798L (Sin marca) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10094,16 +9252,8 @@
     "slug": "empaque-para-regulador-de-valvulas-gmr-ref-gmr540-mdk-001",
     "descripcion_larga_es": "El/La Empaque para Regulador de Válvulas GMR de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nEmpaque para Regulador de Válvulas GMR. Modelo/ref: gmr540-mdk-001. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: gmr540-mdk-001. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Empaque para Regulador de Válvulas GMR from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nEmpaque para Regulador de Válvulas GMR. Model/ref: gmr540-mdk-001. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: gmr540-mdk-001. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo gmr540-mdk-001",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model gmr540-mdk-001",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo gmr540-mdk-001", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model gmr540-mdk-001", "GMD", "IME Colombia catalog"],
     "valor_es": "Empaque para Regulador de Válvulas GMR (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Empaque para Regulador de Válvulas GMR (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10185,16 +9335,8 @@
     "slug": "tapon-para-comodo-sanitario-ref-kb215sr-al-tip",
     "descripcion_larga_es": "El/La Tapón Para Cómodo Sanitario de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nTapón Para Cómodo Sanitario. Modelo/ref: kb215sr-al-tip. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb215sr-al-tip. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Tapón Para Cómodo Sanitario from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nTapón Para Cómodo Sanitario. Model/ref: kb215sr-al-tip. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb215sr-al-tip. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb215sr-al-tip",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb215sr-al-tip",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb215sr-al-tip", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb215sr-al-tip", "GMD", "IME Colombia catalog"],
     "valor_es": "Tapón Para Cómodo Sanitario (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Tapón Para Cómodo Sanitario (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10276,16 +9418,8 @@
     "slug": "pata-para-comodo-sanitario-en-aluminio-ref-kb215sr-al-leg",
     "descripcion_larga_es": "El/La Pata Para Cómodo Sanitario En Aluminio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nPata Para Cómodo Sanitario En Aluminio. Modelo/ref: kb215sr-al-leg. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: kb215sr-al-leg. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Pata Para Cómodo Sanitario En Aluminio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nPata Para Cómodo Sanitario En Aluminio. Model/ref: kb215sr-al-leg. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: kb215sr-al-leg. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo kb215sr-al-leg",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model kb215sr-al-leg",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo kb215sr-al-leg", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model kb215sr-al-leg", "GMD", "IME Colombia catalog"],
     "valor_es": "Pata Para Cómodo Sanitario En Aluminio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Pata Para Cómodo Sanitario En Aluminio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10367,16 +9501,8 @@
     "slug": "llanta-con-freno-para-comodo-sanitario-ref-fs696-rf",
     "descripcion_larga_es": "El/La Llanta Con Freno Para Cómodo Sanitario de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nLlanta Con Freno Para Cómodo Sanitario. Modelo/ref: fs696-rf. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: fs696-rf. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Llanta Con Freno Para Cómodo Sanitario from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nLlanta Con Freno Para Cómodo Sanitario. Model/ref: fs696-rf. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: fs696-rf. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo fs696-rf",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model fs696-rf",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo fs696-rf", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model fs696-rf", "GMD", "IME Colombia catalog"],
     "valor_es": "Llanta Con Freno Para Cómodo Sanitario (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Llanta Con Freno Para Cómodo Sanitario (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10458,16 +9584,8 @@
     "slug": "llanta-sin-freno-para-comodo-sanitario-ref-fs696-r",
     "descripcion_larga_es": "El/La Llanta Sin Freno Para Cómodo Sanitario de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nLlanta Sin Freno Para Cómodo Sanitario. Modelo/ref: fs696-r. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: fs696-r. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Llanta Sin Freno Para Cómodo Sanitario from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nLlanta Sin Freno Para Cómodo Sanitario. Model/ref: fs696-r. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: fs696-r. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo fs696-r",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model fs696-r",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo fs696-r", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model fs696-r", "GMD", "IME Colombia catalog"],
     "valor_es": "Llanta Sin Freno Para Cómodo Sanitario (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Llanta Sin Freno Para Cómodo Sanitario (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10549,16 +9667,8 @@
     "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-o-ref-ltd-b10-600",
     "descripcion_larga_es": "El/La Combo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCombo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio. Modelo/ref: ltd-b10-600. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: ltd-b10-600. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Combo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nCombo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio. Model/ref: ltd-b10-600. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: ltd-b10-600. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo ltd-b10-600",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model ltd-b10-600",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo ltd-b10-600", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model ltd-b10-600", "GMD", "IME Colombia catalog"],
     "valor_es": "Combo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Combo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10640,16 +9750,8 @@
     "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ref-200",
     "descripcion_larga_es": "El/La Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCombo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio. Modelo/ref: 200. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: 200. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nCombo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio. Model/ref: 200. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: 200. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo 200",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model 200",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo 200", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model 200", "GMD", "IME Colombia catalog"],
     "valor_es": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10731,16 +9833,8 @@
     "slug": "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200",
     "descripcion_larga_es": "El/La Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCombo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio. Modelo/ref: 200. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: 200. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nCombo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio. Model/ref: 200. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: 200. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo 200",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model 200",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo 200", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model 200", "GMD", "IME Colombia catalog"],
     "valor_es": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10822,16 +9916,8 @@
     "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-25-glucometros-en-obsequio-ref-100",
     "descripcion_larga_es": "El/La Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCombo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio. Modelo/ref: 100. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: 100. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nCombo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio. Model/ref: 100. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: 100. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo 100",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model 100",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo 100", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model 100", "GMD", "IME Colombia catalog"],
     "valor_es": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -10913,16 +9999,8 @@
     "slug": "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100",
     "descripcion_larga_es": "El/La Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCombo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio. Modelo/ref: 100. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: 100. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nCombo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio. Model/ref: 100. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: 100. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo 100",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model 100",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo 100", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model 100", "GMD", "IME Colombia catalog"],
     "valor_es": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -11004,16 +10082,8 @@
     "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obseq-ref-ltd-b10-50",
     "descripcion_larga_es": "El/La Combo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio de GMD forma parte del catálogo IME para instituciones de salud en Colombia.\n\nCombo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio. Modelo/ref: ltd-b10-50. Ficha PDF pendiente de solicitud al fabricante.\n\nFuente: catálogo IME (sin ficha PDF ni página localizada aún). Modelo / SKU: ltd-b10-50. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Combo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio from GMD is listed in the IME catalog for healthcare institutions in Colombia.\n\nCombo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio. Model/ref: ltd-b10-50. PDF datasheet pending manufacturer request.\n\nSource: catálogo IME (sin ficha PDF ni página localizada aún). Model / SKU: ltd-b10-50. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo ltd-b10-50",
-      "GMD",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model ltd-b10-50",
-      "GMD",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo ltd-b10-50", "GMD", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model ltd-b10-50", "GMD", "IME Colombia catalog"],
     "valor_es": "Combo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio (GMD) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Combo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio (GMD) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -11095,16 +10165,8 @@
     "slug": "sillon-odontologico-ref-se802-saikang",
     "descripcion_larga_es": "El/La Sillón odontológico Ref. SE802 Saikang de Saikang forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReferencia se802. Consulte la página oficial del fabricante para parámetros actualizados; IME publica esta landing para cotización en Colombia.\n\nFuente: página fabricante (https://saikangmedical.com/en/product/se802-dental-chair/). Modelo / SKU: se802. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Sillón odontológico Ref. SE802 Saikang from Saikang is listed in the IME catalog for healthcare institutions in Colombia.\n\nReference se802. See the official manufacturer page for current parameters; IME publishes this landing for quoting in Colombia.\n\nSource: página fabricante (https://saikangmedical.com/en/product/se802-dental-chair/). Model / SKU: se802. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo se802",
-      "Saikang",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model se802",
-      "Saikang",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo se802", "Saikang", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model se802", "Saikang", "IME Colombia catalog"],
     "valor_es": "Sillón odontológico Ref. SE802 Saikang (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Sillón odontológico Ref. SE802 Saikang (Saikang) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
@@ -11207,12 +10269,8 @@
     ],
     "valor_es": "Mesa de Sobrecama SKH046-11 (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Overbed Table SKH046-11 (Saikang) in IME catalog — PDF datasheet pending.",
-    "aplicaciones_es": [
-      "Hospitalización"
-    ],
-    "aplicaciones_en": [
-      "Hospitalización"
-    ],
+    "aplicaciones_es": ["Hospitalización"],
+    "aplicaciones_en": ["Hospitalización"],
     "faq_es": [
       {
         "q": "¿Qué producto es Mesa de Sobrecama SKH046-11?",
@@ -11416,16 +10474,8 @@
     "slug": "equipo-hospitalario-ref-skno31-saikang",
     "descripcion_larga_es": "El/La Equipo hospitalario Ref. SKNO31 Saikang de Saikang forma parte del catálogo IME para instituciones de salud en Colombia.\n\nReferencia skno31. Consulte la página oficial del fabricante para parámetros actualizados; IME publica esta landing para cotización en Colombia.\n\nFuente: página fabricante (https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/). Modelo / SKU: skno31. Solicite cotización indicando el modelo exacto.",
     "descripcion_larga_en": "The Equipo hospitalario Ref. SKNO31 Saikang from Saikang is listed in the IME catalog for healthcare institutions in Colombia.\n\nReference skno31. See the official manufacturer page for current parameters; IME publishes this landing for quoting in Colombia.\n\nSource: página fabricante (https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/). Model / SKU: skno31. Request a quote with the exact model.",
-    "beneficios_es": [
-      "Modelo skno31",
-      "Saikang",
-      "Catálogo IME Colombia"
-    ],
-    "beneficios_en": [
-      "Model skno31",
-      "Saikang",
-      "IME Colombia catalog"
-    ],
+    "beneficios_es": ["Modelo skno31", "Saikang", "Catálogo IME Colombia"],
+    "beneficios_en": ["Model skno31", "Saikang", "IME Colombia catalog"],
     "valor_es": "Equipo hospitalario Ref. SKNO31 Saikang (Saikang) en catálogo IME — ficha PDF pendiente.",
     "valor_en": "Equipo hospitalario Ref. SKNO31 Saikang (Saikang) in IME catalog — PDF datasheet pending.",
     "aplicaciones_es": [],
