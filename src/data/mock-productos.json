@@ -863,7 +863,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Pacientes ambulatorios",
@@ -1381,7 +1381,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Oxigenación",
@@ -1772,7 +1772,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Anestesia",
@@ -1999,7 +1999,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Anestesia",
@@ -2216,7 +2216,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Anestesia",
@@ -5602,7 +5602,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "UCI",
@@ -9163,7 +9163,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Monitoreo fetal",
@@ -9604,7 +9604,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "ICU",
@@ -15669,7 +15669,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Monitoreo hospitalario multiparámetro"
@@ -34811,7 +34811,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "ICU",
@@ -36245,7 +36245,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación invasiva",
@@ -37584,7 +37584,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "ICU",
@@ -37777,7 +37777,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Monitoreo hospitalario multiparámetro"

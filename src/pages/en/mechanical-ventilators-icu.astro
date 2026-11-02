@@ -1,7 +1,6 @@
 ---
 import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
 import { getCampaignLandingCms } from '../../lib/landings-cms';
-import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'en' as const;
 const cms = await getCampaignLandingCms('ventiladores_mecanicos', locale);
@@ -15,7 +14,7 @@ const content = {
   lead: 'Request a quote for the ICU mechanical ventilator by service and patient profile. Configuration and price are quoted.',
   productSlugs: [],
 };
-const productos: Awaited<ReturnType<typeof getProductosBySlugs>> = [];
+const productos: never[] = [];
 ---
 
 <CampaignLandingPage locale={locale} content={content} productos={productos} />
