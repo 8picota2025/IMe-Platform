@@ -46,7 +46,10 @@ export function verificarEnvioPermitido(row: Record<string, unknown>): BloqueoEn
   }
   const por = String(row.aprobado_por ?? '').trim();
   const at = String(row.aprobado_at ?? '').trim();
-  if (!por || !at) {
+  // aprobacion_hash lo escribe solo aprobar_cotizacion_envio; vacío = marca incompleta
+  // o limpiada tras cambiar IVA incluido / destinatario / líneas (huella SQL).
+  const hash = String(row.aprobacion_hash ?? '').trim();
+  if (!por || !at || !hash) {
     return {
       ok: false,
       code: 'SIN_APROBACION',

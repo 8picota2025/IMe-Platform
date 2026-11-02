@@ -185,6 +185,18 @@ describe('construirCambiosCotizacion', () => {
     expect(c({}).ok).toBe(false);
   });
 
+  // Superficie del bypass post-#251: flip solo de IVA incluido no reescribe el total
+  // almacenado; la huella SQL debe incluir el flag para invalidar la aprobación.
+  it('solo impuestos_incluidos no reescribe precio_total_ofertado ni productos', () => {
+    const r = construirCambiosCotizacion({ impuestos_incluidos: true }, filaEditable, null, hoy);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.cambios.patch.impuestos_incluidos).toBe(true);
+    expect(r.cambios.patch).not.toHaveProperty('precio_total_ofertado');
+    expect(r.cambios.patch).not.toHaveProperty('productos');
+    expect(r.cambios.campos).toEqual(['impuestos_incluidos']);
+  });
+
   it('cambiar la moneda reetiqueta las líneas existentes', () => {
     const r = construirCambiosCotizacion({ moneda: 'USD' }, filaEditable, null, hoy);
     expect(r.ok).toBe(true);

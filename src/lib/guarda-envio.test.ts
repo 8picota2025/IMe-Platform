@@ -8,7 +8,28 @@ describe('guarda-envio', () => {
   });
   it('bloquea sin aprobación y permite con marca', () => {
     expect(verificarEnvioPermitido({ condiciones: 'ok' }).ok).toBe(false);
-    expect(verificarEnvioPermitido({ condiciones: 'NO ENVIAR', aprobado_por: 'shoky', aprobado_at: '2026-10-31' }).ok).toBe(false);
-    expect(verificarEnvioPermitido({ condiciones: 'ok', aprobado_por: 'shoky', aprobado_at: '2026-10-31' }).ok).toBe(true);
+    expect(
+      verificarEnvioPermitido({
+        condiciones: 'NO ENVIAR',
+        aprobado_por: 'shoky',
+        aprobado_at: '2026-10-31',
+        aprobacion_hash: 'abc',
+      }).ok
+    ).toBe(false);
+    expect(
+      verificarEnvioPermitido({
+        condiciones: 'ok',
+        aprobado_por: 'shoky',
+        aprobado_at: '2026-10-31',
+      }).ok
+    ).toBe(false);
+    expect(
+      verificarEnvioPermitido({
+        condiciones: 'ok',
+        aprobado_por: 'shoky',
+        aprobado_at: '2026-10-31',
+        aprobacion_hash: 'abc',
+      }).ok
+    ).toBe(true);
   });
 });
