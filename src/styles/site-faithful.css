@@ -858,9 +858,11 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 0;
+  height: 3px;
   background: linear-gradient(90deg, var(--t900), var(--t700));
-  transition: height 0.4s var(--ease);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease);
   z-index: 1;
 }
 .site-faithful .product-card:hover {
@@ -869,7 +871,7 @@
   border-color: transparent;
 }
 .site-faithful .product-card:hover::before {
-  height: 3px;
+  transform: scaleX(1);
 }
 .site-faithful .product-img-wrap {
   position: relative;
@@ -1132,12 +1134,17 @@
   transform: rotate(45deg);
 }
 .site-faithful .faq-body {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  transition: max-height 0.5s var(--ease);
+  transition: grid-template-rows 0.5s var(--ease);
+}
+.site-faithful .faq-body > .faq-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 .site-faithful .faq-item.open .faq-body {
-  max-height: 360px;
+  grid-template-rows: 1fr;
 }
 .site-faithful .faq-inner {
   padding: 0 26px 22px;
