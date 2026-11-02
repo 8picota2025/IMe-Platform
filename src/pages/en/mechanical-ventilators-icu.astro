@@ -1,21 +1,20 @@
 ---
 import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
 import { getCampaignLandingCms } from '../../lib/landings-cms';
-import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'en' as const;
 const cms = await getCampaignLandingCms('ventiladores_mecanicos', locale);
-const t75 = 'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide';
+// arreglos011126 ítem 6: fichas retiradas del catálogo; la guía no muestra menciones de marca.
 const content = {
   ...cms,
-  title: 'ICU mechanical ventilator | Monnal T75 | I-ME',
+  title: 'ICU mechanical ventilators | I-ME',
   description:
-    'Mechanical ventilator for adult and pediatric ICU: published Monnal T75. TEO and T60 are not active. Price on request.',
-  h1: 'Mechanical ventilator for the ICU',
-  lead: 'The published adult and pediatric ICU ventilator is the Monnal T75. Configuration is quoted. TEO and T60 are not in the active catalog.',
-  productSlugs: [t75],
+    'Criteria for evaluating adult and pediatric ICU mechanical ventilators. Quote via WhatsApp or online.',
+  h1: 'Mechanical ventilators for the ICU',
+  lead: 'Request a quote for the ICU mechanical ventilator by service and patient profile. Configuration and price are quoted.',
+  productSlugs: [],
 };
-const productos = await getProductosBySlugs([t75], locale);
+const productos: never[] = [];
 ---
 
 <CampaignLandingPage locale={locale} content={content} productos={productos} />

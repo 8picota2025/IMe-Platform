@@ -24,12 +24,12 @@ describe('cotizacion-submit', () => {
       locale: 'es',
       productos: [
         { slug: 'tcq', nombre: 'Detector TCQ-III', cantidad: 2 },
-        { slug: 'monnal', nombre: 'Monnal T75', cantidad: 1, modelo: 'T75' },
+        { slug: 'ventilador-uci-t75', nombre: 'Ventilador UCI T75', cantidad: 1, modelo: 'T75' },
       ],
     });
     expect(mensaje).toContain('Quiero solicitar cotización de:');
     expect(mensaje).toContain('- Detector TCQ-III (x2)');
-    expect(mensaje).toContain('- Monnal T75 (Ref. T75)');
+    expect(mensaje).toContain('- Ventilador UCI T75 (Ref. T75)');
   });
 
   it('genera mensaje en inglés e incluye URL cuando existe', () => {

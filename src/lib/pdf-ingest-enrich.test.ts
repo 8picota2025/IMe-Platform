@@ -8,14 +8,14 @@ import {
 } from './pdf-ingest-enrich';
 
 describe('pdf-ingest-enrich', () => {
-  it('infiere familia ventiladores para Monnal T75', () => {
-    expect(inferFamiliaSugerida('Ventilador Monnal T75 cuidados intensivos')).toBe('Ventiladores');
-    expect(inferTipoSugerido('Monnal T75 ventilador')).toBe('Ventiladores');
+  it('infiere familia ventiladores para ventilador UCI T75', () => {
+    expect(inferFamiliaSugerida('Ventilador UCI T75 cuidados intensivos')).toBe('Ventiladores');
+    expect(inferTipoSugerido('UCI T75 ventilador')).toBe('Ventiladores');
   });
 
   it('genera beneficios y SEO desde especificaciones', () => {
     const result = deriveEnrichedFields({
-      nombre: 'Ventilador Monnal T75',
+      nombre: 'Ventilador UCI T75',
       descripcionCorta: 'Ventilador para UCI adulto y pediátrico',
       descripcionLarga: 'Ventilación invasiva y no invasiva',
       especificaciones: [
@@ -39,8 +39,8 @@ describe('pdf-ingest-enrich', () => {
   });
 
   it('construye ruta publica de ficha PDF', () => {
-    expect(productPdfPublicPath('monnal-t75')).toBe(
-      '/assets/productos/importados/monnal-t75/ficha-monnal-t75.pdf'
+    expect(productPdfPublicPath('ventilador-uci-t75')).toBe(
+      '/assets/productos/importados/ventilador-uci-t75/ficha-ventilador-uci-t75.pdf'
     );
   });
 });

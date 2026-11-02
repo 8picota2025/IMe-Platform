@@ -143,12 +143,12 @@ export const ROBOTS: readonly CatalogRobot[] = [
   {
     sku: 'PADBOT-P2',
     model: 'PadBot P2',
-    slug: 'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+    slug: 'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot',
     verticals: ['telepresencia'],
     image: img('padbot-p2-frente-estudio.webp'),
     width: 1200,
     height: 1200,
-    pdf: '/assets/productos/importados/padbot-p2-robot-telepresencia/ficha-padbot-p2-robot-telepresencia.pdf',
+    pdf: '/assets/productos/importados/padbot-p2-robot-comunicacion/ficha-padbot-p2-robot-comunicacion.pdf',
     role: {
       es: 'Telepresencia y comunicación en instalaciones',
       en: 'Telepresence and on-site communication',

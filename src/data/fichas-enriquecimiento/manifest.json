@@ -1800,51 +1800,6 @@
     "lang": "es"
   },
   {
-    "slug": "monitor-multiparametro-ref-acuarius-northern",
-    "sku": "acuarius-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/tmp/ficha-search/northern/aquarius.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Aquarius%20%E5%8D%95%E9%A1%B5.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
-    "sku": "atlas-n3-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n3-northern-9bb4738d6d.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N3%20BROCHURE.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
-    "sku": "atlas-n5-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n5-northern-4f40da836b.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N5%20BROCHURE.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
-    "sku": "atlas-n7-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n7-northern-1979e65efc.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N7%20BROCHURE.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "monitor-multiparametro-ref-gemini-northern",
-    "sku": "gemini-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-gemini-northern-13b39d2049.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/Gemini%20%E5%90%88%E9%A1%B5.pdf",
-    "lang": "en"
-  },
-  {
     "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
     "sku": "ALC-280",
     "fabricante": "Angell Technology",
@@ -2430,51 +2385,6 @@
     "lang": "en"
   },
   {
-    "slug": "ventilador-mecanico-ref-crius-v6-northern",
-    "sku": "ventilador-mecanico-ref-crius-v6-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/ventilador-mecanico-ref-crius-v6-northern-288b609c1a.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/ICU%20Ventilator%20Crius%20V6.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "monitor-multiparametro-ref-pisces-northern",
-    "sku": "monitor-multiparametro-ref-pisces-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-pisces-northern-460c0376c0.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Pisces%20%E5%8D%95%E9%A1%B5.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "monitor-multiparametro-ref-taurus-northern",
-    "sku": "monitor-multiparametro-ref-taurus-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-taurus-northern-00b2c5a01c.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Taurus%20%E5%8D%95%E9%A1%B5.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "monitor-multiparametro-ref-venus-northern",
-    "sku": "monitor-multiparametro-ref-venus-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-venus-northern-d00ff03fd4.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Venus%20%E5%90%88%E9%A1%B5.pdf",
-    "lang": "en"
-  },
-  {
-    "slug": "monitor-modular-multiparametro-ref-virgo-northern",
-    "sku": "monitor-modular-multiparametro-ref-virgo-northern",
-    "fabricante": "Northern Meditec",
-    "fab_slug": "northern-meditec",
-    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-modular-multiparametro-ref-virgo-northern-8e66fda549.pdf",
-    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Virgo%20Patient%20Monitor.pdf",
-    "lang": "en"
-  },
-  {
     "slug": "monitor-multiparametrico-uci-avanzado",
     "sku": "PM-2000XL-PRO",
     "fabricante": "Advanced Instrumentations",
@@ -2673,15 +2583,6 @@
     "url": "https://saikangmedical.com/en/product/skk-b-patient-transportation-trolley/"
   },
   {
-    "slug": "oximetro-ref-aquarius-lite-northern",
-    "sku": "Aquarius-LITE",
-    "fabricante": "Northern",
-    "fab_slug": "northern-meditec",
-    "origen_local": "",
-    "url": "https://www.i-me.com.co",
-    "lang": "es"
-  },
-  {
     "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
     "sku": "DR-CEILING",
     "fabricante": "Angell Technology",
@@ -2724,15 +2625,6 @@
     "fab_slug": "angell-technology",
     "origen_local": "",
     "url": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/",
-    "lang": "es"
-  },
-  {
-    "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
-    "sku": "FM-9000",
-    "fabricante": "Northern",
-    "fab_slug": "northern-meditec",
-    "origen_local": "",
-    "url": "https://www.i-me.com.co",
     "lang": "es"
   },
   {

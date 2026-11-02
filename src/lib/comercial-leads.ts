@@ -11,7 +11,6 @@ export type FabricanteLandingId =
   | 'fab_tuttnauer'
   | 'fab_saikang'
   | 'fab_angell'
-  | 'fab_northern'
   | 'fab_ilumitec'
   | 'fab_perlong'
   | 'fab_bm'
@@ -66,7 +65,6 @@ const CAMPAIGN_FLAGS: Record<CampaignLandingId, true> = {
   fab_tuttnauer: true,
   fab_saikang: true,
   fab_angell: true,
-  fab_northern: true,
   fab_ilumitec: true,
   fab_perlong: true,
   fab_bm: true,

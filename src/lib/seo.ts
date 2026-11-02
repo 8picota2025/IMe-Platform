@@ -270,13 +270,13 @@ export function buildCanonical(path: string): string {
 export function buildHomeSeo(locale: Locale): SeoPageMeta {
   const isEs = locale === 'es';
   return {
-    // Brand-first titles: GSC showed impressions for "i me" / "ime" / "i-me.com" with ~0 CTR.
+    // Título pedido en arreglos011126 (≤60). La marca va al final; "INVIMA" sin afirmar registro de todas las marcas.
     title: isEs
-      ? 'I-ME | Equipos biomédicos en Colombia — venta y soporte'
-      : 'I-ME | Biomedical equipment in Colombia — sales and support',
+      ? 'Distribuidor de equipos médicos en Colombia | I-ME'
+      : 'Medical Equipment Distributor in Colombia | I-ME',
     description: isEs
-      ? 'I-ME (i-me.com.co · IME): venta, soporte técnico y financiamiento de equipos biomédicos para hospitales y clínicas en Colombia. Documentación por referencia.'
-      : 'I-ME (i-me.com.co · IME): biomedical equipment sales, technical support and financing for hospitals and clinics in Colombia. Documentation per reference.',
+      ? 'I-ME (i-me.com.co): distribuidor de equipos médicos en Colombia. Cotice por WhatsApp +57 313 724 7353.'
+      : 'I-ME (i-me.com.co): medical equipment distributor in Colombia. Quote via WhatsApp +57 313 724 7353.',
     canonical: buildCanonical(`/${locale}/`),
     ogImage: DEFAULT_OG_IMAGE,
   };

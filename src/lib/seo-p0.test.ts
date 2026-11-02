@@ -16,13 +16,17 @@ describe('SEO P0', () => {
     expect(buildPageTitle('Caminadores para adultos')).toBe('Caminadores para adultos | I-ME');
   });
 
-  it('home title is brand-first', () => {
+  it('home title is distributor-first with I-ME suffix (arreglos011126)', () => {
     const es = buildHomeSeo('es');
     const en = buildHomeSeo('en');
-    expect(es.title.startsWith('I-ME |')).toBe(true);
-    expect(en.title.startsWith('I-ME |')).toBe(true);
+    expect(es.title.endsWith('| I-ME')).toBe(true);
+    expect(en.title.endsWith('| I-ME')).toBe(true);
     expect(es.title.length).toBeLessThanOrEqual(60);
-    expect(en.title.length).toBeLessThanOrEqual(65);
+    expect(en.title.length).toBeLessThanOrEqual(60);
+    expect(en.title).toBe('Medical Equipment Distributor in Colombia | I-ME');
+    expect(en.title).not.toMatch(/INVIMA/);
+    expect(es.description.length).toBeLessThanOrEqual(155);
+    expect(en.description.length).toBeLessThanOrEqual(155);
     expect(es.description).toContain('i-me.com.co');
     expect(es.canonical).toBe('https://i-me.com.co/es/');
     expect(buildOrganizationJsonLd().url).toBe('https://i-me.com.co/es/');
@@ -61,9 +65,13 @@ describe('SEO P0', () => {
     expect(camillas.productSlugs).toContain('camilla-de-traslado-ref-skb041-6-saikang');
     const ventiladores = getCampaignLanding('ventiladores_mecanicos', 'es');
     expect(ventiladores.path).toBe('/es/ventiladores-mecanicos-uci/');
-    expect(ventiladores.productSlugs).toContain(
-      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide'
-    );
+    expect(ventiladores.productSlugs).toContain('ventilador-mecanico-uci-adulto-pediatrico');
+    // arreglos011126 ítem 6: la landing de ventiladores no muestra marcas retiradas (ES y EN).
+    for (const locale of ['es', 'en'] as const) {
+      expect(JSON.stringify(getCampaignLanding('ventiladores_mecanicos', locale))).not.toMatch(
+        /Monnal|Northern|Equitronic/i
+      );
+    }
     const desfibriladores = getCampaignLanding('desfibriladores_hospital', 'es');
     expect(desfibriladores.path).toBe('/es/desfibriladores-hospitalarios/');
     expect(desfibriladores.productSlugs).toContain('desfibrilador-bifasico-con-monitor');

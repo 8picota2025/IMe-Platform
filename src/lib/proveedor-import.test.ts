@@ -196,9 +196,9 @@ describe('CSV interno de proveedores', () => {
   it('separa campos, contacto principal y deja los extras en vista previa', () => {
     const mapped = mapCanvaCsvRow({
       Origen: 'China',
-      Marca: 'Northern Meditec Limited',
-      Fabricante: 'Shenzhen Northern Meditec Technology Co., Ltd',
-      'Sitio web': 'https://es.northernmeditec.com',
+      Marca: 'Proveedor Demo Limited',
+      Fabricante: 'Fabricante Demo Technology Co., Ltd',
+      'Sitio web': 'https://es.proveedor-demo.example',
       Contacto: 'Cherry Yang',
       WhatsApp: 'https://wa.me/8613418937694',
       Email: '',
@@ -208,11 +208,11 @@ describe('CSV interno de proveedores', () => {
         'Frenchy Cuello es el Gerente de Ventas, contacto en Colombia: https://wa.me/573505775704',
     });
     expect(mapped.proveedor).toMatchObject({
-      slug: 'northern-meditec-limited',
-      nombre: 'Northern Meditec Limited',
-      razon_social: 'Shenzhen Northern Meditec Technology Co., Ltd',
+      slug: 'proveedor-demo-limited',
+      nombre: 'Proveedor Demo Limited',
+      razon_social: 'Fabricante Demo Technology Co., Ltd',
       pais: 'China',
-      sitio_web: 'https://es.northernmeditec.com',
+      sitio_web: 'https://es.proveedor-demo.example',
       lineas_equipos: 'Ventiladores, monitores, máquinas de anestesia',
       estado_invima: 'En proceso de Modificación',
       lifecycle_status: 'contactado',

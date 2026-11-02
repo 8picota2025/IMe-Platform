@@ -711,270 +711,6 @@
     "marca": "Advanced Instrumentations"
   },
   {
-    "id": "49e07d69-42c7-41aa-95ec-878aa5310aeb",
-    "slug": "monitor-multiparametro-ref-acuarius-northern",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "tipo_id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "nombre_es": "Monitor Multiparámetro Acuarius",
-    "nombre_en": "Multi-parameter Monitor Acuarius",
-    "descripcion_corta_es": "Monitor multiparámetro portátil con batería de 15 horas",
-    "descripcion_corta_en": "Portable multi-parameter monitor with 15-hour battery",
-    "descripcion_larga_es": "El Monitor Multiparámetro Acuarius de Northern Meditec (Acuarius) está disponible a través de IME para instituciones de salud en Colombia y la región.\n\nMonitor multiparámetro portátil con batería de 15 horas.\n\nPensado para pacientes ambulatorios, control puntual, transporte y sala general.\n\nConfiguración SpO2+NIBP+ECG+TEMP con batería de iones de litio de hasta 15 horas.\n\nPantalla TFT LCD a color de 8,4\" (táctil opcional); diseño portátil.\n\nOpcionales fabricante: Masimo/Nellcor SpO2, EtCO2, temperatura rápida, escáner de código de barras, registrador térmico, CMS LAN/inalámbrico, Bluetooth.\n\nMEWS, cálculos hemodinámica/dosis, modos continuo y spot-check; adultos, pediátricos y neonatos.\n\nCMS cable/WiFi/3G/4G con HL7 a HIS; tendencias 480 h; revisión de onda 48 h; modo nocturno.\n\nEspecificaciones de referencia del fabricante: https://en.northernmeditec.com/prodet/14.html.",
-    "descripcion_larga_en": "The Multi-parameter Monitor Acuarius from Northern Meditec (Acuarius) is offered by IME for healthcare institutions.\n\nPortable multi-parameter monitor with 15-hour battery.\n\nPantalla: TFT LCD 8,4\" a color (táctil opcional).\n\nParámetros base: SpO2 + NIBP + ECG + TEMP.\n\nBatería: Iones de litio recargable, hasta 15 h.\n\nCMS / HIS: Cable/WiFi/3G/4G; protocolo HL7.\n\nManufacturer reference: https://en.northernmeditec.com/prodet/14.html.",
-    "especificaciones": [
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla LCD TFT a color 8.4\""
-      },
-      {
-        "clave": "Configuración",
-        "grupo": "Ficha catálogo",
-        "valor": "SpO2+NIBP+ECG+TEMP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Batería recargable de iones de litio 15h"
-      },
-      {
-        "clave": "Opcional",
-        "grupo": "Ficha catálogo",
-        "valor": "Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Escáner de código de barras"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Pantalla",
-        "valor": "TFT LCD 8,4\" a color (táctil opcional)"
-      },
-      {
-        "clave": "Parámetros base",
-        "grupo": "Configuración",
-        "valor": "SpO2 + NIBP + ECG + TEMP"
-      },
-      {
-        "clave": "Batería",
-        "grupo": "Alimentación",
-        "valor": "Iones de litio recargable, hasta 15 h"
-      },
-      {
-        "clave": "CMS / HIS",
-        "grupo": "Conectividad",
-        "valor": "Cable/WiFi/3G/4G; protocolo HL7"
-      },
-      {
-        "clave": "Alertas",
-        "grupo": "Software",
-        "valor": "MEWS (Modified Early Warning Score)"
-      },
-      {
-        "clave": "Tendencias",
-        "grupo": "Revisión",
-        "valor": "Gráficas y tabulares hasta 480 h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla LCD TFT a color 8.4\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Batería recargable de iones de litio 15h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Escáner de código de barras"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla LCD TFT a color 8.4\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Batería recargable de iones de litio 15h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Escáner de código de barras"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla LCD TFT a color 8.4\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Configuración: SpO2+NIBP+ECG+TEMP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Batería recargable de iones de litio 15h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Escáner de código de barras"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Bluetooth y conexión móvil"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Registrador térmico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "LAN/CMS inalámbrico"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/acuarius/imagen-principal-acuarius.jpg",
-    "galeria": [
-      "/assets/productos/importados/acuarius/imagen-principal-acuarius.jpg",
-      "imagen_principal_Acuarius.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-acuarius-northern.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Pacientes ambulatorios",
-      "Control puntual",
-      "Transporte",
-      "Sala general"
-    ],
-    "aplicaciones_en": [
-      "Pacientes ambulatorios",
-      "Control puntual",
-      "Transporte",
-      "Sala general"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "acuarius",
-        "monitor-multiparametro-acuarius",
-        "monitor-multiparametro-acuarius-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Característica: Pantalla LCD TFT a color 8.4\" (dato de ficha/catálogo o página Northern Meditec).",
-      "Configuración: SpO2+NIBP+ECG+TEMP (dato de ficha/catálogo o página Northern Meditec).",
-      "Característica: Batería recargable de iones de litio 15h (dato de ficha/catálogo o página Northern Meditec).",
-      "Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida (dato de ficha/catálogo o página Northern Meditec).",
-      "Característica: Escáner de código de barras (dato de ficha/catálogo o página Northern Meditec)."
-    ],
-    "beneficios_en": [
-      "Característica: Pantalla LCD TFT a color 8.4\" (per Northern Meditec catalog/page).",
-      "Configuración: SpO2+NIBP+ECG+TEMP (per Northern Meditec catalog/page).",
-      "Característica: Batería recargable de iones de litio 15h (per Northern Meditec catalog/page).",
-      "Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida (per Northern Meditec catalog/page).",
-      "Característica: Escáner de código de barras (per Northern Meditec catalog/page)."
-    ],
-    "valor_es": "Monitor Multiparámetro Acuarius Northern Meditec con especificaciones publicadas por el fabricante (https://en.northernmeditec.com/prodet/14.html), distribuida por IME.",
-    "valor_en": "Multi-parameter Monitor Acuarius by Northern Meditec with manufacturer-published specs (https://en.northernmeditec.com/prodet/14.html), supplied by IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Qué modelo es el Monitor Multiparámetro Acuarius?",
-        "a": "Es el modelo Acuarius de Northern Meditec, referenciado en el catálogo IME y en la ficha del fabricante."
-      },
-      {
-        "q": "¿Para qué áreas está indicado el Acuarius?",
-        "a": "Según catálogo: Pacientes ambulatorios, Control puntual, Transporte, Sala general."
-      },
-      {
-        "q": "¿Qué configuración base declara el fabricante?",
-        "a": "Característica: Pantalla LCD TFT a color 8.4\"; Configuración: SpO2+NIBP+ECG+TEMP; Característica: Batería recargable de iones de litio 15h; Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
-      },
-      {
-        "q": "¿Dónde verifico la ficha técnica oficial?",
-        "a": "En la página del fabricante: https://en.northernmeditec.com/prodet/14.html. IME puede facilitar la documentación comercial del modelo Acuarius."
-      },
-      {
-        "q": "¿Cómo cotizar el Acuarius con IME?",
-        "a": "Solicite cotización indicando el modelo exacto Northern Meditec y el área clínica de uso; IME confirma disponibilidad y soporte en Colombia."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Monitor Multiparámetro Acuarius?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "What model is the Multi-parameter Monitor Acuarius?",
-        "a": "It is Northern Meditec model Acuarius, listed in the IME catalog and manufacturer materials."
-      },
-      {
-        "q": "Which care areas is Acuarius for?",
-        "a": "Per catalog: Pacientes ambulatorios, Control puntual, Transporte, Sala general."
-      },
-      {
-        "q": "What base configuration does the manufacturer state?",
-        "a": "Característica: Pantalla LCD TFT a color 8.4\"; Configuración: SpO2+NIBP+ECG+TEMP; Característica: Batería recargable de iones de litio 15h; Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
-      },
-      {
-        "q": "Where is the official datasheet?",
-        "a": "Manufacturer page: https://en.northernmeditec.com/prodet/14.html. IME can provide commercial documentation for model Acuarius."
-      },
-      {
-        "q": "How do I request a quote for Acuarius?",
-        "a": "Request a quote with the exact Northern Meditec model and clinical area; IME confirms availability in Colombia."
-      },
-      {
-        "q": "Where can I download the Multi-parameter Monitor Acuarius datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Multiparámetro Acuarius",
-      "Acuarius Northern Meditec",
-      "ficha técnica Acuarius",
-      "equipo médico Colombia",
-      "Acuarius IME"
-    ],
-    "seo_keywords_en": [
-      "Multi-parameter Monitor Acuarius",
-      "Acuarius Northern Meditec",
-      "Acuarius datasheet",
-      "medical equipment Colombia"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
     "id": "3dffe59f-d034-4dd7-9290-036a58516da9",
     "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
     "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
@@ -1337,143 +1073,6 @@
     ]
   },
   {
-    "id": "59628877-e1bf-4770-bef9-64ab6fb08f6a",
-    "slug": "oximetro-ref-aquarius-lite-northern",
-    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
-    "familia_slug": "monitores",
-    "tipo_id": "00574863-f544-440a-9a61-cceed009774d",
-    "nombre_es": "Oxímetro Aquarius LITE",
-    "nombre_en": "Pulse Oximeter Aquarius LITE",
-    "descripcion_corta_es": "Oxímetro SPO2 Aquarius LITE adulto",
-    "descripcion_corta_en": "Adult Aquarius LITE SPO2 pulse oximeter",
-    "descripcion_larga_es": "El/La Oxímetro Aquarius LITE de Northern forma parte del catálogo IME para instituciones de salud en Colombia.\n\nOxímetro SPO2 Aquarius LITE adulto\n\nFuente: catálogo IME / metadata Desktop (Aquarius-LITE_Oxímetro_Aquarius_LITE). Modelo / SKU: Aquarius-LITE. Solicite cotización indicando el modelo exacto.",
-    "descripcion_larga_en": "The Pulse Oximeter Aquarius LITE from Northern is listed in the IME catalog for healthcare institutions in Colombia.\n\nOxímetro SPO2 Aquarius LITE adulto\n\nSource: catálogo IME / metadata Desktop (Aquarius-LITE_Oxímetro_Aquarius_LITE). Model / SKU: Aquarius-LITE. Request a quote with the exact model.",
-    "especificaciones": [
-      {
-        "clave": "Fabricante",
-        "grupo": "Identificación",
-        "valor": "Northern"
-      },
-      {
-        "clave": "Modelo / SKU",
-        "grupo": "Identificación",
-        "valor": "Aquarius-LITE"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "SPO2 Oximetro Adulto"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "SPO2 Oximetro Adulto"
-      }
-    ],
-    "imagen_principal": "https://nnfbucwiasuggyfoyydo.supabase.co/storage/v1/object/public/productos/59628877-e1bf-4770-bef9-64ab6fb08f6a/1783027336987-1000012070-jpg",
-    "galeria": [],
-    "ficha_pdf": null,
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Oxigenación",
-      "Monitoreo de saturación"
-    ],
-    "aplicaciones_en": [
-      "Oxigenación",
-      "Monitoreo de saturación"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "aquarius-lite",
-        "oximetro-aquarius-lite",
-        "oximetro-aquarius-lite-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "SPO2 Oximetro Adulto"
-    ],
-    "beneficios_en": [
-      "SPO2 Oximetro Adulto"
-    ],
-    "valor_es": "Oxímetro Aquarius LITE (Northern) en catálogo IME — ficha PDF pendiente.",
-    "valor_en": "Pulse Oximeter Aquarius LITE (Northern) in IME catalog — PDF datasheet pending.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Qué producto es Oxímetro Aquarius LITE?",
-        "a": "Equipo Northern del catálogo IME, referencia Aquarius-LITE."
-      },
-      {
-        "q": "¿Hay ficha PDF?",
-        "a": "Aún no publicada en la landing; solicitada al fabricante. IME puede compartir documentación al cotizar."
-      },
-      {
-        "q": "¿Qué datos hay disponibles?",
-        "a": "SPO2 Oximetro Adulto"
-      },
-      {
-        "q": "¿Aplicaciones?",
-        "a": "Oxigenación; Monitoreo de saturación"
-      },
-      {
-        "q": "¿Cómo cotizo?",
-        "a": "Indique el modelo exacto (Aquarius-LITE) y el área clínica a IME."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "What is Pulse Oximeter Aquarius LITE?",
-        "a": "Northern device in the IME catalog, reference Aquarius-LITE."
-      },
-      {
-        "q": "PDF datasheet?",
-        "a": "Not yet on the landing; requested from manufacturer. IME can share docs when quoting."
-      },
-      {
-        "q": "Available data?",
-        "a": "SPO2 Oximetro Adulto"
-      },
-      {
-        "q": "Applications?",
-        "a": "Oxigenación; Monitoreo de saturación"
-      },
-      {
-        "q": "How to quote?",
-        "a": "Provide exact model (Aquarius-LITE) and clinical area to IME."
-      }
-    ],
-    "seo_keywords_es": [
-      "Oxímetro Aquarius LITE",
-      "Aquarius-LITE Northern",
-      "ficha técnica Aquarius-LITE",
-      "equipo médico Colombia",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Pulse Oximeter Aquarius LITE",
-      "Aquarius-LITE Northern",
-      "Aquarius-LITE datasheet",
-      "medical equipment Colombia",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
     "id": "09f74321-6d67-4af6-a183-7ee04845f4f6",
     "slug": "arnes-para-cpap-de-burbuja-fisher-paykel",
     "familia_id": "f174f837-09ad-4f7b-b425-f26edc168530",
@@ -1540,7 +1139,6 @@
       "Rooming-in"
     ],
     "marca": "Arn",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Interfaz pensada para el confort del neonato y los cuidados centrados en el desarrollo.",
       "Componente de un solo uso del sistema Bubble CPAP.",
@@ -1615,685 +1213,6 @@
       "fabricante": "Fisher & Paykel Healthcare",
       "marca": "Fisher & Paykel Healthcare"
     }
-  },
-  {
-    "id": "a3393ff9-da37-474b-8948-a17b2fa90fda",
-    "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
-    "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
-    "familia_slug": "anestesia",
-    "tipo_id": "9bbecfdc-4514-48cf-9cf7-1bd566b7b0b1",
-    "nombre_es": "Máquina de Anestesia Atlas N3",
-    "nombre_en": "Anesthesia Machine Atlas N3",
-    "descripcion_corta_es": "Máquina de anestesia con pantalla TFT 8.4\", 6 tubos de caudal",
-    "descripcion_corta_en": "Anesthesia machine with 8.4\" TFT screen, 6 flow tubes",
-    "descripcion_larga_es": "El Máquina de Anestesia Atlas N3 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Height（With casters） 146cm±1cm; 8 inch TFT LCD screen, 800x480 pixels; Optional(2 batteries,9600mAh); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Anesthesia Machine Atlas N3 from Northern Meditec is in the IME catalog. Per official brochure: Height（With casters） 146cm±1cm; 8 inch TFT LCD screen, 800x480 pixels; Optional(2 batteries,9600mAh); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "Height（With casters） 146cm±1cm"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "8 inch TFT LCD screen, 800x480 pixels"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "Optional(2 batteries,9600mAh)"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "Up to 3 waveforms, user configurable"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "Four wheels(125mm) with 2 separate brakes"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "4th Floor, Building C, Jin Wei Yuan Industrial Park, Julongshan Area, Kengzi St,"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "One-hand operation designed CO2 absorber."
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "Autoclavable PPSU material (up to 134°C)."
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla TFT 8.4\" (12\" táctil opcional)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Volumen tidal 10-1500 ml"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "6 tubos caudal para 3 gases"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Circuito PPSU/metálico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "By-pass cal sodada"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Pantalla",
-        "valor": "TFT 8,4\" (12,1\" opcional); táctil opcional"
-      },
-      {
-        "clave": "Tubos de caudal",
-        "grupo": "Gases",
-        "valor": "Hasta 6 tubos para 3 gases"
-      },
-      {
-        "clave": "Material",
-        "grupo": "Circuito",
-        "valor": "PPSU / metálico con calefactor integrado"
-      },
-      {
-        "clave": "Cal sodada",
-        "grupo": "Circuito",
-        "valor": "By-pass"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla TFT 8.4\" (12\" táctil opcional)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Volumen tidal 10-1500 ml"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "6 tubos caudal para 3 gases"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Circuito PPSU/metálico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "By-pass cal sodada"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Todos modos ventilación neonatal/pediátrico/adulto"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Circuito con calentador"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "ACGO visible"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/atlas-n3/imagen-principal-atlas-n3.jpg",
-    "galeria": [
-      "/assets/productos/importados/atlas-n3/imagen-principal-atlas-n3.jpg",
-      "/assets/productos/importados/atlas-n3/imagen-secundaria-atlas-n3-1.jpg",
-      "/assets/productos/importados/atlas-n3/imagen-secundaria-atlas-n3-2.jpg",
-      "/assets/productos/importados/atlas-n3/imagen-secundaria-atlas-n3-3.jpg",
-      "imagen_principal_Atlas-N3.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n3-northern-9bb4738d6d.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Anestesia",
-      "Cirugía"
-    ],
-    "aplicaciones_en": [
-      "Anestesia",
-      "Cirugía"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "atlas-n3",
-        "maquina-de-anestesia-atlas-n3",
-        "maquina-de-anestesia-atlas-n3-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Height（With casters） 146cm±1cm",
-      "8 inch TFT LCD screen, 800x480 pixels",
-      "Optional(2 batteries,9600mAh)",
-      "Up to 3 waveforms, user configurable"
-    ],
-    "beneficios_en": [
-      "Height（With casters） 146cm±1cm",
-      "8 inch TFT LCD screen, 800x480 pixels",
-      "Optional(2 batteries,9600mAh)",
-      "Up to 3 waveforms, user configurable"
-    ],
-    "valor_es": "Máquina de Anestesia Atlas N3 Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Anesthesia Machine Atlas N3 Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Máquina de Anestesia Atlas N3?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Máquina de Anestesia Atlas N3) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Máquina de Anestesia Atlas N3?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Anesthesia Machine Atlas N3 datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Anesthesia Machine Atlas N3) and clinical area."
-      },
-      {
-        "q": "Where can I download the Anesthesia Machine Atlas N3 datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Máquina de Anestesia Atlas N3",
-      "Northern Meditec",
-      "ficha Máquina de Anestesia Atlas N3",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Anesthesia Machine Atlas N3",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
-    "id": "5831dc87-3137-4402-ad0c-407027d2739e",
-    "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
-    "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
-    "familia_slug": "anestesia",
-    "tipo_id": "9bbecfdc-4514-48cf-9cf7-1bd566b7b0b1",
-    "nombre_es": "Máquina de Anestesia Atlas N5",
-    "nombre_en": "Anesthesia Machine Atlas N5",
-    "descripcion_corta_es": "Máquina de anestesia con pantalla táctil 12.1\" y caudalímetro electrónico",
-    "descripcion_corta_en": "Anesthesia machine with 12.1\" touch screen and electronic flowmeter",
-    "descripcion_larga_es": "El Máquina de Anestesia Atlas N5 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Height（With casters） 130cm±1cm; 12 inch TFT LCD touch screen, 800x600 pixels; 2 batteries, 9600mAh(optional); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Anesthesia Machine Atlas N5 from Northern Meditec is in the IME catalog. Per official brochure: Height（With casters） 130cm±1cm; 12 inch TFT LCD touch screen, 800x600 pixels; 2 batteries, 9600mAh(optional); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "Height（With casters） 130cm±1cm"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "12 inch TFT LCD touch screen, 800x600 pixels"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "2 batteries, 9600mAh(optional)"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "Up to 3 waveforms, user configurable"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "Four wheels(125mm) with 2 separate brakes"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "4th Floor, Building C, Jin Wei Yuan Industrial Park, Julongshan Area, Kengzi St,"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "· Tidal volume 10-1500 ml."
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "One-hand operation designed CO2 absorber."
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla táctil TFT 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Volumen tidal 10-1500 ml"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Caudalímetro electrónico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Circuito PPSU/metálico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "By-pass cal sodada"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Pantalla",
-        "valor": "TFT táctil 12,1\" (15,6\" opcional)"
-      },
-      {
-        "clave": "Caudalímetro",
-        "grupo": "Gases",
-        "valor": "Semi-electrónico"
-      },
-      {
-        "clave": "Material",
-        "grupo": "Circuito",
-        "valor": "PPSU con calefactor integrado"
-      },
-      {
-        "clave": "ACGO",
-        "grupo": "Circuito",
-        "valor": "Alta visibilidad"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla táctil TFT 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Volumen tidal 10-1500 ml"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Caudalímetro electrónico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Circuito PPSU/metálico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "By-pass cal sodada"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "ACGO alta visibilidad"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Zócalo módulo opcional"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/atlas-n5/imagen-principal-atlas-n5.jpg",
-    "galeria": [
-      "/assets/productos/importados/atlas-n5/imagen-principal-atlas-n5.jpg",
-      "imagen_principal_Atlas-N5.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n5-northern-4f40da836b.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Anestesia",
-      "Cirugía"
-    ],
-    "aplicaciones_en": [
-      "Anestesia",
-      "Cirugía"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "atlas-n5",
-        "maquina-de-anestesia-atlas-n5",
-        "maquina-de-anestesia-atlas-n5-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Height（With casters） 130cm±1cm",
-      "12 inch TFT LCD touch screen, 800x600 pixels",
-      "2 batteries, 9600mAh(optional)",
-      "Up to 3 waveforms, user configurable"
-    ],
-    "beneficios_en": [
-      "Height（With casters） 130cm±1cm",
-      "12 inch TFT LCD touch screen, 800x600 pixels",
-      "2 batteries, 9600mAh(optional)",
-      "Up to 3 waveforms, user configurable"
-    ],
-    "valor_es": "Máquina de Anestesia Atlas N5 Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Anesthesia Machine Atlas N5 Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Máquina de Anestesia Atlas N5?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Máquina de Anestesia Atlas N5) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Máquina de Anestesia Atlas N5?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Anesthesia Machine Atlas N5 datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Anesthesia Machine Atlas N5) and clinical area."
-      },
-      {
-        "q": "Where can I download the Anesthesia Machine Atlas N5 datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Máquina de Anestesia Atlas N5",
-      "Northern Meditec",
-      "ficha Máquina de Anestesia Atlas N5",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Anesthesia Machine Atlas N5",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
-    "id": "f78d1ee4-b92e-4673-bf31-6a80f34c7a22",
-    "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
-    "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
-    "familia_slug": "anestesia",
-    "tipo_id": "9bbecfdc-4514-48cf-9cf7-1bd566b7b0b1",
-    "nombre_es": "Máquina de Anestesia Atlas N7",
-    "nombre_en": "Anesthesia Machine Atlas N7",
-    "descripcion_corta_es": "Máquina de anestesia con pantalla táctil 15.6\" y monitor integrado",
-    "descripcion_corta_en": "Anesthesia machine with 15.6\" touch screen and integrated monitor",
-    "descripcion_larga_es": "El Máquina de Anestesia Atlas N7 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Height（With casters） 149cm(58.6inch); 15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional); Electronic control gas mixer, O2, N2O, Air; O2,Air and N2O(numerical/bargraph); Up to 4 waveforms, user configurable.\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Anesthesia Machine Atlas N7 from Northern Meditec is in the IME catalog. Per official brochure: Height（With casters） 149cm(58.6inch); 15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional); Electronic control gas mixer, O2, N2O, Air; O2,Air and N2O(numerical/bargraph); Up to 4 waveforms, user configurable.\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "Height（With casters） 149cm(58.6inch)"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional)"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "Electronic control gas mixer, O2, N2O, Air"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "O2,Air and N2O(numerical/bargraph)"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "Up to 4 waveforms, user configurable"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "Optional(2 batteries, 9600mAh)"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "Four castors(dual wheels 125mm) with 4 separate brakes"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "4th Floor, Building C, Jin Wei Yuan Industrial Park, Julongshan Area, Kengzi St,"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla táctil TFT 15.6\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Monitor paciente integrado"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Control electrónico completo"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Caudalímetro electrónico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Volumen tidal mínimo 10 ml"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla táctil TFT 15.6\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Monitor paciente integrado"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Control electrónico completo"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Caudalímetro electrónico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Volumen tidal mínimo 10 ml"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Todos modos ventilación neonatal/pediátrico/adulto"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Circuito con calentador"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Luces LED"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Acero inoxidable"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/atlas-n7/imagen-principal-atlas-n7.jpg",
-    "galeria": [
-      "/assets/productos/importados/atlas-n7/imagen-principal-atlas-n7.jpg",
-      "imagen_principal_Atlas-N7.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n7-northern-1979e65efc.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Anestesia",
-      "Cirugía"
-    ],
-    "aplicaciones_en": [
-      "Anestesia",
-      "Cirugía"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "atlas-n7",
-        "maquina-de-anestesia-atlas-n7",
-        "maquina-de-anestesia-atlas-n7-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Height（With casters） 149cm(58.6inch)",
-      "15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional)",
-      "Electronic control gas mixer, O2, N2O, Air",
-      "O2,Air and N2O(numerical/bargraph)"
-    ],
-    "beneficios_en": [
-      "Height（With casters） 149cm(58.6inch)",
-      "15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional)",
-      "Electronic control gas mixer, O2, N2O, Air",
-      "O2,Air and N2O(numerical/bargraph)"
-    ],
-    "valor_es": "Máquina de Anestesia Atlas N7 Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Anesthesia Machine Atlas N7 Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Máquina de Anestesia Atlas N7?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Máquina de Anestesia Atlas N7) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Máquina de Anestesia Atlas N7?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Anesthesia Machine Atlas N7 datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Anesthesia Machine Atlas N7) and clinical area."
-      },
-      {
-        "q": "Where can I download the Anesthesia Machine Atlas N7 datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Máquina de Anestesia Atlas N7",
-      "Northern Meditec",
-      "ficha Máquina de Anestesia Atlas N7",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Anesthesia Machine Atlas N7",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
   },
   {
     "id": "fc6d02da-6eac-4331-80da-207320b90ef5",
@@ -2461,7 +1380,6 @@
       "Compliance with hygiene standards"
     ],
     "marca": "Saniswiss",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Puede lograr una reducción de hasta log-6 de patógenos, incluidas esporas y superbacterias multirresistentes, sin depender de que el personal limpie manualmente cada superficie de difícil acceso.",
       "Con dos formulaciones —preventiva al 6% y curativa al 12%— puede adaptar el nivel de desinfección a su rutina diaria o a un brote puntual.",
@@ -3051,7 +1969,6 @@
       "Use in hospitalization and emergencies"
     ],
     "marca": "Blender Serie",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Serie de alto flujo de 0 a 120 lpm con flujómetro de 0 a 70 lpm.",
       "Precisión de FiO₂ declarada de 15 a 120 lpm, sin purga.",
@@ -3198,7 +2115,6 @@
       "Neonatal low-flow therapy"
     ],
     "marca": "Blender Serie",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Dos flujómetros y dos puertos de salida para alimentar dos terapias a la vez.",
       "FiO₂ de 21 % a 100 % según la descripción del producto.",
@@ -3342,7 +2258,6 @@
       "Use in general hospitalization"
     ],
     "marca": "Blender Serie",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Mezcla de aire y oxígeno con flujómetro de 0 a 15 lpm integrado.",
       "Serie 2003 de bajo flujo: rango 0-30 lpm y purga de 3 lpm para flujos bajos.",
@@ -3478,7 +2393,6 @@
       "Mechanical ventilation"
     ],
     "marca": "Blender Serie",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Serie 2002 de alto flujo: rango de 0 a 120 lpm.",
       "Precisión de FiO₂ declarada de 15 a 120 lpm.",
@@ -4162,7 +3076,6 @@
       "Respiratory support"
     ],
     "marca": "Cable Calefactor",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Calefacción coordinada de ramas inspiratoria y espiratoria",
       "Ayuda a limitar la condensación",
@@ -4252,8 +3165,7 @@
       "Hypoxemic respiratory failure",
       "ICU"
     ],
-    "marca": "C",
-    "proveedor_ref": "equitronic"
+    "marca": "C"
   },
   {
     "id": "8f44f5d9-d262-40f5-b6bf-496704114adc",
@@ -4318,7 +3230,6 @@
       "Gas humidification"
     ],
     "marca": "Fisher & Paykel",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Interfaz específica para traqueostomía",
       "Conexión AirSpiral",
@@ -4428,7 +3339,6 @@
       "HFV"
     ],
     "marca": "Fisher & Paykel",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Llenado automático",
       "Doble flotador que ayuda a evitar sobrellenado",
@@ -4516,8 +3426,7 @@
       "Gas humidification",
       "Respiratory therapy"
     ],
-    "marca": "Cascada Reusable",
-    "proveedor_ref": "equitronic"
+    "marca": "Cascada Reusable"
   },
   {
     "id": "a0acd0d7-b1d9-4f0b-8ef4-1e6c0adcf750",
@@ -4567,7 +3476,6 @@
       "Oxygen therapy"
     ],
     "marca": "Circuito Airvo",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Kit de tubo y circuito para Airvo 2",
       "Presentación de 10 unidades"
@@ -4667,7 +3575,6 @@
       "Pediatrics"
     ],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Configuración de doble rama",
       "Incluye línea de presión",
@@ -4770,7 +3677,6 @@
       "Invasive ventilation"
     ],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Doble calentamiento",
       "Cámara MR290",
@@ -4873,7 +3779,6 @@
       "Invasive ventilation"
     ],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Doble calentamiento",
       "Cámara MR290",
@@ -4978,7 +3883,6 @@
       "Infants up to 20 kg"
     ],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Doble calentamiento",
       "Cámara MR290",
@@ -5083,7 +3987,6 @@
       "Adults over 20 kg"
     ],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Rama inspiratoria calefaccionada",
       "Cámara MR290 de llenado automático",
@@ -5198,7 +4101,6 @@
       "Infants"
     ],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Compatible con Neopuff y reanimadores a gas conformes a ISO 10651-5.",
       "Válvula PEEP para seleccionar el nivel de presión espiratoria deseado.",
@@ -5329,7 +4231,6 @@
       "Oxygen therapy"
     ],
     "marca": "Circuito Optiflow",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Kit Optiflow Junior para ventilador",
       "Compatibilidad con MR850",
@@ -5442,7 +4343,6 @@
       "Neonatology"
     ],
     "marca": "Circuito Para",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Kit Optiflow Junior para blender",
       "Compatibilidad con MR850 y MR290",
@@ -5493,195 +4393,6 @@
         "https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"
       ]
     }
-  },
-  {
-    "id": "7b3760c4-0741-4795-8f0e-969d9f38fb88",
-    "slug": "ventilador-mecanico-ref-crius-v6-northern",
-    "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
-    "familia_slug": "anestesia",
-    "tipo_id": "9bbecfdc-4514-48cf-9cf7-1bd566b7b0b1",
-    "nombre_es": "Ventilador Mecánico Crius V6",
-    "nombre_en": "Mechanical Ventilator Crius V6",
-    "descripcion_corta_es": "Ventilador mecánico de alta gama con turbina, invasivo/no invasivo",
-    "descripcion_corta_en": "High-end mechanical ventilator with turbine, invasive/non-invasive",
-    "descripcion_larga_es": "El Ventilador Mecánico Crius V6 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Nurse call, USB, NET, RS232, VGA; Main patient outlet：ISO 22M/15F; Display size: 15.6 in diagonal, 18.5”optional; Display resolution: SVGA resolution, 1366 x 768; Paw, Flow, Volume, EtCO2, SPO2.\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Mechanical Ventilator Crius V6 from Northern Meditec is in the IME catalog. Per official brochure: Nurse call, USB, NET, RS232, VGA; Main patient outlet：ISO 22M/15F; Display size: 15.6 in diagonal, 18.5”optional; Display resolution: SVGA resolution, 1366 x 768; Paw, Flow, Volume, EtCO2, SPO2.\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "Nurse call, USB, NET, RS232, VGA"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "Main patient outlet：ISO 22M/15F"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "Display size: 15.6 in diagonal, 18.5”optional"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "Display resolution: SVGA resolution, 1366 x 768"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "Paw, Flow, Volume, EtCO2, SPO2"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "Optional: CO2, SPO2 (related parameters)"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "Trends: 1s, 5s,1min,10min, 30min, 60min"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "Tidal volume: 5 to 2000mL (2 to 2000ml optional)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla LCD táctil 15.6\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Ventilación invasiva/no invasiva integrada"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Turbina"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Volumen tidal 20-2000 mL"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "HFNC máximo 100 L/min"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Modos invasivos: VC-ACV, PC-ACV, PRVC, VC-SIMV, SIMV-PRVC, PC-Dual PAP, PC-APRV, CPAP/PSV, CPAP/VG, AMV/MMV, nCPAP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Modos no invasivos: PC-ACV, PRVC, SIMV-PRVC, PC-Dual PAP, PC-APRV, nCPAP, CPAP/PSV, CPAP/VG, AMV/MMV"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Adultos, niños y neonatos"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/crius-v6/imagen-principal-crius-v6.jpg",
-    "galeria": [
-      "/assets/productos/importados/crius-v6/imagen-principal-crius-v6.jpg",
-      "imagen_principal_Crius-V6.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/ventilador-mecanico-ref-crius-v6-northern-288b609c1a.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "UCI",
-      "Cuidados intensivos",
-      "Ventilación mecánica"
-    ],
-    "aplicaciones_en": [
-      "ICU",
-      "Intensive care",
-      "Mechanical ventilation"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "crius-v6",
-        "ventilador-mecanico-crius-v6",
-        "ventilador-mecanico-crius-v6-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Nurse call, USB, NET, RS232, VGA",
-      "Main patient outlet：ISO 22M/15F",
-      "Display size: 15.6 in diagonal, 18.5”optional",
-      "Display resolution: SVGA resolution, 1366 x 768"
-    ],
-    "beneficios_en": [
-      "Nurse call, USB, NET, RS232, VGA",
-      "Main patient outlet：ISO 22M/15F",
-      "Display size: 15.6 in diagonal, 18.5”optional",
-      "Display resolution: SVGA resolution, 1366 x 768"
-    ],
-    "valor_es": "Ventilador Mecánico Crius V6 Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Mechanical Ventilator Crius V6 Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Ventilador Mecánico Crius V6?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Ventilador Mecánico Crius V6) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Ventilador Mecánico Crius V6?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Mechanical Ventilator Crius V6 datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Mechanical Ventilator Crius V6) and clinical area."
-      },
-      {
-        "q": "Where can I download the Mechanical Ventilator Crius V6 datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Ventilador Mecánico Crius V6",
-      "Northern Meditec",
-      "ficha Ventilador Mecánico Crius V6",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Mechanical Ventilator Crius V6",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
   },
   {
     "id": "4b61d185-a3cd-4126-b26a-467c241271d7",
@@ -9012,7 +7723,6 @@
       "NICU patient monitoring"
     ],
     "marca": "Natus Medical",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Con el Olympic Brainz Monitor usted puede iniciar la monitorización cerebral de su paciente neonatal en solo tres pasos: conectar la unidad, aplicar los electrodos e iniciar el registro.",
       "Su monitoreo continuo de hasta 3 canales de aEEG, EEG en tiempo real e impedancia le brinda información vital para anticipar el estado neurológico del recién nacido.",
@@ -9034,234 +7744,6 @@
         "electroencefalografia-ampliada-obm-eega"
       ]
     }
-  },
-  {
-    "id": "1cda9a5f-a326-4bb3-a894-929defe1b907",
-    "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
-    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
-    "familia_slug": "neonatologia",
-    "tipo_id": "1570a97f-3d38-4007-949b-b7d89addeb6e",
-    "nombre_es": "Monitor Fetal y Materno FM-9000",
-    "nombre_en": "Fetal & Maternal Monitor FM-9000",
-    "descripcion_corta_es": "Monitor fetal y materno con pantalla LCD TFT de 12.1 pulgadas",
-    "descripcion_corta_en": "Fetal and maternal monitor with 12.1-inch TFT LCD screen",
-    "descripcion_larga_es": "El/La Monitor Fetal y Materno FM-9000 de Northern forma parte del catálogo IME para instituciones de salud en Colombia.\n\nMonitor fetal y materno con pantalla LCD TFT de 12.1 pulgadas\n\nFuente: catálogo IME / metadata Desktop (FM-9000-PLUS_Monitor_Fetal_y_Materno_FM-9000_Plus). Modelo / SKU: FM-9000. Solicite cotización indicando el modelo exacto.",
-    "descripcion_larga_en": "The Fetal & Maternal Monitor FM-9000 from Northern is listed in the IME catalog for healthcare institutions in Colombia.\n\nMonitor fetal y materno con pantalla LCD TFT de 12.1 pulgadas\n\nSource: catálogo IME / metadata Desktop (FM-9000-PLUS_Monitor_Fetal_y_Materno_FM-9000_Plus). Model / SKU: FM-9000. Request a quote with the exact model.",
-    "especificaciones": [
-      {
-        "clave": "Fabricante",
-        "grupo": "Identificación",
-        "valor": "Northern"
-      },
-      {
-        "clave": "Modelo / SKU",
-        "grupo": "Identificación",
-        "valor": "FM-9000"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Pantalla LCD TFT a color 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Batería de ion de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo",
-        "valor": "Grabadora térmica"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla LCD TFT a color 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Batería de ion de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Grabadora térmica"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla táctil"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "CMS"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cálculos hemodinámicos"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Análisis de ST y arritmias (17 tipos)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "PI SpO2 perfusión baja 0.2%"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "MEWS"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Revisión de tendencias 480h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "USB"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/fm-9000/imagen-principal-fm-9000.jpg",
-    "galeria": [
-      "/assets/productos/importados/fm-9000/imagen-principal-fm-9000.jpg",
-      "imagen_principal_FM-9000.jpg"
-    ],
-    "ficha_pdf": null,
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Monitoreo fetal",
-      "Monitoreo materno"
-    ],
-    "aplicaciones_en": [
-      "Monitoreo fetal",
-      "Monitoreo materno"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "fm-9000",
-        "monitor-fetal-y-materno-fm-9000",
-        "monitor-fetal-y-materno-fm-9000-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Pantalla LCD TFT a color 12.1\"",
-      "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP",
-      "Batería de ion de litio",
-      "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2",
-      "Grabadora térmica"
-    ],
-    "beneficios_en": [
-      "Pantalla LCD TFT a color 12.1\"",
-      "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP",
-      "Batería de ion de litio",
-      "Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2",
-      "Grabadora térmica"
-    ],
-    "valor_es": "Monitor Fetal y Materno FM-9000 (Northern) en catálogo IME — ficha PDF pendiente.",
-    "valor_en": "Fetal & Maternal Monitor FM-9000 (Northern) in IME catalog — PDF datasheet pending.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Qué producto es Monitor Fetal y Materno FM-9000?",
-        "a": "Equipo Northern del catálogo IME, referencia FM-9000."
-      },
-      {
-        "q": "¿Hay ficha PDF?",
-        "a": "Aún no publicada en la landing; solicitada al fabricante. IME puede compartir documentación al cotizar."
-      },
-      {
-        "q": "¿Qué datos hay disponibles?",
-        "a": "Pantalla LCD TFT a color 12.1\"; Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP; Batería de ion de litio; Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2; Grabadora térmica"
-      },
-      {
-        "q": "¿Aplicaciones?",
-        "a": "Monitoreo fetal; Monitoreo materno"
-      },
-      {
-        "q": "¿Cómo cotizo?",
-        "a": "Indique el modelo exacto (FM-9000) y el área clínica a IME."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "What is Fetal & Maternal Monitor FM-9000?",
-        "a": "Northern device in the IME catalog, reference FM-9000."
-      },
-      {
-        "q": "PDF datasheet?",
-        "a": "Not yet on the landing; requested from manufacturer. IME can share docs when quoting."
-      },
-      {
-        "q": "Available data?",
-        "a": "Pantalla LCD TFT a color 12.1\"; Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP; Batería de ion de litio; Opcional: SpO2 Masimo, NIBP Suntech, IBP, CO2; Grabadora térmica"
-      },
-      {
-        "q": "Applications?",
-        "a": "Monitoreo fetal; Monitoreo materno"
-      },
-      {
-        "q": "How to quote?",
-        "a": "Provide exact model (FM-9000) and clinical area to IME."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Fetal y Materno FM-9000",
-      "FM-9000 Northern",
-      "ficha técnica FM-9000",
-      "equipo médico Colombia",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Fetal & Maternal Monitor FM-9000",
-      "FM-9000 Northern",
-      "FM-9000 datasheet",
-      "medical equipment Colombia",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
   },
   {
     "id": "4ba040b9-aea1-4b12-8cc6-d961b6faa5b9",
@@ -9452,240 +7934,6 @@
     "marca": "Advanced Instrumentations"
   },
   {
-    "id": "383706eb-d508-4030-a988-24427004bb10",
-    "slug": "monitor-multiparametro-ref-gemini-northern",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "tipo_id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "nombre_es": "Monitor Multiparámetro Gemini",
-    "nombre_en": "Multi-parameter Monitor Gemini",
-    "descripcion_corta_es": "Monitor multiparámetro con pantalla táctil de 15.6/19 pulgadas",
-    "descripcion_corta_en": "Multi-parameter monitor with 15.6/19-inch touch screen",
-    "descripcion_larga_es": "El Monitor Multiparámetro Gemini de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Masimo ISATM Sidestream CO2 (Optional); 15.6”/18.5”optional TFT Touch screen; Number of traces: 10, up to 12 ECG waveforms; 15.6”: 403×320×185mm(L×W×T); 19” : 470×327×185mm(L×W×T).\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Multi-parameter Monitor Gemini from Northern Meditec is in the IME catalog. Per official brochure: Masimo ISATM Sidestream CO2 (Optional); 15.6”/18.5”optional TFT Touch screen; Number of traces: 10, up to 12 ECG waveforms; 15.6”: 403×320×185mm(L×W×T); 19” : 470×327×185mm(L×W×T).\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "Masimo ISATM Sidestream CO2 (Optional)"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "15.6”/18.5”optional TFT Touch screen"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "Number of traces: 10, up to 12 ECG waveforms"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "15.6”: 403×320×185mm(L×W×T)"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "19” : 470×327×185mm(L×W×T)"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "Weight: < 10kg under standard configuration"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "HDMI: 1 HDMI monitor connnector"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "Output:1 connector for Nurse call,Defib Sync Analog Output"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Pantalla LCD táctil 15.6\"/19\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Carcasa de aluminio"
-      },
-      {
-        "clave": "Configuración",
-        "grupo": "Ficha catálogo",
-        "valor": "ECG, SpO2, NIBP, TEMP, Resp, PR"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "Batería de iones de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Ficha catálogo",
-        "valor": "10 formas de onda"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla LCD táctil 15.6\"/19\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Carcasa de aluminio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Configuración: ECG, SpO2, NIBP, TEMP, Resp, PR"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Batería de iones de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "10 formas de onda"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Análisis de ECG de 12 derivaciones"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Diseño sin ventilador"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "MEWS"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Detección de marcapasos"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Análisis de ST y arritmias (26 tipos)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Soporta SpO2 PVI y PI, perfusión baja 0.2%"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Modo nocturno, espera, venopunción"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/gemini/imagen-principal-gemini.png",
-    "galeria": [
-      "/assets/productos/importados/gemini/imagen-principal-gemini.png",
-      "imagen_principal_Gemini.png"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-gemini-northern-13b39d2049.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "ICU",
-      "CCU",
-      "NICU"
-    ],
-    "aplicaciones_en": [
-      "ICU",
-      "CCU",
-      "NICU"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "gemini",
-        "monitor-multiparametro-gemini",
-        "monitor-multiparametro-gemini-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Masimo ISATM Sidestream CO2 (Optional)",
-      "15.6”/18.5”optional TFT Touch screen",
-      "Number of traces: 10, up to 12 ECG waveforms",
-      "15.6”: 403×320×185mm(L×W×T)"
-    ],
-    "beneficios_en": [
-      "Masimo ISATM Sidestream CO2 (Optional)",
-      "15.6”/18.5”optional TFT Touch screen",
-      "Number of traces: 10, up to 12 ECG waveforms",
-      "15.6”: 403×320×185mm(L×W×T)"
-    ],
-    "valor_es": "Monitor Multiparámetro Gemini Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Multi-parameter Monitor Gemini Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Gemini?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Monitor Multiparámetro Gemini) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Monitor Multiparámetro Gemini?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Multi-parameter Monitor Gemini datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Multi-parameter Monitor Gemini) and clinical area."
-      },
-      {
-        "q": "Where can I download the Multi-parameter Monitor Gemini datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Multiparámetro Gemini",
-      "Northern Meditec",
-      "ficha Monitor Multiparámetro Gemini",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Multi-parameter Monitor Gemini",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
     "id": "ea81ff6f-5ba6-4f4b-926b-14009319ff2a",
     "slug": "gorro-medin-medical",
     "familia_id": "f174f837-09ad-4f7b-b425-f26edc168530",
@@ -9725,8 +7973,7 @@
       "Neonatal head protection",
       "Positioning adjustment"
     ],
-    "marca": "Gorro Medin",
-    "proveedor_ref": "equitronic"
+    "marca": "Gorro Medin"
   },
   {
     "id": "4efa3cbd-8349-456e-ba8d-dcf0a7209639",
@@ -9791,7 +8038,6 @@
       "Neonatal care"
     ],
     "marca": "Gorro Para",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Sujeta de forma segura la interfaz FlexiTrunk.",
       "Material suave, elástico y libre de látex.",
@@ -9950,7 +8196,6 @@
       "Life support"
     ],
     "marca": "Fisher & Paykel",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Con el MR850 usted cuenta con un control servoasistido de la temperatura que ajusta automáticamente el nivel de humedad según el modo invasivo o no invasivo que su paciente requiera.",
       "Su pantalla LED de tres dígitos le permite verificar en todo momento la temperatura entregada al paciente, con una precisión de ±0.3 °C.",
@@ -10010,8 +8255,7 @@
       "Respiratory therapy",
       "Neonatal, pediatric and adult care"
     ],
-    "marca": "Humidificador Respiratorio",
-    "proveedor_ref": "equitronic"
+    "marca": "Humidificador Respiratorio"
   },
   {
     "id": "d8ca52e2-430e-4714-bf7c-4630519ca6fb",
@@ -10090,7 +8334,6 @@
       "Temperature and humidity monitoring in newborns"
     ],
     "marca": "Incubadora Abierta",
-    "proveedor_ref": "equitronic",
     "seo_keywords_es": [
       "cuna de calor radiante BT-550",
       "servocuna neonatal Bistos",
@@ -10249,7 +8492,6 @@
       "Use in NICU and pediatric units"
     ],
     "marca": "Incubadora de",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Doble pared con cortina de aire y ruido inferior a 45 dB para un entorno estable y silencioso.",
       "Báscula (0-10 kg) y bandeja de rayos X integradas para evitar sacar al bebé de la incubadora.",
@@ -10393,7 +8635,6 @@
       "Reduction of anatomical dead space"
     ],
     "marca": "Interfaz Nasal",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Seis tallas (XS a XXL) para ajustar la interfaz a lactantes y niños.",
       "Conector easy-click, uso de hasta 14 días y vida útil de 5 años.",
@@ -10721,7 +8962,6 @@
       "Use in NICU"
     ],
     "marca": "Kit CPAP",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Sistema BC161 diseñado para usarse con la interfaz FlexiTrunk.",
       "CPAP medio de 3 a 10 cmH₂O con fuga de gas < 30 mL/min a 60 cmH₂O.",
@@ -10865,7 +9105,6 @@
       "Optimization of existing circuits"
     ],
     "marca": "Kit de",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Permite pasar a alto flujo nasal sin reemplazar el circuito existente.",
       "Colector de alivio de presión con presión de alivio nominal de 40 cmH₂O.",
@@ -11009,7 +9248,6 @@
       "Use with neonatal resuscitators"
     ],
     "marca": "Kit de",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Cinco tallas (XS a XL) para ajustar la máscara desde prematuros.",
       "Espacio muerto bajo documentado por talla, de 13 a 97 mL.",
@@ -11153,7 +9391,6 @@
       "Nosocomial infection control"
     ],
     "marca": "Medentech",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Limpia y desinfecta en un solo paso gracias a su base de NaDCC, cumpliendo la norma EN 14476:2013+A1:2015 de actividad virucida en superficies frente a SARS-CoV-2 a 500 ppm.",
       "Le permite ajustar la concentración exacta según el riesgo del área: desde 100 ppm para limpieza general hasta 5000 ppm para derrames de sangre u otros fluidos corporales.",
@@ -11232,7 +9469,6 @@
       "Biological risk control"
     ],
     "marca": "Medentech",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Absorbe y desinfecta en un solo paso los derrames de sangre u otros fluidos corporales, una de las principales vías de transmisión de VIH, VHB y otros patógenos en el entorno clínico.",
       "Su formato en gránulos, a diferencia de las tabletas Klorsept que requieren dilución, le permite actuar de inmediato sobre el derrame sin preparar antes una solución.",
@@ -11316,7 +9552,6 @@
       "Sterilization of critical surfaces"
     ],
     "marca": "Medentech",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Penetra la membrana celular de cada microorganismo y lo destruye desde el interior, según describe el fabricante, reduciendo el riesgo de que desarrolle resistencia adaptativa al componente activo.",
       "Se disuelve en agua para preparar una solución lista para aplicar con trapeador, paño, esponja o pulverizador, sin necesidad de manipular líquidos concentrados.",
@@ -11374,8 +9609,7 @@
       "Complement in minor surgeries",
       "Clinical areas requiring visual precision"
     ],
-    "marca": "L",
-    "proveedor_ref": "equitronic"
+    "marca": "L"
   },
   {
     "id": "c7c4f012-cab5-4b4e-b507-2b89bb872ee0",
@@ -11460,7 +9694,6 @@
       "Use in neonatology"
     ],
     "marca": "L",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "LED azul de 450-475 nm con dos niveles de intensidad y variación de ±10 % en 6 horas.",
       "Sin ventilador: ruido inferior a 30 dB y calor < 10 °C sobre el ambiente.",
@@ -11578,8 +9811,7 @@
       "Precision in surgical interventions",
       "Workflow in operating rooms"
     ],
-    "marca": "L",
-    "proveedor_ref": "equitronic"
+    "marca": "L"
   },
   {
     "id": "918b66f9-9101-4a13-86c9-4dbd60d6f863",
@@ -11654,7 +9886,6 @@
       "Medical team eye protection"
     ],
     "marca": "L",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "160 000 lux a 1 metro y 36 LED con vida útil de 60 000 horas.",
       "Temperatura de color ajustable de 3750 a 4750 K desde el mango estéril.",
@@ -13276,7 +11507,6 @@
       "Postoperative thermal regulation"
     ],
     "marca": "Belmont",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Envuelve al paciente neonatal de 2,5 a 4 kg como un traje ajustable, gracias a sus tiras de gancho y bucle que se adaptan sin comprometer la circulación de agua.",
       "Sus canales internos permiten un flujo continuo de agua que transfiere la energía térmica de forma uniforme sobre hasta el 85% de la superficie corporal.",
@@ -13387,7 +11617,6 @@
       "High-turnover surgical services requiring flexible configuration"
     ],
     "marca": "Penlon",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Diseñada y fabricada en el Reino Unido, con ventilador (AV-S) y absorbedor (A200SP) totalmente integrados de fábrica.",
       "Seis modos de ventilación y perfiles de paciente adulto/pediátrico te permiten individualizar cada anestesia inhalada.",
@@ -13442,8 +11671,7 @@
       "Hospital interface for NIV",
       "Cross-contamination risk mitigation"
     ],
-    "marca": "M",
-    "proveedor_ref": "equitronic"
+    "marca": "M"
   },
   {
     "id": "8bda2bcd-2ffb-4eaa-98da-4c29a13a1372",
@@ -13481,8 +11709,7 @@
       "General ward respiratory therapy",
       "Intermediate care unit support"
     ],
-    "marca": "M",
-    "proveedor_ref": "equitronic"
+    "marca": "M"
   },
   {
     "id": "aeb8ee9d-6ff4-4995-86de-ed1485db34de",
@@ -13547,7 +11774,6 @@
       "Continuous positive airway pressure therapy in newborns"
     ],
     "marca": "M",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Diseño ergonómico en varias tallas para evitar zonas de presión.",
       "Alternativa de descanso al alternar con prongs nasales.",
@@ -13691,7 +11917,6 @@
       "Newborn stabilization"
     ],
     "marca": "M",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Interfaz de reanimación de un solo uso para neonatos y lactantes.",
       "Cinco tallas con espacio muerto documentado de 13 a 97 mL.",
@@ -13820,7 +12045,6 @@
       "High-flow interface treatments"
     ],
     "marca": "Mascarilla Medin",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Acabado transparente que facilita evaluar posicionamiento, fugas y piel.",
       "Tallas M y L con forma y material probados, sin cambio de números de artículo.",
@@ -13937,8 +12161,7 @@
       "Procedures requiring kidney elevation",
       "Bariatric patient management"
     ],
-    "marca": "Mesa de",
-    "proveedor_ref": "equitronic"
+    "marca": "Mesa de"
   },
   {
     "id": "b6d1c1c6-642c-4d08-b3c1-d02035d3f111",
@@ -13980,8 +12203,7 @@
       "Neurosurgical procedures",
       "Complex surgical positioning"
     ],
-    "marca": "Mesa de",
-    "proveedor_ref": "equitronic"
+    "marca": "Mesa de"
   },
   {
     "id": "e811b0a0-cc0d-41d6-b628-856e5d07d0a1",
@@ -14024,8 +12246,7 @@
       "Orthopedics",
       "Gynecology and plastic surgery"
     ],
-    "marca": "Mesa de",
-    "proveedor_ref": "equitronic"
+    "marca": "Mesa de"
   },
   {
     "id": "b0d1ef08-06b7-4927-a1a5-3873be4c5f11",
@@ -14107,7 +12328,6 @@
     "aplicaciones_es": [],
     "aplicaciones_en": [],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Monitor de paciente Biolight M12 con pantalla táctil de 12.1 pulgadas (1280×800). ECG, SpO₂, NIBP y temperatura para adultos, pediátricos y neonatales. Precio bajo cotización."
     ],
@@ -14276,7 +12496,6 @@
       "Intrahospital transport"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Amplía tu capacidad de monitoreo con 6 bahías modulares en una pantalla Full HD de 15.6″, nítida incluso a distancia.",
       "Suma parámetros avanzados como ECG de 12 derivaciones, BIS, EEG o rSO₂ según la complejidad de cada paciente.",
@@ -14382,7 +12601,6 @@
       "Post-anesthesia recovery rooms"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Evalúa hemodinamia avanzada con IBP, PPV/PAWP, ICG y gasto cardíaco (C.O.) directamente en tu monitor P18.",
       "Su pantalla Full HD de 18.5″, amplia y multitáctil, facilita la lectura de datos clínicos en UCI, quirófano o recuperación.",
@@ -14473,7 +12691,6 @@
       "Support in ICU and operating room"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Lleva el monitoreo continuo del paciente desde la ambulancia hasta la UCI, sin interrupciones, gracias a su compatibilidad con toda la Serie P Biolight.",
       "Visualiza los parámetros vitales con claridad en su pantalla multitáctil de alta resolución, incluso en movimiento.",
@@ -14574,7 +12791,6 @@
       "General ward network integration"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Visualiza los parámetros esenciales del paciente en una pantalla multitáctil Full HD de 12.1″, con opción de sumar hasta 4 módulos según las necesidades de tu servicio.",
       "Integra CO₂, BIS o EEG cuando tu unidad lo requiera, sin cambiar de monitor: el P12 crece con tu servicio clínico.",
@@ -14667,7 +12883,6 @@
       "Emergency departments"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "atributos": {
       "legacy_slugs": [
         "monitor-de-paciente-s12-biolight"
@@ -14829,7 +13044,6 @@
       "Low-complexity units"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Con solo 3 kg de peso y una pantalla de 10″, se mueve contigo entre urgencias, triaje y salas de recuperación sin perder claridad de lectura.",
       "La frecuencia respiratoria por pletismografía (RRP) te da un dato vital más sin sensores ni insumos adicionales.",
@@ -14896,7 +13110,6 @@
       "Home care"
     ],
     "marca": "Monitor de",
-    "proveedor_ref": "equitronic",
     "atributos": {
       "legacy_slugs": [
         "monitor-de-signos-vitales-portatil-m860-biolight"
@@ -14941,8 +13154,7 @@
       "EMG",
       "aEEG"
     ],
-    "marca": "Nuprep Skin",
-    "proveedor_ref": "equitronic"
+    "marca": "Nuprep Skin"
   },
   {
     "id": "252ce0d9-98ab-4de3-8a37-6466c7d0c9e2",
@@ -15007,7 +13219,6 @@
       "EEG assessment in newborns"
     ],
     "marca": "Natus Medical",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Con los electrodos de hidrogel OBM00042 usted asegura una conexión segura y estable con el Olympic Brainz Monitor a través de sus conectores touch-proof estándar.",
       "Su tecnología de hidrogel le ofrece una adhesión suave a la piel del recién nacido, cuidando su integridad durante todo el periodo de monitoreo.",
@@ -15111,7 +13322,6 @@
       "Anesthesia areas"
     ],
     "marca": "Biolight",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Monitorea actividad cerebral con BIS, EEG y rSO₂ en la pantalla más grande de la Serie P: 22″ Full HD multitáctil.",
       "Evalúa transmisión neuromuscular (NMT/TOF) y capnografía en un mismo equipo, sin sensores ni monitores adicionales.",
@@ -15172,7 +13382,6 @@
       "Non-invasive respiratory support"
     ],
     "marca": "Optiflow",
-    "proveedor_ref": "equitronic",
     "atributos": {
       "legacy_slugs": [
         "optiflow-plus-asymmetrical-nasal-cannula-fisher-paykel"
@@ -15585,169 +13794,6 @@
       "OT-500 datasheet"
     ],
     "marca": "Advanced Instrumentations"
-  },
-  {
-    "id": "bf96cc92-b564-48da-aff1-3b9ba97a5a8e",
-    "slug": "monitor-multiparametro-ref-pisces-northern",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "tipo_id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "nombre_es": "Monitor Multiparámetro Pisces",
-    "nombre_en": "Multi-parameter Monitor Pisces",
-    "descripcion_corta_es": "Monitor multiparámetro con pantalla táctil de 12.1 pulgadas",
-    "descripcion_corta_en": "Multi-parameter monitor with 12.1-inch touch screen",
-    "descripcion_larga_es": "El Monitor Multiparámetro Pisces de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: 12.1”color TFT LCD screen,wide and flat screen design; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder; 12.1” color TFT LCD screen; 8 waveform display,up to 12-lead ECG analysis.\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Multi-parameter Monitor Pisces from Northern Meditec is in the IME catalog. Per official brochure: 12.1”color TFT LCD screen,wide and flat screen design; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder; 12.1” color TFT LCD screen; 8 waveform display,up to 12-lead ECG analysis.\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "12.1”color TFT LCD screen,wide and flat screen design"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "12.1” color TFT LCD screen"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "8 waveform display,up to 12-lead ECG analysis"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "Wired/Wireless CMS, support HL7 protocol to HIS"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "SpO2 pulse-tone modulation (Pitch Tone)"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "Graphical & tabular trend review( 120 hours)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla TFT LCD táctil a color 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Batería de iones de litio"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/pisces/imagen-principal-pisces.jpg",
-    "galeria": [
-      "/assets/productos/importados/pisces/imagen-principal-pisces.jpg",
-      "imagen_principal_Pisces.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-pisces-northern-460c0376c0.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Monitoreo hospitalario multiparámetro"
-    ],
-    "aplicaciones_en": [
-      "Multiparameter hospital monitoring",
-      "ECG recording",
-      "SpO₂ measurement",
-      "Non-invasive blood pressure monitoring"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "pisces",
-        "monitor-multiparametro-pisces",
-        "monitor-multiparametro-pisces-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "12.1”color TFT LCD screen,wide and flat screen design",
-      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
-      "Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder",
-      "12.1” color TFT LCD screen"
-    ],
-    "beneficios_en": [
-      "12.1”color TFT LCD screen,wide and flat screen design",
-      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
-      "Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder",
-      "12.1” color TFT LCD screen"
-    ],
-    "valor_es": "Monitor Multiparámetro Pisces Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Multi-parameter Monitor Pisces Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Pisces?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Monitor Multiparámetro Pisces) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Monitor Multiparámetro Pisces?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Multi-parameter Monitor Pisces datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Multi-parameter Monitor Pisces) and clinical area."
-      },
-      {
-        "q": "Where can I download the Multi-parameter Monitor Pisces datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Multiparámetro Pisces",
-      "Northern Meditec",
-      "ficha Monitor Multiparámetro Pisces",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Multi-parameter Monitor Pisces",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
   },
   {
     "id": "c6381396-820a-41a8-8a2d-514afbe506ec",
@@ -16664,7 +14710,6 @@
       "Neonatology"
     ],
     "marca": "Prematuro Wigglepads",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Reemplazan las cintas adhesivas en la fijación de la cánula Optiflow Junior.",
       "Listados como repuestos compatibles de la interfaz Optiflow Junior 2.",
@@ -16808,7 +14853,6 @@
       "Miniflow® therapy"
     ],
     "marca": "Prong Nasal",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Cuatro tallas para recién nacidos, lactantes y niños (prong de 2,3 a 3,7 mm).",
       "Límites de flujo de 10 a 27 L/min según la talla.",
@@ -16947,7 +14991,6 @@
       "Non-invasive respiratory support"
     ],
     "marca": "Prong Nasal",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Material suave y flexible que se adapta a las narinas del bebé.",
       "Terapia CPAP no invasiva en neonatos y prematuros.",
@@ -17296,7 +15339,6 @@
       "Neonatal transport"
     ],
     "marca": "Mercury Medical",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Puede controlar con precisión tanto la PIP como la PEEP gracias a su manómetro codificado por colores, fácil de leer incluso a distancia.",
       "Su botón de anulación en el controlador en línea le permite superar los 40 cm H2O cuando la condición del paciente lo exige, sin cambiar de dispositivo.",
@@ -17398,7 +15440,6 @@
       "Neonatal surgery"
     ],
     "marca": "Resucitador Neonatal",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Presiones PIP y PEEP más controladas y consistentes que con bolsas autoinflables, según el fabricante.",
       "Manómetro de -10 a 80 cmH₂O y válvula de alivio de presión máxima de fábrica en 40 cmH₂O.",
@@ -18007,7 +16048,6 @@
       "0.2–30 L/min flow sensor"
     ],
     "marca": "SLE",
-    "proveedor_ref": "equitronic",
     "atributos": {
       "fabricante": "SLE",
       "fuentes": [
@@ -18134,7 +16174,6 @@
       "neonatal dual hot-wire flow sensor"
     ],
     "marca": "SLE",
-    "proveedor_ref": "equitronic",
     "atributos": {
       "fabricante": "SLE",
       "fuentes": [
@@ -18221,7 +16260,6 @@
       "Humidified oxygen therapy"
     ],
     "marca": "Sistema de",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Flujo de 2 a 60 L/min con humidificación integrada, para pacientes con respiración espontánea.",
       "Compatible con cánulas nasales y traqueostomía Optiflow+ y mascarillas de 22 mm.",
@@ -18376,7 +16414,6 @@
       "Humidified oxygen therapy"
     ],
     "marca": "Fisher & Paykel",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Con el Airvo 3 usted puede administrar terapia de alto flujo en cualquier área hospitalaria, sin depender de una toma de aire centralizado.",
       "Su humidificador y fuente de flujo integrados le permiten trasladar un único equipo compacto entre distintos servicios, apoyado además por su batería integrada.",
@@ -18452,7 +16489,6 @@
       "Assisted respiratory therapy"
     ],
     "marca": "Sistema de",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Monitoreo de la presión entregada sin apartar la vista del paciente.",
       "Manómetro integrado de hasta 60 cmH₂O y válvula de alivio de presión opcionales.",
@@ -18604,7 +16640,6 @@
       "Adult, pediatric and neonatal intensive care"
     ],
     "marca": "Belmont",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Controla la temperatura corporal del paciente con precisión servo-controlada, ajustando el enfriamiento o recalentamiento de forma automática.",
       "Ayuda a minimizar el daño neurológico en las horas críticas tras un paro cardíaco o un ACV, cuando cada grado cuenta.",
@@ -18693,7 +16728,6 @@
       "Critical patient transport"
     ],
     "marca": "Belmont",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Controla la temperatura corporal del paciente pediátrico o neonatal con precisión servocontrolada, leyendo su temperatura núcleo cada 66 milisegundos y ajustando el enfriamiento o recalentamiento de forma automática.",
       "Ayuda a cumplir las ventanas de tiempo críticas de la terapia de hipotermia gracias a su autonomía de batería de 60 minutos y su peso ligero, facilitando el traslado del paciente sin interrumpir el tratamiento.",
@@ -18786,7 +16820,6 @@
       "Thermal stabilization in critical procedures"
     ],
     "marca": "Belmont",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Controla y mantiene la normotermia del paciente de forma no invasiva durante todo el proceso perioperatorio: antes, durante y después de la cirugía.",
       "Ajusta automáticamente la temperatura del agua circulante mediante algoritmos propios, respondiendo en tiempo real a los sensores de temperatura núcleo y superficie del paciente.",
@@ -18886,7 +16919,6 @@
       "Pediatric outpatient respiratory support"
     ],
     "marca": "Medin Medical",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Puede conectarlo directamente a las ramas inspiratoria y espiratoria de su ventilador, dejando que sea el propio equipo quien ajuste y controle el parámetro de CPAP.",
       "Su espacio muerto mínimo y la separación de los gases de inspiración y espiración le ayudan a reducir el trabajo respiratorio del neonato o paciente pediátrico.",
@@ -18975,7 +17007,6 @@
       "Ventilatory support in delivery rooms"
     ],
     "marca": "Sistema Resusa",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Reanimador en T desechable para pacientes de más de 10 kg, sin equipo de capital.",
       "Manómetro codificado por colores de 0 a 60 cmH₂O y controlador de PIP ajustable con botón de anulación.",
@@ -34694,205 +32725,6 @@
     }
   },
   {
-    "id": "a865e0a2-1a70-41bb-b147-1e673abd6ec8",
-    "slug": "monitor-multiparametro-ref-taurus-northern",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "tipo_id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "nombre_es": "Monitor Multiparámetro Taurus",
-    "nombre_en": "Multi-parameter Monitor Taurus",
-    "descripcion_corta_es": "Monitor multiparámetro con pantalla táctil de 12.1 pulgadas",
-    "descripcion_corta_en": "Multi-parameter monitor with 12.1-inch touch screen",
-    "descripcion_larga_es": "El Monitor Multiparámetro Taurus de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: 12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the; 12.1” color TFT LCD Touch screen; 8 waveform display,up to 12-lead ECG analysis; Wired/Wireless CMS, support HL7 protocol to HIS; SpO2 pulse-tone modulation (Pitch Tone).\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Multi-parameter Monitor Taurus from Northern Meditec is in the IME catalog. Per official brochure: 12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the; 12.1” color TFT LCD Touch screen; 8 waveform display,up to 12-lead ECG analysis; Wired/Wireless CMS, support HL7 protocol to HIS; SpO2 pulse-tone modulation (Pitch Tone).\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "12.1” color TFT LCD Touch screen"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "8 waveform display,up to 12-lead ECG analysis"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "Wired/Wireless CMS, support HL7 protocol to HIS"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "SpO2 pulse-tone modulation (Pitch Tone)"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "Graphical & tabular trend review( 120 hours)"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "48h full disclosure wave review for each patient"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla TFT LCD táctil a color 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Configuración: ECG+SpO2+NIBP+2TEMP+PR+RESP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Batería de iones de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "8 formas de onda"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Análisis de ECG de 12 derivaciones"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Opcional: Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, AG, BIS, NMT"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "MEWS"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Revisión de tendencias 480h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Revisión de onda 48h"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "OxyCRG"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/taurus/imagen-principal-taurus.png",
-    "galeria": [
-      "/assets/productos/importados/taurus/imagen-principal-taurus.png",
-      "imagen_principal_Taurus.png"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-taurus-northern-00b2c5a01c.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "ICU",
-      "CCU",
-      "NICU"
-    ],
-    "aplicaciones_en": [
-      "ICU",
-      "CCU",
-      "NICU"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "taurus",
-        "monitor-multiparametro-taurus",
-        "monitor-multiparametro-taurus-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the",
-      "12.1” color TFT LCD Touch screen",
-      "8 waveform display,up to 12-lead ECG analysis",
-      "Wired/Wireless CMS, support HL7 protocol to HIS"
-    ],
-    "beneficios_en": [
-      "12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the",
-      "12.1” color TFT LCD Touch screen",
-      "8 waveform display,up to 12-lead ECG analysis",
-      "Wired/Wireless CMS, support HL7 protocol to HIS"
-    ],
-    "valor_es": "Monitor Multiparámetro Taurus Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Multi-parameter Monitor Taurus Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Taurus?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Monitor Multiparámetro Taurus) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Monitor Multiparámetro Taurus?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Multi-parameter Monitor Taurus datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Multi-parameter Monitor Taurus) and clinical area."
-      },
-      {
-        "q": "Where can I download the Multi-parameter Monitor Taurus datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Multiparámetro Taurus",
-      "Northern Meditec",
-      "ficha Monitor Multiparámetro Taurus",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Multi-parameter Monitor Taurus",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
     "id": "a223307d-9c7d-42b2-b7a3-22d797278d05",
     "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
     "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
@@ -35647,7 +33479,6 @@
       "Multiple Sleep Latency Test (MSLT)"
     ],
     "marca": "Natus",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Fija el electrodo y conduce la señal en un solo paso, agilizando la preparación del estudio de EEG.",
       "Formulado para procedimientos de neuromonitoreo exigentes: EEG, potenciales evocados, PSG y MSLT.",
@@ -35789,7 +33620,6 @@
       "Endoscopic otorhinolaryngology"
     ],
     "marca": "Torre de",
-    "proveedor_ref": "equitronic",
     "atributos": {
       "legacy_slugs": [
         "torre-laparoscopia-4k-sonoscape-sv-m4k120"
@@ -35838,8 +33668,7 @@
       "Laparoscopic gynecology",
       "Digestive endoscopy"
     ],
-    "marca": "Torre de",
-    "proveedor_ref": "equitronic"
+    "marca": "Torre de"
   },
   {
     "id": "816c0042-5d58-4698-a474-9d9fc22b9c4a",
@@ -35906,7 +33735,6 @@
       "Infants with respiratory distress"
     ],
     "marca": "Tubo Nasal",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Interfaz FlexiTrunk para CPAP en recién nacidos, prematuros y lactantes.",
       "Se integra con prongs, máscaras y gorros de la misma línea.",
@@ -36181,759 +34009,6 @@
     "marca": "Advanced Instrumentations"
   },
   {
-    "id": "6eb9126d-3a7f-43ff-a96c-191a3af32140",
-    "slug": "ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide",
-    "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
-    "familia_slug": "ventiladores",
-    "tipo_id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
-    "nombre_es": "ESPECIFICACIONES VENTILADOR DE CUIDADOS  INTENSIVOS MONNAL T75",
-    "nombre_en": "Adult/Pediatric Intensive Care Ventilator Monnal Ref T75 Air Liquide",
-    "descripcion_corta_es": "AREA DE APLICACIÓN CONDICIONES DE OPERACIÓN Aplicación: Ventilador de cuidado intensivo diseñado para resucitación, cuidado intensivo y post operatorio Temperatura de operación: +10 a +40oC (+50 a +104oF) Categorías de paciente: Adulto, Niñ",
-    "descripcion_corta_en": "Mechanical ventilator with intuitive interface for safe adult and pediatric critical care ventilation, featuring high-efficiency turbine and comprehensive monitoring.",
-    "descripcion_larga_es": "AREA DE APLICACIÓN CONDICIONES DE OPERACIÓN Aplicación: Ventilador de cuidado intensivo diseñado para resucitación, cuidado intensivo y post operatorio Temperatura de operación: +10 a +40oC (+50 a +104oF) Categorías de paciente: Adulto, Niño e Infante Humedad relativa: 0 a 90% (a 40oC sin condensación) Peso: 3 a 250 kg Presión atmosférica: 700 (3075 metros) a 1060 mbar Compensación de efecto de la altitud ESTANDARES Y DIRECTIVAS CONDICIONES DE ALMACENAMIENTO Marca CE: CE 0459. El dispositivo cumple con los requerimientos Europeos en la Directiva 93/42/EEC concerniente a dispositivos médicos. Temperatura de almacenamiento: -20 a +70oC (-4 a +159oF) Clasificación médica: Clase IIb, de acuerdo con la Directiva 93/12/CEE. Humedad relativa: 0 a 90% (a 40oC sin condensación) Estándares: ISO 14971 CEI 60601-1 CEI 60601-2-12 Presión atmosférica: 550 (5550 metros) a 1060 mbar Compatibilidad elect",
-    "descripcion_larga_en": "The Monnal T75 mechanical ventilator features an intuitive user interface for safe therapy in adult and pediatric patients. Equipped with a high-efficiency turbine, it delivers precise and reliable ventilation in all critical care scenarios. It offers a comprehensive range of ventilatory modes and monitoring tools that provide the necessary oversight for decision-making in patients who require them. The Monnal T75 flow sensor ensures rapid response to inspiratory effort, enhancing both invasive and non-invasive ventilation treatment.",
-    "especificaciones": [
-      {
-        "clave": "Caracteristica",
-        "valor": "AREA DE APLICACIÓN CONDICIONES DE OPERACIÓN Aplicación: Ventilador de cuidado intensivo diseñado para resucitación, cuidado intensivo y post operatorio Temperat",
-        "grupo": ""
-      },
-      {
-        "clave": "Caracteristica",
-        "valor": "FUENTE DE ALIMENTACIÓN ALIMENTACIÓN NEUMÁTICA Alimentación: 100-240 Vac ± 5 % Alimentación neumática de oxígeno Frecuencia: 50-60 Hz Presión alta: 2.8-6 bar / 2",
-        "grupo": ""
-      },
-      {
-        "clave": "Caracteristica",
-        "valor": "ESPECIFICACIONES NEUMÁTICAS MODOS – VENTILACION INVASIVA Método de disparo: Flujo y presión VCV Ventilación Controlada por Volumen o Asistida Controlada por Vol",
-        "grupo": ""
-      },
-      {
-        "clave": "Caracteristica",
-        "valor": "CONFIGURACIÓN DE PARÁMETROS CONFIGURACIÓN DE PARÁMETROS (SIGUIENTE) PARÁMETROS RANGO DE CONFIGURACIÓN: PARÁMETROS RANGO DE CONFIGURACIÓN: Volumen Tidal Inspirat",
-        "grupo": ""
-      },
-      {
-        "clave": "Caracteristica",
-        "valor": "CONFIGURACIÓN DE PARÁMETROS (SIGUIENTE) CONFIGURACIÓN DE PARÁMETROS (SIGUIENTE) PARÁMETROS RANGO DE CONFIGURACIÓN VENTILACIÓN NO INVASIVA Presión Positiva al Fi",
-        "grupo": ""
-      },
-      {
-        "clave": "Caracteristica",
-        "valor": "MONITOREO MONITOREO (SIGUIENTE) PARÁMETROS MEDIDOS: RANGO MEDIDO: VALOR EN TENDENCIA*: PARÁMETROS MEDIDOS: RANGO MEDIDO: VALOR EN TENDENCIA*: Volumen Minuto Esp",
-        "grupo": ""
-      },
-      {
-        "clave": "Caracteristica",
-        "valor": "CONFIGURACIÓN DE ALARMAS SISTEMAS DE ALARMA Ppico alto 10 a 100 cmH2O Alarmas visuales clasificadas por prioridad: 3 niveles de prioridad con colores específico",
-        "grupo": ""
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.jpg",
-    "galeria": [
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.jpg",
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/galeria-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide-02.jpg",
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/galeria-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide-03.jpg",
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/galeria-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide-04.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/ficha-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Ventilación invasiva",
-      "Ventilación no invasiva",
-      "Cuidados intensivos adultos",
-      "Cuidados intensivos pediátricos"
-    ],
-    "aplicaciones_en": [
-      "Invasive ventilation",
-      "Non-invasive ventilation",
-      "Adult intensive care",
-      "Pediatric intensive care"
-    ],
-    "marca": "Air Liquide",
-    "proveedor_ref": "equitronic",
-    "beneficios_es": [
-      "Cubre ventilación invasiva y no invasiva en una misma plataforma clínica.",
-      "Aplicaciones clínicas: Ventilación invasiva, Ventilación no invasiva, Cuidados intensivos adultos, Cuidados intensivos pediátricos."
-    ],
-    "beneficios_en": [
-      "Its 10.4-inch color touchscreen and ergonomic setting wheel make ventilation control easier for adult, pediatric and infant patients.",
-      "The Clean'In HEPA filter, located at the turbine inlet, blocks 99.97% of particles, protecting both patient and ventilator from infection.",
-      "It incorporates high-flow oxygen therapy with precise FiO2 control while preserving moisture and temperature conditions similar to spontaneous breathing.",
-      "Volumetric capnography monitors etCO2, VmCO2, Vmalv and other parameters to assess lung perfusion and alveolar ventilation in real time.",
-      "Backed by more than 30 years of experience in artificial ventilation, it offers invasive and non-invasive modes — VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV — to adapt to every stage of critical patient care."
-    ],
-    "valor_es": "ESPECIFICACIONES VENTILADOR DE CUIDADOS INTENSIVOS MONNAL con enfoque en ventilación invasiva y ventilación no invasiva, listo para evaluación técnica y cotización institucional.",
-    "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform.",
-    "seo_keywords_es": [
-      "ventilador UCI Colombia",
-      "equipo médico hospitalario Colombia",
-      "Air Liquide Colombia",
-      "ventilación invasiva hospital",
-      "ventilación no invasiva hospital"
-    ],
-    "seo_keywords_en": [
-      "mechanical ventilator hospital",
-      "adult pediatric ICU ventilator",
-      "critical care ventilation Colombia"
-    ],
-    "atributos": {
-      "beneficios_es": [
-        "Cubre ventilación invasiva y no invasiva en una misma plataforma clínica.",
-        "Aplicaciones clínicas: Ventilación invasiva, Ventilación no invasiva, Cuidados intensivos adultos, Cuidados intensivos pediátricos."
-      ],
-      "beneficios_en": [
-        "Its 10.4-inch color touchscreen and ergonomic setting wheel make ventilation control easier for adult, pediatric and infant patients.",
-        "The Clean'In HEPA filter, located at the turbine inlet, blocks 99.97% of particles, protecting both patient and ventilator from infection.",
-        "It incorporates high-flow oxygen therapy with precise FiO2 control while preserving moisture and temperature conditions similar to spontaneous breathing.",
-        "Volumetric capnography monitors etCO2, VmCO2, Vmalv and other parameters to assess lung perfusion and alveolar ventilation in real time.",
-        "Backed by more than 30 years of experience in artificial ventilation, it offers invasive and non-invasive modes — VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV — to adapt to every stage of critical patient care."
-      ],
-      "valor_es": "ESPECIFICACIONES VENTILADOR DE CUIDADOS INTENSIVOS MONNAL con enfoque en ventilación invasiva y ventilación no invasiva, listo para evaluación técnica y cotización institucional.",
-      "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform.",
-      "seo_keywords_es": [
-        "ventilador UCI Colombia",
-        "equipo médico hospitalario Colombia",
-        "Air Liquide Colombia",
-        "ventilación invasiva hospital",
-        "ventilación no invasiva hospital"
-      ],
-      "seo_keywords_en": [
-        "mechanical ventilator hospital",
-        "adult pediatric ICU ventilator",
-        "critical care ventilation Colombia"
-      ],
-      "marca": "Air Liquide"
-    }
-  },
-  {
-    "id": "aa3caf33-200f-4a28-bba7-7be5ff55488a",
-    "slug": "ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide",
-    "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
-    "familia_slug": "ventiladores",
-    "tipo_id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
-    "nombre_es": "Ventilador Cuidado Intensivo Adulto Pediátrico Monnal Ref TEO Air Liquide",
-    "nombre_en": "Adult/Pediatric Intensive Care Ventilator Monnal Ref TEO Air Liquide",
-    "descripcion_corta_es": "El Ventilador Mecánico Monnal TEO integra una interfaz de usuario de última generación, diseñada para ofrecer una experiencia operativa intuitiva y eficiente, facilitando una gestión clínica segura en",
-    "descripcion_corta_en": "Next-generation mechanical ventilator with advanced user interface, high-performance turbine and intelligent monitoring for adult, pediatric and infant critical care.",
-    "descripcion_larga_es": "El Ventilador Mecánico Monnal TEO integra una interfaz de usuario de última generación, diseñada para ofrecer una experiencia operativa intuitiva y eficiente, facilitando una gestión clínica segura en pacientes adultos, pediátricos e infantes. Equipado con una turbina de alto rendimiento, proporciona una ventilación precisa, constante y adaptable a las exigencias de los entornos críticos más complejos.\n\nEste avanzado sistema incorpora una completa gama de modos ventilatorios y herramientas de monitoreo inteligente, que optimizan la toma de decisiones clínicas en tiempo real. Además, su sensor de flujo de alta sensibilidad asegura una detección inmediata del esfuerzo inspiratorio, potenciando significativamente la eficacia de la ventilación invasiva y no invasiva.",
-    "descripcion_larga_en": "The Monnal TEO mechanical ventilator integrates a next-generation user interface designed for an intuitive and efficient operating experience, enabling safe clinical management in adult, pediatric and infant patients. Equipped with a high-performance turbine, it provides precise, constant ventilation adapted to the demands of the most complex critical care environments. This advanced system incorporates a complete range of ventilatory modes and intelligent monitoring tools that optimize real-time clinical decision-making. Additionally, its high-sensitivity flow sensor ensures immediate detection of inspiratory effort, significantly enhancing the effectiveness of invasive and non-invasive ventilation.",
-    "especificaciones": [
-      {
-        "clave": "Población de pacientes",
-        "grupo": "Rango de uso",
-        "valor": "Infantes desde 3 kg, niños y adultos"
-      },
-      {
-        "clave": "Tipo de equipo",
-        "grupo": "Rango de uso",
-        "valor": "Ventilador de cuidados intensivos accionado por turbina (blower-powered)"
-      },
-      {
-        "clave": "Turbina",
-        "grupo": "Tecnología",
-        "valor": "Tecnología de turbina con subida rápida de presión de 200 cmH2O/s para responder a la demanda inspiratoria del paciente"
-      },
-      {
-        "clave": "Autonomía de aire",
-        "grupo": "Tecnología",
-        "valor": "Solo requiere suministro de oxígeno (alta o baja presión); la ventilación se mantiene incluso ante una falla en el suministro de oxígeno gracias a la turbina"
-      },
-      {
-        "clave": "Uso fuera de UCI",
-        "grupo": "Tecnología",
-        "valor": "La autonomía de aire de la turbina permite su uso también fuera de las unidades de cuidados intensivos"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Interfaz",
-        "valor": "Pantalla táctil capacitiva de 15 pulgadas"
-      },
-      {
-        "clave": "Ayuda dinámica",
-        "grupo": "Interfaz",
-        "valor": "Ventanas de ayuda dinámica con asistencia gráfica y digital instantánea ante cada modificación de la configuración de ventilación"
-      },
-      {
-        "clave": "Personalización de curvas",
-        "grupo": "Interfaz",
-        "valor": "Visualización configurable: 3 curvas, 4 curvas, 2 curvas y 2 loops, 2 curvas y 3 mini-tendencias, o 1 loop simple"
-      },
-      {
-        "clave": "Parámetros en pantalla",
-        "grupo": "Interfaz",
-        "valor": "10 parámetros de monitoreo siempre visibles durante la ventilación"
-      },
-      {
-        "clave": "Exploración de mecánica respiratoria",
-        "grupo": "Exploración respiratoria",
-        "valor": "Resistencia estática y distensibilidad estática automáticas para evaluar la mecánica respiratoria del paciente durante toda la terapia"
-      },
-      {
-        "clave": "Maniobras de reclutamiento",
-        "grupo": "Exploración respiratoria",
-        "valor": "Maniobras automáticas para evaluar la reclutabilidad del paciente, con barra lateral dedicada"
-      },
-      {
-        "clave": "Maniobras de destete",
-        "grupo": "Exploración respiratoria",
-        "valor": "Evaluación del esfuerzo respiratorio del paciente para apoyar el weaning: P0.1, NIF, RSBI, AOP y RI Ratio"
-      },
-      {
-        "clave": "Ventilación protectora",
-        "grupo": "Monitoreo avanzado",
-        "valor": "Monitoreo alineado con recomendaciones internacionales: presión meseta (Pplat) < 30 cmH2O, Vt = 6 ml/kg de PBW, presión de conducción (driving pressure) < 14 cmH2O"
-      },
-      {
-        "clave": "Monitoreo transpulmonar",
-        "grupo": "Monitoreo avanzado",
-        "valor": "Monitoreo con presión esofágica dedicado a la mecánica transpulmonar (Peso, Plung, EL/ERS)"
-      },
-      {
-        "clave": "Distensibilidad y resistencia estática",
-        "grupo": "Monitoreo avanzado",
-        "valor": "Medición de Cstat y Rstat con un solo botón"
-      },
-      {
-        "clave": "Capnografía volumétrica",
-        "grupo": "Monitoreo avanzado",
-        "valor": "Capnografía volumétrica disponible como función de monitoreo"
-      },
-      {
-        "clave": "Clasificación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Dispositivo médico clase IIb - Evaluación de conformidad: GMED CE 0459"
-      },
-      {
-        "clave": "Fabricación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Diseñado y fabricado íntegramente en Francia por Air Liquide Medical Systems"
-      },
-      {
-        "clave": "Gestión ambiental",
-        "grupo": "Normativa y fabricación",
-        "valor": "Fabricante certificado ISO 14001:2015 para su sistema de gestión ambiental en el sitio de Antony"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide.jpg",
-    "galeria": [
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide.jpg",
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/galeria-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide-02.jpg",
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/galeria-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide-03.jpg",
-      "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/galeria-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide-04.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/ficha-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": false,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Ventilación invasiva",
-      "Ventilación no invasiva",
-      "Cuidados intensivos adultos",
-      "Cuidados intensivos pediátricos"
-    ],
-    "aplicaciones_en": [
-      "Invasive ventilation",
-      "Non-invasive ventilation",
-      "Adult intensive care",
-      "Pediatric intensive care"
-    ],
-    "marca": "Air Liquide",
-    "proveedor_ref": "equitronic",
-    "beneficios_es": [
-      "Su pantalla táctil capacitiva de 15 pulgadas y las ventanas de ayuda dinámica te acompañan en cada ajuste de ventilación, priorizando la protección del paciente más crítico.",
-      "Con maniobras automáticas de resistencia y distensibilidad estática, evalúas la mecánica respiratoria de tus pacientes a lo largo de toda la terapia, sin pasos manuales adicionales.",
-      "Incluye herramientas de destete como P0.1, NIF, RSBI y AOP, que apoyan tus decisiones de weaning con datos objetivos del esfuerzo respiratorio del paciente.",
-      "Su tecnología de turbina le da autonomía de aire y una rápida subida de presión de 200 cmH2O/s, manteniendo la ventilación incluso ante una falla en el suministro de oxígeno.",
-      "Diseñado y fabricado en Francia para unidades de cuidados intensivos, ventila con seguridad a infantes desde 3 kg, niños y adultos."
-    ],
-    "beneficios_en": [
-      "Its 15-inch capacitive touchscreen and dynamic help windows guide you through every ventilation adjustment, prioritizing protection for the most critical patient.",
-      "With automatic static resistance and static compliance maneuvers, you evaluate your patients' respiratory mechanics throughout the entire therapy, with no extra manual steps.",
-      "It includes weaning tools such as P0.1, NIF, RSBI and AOP, supporting your weaning decisions with objective data on the patient's respiratory effort.",
-      "Its turbine technology gives it air autonomy and a rapid pressure rise of 200 cmH2O/s, keeping ventilation running even if the oxygen supply fails.",
-      "Designed and manufactured in France for intensive care units, it safely ventilates infants from 3 kg, children and adults."
-    ],
-    "valor_es": "Un ventilador de cuidados intensivos que traduce la mecánica respiratoria de cada paciente en decisiones clínicas rápidas y protegidas, sin salir de una sola pantalla.",
-    "valor_en": "An intensive care ventilator that turns each patient's respiratory mechanics into fast, protected clinical decisions, all from a single screen."
-  },
-  {
-    "id": "d9f2017f-5bc9-4666-a4d5-e13b79c78597",
-    "slug": "ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide",
-    "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
-    "familia_slug": "ventiladores",
-    "tipo_id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
-    "nombre_es": "Ventilador Mecánico de Transporte Monnal Ref T60 Advanced Air Liquide",
-    "nombre_en": "Transport Mechanical Ventilator Monnal Ref T60 Advanced Air Liquide",
-    "descripcion_corta_es": "El Ventilador mecánico de transporte Monnal T60 Advanced ha sido diseñado para facilitar la movilidad y brindar a los profesionales de la salud un equipo versátil con los más altos estándares de venti",
-    "descripcion_corta_en": "Transport ventilator with adaptive ventilation, intuitive interface and integrated CPV software for cardiopulmonary resuscitation and intra-hospital patient transport.",
-    "descripcion_larga_es": "El Ventilador mecánico de transporte Monnal T60 Advanced ha sido diseñado para facilitar la movilidad y brindar a los profesionales de la salud un equipo versátil con los más altos estándares de ventilación para pacientes críticos adultos, pediátricos y lactantes, su interface de usuario intuitiva soluciona y facilita el acceso rápido en los primeros momentos de atención al paciente asegurando una ventilación adaptativa durante el transporte.\n\nLa integración del software CPV optimiza los resultados en los procedimientos de reanimación cardio pulmonar, por medio de la monitorización completa de las compresiones, sincronía de la ventilación y los volúmenes entregados brindando seguridad al paciente y eficacia al personal clínico.",
-    "descripcion_larga_en": "The Monnal T60 Advanced transport ventilator is designed to facilitate mobility and provide healthcare professionals with a versatile unit meeting the highest ventilation standards for critically ill adult, pediatric and infant patients. Its intuitive user interface enables rapid access during the initial moments of patient care, ensuring adaptive ventilation during transport. Integration of CPV software optimizes results in cardiopulmonary resuscitation procedures by fully monitoring compressions, ventilation synchrony and delivered volumes, providing patient safety and clinical staff effectiveness.",
-    "especificaciones": [
-      {
-        "clave": "Categorías de paciente",
-        "grupo": "Rango de uso",
-        "valor": "Adulto, niño e infante (desde 3 kg), con peso corporal predicho (PBW) ajustable"
-      },
-      {
-        "clave": "Entornos de uso",
-        "grupo": "Rango de uso",
-        "valor": "Cuidados intensivos, transporte intrahospitalario, servicios de urgencias y atención de trauma, unidades móviles terrestres y aéreas (helicópteros, aviones, transporte médico de larga distancia)"
-      },
-      {
-        "clave": "5 nuevos monitores",
-        "grupo": "Funciones avanzadas",
-        "valor": "VMe espontáneo, frecuencia respiratoria espontánea, presión de conducción (Driving Pressure), VTe/PBW, y distensibilidad estática y dinámica"
-      },
-      {
-        "clave": "Solución CPV (Cardio Pulmonary Ventilation)",
-        "grupo": "Funciones avanzadas",
-        "valor": "Estándar en el equipo T60 Advanced; combina ventilación, monitoreo y funciones adaptadas a la reanimación cardiopulmonar en pacientes adultos con paro cardíaco"
-      },
-      {
-        "clave": "Entorno ECLS",
-        "grupo": "Funciones avanzadas",
-        "valor": "Entorno dedicado a la gestión de pacientes en soporte ECMO"
-      },
-      {
-        "clave": "Identidad visual",
-        "grupo": "Funciones avanzadas",
-        "valor": "Identidad visual simplificada que permite un uso más fluido en situaciones críticas"
-      },
-      {
-        "clave": "Tipos de ventilación",
-        "grupo": "Modos de ventilación",
-        "valor": "Controlada por volumen, controlada por presión, soporte de presión, espontánea"
-      },
-      {
-        "clave": "Modos",
-        "grupo": "Modos de ventilación",
-        "valor": "(A)VCV, (A)VCV-VNI, (A)PCV, (A)PCV-VNI, SIMV, PSV, PSV-VNI, CPAP, APRV; opcionales: PS-Pro, PSIMV, PRVC"
-      },
-      {
-        "clave": "Volumen corriente",
-        "grupo": "Modos de ventilación",
-        "valor": "20 a 2.000 mL"
-      },
-      {
-        "clave": "Frecuencia",
-        "grupo": "Modos de ventilación",
-        "valor": "1 a 80 rpm"
-      },
-      {
-        "clave": "PEEP",
-        "grupo": "Modos de ventilación",
-        "valor": "0 a 20 cmH2O"
-      },
-      {
-        "clave": "FiO2",
-        "grupo": "Modos de ventilación",
-        "valor": "21 a 100%"
-      },
-      {
-        "clave": "Relación I:E",
-        "grupo": "Modos de ventilación",
-        "valor": "1:1 a 1:9"
-      },
-      {
-        "clave": "Oxigenoterapia nasal de alto flujo",
-        "grupo": "Modos de ventilación",
-        "valor": "Adultos: 4 a 80 L/min; niños e infantes: 2 a 60 L/min; FiO2 21 a 100%, con circuito específico, cánula nasal y humidificador calentado"
-      },
-      {
-        "clave": "Turbina",
-        "grupo": "Tecnología",
-        "valor": "Flujo pico de turbina de 230 L/min; suministro de aire autónomo mediante filtro HEPA"
-      },
-      {
-        "clave": "Batería",
-        "grupo": "Tecnología",
-        "valor": "Iones de litio; 5 horas de autonomía total (2h30 batería removible + 2h30 batería interna de seguridad); reemplazo cada 2 años"
-      },
-      {
-        "clave": "Parámetros medidos",
-        "grupo": "Monitoreo",
-        "valor": "MVe y MVi (0-99 L/min), VTe y VTi (20-3.000 mL), RR (1-120 c/min), Ppeak/PEEP/Pmean/Pplat (0-100 cmH2O), índice de fuga (0-100%), Ti/Ttot (0-100%), relación I:E (1:0 a 1:99,9), FiO2 (21-100%), CO2 opcional (0-100 mmHg); todos con tendencia registrada salvo la relación I:E"
-      },
-      {
-        "clave": "Curvas",
-        "grupo": "Monitoreo",
-        "valor": "Presión, flujo, volumen y CO2 (opcional); loops presión/volumen, presión/flujo, flujo/volumen y volumen/CO2 (opcional)"
-      },
-      {
-        "clave": "Tendencias",
-        "grupo": "Monitoreo",
-        "valor": "80 horas de ventilación, 1 valor por minuto en todos los parámetros con tendencia"
-      },
-      {
-        "clave": "Ventilación de apnea",
-        "grupo": "Monitoreo",
-        "valor": "Ventilación de apnea en modo VCV, ajustable en Vt, RR y tiempo de apnea"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Interfaz",
-        "valor": "LCD de 262k colores (18 bits), panel táctil resistivo de 8,4 pulgadas, resolución 640x480 px, luminosidad 800 cd/m2 con retroiluminación LED, ajuste de visualización día/noche"
-      },
-      {
-        "clave": "Alarmas ajustables",
-        "grupo": "Alarmas y seguridad",
-        "valor": "Presión baja/alta, presión meseta alta, VTi/MVi/MVe/VTe baja/alta, RR baja/alta, FiO2 baja/alta, etCO2 baja/alta"
-      },
-      {
-        "clave": "Alarmas específicas",
-        "grupo": "Alarmas y seguridad",
-        "valor": "Desconexión del paciente, obstrucción espiratoria, sensor de flujo, suministro eléctrico/baterías, suministro de oxígeno, preoxigenación del paciente, cable de red desconectado"
-      },
-      {
-        "clave": "Volumen de alarma",
-        "grupo": "Alarmas y seguridad",
-        "valor": "Ajustable, con 5 niveles de criticidad"
-      },
-      {
-        "clave": "Dimensiones",
-        "grupo": "Especificaciones físicas",
-        "valor": "29 x 25 x 11 cm (L x A x A)"
-      },
-      {
-        "clave": "Peso",
-        "grupo": "Especificaciones físicas",
-        "valor": "3,7 kg (4 kg con 2 baterías)"
-      },
-      {
-        "clave": "Alimentación eléctrica",
-        "grupo": "Especificaciones físicas",
-        "valor": "100-240 V AC (tolerancia ±10%), 50-60 Hz, consumo máximo de 120 VA (0,12 kW)"
-      },
-      {
-        "clave": "Suministro neumático de O2",
-        "grupo": "Especificaciones físicas",
-        "valor": "Alta presión: 2,8-6 bar / 280-600 kPa / 40-86 psi; baja presión: 0-1,5 bar / 0-150 kPa / 0-22 psi; conexiones NF, DISS, NIST"
-      },
-      {
-        "clave": "Condiciones ambientales de operación",
-        "grupo": "Especificaciones físicas",
-        "valor": "-10°C a +40°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa"
-      },
-      {
-        "clave": "Condiciones de almacenamiento",
-        "grupo": "Especificaciones físicas",
-        "valor": "-20°C a +50°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa"
-      },
-      {
-        "clave": "Índice de protección",
-        "grupo": "Especificaciones físicas",
-        "valor": "IP34"
-      },
-      {
-        "clave": "Conectores de interfaz",
-        "grupo": "Conectividad",
-        "valor": "VGA, USB-A, USB-B, CO2"
-      },
-      {
-        "clave": "Accesorios de transporte",
-        "grupo": "Accesorios",
-        "valor": "Bolso de transporte, batería removible, estación de carga mural, soporte universal intrahospitalario, carro rodante para humidificador, cilindro de oxígeno, brazo articulado y canasta autoclavable"
-      },
-      {
-        "clave": "Estándares",
-        "grupo": "Normativa y fabricación",
-        "valor": "ISO 14971, IEC 60601-1+A1, IEC 60601-1-2, IEC 60601-1-6, IEC 62366-1, IEC 60601-1-8+A1, ISO 80601-2-12, ISO 80601-2-55, EN 794-3+A1+A2, EN 1789+A1, EN 13718-1, IEC 62304, RTCA DO-160"
-      },
-      {
-        "clave": "Clasificación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Dispositivo médico clase IIb de turbina de aire - CE 0459 - Evaluación de conformidad GMED"
-      },
-      {
-        "clave": "Fabricación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Fabricado por Air Liquide Medical Systems; sistema de gestión ambiental certificado ISO 14001:2015"
-      }
-    ],
-    "imagen_principal": null,
-    "galeria": [],
-    "ficha_pdf": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/ficha-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": false,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Transporte de pacientes críticos",
-      "Reanimación cardio pulmonar",
-      "Ventilación adaptativa",
-      "Soporte respiratorio móvil"
-    ],
-    "aplicaciones_en": [
-      "Critical patient transport",
-      "Cardiopulmonary resuscitation",
-      "Adaptive ventilation",
-      "Mobile respiratory support"
-    ],
-    "marca": "Air Liquide",
-    "proveedor_ref": "equitronic",
-    "beneficios_es": [
-      "Integra 5 nuevos monitores —VMe espontáneo, frecuencia respiratoria espontánea, presión de conducción (Driving Pressure), VTe/PBW y distensibilidad estática y dinámica— para un seguimiento más fino del paciente crítico.",
-      "Su solución CPV (Cardio Pulmonary Ventilation), estándar en el equipo, combina ventilación, monitoreo y funciones dedicadas a la reanimación cardiopulmonar en paro cardíaco del adulto.",
-      "Cuenta con un entorno ECLS dedicado al manejo de pacientes en soporte ECMO, ampliando su rango de uso en escenarios de máxima criticidad.",
-      "Con 3,7 kg de peso y batería de litio de hasta 5 horas, mantiene la misma portabilidad del T60 para traslados intrahospitalarios, terrestres y aéreos.",
-      "Su identidad visual simplificada agiliza el uso en situaciones críticas, sin renunciar a los modos VCV, PCV, PSV, SIMV, CPAP y APRV de la gama Monnal."
-    ],
-    "beneficios_en": [
-      "It integrates 5 new monitors — spontaneous VMe, spontaneous respiratory rate, Driving Pressure, VTe/PBW, and static and dynamic compliance — for finer tracking of the critical patient.",
-      "Its CPV (Cardio Pulmonary Ventilation) solution, standard on the device, combines ventilation, monitoring and functions dedicated to cardiopulmonary resuscitation in adult cardiac arrest.",
-      "It features an ECLS environment dedicated to managing patients on ECMO support, extending its use to the most critical scenarios.",
-      "At 3.7 kg with up to 5 hours of lithium battery life, it keeps the same portability as the T60 for intrahospital, ground and air transfers.",
-      "Its simplified visual identity speeds up use in critical situations, without giving up the VCV, PCV, PSV, SIMV, CPAP and APRV modes of the Monnal range."
-    ],
-    "valor_es": "La versión más completa del transporte crítico Monnal: reanimación cardiopulmonar, soporte ECMO y monitoreo avanzado en el mismo equipo portátil.",
-    "valor_en": "The most complete version of Monnal critical transport: cardiopulmonary resuscitation, ECMO support and advanced monitoring in the same portable device."
-  },
-  {
-    "id": "82c62ebb-3614-4302-b3f1-f2af25d24095",
-    "slug": "ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide",
-    "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
-    "familia_slug": "ventiladores",
-    "tipo_id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
-    "nombre_es": "Ventilador Mecánico de Transporte Monnal Ref T60 Air Liquide",
-    "nombre_en": "Transport Mechanical Ventilator Monnal Ref T60 Air Liquide",
-    "descripcion_corta_es": "El Ventilador mecánico de transporte Monnal T60 ha sido diseñado para facilitar la movilidad y brindar a los profesionales de la salud un equipo versátil con los más altos estándares de ventilación pa",
-    "descripcion_corta_en": "Transport ventilator with invasive and non-invasive modes, color touchscreen and adaptive ventilation for intra-hospital and inter-hospital patient transport.",
-    "descripcion_larga_es": "El Ventilador mecánico de transporte Monnal T60 ha sido diseñado para facilitar la movilidad y brindar a los profesionales de la salud un equipo versátil con los más altos estándares de ventilación para pacientes críticos adultos, pediátricos y lactantes, su interface de usuario intuitiva soluciona y facilita el acceso rápido en los primeros momentos de atención al paciente, asegurando una ventilación adaptativa durante el transporte.\n\nCuenta con modos de ventilación invasivos y no invasivos. Además, su interfaz intuitiva, pantalla táctil a todo color y un amplio número de parámetros monitorizados.",
-    "descripcion_larga_en": "The Monnal T60 transport ventilator is designed to facilitate mobility and provide healthcare professionals with a versatile unit meeting the highest ventilation standards for critically ill adult, pediatric and infant patients. Its intuitive user interface solves and facilitates rapid access during the initial moments of patient care, ensuring adaptive ventilation during transport. It features invasive and non-invasive ventilation modes. Additionally, its intuitive interface, full-color touchscreen and a wide range of monitored parameters provide comprehensive clinical support.",
-    "especificaciones": [
-      {
-        "clave": "Categorías de paciente",
-        "grupo": "Rango de uso",
-        "valor": "Adulto, niño e infante (desde 3 kg), con peso corporal predicho (PBW) ajustable"
-      },
-      {
-        "clave": "Entornos de uso",
-        "grupo": "Rango de uso",
-        "valor": "Cuidados intensivos, transporte intrahospitalario, servicios de urgencias y atención de trauma, unidades móviles terrestres y aéreas (helicópteros, aviones, transporte médico de larga distancia)"
-      },
-      {
-        "clave": "Tipos de ventilación",
-        "grupo": "Modos de ventilación",
-        "valor": "Controlada por volumen, controlada por presión, soporte de presión, espontánea"
-      },
-      {
-        "clave": "Modos",
-        "grupo": "Modos de ventilación",
-        "valor": "(A)VCV, (A)VCV-VNI, (A)PCV, (A)PCV-VNI, SIMV, PSV, PSV-VNI, CPAP, APRV; opcionales: PS-Pro, PSIMV, PRVC"
-      },
-      {
-        "clave": "Volumen corriente",
-        "grupo": "Modos de ventilación",
-        "valor": "20 a 2.000 mL"
-      },
-      {
-        "clave": "Frecuencia",
-        "grupo": "Modos de ventilación",
-        "valor": "1 a 80 rpm"
-      },
-      {
-        "clave": "PEEP",
-        "grupo": "Modos de ventilación",
-        "valor": "0 a 20 cmH2O"
-      },
-      {
-        "clave": "FiO2",
-        "grupo": "Modos de ventilación",
-        "valor": "21 a 100%"
-      },
-      {
-        "clave": "Relación I:E",
-        "grupo": "Modos de ventilación",
-        "valor": "1:1 a 1:9"
-      },
-      {
-        "clave": "Oxigenoterapia nasal de alto flujo",
-        "grupo": "Modos de ventilación",
-        "valor": "Adultos: 4 a 80 L/min; niños e infantes: 2 a 60 L/min; FiO2 21 a 100%, con circuito específico, cánula nasal y humidificador calentado"
-      },
-      {
-        "clave": "Turbina",
-        "grupo": "Tecnología",
-        "valor": "Flujo pico de turbina de 230 L/min; suministro de aire autónomo mediante filtro HEPA"
-      },
-      {
-        "clave": "Batería",
-        "grupo": "Tecnología",
-        "valor": "Iones de litio; 5 horas de autonomía total (2h30 batería removible + 2h30 batería interna de seguridad); reemplazo cada 2 años"
-      },
-      {
-        "clave": "Parámetros medidos",
-        "grupo": "Monitoreo",
-        "valor": "MVe y MVi (0-99 L/min), VTe y VTi (20-3.000 mL), RR (1-120 c/min), Ppeak/PEEP/Pmean/Pplat (0-100 cmH2O), índice de fuga (0-100%), Ti/Ttot (0-100%), relación I:E (1:0 a 1:99,9), FiO2 (21-100%), CO2 opcional (0-100 mmHg); todos con tendencia registrada salvo la relación I:E"
-      },
-      {
-        "clave": "Curvas",
-        "grupo": "Monitoreo",
-        "valor": "Presión, flujo, volumen y CO2 (opcional); loops presión/volumen, presión/flujo, flujo/volumen y volumen/CO2 (opcional)"
-      },
-      {
-        "clave": "Tendencias",
-        "grupo": "Monitoreo",
-        "valor": "80 horas de ventilación, 1 valor por minuto en todos los parámetros con tendencia"
-      },
-      {
-        "clave": "Ventilación de apnea",
-        "grupo": "Monitoreo",
-        "valor": "Ventilación de apnea en modo VCV, ajustable en Vt, RR y tiempo de apnea"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Interfaz",
-        "valor": "LCD de 262k colores (18 bits), panel táctil resistivo de 8,4 pulgadas, resolución 640x480 px, luminosidad 800 cd/m2 con retroiluminación LED, ajuste de visualización día/noche"
-      },
-      {
-        "clave": "Alarmas ajustables",
-        "grupo": "Alarmas y seguridad",
-        "valor": "Presión baja/alta, presión meseta alta, VTi/MVi/MVe/VTe baja/alta, RR baja/alta, FiO2 baja/alta, etCO2 baja/alta"
-      },
-      {
-        "clave": "Alarmas específicas",
-        "grupo": "Alarmas y seguridad",
-        "valor": "Desconexión del paciente, obstrucción espiratoria, sensor de flujo, suministro eléctrico/baterías, suministro de oxígeno, preoxigenación del paciente, cable de red desconectado"
-      },
-      {
-        "clave": "Volumen de alarma",
-        "grupo": "Alarmas y seguridad",
-        "valor": "Ajustable, con 5 niveles de criticidad"
-      },
-      {
-        "clave": "Dimensiones",
-        "grupo": "Especificaciones físicas",
-        "valor": "29 x 25 x 11 cm (L x A x A)"
-      },
-      {
-        "clave": "Peso",
-        "grupo": "Especificaciones físicas",
-        "valor": "3,7 kg (4 kg con 2 baterías)"
-      },
-      {
-        "clave": "Alimentación eléctrica",
-        "grupo": "Especificaciones físicas",
-        "valor": "100-240 V AC (tolerancia ±10%), 50-60 Hz, consumo máximo de 120 VA (0,12 kW)"
-      },
-      {
-        "clave": "Suministro neumático de O2",
-        "grupo": "Especificaciones físicas",
-        "valor": "Alta presión: 2,8-6 bar / 280-600 kPa / 40-86 psi; baja presión: 0-1,5 bar / 0-150 kPa / 0-22 psi; conexiones NF, DISS, NIST"
-      },
-      {
-        "clave": "Condiciones ambientales de operación",
-        "grupo": "Especificaciones físicas",
-        "valor": "-10°C a +40°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa"
-      },
-      {
-        "clave": "Condiciones de almacenamiento",
-        "grupo": "Especificaciones físicas",
-        "valor": "-20°C a +50°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa"
-      },
-      {
-        "clave": "Índice de protección",
-        "grupo": "Especificaciones físicas",
-        "valor": "IP34"
-      },
-      {
-        "clave": "Conectores de interfaz",
-        "grupo": "Conectividad",
-        "valor": "VGA, USB-A, USB-B, CO2"
-      },
-      {
-        "clave": "Accesorios de transporte",
-        "grupo": "Accesorios",
-        "valor": "Bolso de transporte, batería removible, estación de carga mural, soporte universal intrahospitalario, carro rodante para humidificador, cilindro de oxígeno, brazo articulado y canasta autoclavable"
-      },
-      {
-        "clave": "Estándares",
-        "grupo": "Normativa y fabricación",
-        "valor": "ISO 14971, IEC 60601-1+A1, IEC 60601-1-2, IEC 60601-1-6, IEC 62366-1, IEC 60601-1-8+A1, ISO 80601-2-12, ISO 80601-2-55, EN 794-3+A1+A2, EN 1789+A1, EN 13718-1, IEC 62304, RTCA DO-160"
-      },
-      {
-        "clave": "Clasificación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Dispositivo médico clase IIb de turbina de aire - CE 0459 - Evaluación de conformidad GMED"
-      },
-      {
-        "clave": "Fabricación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Fabricado por Air Liquide Medical Systems; sistema de gestión ambiental certificado ISO 14001:2015"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.png",
-    "galeria": [
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.png",
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide-02.png",
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide-05.png"
-    ],
-    "ficha_pdf": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/ficha-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": false,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Transporte intrahospitalario",
-      "Traslado a procedimientos",
-      "Ventilación invasiva y no invasiva",
-      "Monitoreo multiparámetro"
-    ],
-    "aplicaciones_en": [
-      "Intra-hospital transport",
-      "Transfer to procedures",
-      "Invasive and non-invasive ventilation",
-      "Multi-parameter monitoring"
-    ],
-    "marca": "Air Liquide",
-    "proveedor_ref": "equitronic",
-    "beneficios_es": [
-      "Con solo 3,7 kg de peso y 29x25x11 cm, te acompaña en el traslado intrahospitalario, en ambulancias, helicópteros o aviones sin perder capacidad de ventilación crítica.",
-      "Su batería de iones de litio ofrece hasta 5 horas de autonomía combinada (batería removible más batería interna de seguridad), pensadas para trayectos largos.",
-      "Ventila adultos, niños e infantes desde 3 kg con modos VCV, PCV, PSV, SIMV, CPAP y APRV, además de las opciones PS-Pro, PSIMV y PRVC.",
-      "La oxigenoterapia nasal de alto flujo (4-80 L/min en adultos, 2-60 L/min en niños e infantes) amplía tus opciones de soporte respiratorio no invasivo.",
-      "Incluye accesorios pensados para el transporte: bolso de traslado, batería removible, estación de carga mural y soporte universal intrahospitalario."
-    ],
-    "beneficios_en": [
-      "Weighing just 3.7 kg and measuring 29x25x11 cm, it goes with you during intrahospital transfers, in ambulances, helicopters or airplanes without losing critical ventilation capacity.",
-      "Its lithium-ion battery delivers up to 5 hours of combined autonomy (removable battery plus internal safety battery), built for long transfers.",
-      "It ventilates adults, children and infants from 3 kg with VCV, PCV, PSV, SIMV, CPAP and APRV modes, plus PS-Pro, PSIMV and PRVC options.",
-      "Nasal high-flow oxygen therapy (4-80 L/min in adults, 2-60 L/min in children and infants) expands your non-invasive respiratory support options.",
-      "It includes accessories built for transport: carrying bag, removable battery, wall-mounted charging station and intrahospital universal support."
-    ],
-    "valor_es": "Un ventilador de transporte que sostiene la ventilación crítica desde la cabecera del paciente hasta cualquier punto del traslado, sin comprometer autonomía ni seguridad.",
-    "valor_en": "A transport ventilator that sustains critical ventilation from the patient's bedside to any point of the transfer, without compromising autonomy or safety."
-  },
-  {
     "id": "9d89f6ee-5c3d-48fe-bd7f-c89a04e71afa",
     "slug": "ventilador-mecanico-neonatal-pediatrico-adulto-ref-tv-100-bio-med",
     "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
@@ -37013,7 +34088,6 @@
       "Pediatric ventilation"
     ],
     "marca": "Ventilador Mec",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Un solo ventilador para lactantes, niños y adultos, con modos NIV, PRVC y HFNC/nCPAP.",
       "Compresor y mezclador de oxígeno internos (21-100 %): no requiere aire comprimido externo.",
@@ -37172,7 +34246,6 @@
       "Premature infants and neonates"
     ],
     "marca": "Ventilador Neonatal",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Mezclador electrónico con sensor de oxígeno y soplador interno: no depende de aire comprimido externo.",
       "Modos CPAP, apnea CPAP, NIPPV, SNIPPV y alto flujo, con tendencias de hasta 28 días.",
@@ -37334,7 +34407,6 @@
       "Nasal high flow therapy"
     ],
     "marca": "SLE",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Puede cubrir todo el espectro de soporte respiratorio neonatal —desde alta frecuencia oscilatoria hasta ventilación convencional y no invasiva— con un mismo equipo.",
       "Su sistema HFOV valveless de entrega activa en inspiración y espiración le permite ajustar con precisión Frecuencia, MAP y dP para lograr el aclaramiento de CO2 que su paciente necesita, incluso desde 300 g.",
@@ -37448,7 +34520,6 @@
       "Neonatal/pediatric high-flow oxygen therapy"
     ],
     "marca": "SLE",
-    "proveedor_ref": "equitronic",
     "beneficios_es": [
       "Soporta pacientes desde 300 gramos hasta 30 kilogramos con la misma plataforma, de la UCIN al cuidado intermedio.",
       "El control automático de FiO₂ (OxyGenie®) ayuda a mantener la SpO₂ en rango objetivo sin ajustes manuales constantes.",
@@ -37470,389 +34541,6 @@
         "ventilador-neonatal-pedriatrico-convencional-ref-6000-ref-sle6000-sle"
       ]
     }
-  },
-  {
-    "id": "24a4ba77-ffec-4d40-a6ea-4b723f14f5dd",
-    "slug": "monitor-multiparametro-ref-venus-northern",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "tipo_id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "nombre_es": "Monitor Multiparámetro Venus",
-    "nombre_en": "Multi-parameter Monitor Venus",
-    "descripcion_corta_es": "Monitor multiparámetro para ICU, CCU, NICU con múltiples opciones",
-    "descripcion_corta_en": "Multi-parameter monitor for ICU, CCU, NICU with multiple options",
-    "descripcion_larga_es": "El Monitor Multiparámetro Venus de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Number of traces: 10, up to 12 ECG waveforms; Dimension: 398×302×183mm(W×H×D); Weight: < 7 kg under standard configuration; HDMI: 1 HDMI monitor connnector; Output:1 connector for Nurse call,Defib Sync Analog Output.\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Multi-parameter Monitor Venus from Northern Meditec is in the IME catalog. Per official brochure: Number of traces: 10, up to 12 ECG waveforms; Dimension: 398×302×183mm(W×H×D); Weight: < 7 kg under standard configuration; HDMI: 1 HDMI monitor connnector; Output:1 connector for Nurse call,Defib Sync Analog Output.\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "Number of traces: 10, up to 12 ECG waveforms"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "Dimension: 398×302×183mm(W×H×D)"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "Weight: < 7 kg under standard configuration"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "HDMI: 1 HDMI monitor connnector"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "Output:1 connector for Nurse call,Defib Sync Analog Output"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "Lead type :3-lead,5-lead,12-lead(optional)"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "ECG waveform:2 channels,7 channels, 12 channels"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "1.25mm/mV(×0.125), 2.5mm/mV (×0.25), 5mm/mV (×0.5),"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "5 derivaciones ECG, SpO2, NIBP, TEMP, Resp, PR"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla táctil y HDMI"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Batería de iones de litio"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Opcional: 12 derivaciones ECG, Masimo/Nellcor SpO2, IBP, C.O., EtCO2, Multi-gas, BIS, NMT"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Registrador térmico"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "CMS alámbrico/inalámbrico/4G"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Soporte HL7 a HIS"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Revisión de tendencias gráficas y tabulares"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Montaje en pared/carro"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/venus/imagen-principal-venus.jpg",
-    "galeria": [
-      "/assets/productos/importados/venus/imagen-principal-venus.jpg",
-      "imagen_principal_Venus.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-venus-northern-d00ff03fd4.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "ICU",
-      "CCU",
-      "NICU"
-    ],
-    "aplicaciones_en": [
-      "ICU"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "venus",
-        "monitor-multiparametro-venus",
-        "monitor-multiparametro-venus-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "Number of traces: 10, up to 12 ECG waveforms",
-      "Dimension: 398×302×183mm(W×H×D)",
-      "Weight: < 7 kg under standard configuration",
-      "HDMI: 1 HDMI monitor connnector"
-    ],
-    "beneficios_en": [
-      "Number of traces: 10, up to 12 ECG waveforms",
-      "Dimension: 398×302×183mm(W×H×D)",
-      "Weight: < 7 kg under standard configuration",
-      "HDMI: 1 HDMI monitor connnector"
-    ],
-    "valor_es": "Monitor Multiparámetro Venus Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Multi-parameter Monitor Venus Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Venus?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Monitor Multiparámetro Venus) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Monitor Multiparámetro Venus?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Multi-parameter Monitor Venus datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Multi-parameter Monitor Venus) and clinical area."
-      },
-      {
-        "q": "Where can I download the Multi-parameter Monitor Venus datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Multiparámetro Venus",
-      "Northern Meditec",
-      "ficha Monitor Multiparámetro Venus",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Multi-parameter Monitor Venus",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
-  },
-  {
-    "id": "bd415053-93c5-468b-86b6-f89958ed2fda",
-    "slug": "monitor-modular-multiparametro-ref-virgo-northern",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "tipo_id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "nombre_es": "Monitor Modular Multiparámetro Virgo",
-    "nombre_en": "Multi-parameter Modular Monitor Virgo",
-    "descripcion_corta_es": "Monitor modular multiparámetro con pantalla LCD TFT de 12.1 pulgadas",
-    "descripcion_corta_en": "Multi-parameter modular monitor with 12.1-inch TFT LCD screen",
-    "descripcion_larga_es": "El Monitor Modular Multiparámetro Virgo de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: 12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; 12.1” color TFT LCD screen( touchscreen is optional ); 8 waveform display,up to 12-lead ECG analysis; ST & arrhythmia analysis(17 types).\n\nDescargue el PDF en esta landing.",
-    "descripcion_larga_en": "The Multi-parameter Modular Monitor Virgo from Northern Meditec is in the IME catalog. Per official brochure: 12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; 12.1” color TFT LCD screen( touchscreen is optional ); 8 waveform display,up to 12-lead ECG analysis; ST & arrhythmia analysis(17 types).\n\nDownload the PDF on this landing.",
-    "especificaciones": [
-      {
-        "clave": "Ítem 1",
-        "grupo": "Ficha PDF",
-        "valor": "12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable"
-      },
-      {
-        "clave": "Ítem 2",
-        "grupo": "Ficha PDF",
-        "valor": "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery"
-      },
-      {
-        "clave": "Ítem 3",
-        "grupo": "Ficha PDF",
-        "valor": "12.1” color TFT LCD screen( touchscreen is optional )"
-      },
-      {
-        "clave": "Ítem 4",
-        "grupo": "Ficha PDF",
-        "valor": "8 waveform display,up to 12-lead ECG analysis"
-      },
-      {
-        "clave": "Ítem 5",
-        "grupo": "Ficha PDF",
-        "valor": "ST & arrhythmia analysis(17 types)"
-      },
-      {
-        "clave": "Ítem 6",
-        "grupo": "Ficha PDF",
-        "valor": "SpO2 support PI，low perfusion 0.2%"
-      },
-      {
-        "clave": "Ítem 7",
-        "grupo": "Ficha PDF",
-        "valor": "Wired/Wireless CMS, support HL7 protocol to HIS"
-      },
-      {
-        "clave": "Ítem 8",
-        "grupo": "Ficha PDF",
-        "valor": "SpO2 pulse-tone modulation (Pitch Tone)"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Pantalla LCD TFT a color 12.1\""
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "SPO2+NIBP+ECG+TEMP+RESP+2IBP+CO+ETCO2"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Sensor SPO2 adulto"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cable ECG 5 derivaciones"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Sensor TEMP piel adulto"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Manguito adulto reutilizable"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Manguito pediátrico y neonatal"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Manguera NIBP"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Software CMS"
-      }
-    ],
-    "imagen_principal": "/assets/productos/importados/virgo/imagen-principal-virgo.jpg",
-    "galeria": [
-      "/assets/productos/importados/virgo/imagen-principal-virgo.jpg",
-      "/assets/productos/importados/virgo/imagen-secundaria-virgo-1.jpg",
-      "imagen_principal_Virgo.jpg"
-    ],
-    "ficha_pdf": "/assets/productos/fichas/northern-meditec/monitor-modular-multiparametro-ref-virgo-northern-8e66fda549.pdf",
-    "tipo_comercial": "equipo",
-    "fulfillment_mode": "cotizacion",
-    "precio": null,
-    "moneda": "COP",
-    "stock": null,
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "activo": true,
-    "orden": 0,
-    "aplicaciones_es": [
-      "Monitoreo hospitalario multiparámetro"
-    ],
-    "aplicaciones_en": [
-      "Hospital multiparameter monitoring"
-    ],
-    "atributos": {
-      "legacy_slugs": [
-        "virgo",
-        "monitor-modular-multiparametro-virgo",
-        "monitor-modular-multiparametro-virgo-northern"
-      ],
-      "marca": "Northern Meditec",
-      "fabricante": "Northern Meditec",
-      "enriquecimiento": {
-        "tipo": "sin_ficha_pdf",
-        "fecha": "2026-10-18",
-        "nota": "Landing ligera sin inventar specs; PDF pendiente de fabricante"
-      }
-    },
-    "beneficios_es": [
-      "12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable",
-      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
-      "12.1” color TFT LCD screen( touchscreen is optional )",
-      "8 waveform display,up to 12-lead ECG analysis"
-    ],
-    "beneficios_en": [
-      "12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable",
-      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
-      "12.1” color TFT LCD screen( touchscreen is optional )",
-      "8 waveform display,up to 12-lead ECG analysis"
-    ],
-    "valor_es": "Monitor Modular Multiparámetro Virgo Northern Meditec con ficha/brochure PDF oficial vía IME.",
-    "valor_en": "Multi-parameter Modular Monitor Virgo Northern Meditec with official PDF brochure via IME.",
-    "preguntas_frecuentes_es": [
-      {
-        "q": "¿Dónde descargo la ficha de Monitor Modular Multiparámetro Virgo?",
-        "a": "En esta página: PDF/brochure oficial Northern Meditec."
-      },
-      {
-        "q": "¿Cómo cotizo con IME?",
-        "a": "Indique el modelo exacto (Monitor Modular Multiparámetro Virgo) y el área clínica."
-      },
-      {
-        "q": "¿Dónde descargo la ficha técnica de Monitor Modular Multiparámetro Virgo?",
-        "a": "En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de Northern Meditec (en inglés)."
-      }
-    ],
-    "preguntas_frecuentes_en": [
-      {
-        "q": "Where is the Multi-parameter Modular Monitor Virgo datasheet?",
-        "a": "On this page: official Northern Meditec PDF/brochure."
-      },
-      {
-        "q": "How do I request a quote?",
-        "a": "Provide exact model (Multi-parameter Modular Monitor Virgo) and clinical area."
-      },
-      {
-        "q": "Where can I download the Multi-parameter Modular Monitor Virgo datasheet?",
-        "a": "On this page, with the “Download datasheet” button: it is the official Northern Meditec PDF (in English)."
-      }
-    ],
-    "seo_keywords_es": [
-      "Monitor Modular Multiparámetro Virgo",
-      "Northern Meditec",
-      "ficha Monitor Modular Multiparámetro Virgo",
-      "IME"
-    ],
-    "seo_keywords_en": [
-      "Multi-parameter Modular Monitor Virgo",
-      "Northern Meditec datasheet",
-      "IME"
-    ],
-    "marca": "Northern Meditec"
   },
   {
     "id": "c1433eff-b9c6-4ace-af53-50fa25157312",
@@ -37892,8 +34580,7 @@
       "Laboratories",
       "Pharmaceutical and food industries"
     ],
-    "marca": "Vital Care",
-    "proveedor_ref": "equitronic"
+    "marca": "Vital Care"
   },
   {
     "id": "36e5c7f8-49ff-4534-91ee-aa509a255650",
@@ -71632,17 +68319,17 @@
   },
   {
     "id": "8e24c076-ace2-408a-9f46-53cd1ab05835",
-    "slug": "padbot-p2-robot-telepresencia-ref-padbot-p2-padbot",
+    "slug": "padbot-p2-robot-comunicacion-ref-padbot-p2-padbot",
     "sku": "PADBOT-P2",
     "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
     "familia_slug": "robots",
     "tipo_id": "e8116b0e-c6e0-4b4c-be0e-9090f2f69513",
-    "nombre_es": "PadBot P2 Robot de Telepresencia",
-    "nombre_en": "PadBot P2 Telepresence Robot",
-    "descripcion_corta_es": "Robot de telepresencia plegable con pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y auto carga.",
-    "descripcion_corta_en": "Foldable telepresence robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.",
-    "descripcion_larga_es": "PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nP2 puede apoyar rondas administrativas, visitas remotas, acompañamiento en instituciones educativas y recepción secundaria, como herramienta de comunicación y no como dispositivo médico.\n\nPara presencia remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, acompañamiento virtual y visitas remotas.",
-    "descripcion_larga_en": "PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nP2 can support administrative rounds, remote visits, educational accompaniment and secondary reception, as a communication tool rather than a medical device.\n\nFor remote presence in Colombia, Latin America and Spain, this model covers searches for telepresence robots, virtual accompaniment and remote visits.",
+    "nombre_es": "PadBot P2 Robot de Comunicación y Videollamada",
+    "nombre_en": "PadBot P2 Communication and Video Call Robot",
+    "descripcion_corta_es": "Robot plegable con pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y auto carga.",
+    "descripcion_corta_en": "Foldable communication robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.",
+    "descripcion_larga_es": "PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nP2 puede apoyar rondas administrativas, visitas remotas, acompañamiento en instituciones educativas y recepción secundaria, como herramienta de comunicación y no como dispositivo médico.\n\nPara comunicación remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de videollamada, acompañamiento virtual y visitas remotas.",
+    "descripcion_larga_en": "PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nP2 can support administrative rounds, remote visits, educational accompaniment and secondary reception, as a communication tool rather than a medical device.\n\nFor remote communication in Colombia, Latin America and Spain, this model covers searches for video call robots, virtual accompaniment and remote visits.",
     "especificaciones": [
       {
         "clave": "Dimensiones",
@@ -71710,13 +68397,13 @@
         "grupo": "Funciones"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-producto-robot-telepresencia-telemedicina-tercera-edad-padbot-p2.webp",
+    "imagen_principal": "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-producto-padbot-p2.webp",
     "galeria": [
-      "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-producto-robot-telepresencia-telemedicina-tercera-edad-padbot-p2.webp",
-      "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-galeria-robot-telepresencia-telemedicina-tercera-edad-padbot-p2-02.webp",
-      "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-galeria-robot-telepresencia-telemedicina-tercera-edad-padbot-p2-03.webp"
+      "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-producto-padbot-p2.webp",
+      "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-galeria-padbot-p2-02.webp",
+      "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-galeria-padbot-p2-03.webp"
     ],
-    "ficha_pdf": "/assets/productos/importados/padbot-p2-robot-telepresencia/ficha-padbot-p2-robot-telepresencia.pdf",
+    "ficha_pdf": "/assets/productos/importados/padbot-p2-robot-comunicacion/ficha-padbot-p2-robot-comunicacion.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -71728,14 +68415,14 @@
     "activo": true,
     "orden": 473,
     "aplicaciones_es": [
-      "Telepresencia y comunicación en instalaciones",
+      "Comunicación y videollamada en instalaciones",
       "Rondas administrativas remotas",
       "Visitas remotas",
       "Videollamada y control remoto",
       "Automatización comercial e industrial de servicios"
     ],
     "aplicaciones_en": [
-      "Telepresence and on-site communication",
+      "Communication and video calls on site",
       "Remote administrative rounds",
       "Remote visits",
       "Video calls and remote control",
@@ -71760,9 +68447,8 @@
     "marca": "PadBot",
     "proveedor_ref": "ahuman-future-padbot-robots",
     "seo_keywords_es": [
-      "PadBot P2 Robot de Telepresencia",
+      "PadBot P2 Robot de Comunicación y Videollamada",
       "PadBot",
-      "Robots de telepresencia",
       "robots de servicio",
       "robots para clínicas",
       "robots para hospitales",
@@ -71776,14 +68462,12 @@
       "robots de servicio Latinoamérica",
       "robots para hospitales Latinoamérica",
       "robots para hospitales España",
-      "robot de telepresencia",
       "robot para visitas remotas",
       "robot para acompañamiento virtual"
     ],
     "seo_keywords_en": [
-      "PadBot P2 Telepresence Robot",
+      "PadBot P2 Communication and Video Call Robot",
       "PadBot",
-      "Telepresence robots",
       "service robots",
       "clinic robots",
       "robots for medical centers",
@@ -71794,13 +68478,13 @@
       "commercial robots for companies",
       "robots in Colombia",
       "service robots Latin America",
-      "telepresence robot",
       "remote visit robot",
       "virtual accompaniment robot"
     ],
     "atributos": {
       "legacy_slugs": [
-        "padbot-p2-robot-telepresencia"
+        "padbot-p2-robot-comunicacion",
+        "padbot-p2-robot-telepresencia-ref-padbot-p2-padbot"
       ]
     }
   },

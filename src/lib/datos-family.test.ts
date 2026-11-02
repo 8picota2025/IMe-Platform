@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { correctedFamilySlug, PRODUCT_FAMILY_CORRECTIONS } from './datos';
 
 describe('correcciones editoriales de familia', () => {
-  it('aplica las 45 correcciones verificadas', () => {
-    expect(Object.keys(PRODUCT_FAMILY_CORRECTIONS)).toHaveLength(45);
+  // arreglos011126 ítem 6: 11 correcciones de fichas retiradas del catálogo se eliminaron (45 → 34).
+  it('aplica las 34 correcciones verificadas', () => {
+    expect(Object.keys(PRODUCT_FAMILY_CORRECTIONS)).toHaveLength(34);
     expect(correctedFamilySlug('monitor-de-paciente-ref-sk-em005-saikang', 'mobiliario')).toBe(
       'monitores'
     );

@@ -10,14 +10,14 @@ describe('quote-product-ingest', () => {
     const draft = parseIngestDraftResponse(
       {
         producto_es: {
-          nombre: { valor: 'Ventilador Monnal T75', origen: 'pdf', confianza: 0.9 },
+          nombre: { valor: 'Ventilador UCI T75', origen: 'pdf', confianza: 0.9 },
           descripcion_corta: { valor: 'Ventilador crítico adulto-pediátrico' },
         },
       },
       'https://example.com/ficha.pdf'
     );
-    expect(draft?.nombre_es).toBe('Ventilador Monnal T75');
-    expect(draft?.slug).toBe('ventilador-monnal-t75');
+    expect(draft?.nombre_es).toBe('Ventilador UCI T75');
+    expect(draft?.slug).toBe('ventilador-uci-t75');
     expect(draft?.ficha_pdf).toBe('https://example.com/ficha.pdf');
   });
 

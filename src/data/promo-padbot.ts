@@ -11,7 +11,7 @@ export const PROMO_PADBOT_EN =
   'On integrated operating-room equipment projects, or with the acquisition of latest-generation imaging systems (such as WR-3D dynamic DR systems or Talent II surgical C-arms), I-ME may include one service PadBot P2 or PadBot X3 unit at no additional charge, depending on the scope of the order.';
 
 export const SLUGS_PROMO_PADBOT = [
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+  'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot',
   'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
   'sistema-radiografico-3d-wr-3d-angell-technology-ref-wr-3d-angell',
   'telemando-digital-rf-ref-talent-ii-angell',
