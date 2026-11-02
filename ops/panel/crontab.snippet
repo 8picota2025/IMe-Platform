@@ -1,0 +1,5 @@
+# Usuario shoky en srv1715444. Sin root. No instalar sin OK de Shoky.
+# Log: ~/.local/state/panel/log
+# Exportar antes en el crontab: IME_VAULT, IME_SENT_LOG, IME_CMS_CACHE,
+# IME_HERMES_PROFILES y SUPABASE_ACCESS_TOKEN (el token no va en este archivo).
+*/15 * * * * mkdir -p "$HOME/.local/state/panel" && /usr/bin/python3 /RUTA/AL/CHECKOUT/ops/panel/sync_vault_state.py >> "$HOME/.local/state/panel/log" 2>&1
