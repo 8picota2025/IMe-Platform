@@ -71632,17 +71632,17 @@
   },
   {
     "id": "8e24c076-ace2-408a-9f46-53cd1ab05835",
-    "slug": "padbot-p2-robot-telepresencia-ref-padbot-p2-padbot",
+    "slug": "padbot-p2-robot-comunicacion-ref-padbot-p2-padbot",
     "sku": "PADBOT-P2",
     "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
     "familia_slug": "robots",
     "tipo_id": "e8116b0e-c6e0-4b4c-be0e-9090f2f69513",
-    "nombre_es": "PadBot P2 Robot de Telepresencia",
-    "nombre_en": "PadBot P2 Telepresence Robot",
-    "descripcion_corta_es": "Robot de telepresencia plegable con pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y auto carga.",
-    "descripcion_corta_en": "Foldable telepresence robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.",
-    "descripcion_larga_es": "PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nP2 puede apoyar rondas administrativas, visitas remotas, acompañamiento en instituciones educativas y recepción secundaria, como herramienta de comunicación y no como dispositivo médico.\n\nPara presencia remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, acompañamiento virtual y visitas remotas.",
-    "descripcion_larga_en": "PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nP2 can support administrative rounds, remote visits, educational accompaniment and secondary reception, as a communication tool rather than a medical device.\n\nFor remote presence in Colombia, Latin America and Spain, this model covers searches for telepresence robots, virtual accompaniment and remote visits.",
+    "nombre_es": "PadBot P2 Robot de Comunicación y Videollamada",
+    "nombre_en": "PadBot P2 Communication and Video Call Robot",
+    "descripcion_corta_es": "Robot plegable con pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y auto carga.",
+    "descripcion_corta_en": "Foldable communication robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.",
+    "descripcion_larga_es": "PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nP2 puede apoyar rondas administrativas, visitas remotas, acompañamiento en instituciones educativas y recepción secundaria, como herramienta de comunicación y no como dispositivo médico.\n\nPara comunicación remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de videollamada, acompañamiento virtual y visitas remotas.",
+    "descripcion_larga_en": "PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nP2 can support administrative rounds, remote visits, educational accompaniment and secondary reception, as a communication tool rather than a medical device.\n\nFor remote communication in Colombia, Latin America and Spain, this model covers searches for video call robots, virtual accompaniment and remote visits.",
     "especificaciones": [
       {
         "clave": "Dimensiones",
@@ -71710,13 +71710,13 @@
         "grupo": "Funciones"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-producto-robot-telepresencia-telemedicina-tercera-edad-padbot-p2.webp",
+    "imagen_principal": "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-producto-padbot-p2.webp",
     "galeria": [
-      "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-producto-robot-telepresencia-telemedicina-tercera-edad-padbot-p2.webp",
-      "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-galeria-robot-telepresencia-telemedicina-tercera-edad-padbot-p2-02.webp",
-      "/assets/productos/importados/padbot-p2-robot-telepresencia/robot-galeria-robot-telepresencia-telemedicina-tercera-edad-padbot-p2-03.webp"
+      "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-producto-padbot-p2.webp",
+      "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-galeria-padbot-p2-02.webp",
+      "/assets/productos/importados/padbot-p2-robot-comunicacion/robot-galeria-padbot-p2-03.webp"
     ],
-    "ficha_pdf": "/assets/productos/importados/padbot-p2-robot-telepresencia/ficha-padbot-p2-robot-telepresencia.pdf",
+    "ficha_pdf": "/assets/productos/importados/padbot-p2-robot-comunicacion/ficha-padbot-p2-robot-comunicacion.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -71728,14 +71728,14 @@
     "activo": true,
     "orden": 473,
     "aplicaciones_es": [
-      "Telepresencia y comunicación en instalaciones",
+      "Comunicación y videollamada en instalaciones",
       "Rondas administrativas remotas",
       "Visitas remotas",
       "Videollamada y control remoto",
       "Automatización comercial e industrial de servicios"
     ],
     "aplicaciones_en": [
-      "Telepresence and on-site communication",
+      "Communication and video calls on site",
       "Remote administrative rounds",
       "Remote visits",
       "Video calls and remote control",
@@ -71760,7 +71760,7 @@
     "marca": "PadBot",
     "proveedor_ref": "ahuman-future-padbot-robots",
     "seo_keywords_es": [
-      "PadBot P2 Robot de Telepresencia",
+      "PadBot P2 Robot de Comunicación y Videollamada",
       "PadBot",
       "Robots de telepresencia",
       "robots de servicio",
@@ -71781,7 +71781,7 @@
       "robot para acompañamiento virtual"
     ],
     "seo_keywords_en": [
-      "PadBot P2 Telepresence Robot",
+      "PadBot P2 Communication and Video Call Robot",
       "PadBot",
       "Telepresence robots",
       "service robots",
@@ -71800,7 +71800,8 @@
     ],
     "atributos": {
       "legacy_slugs": [
-        "padbot-p2-robot-telepresencia"
+        "padbot-p2-robot-comunicacion",
+        "padbot-p2-robot-telepresencia-ref-padbot-p2-padbot"
       ]
     }
   },

@@ -58,7 +58,7 @@ const canonical = buildCanonical(`/es/conocimiento/${articulo.slug}`);
 // Checklist INVIMA: título SEO ≤60 pedido en arreglos011126 (la marca va al final).
 const esChecklistInvima = articulo.slug === 'checklist-invima-compra-equipos-medicos';
 const title = esChecklistInvima
-  ? 'Checklist INVIMA equipos médicos (PDF gratis) | I-ME'
+  ? 'Checklist INVIMA para comprar equipos médicos | I-ME'
   : buildPageTitle(articulo.titulo);
 const description =
   descripcionInvima(articulo.slug, locale) ??

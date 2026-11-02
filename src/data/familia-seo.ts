@@ -396,7 +396,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     relatedSlugs: [
       'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
       'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot',
-      'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+      'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot',
       'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot',
       'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot',
       'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot',

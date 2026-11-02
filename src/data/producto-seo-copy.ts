@@ -14,6 +14,25 @@ export interface ProductoSeoCopy {
 
 // Locale ausente → getProductoSeoCopy usa el fallback (seoZuowei) para ese idioma.
 const COPY: Record<string, { es?: ProductoSeoCopy; en?: ProductoSeoCopy }> = {
+  // arreglos011126 — PadBot C3 (ES/EN). Fuente: ficha técnica del fabricante (parámetros básicos).
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': {
+    es: {
+      title: 'Robot de limpieza autónoma C3 en Colombia | I-ME',
+      description:
+        'Robot de limpieza autónoma C3: batería de 46 Ah, duración de 2 a 3,5 h y ruido menor de 70 dB. Cotice por WhatsApp o en línea.',
+      h1: 'Robot de limpieza autónoma C3 en Colombia',
+      intro:
+        'Robot de limpieza autónoma C3 con batería de 46 Ah, duración de 2 a 3,5 h, ruido menor de 70 dB y estación de carga con tiempo de carga de 2,5 h. Precio bajo cotización.',
+    },
+    en: {
+      title: 'C3 autonomous cleaning robot in Colombia | I-ME',
+      description:
+        'C3 autonomous cleaning robot: 46 Ah battery, 2 to 3.5 h runtime and noise below 70 dB. Quote by WhatsApp or online.',
+      h1: 'C3 autonomous cleaning robot in Colombia',
+      intro:
+        'C3 autonomous cleaning robot with a 46 Ah battery, 2 to 3.5 h runtime, noise below 70 dB and a charging dock with a 2.5 h charging period. Price on request.',
+    },
+  },
   // arreglos011126 — Bastón KP4202-20 (ES)
   'baston-4-apoyos-base-pequena-color-negro-ref-kp4202-20-konfort-plus': {
     es: {

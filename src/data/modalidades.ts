@@ -186,7 +186,7 @@ export const ULTRASONIDO_SLUGS = [
   'ultrasonido-point-of-care-pocket',
 ];
 
-export const TELEPRESENCIA_SLUG = 'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot';
+export const TELEPRESENCIA_SLUG = 'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot';
 
 export function slugsDeModalidad(pagina: PaginaModalidad): string[] {
   return pagina.grupos.flatMap(grupo => grupo.slugs);

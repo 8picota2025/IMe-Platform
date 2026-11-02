@@ -156,7 +156,7 @@ const ROBOT_IMPORT_DIR: Record<string, string> = {
   'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 'padbot-x3-robot-recepcion',
   'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
     'padbot-x2-robot-servicio-interactivo',
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 'padbot-p2-robot-telepresencia',
+  'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot': 'padbot-p2-robot-comunicacion',
   'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
     'padbot-w2-robot-delivery-institucional',
   'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
@@ -170,7 +170,7 @@ const ROBOT_IMPORT_DIR: Record<string, string> = {
 const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
   'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 2,
   'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot': 2,
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 2,
+  'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot': 2,
   'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot': 2,
   'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot': 2,
   'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 2,
@@ -205,7 +205,7 @@ const ROBOT_STUDIO: Record<string, { main: string; gallery: string[] }> = {
       '/assets/img/robots/padbot-x2-reverso-ingenieria.webp',
     ],
   },
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': {
+  'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot': {
     main: '/assets/img/robots/padbot-p2-frente-estudio.webp',
     gallery: [
       '/assets/img/robots/padbot-p2-frente-estudio.webp',

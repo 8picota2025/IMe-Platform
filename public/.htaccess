@@ -1849,8 +1849,11 @@ RewriteRule ^es/productos/balanza-para-bebe-yrbb-20-perlong/?$ /es/productos/bal
 RewriteRule ^en/products/balanza-para-bebe-yrbb-20-perlong/?$ /en/products/balanza-para-bebe-ref-yrbb-20-perlong/ [R=301,L]
 RewriteRule ^es/productos/bascula-corporal-zt-120-perlong/?$ /es/productos/bascula-corporal-ref-zt-120-perlong/ [R=301,L]
 RewriteRule ^en/products/bascula-corporal-zt-120-perlong/?$ /en/products/bascula-corporal-ref-zt-120-perlong/ [R=301,L]
-RewriteRule ^es/productos/padbot-p2-robot-telepresencia/?$ /es/productos/padbot-p2-robot-telepresencia-ref-padbot-p2-padbot/ [R=301,L]
-RewriteRule ^en/products/padbot-p2-robot-telepresencia/?$ /en/products/padbot-p2-robot-telepresencia-ref-padbot-p2-padbot/ [R=301,L]
+# arreglos011126 ítem 7: PadBot P2 renombrado sin «telepresencia» en el slug. URLs antiguas → slug nuevo.
+RewriteRule ^es/productos/(?:padbot-p2-robot-telepresencia|padbot-p2-robot-telepresencia-ref-padbot-p2-padbot)/?$ /es/productos/padbot-p2-robot-comunicacion-ref-padbot-p2-padbot/ [R=301,L]
+RewriteRule ^en/products/(?:padbot-p2-robot-telepresencia|padbot-p2-robot-telepresencia-ref-padbot-p2-padbot)/?$ /en/products/padbot-p2-robot-comunicacion-ref-padbot-p2-padbot/ [R=301,L]
+RewriteRule ^es/productos/padbot-p2-robot-comunicacion/?$ /es/productos/padbot-p2-robot-comunicacion-ref-padbot-p2-padbot/ [R=301,L]
+RewriteRule ^en/products/padbot-p2-robot-comunicacion/?$ /en/products/padbot-p2-robot-comunicacion-ref-padbot-p2-padbot/ [R=301,L]
 RewriteRule ^es/productos/analizador-bioquimico-semiautomatico-sunnymed-sy-b010/?$ /es/productos/analizador-bioquimico-semiautomatico-sunnymed-ref-sy-b010-sunny/ [R=301,L]
 RewriteRule ^en/products/analizador-bioquimico-semiautomatico-sunnymed-sy-b010/?$ /en/products/analizador-bioquimico-semiautomatico-sunnymed-ref-sy-b010-sunny/ [R=301,L]
 RewriteRule ^es/productos/lampara-cielitica-led-x3636-con-satelite-ilumitec/?$ /es/productos/lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec/ [R=301,L]

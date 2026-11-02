@@ -23,7 +23,7 @@ const robotMediaSeoSlugByProductSlug = {
   'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
   'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
     'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot': 'padbot-p2-robot-comunicacion',
   'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
     'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
   'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
@@ -304,9 +304,9 @@ const marketParagraphs = {
   },
   'robots-telepresencia': {
     es:
-      'Para presencia remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, acompañamiento virtual y visitas remotas.',
+      'Para comunicación remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de videollamada, acompañamiento virtual y visitas remotas.',
     en:
-      'For remote presence in Colombia, Latin America and Spain, this model covers searches for telepresence robots, virtual accompaniment and remote visits.',
+      'For remote communication in Colombia, Latin America and Spain, this model covers searches for video call robots, virtual accompaniment and remote visits.',
   },
   'robots-delivery-institucional': {
     es:
@@ -570,31 +570,31 @@ const products = [
   },
   {
     id: '8e24c076-ace2-408a-9f46-53cd1ab05835',
-    slug: 'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+    slug: 'padbot-p2-robot-comunicacion-ref-padbot-p2-padbot',
     sku: 'PADBOT-P2',
     tipo_slug: 'robots-telepresencia',
     pdf: 'P2英文说明书.pptx.pdf',
-    pdfName: 'ficha-padbot-p2-robot-telepresencia.pdf',
+    pdfName: 'ficha-padbot-p2-robot-comunicacion.pdf',
     imagePage: 3,
     galleryPages: [13, 15],
-    nombre_es: 'PadBot P2 Robot de Telepresencia',
-    nombre_en: 'PadBot P2 Telepresence Robot',
+    nombre_es: 'PadBot P2 Robot de Comunicación y Videollamada',
+    nombre_en: 'PadBot P2 Communication and Video Call Robot',
     descripcion_corta_es:
-      'Robot de telepresencia plegable con pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y auto carga.',
+      'Robot plegable con pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y auto carga.',
     descripcion_corta_en:
-      'Foldable telepresence robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.',
+      'Foldable communication robot with 10-inch HD screen, WiFi/4G, video calling, remote control and auto charging.',
     descripcion_larga_es:
       'PadBot P2 está pensado para presencia remota, acompañamiento virtual y atención con operador a distancia. Su pantalla HD de 10 pulgadas, cuerpo plegable, conectividad WiFi/4G y sistema de video llamada permiten que un usuario remoto se desplace, converse, vea el entorno y controle el robot desde la aplicación PadBot Admin.\n\nEl equipo incorpora PadBot AI Brain para comunicación por voz, preguntas y respuestas personalizadas, reconocimiento facial, fotos, bloqueo de pantalla, mensajes de bienvenida y gestión de permisos entre administrador y usuarios normales. La función de video unidireccional permite que el operador observe la escena y controle el robot sin mostrar su video al público cuando el flujo lo requiere.\n\nP2 puede apoyar rondas administrativas, visitas remotas, acompañamiento en instituciones educativas y recepción secundaria, como herramienta de comunicación y no como dispositivo médico.',
     descripcion_larga_en:
       'PadBot P2 is designed for remote presence, virtual accompaniment and operator-assisted service. Its 10-inch HD screen, foldable body, WiFi/4G connectivity and video calling system allow a remote user to move, talk, view the environment and control the robot from the PadBot Admin app.\n\nThe device includes PadBot AI Brain for voice communication, customized Q&A, face recognition, photos, screen lock, welcome messages and permission management between administrators and normal users. One-way video mode lets an operator observe the on-site scene and control the robot without showing the remote video to the public when the workflow requires it.\n\nP2 can support administrative rounds, remote visits, educational accompaniment and secondary reception, as a communication tool rather than a medical device.',
     aplicaciones_es: [
-      'Telepresencia y comunicación en instalaciones',
+      'Comunicación y videollamada en instalaciones',
       'Rondas administrativas remotas',
       'Visitas remotas',
       'Videollamada y control remoto',
     ],
     aplicaciones_en: [
-      'Telepresence and on-site communication',
+      'Communication and video calls on site',
       'Remote administrative rounds',
       'Remote visits',
       'Video calls and remote control',
