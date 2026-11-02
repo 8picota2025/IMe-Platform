@@ -33,10 +33,18 @@ const ruta = rutasConocimiento.tema(locale, cluster.slug);
 const canonical = buildCanonical(ruta);
 const intro = introTema(cluster.slug, locale);
 const tituloConocimiento = t(locale, 'conocimiento.titulo');
+// EN INVIMA topic: title ≤60 chars (brand suffix included) and a registration-focused meta.
+const esTemaInvimaEn = esTemaInvima && locale === 'en';
 const title = buildPageTitle(
-  esTemaInvima ? cluster.nombre : `${cluster.nombre} · ${tituloConocimiento}`
+  esTemaInvimaEn
+    ? 'INVIMA Registration Colombia: Requirements & Steps'
+    : esTemaInvima
+      ? cluster.nombre
+      : `${cluster.nombre} · ${tituloConocimiento}`
 );
-const description = intro ?? `${tituloConocimiento}: ${cluster.nombre}`;
+const description = esTemaInvimaEn
+  ? 'Registration steps, risk classes and documents for INVIMA device registration in Colombia. Free pre-diagnosis on WhatsApp +57 313 724 7353.'
+  : (intro ?? `${tituloConocimiento}: ${cluster.nombre}`);
 const inicio = locale === 'en' ? '/en/' : '/es/';
 const guiaInvima =
   locale === 'en'
