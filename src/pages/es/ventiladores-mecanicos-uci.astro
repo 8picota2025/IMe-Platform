@@ -5,17 +5,17 @@ import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'es' as const;
 const cms = await getCampaignLandingCms('ventiladores_mecanicos', locale);
-const t75 = 'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide';
+// arreglos011126 ítem 6: Monnal retirado del catálogo; la guía queda sin fichas ni menciones de marca.
 const content = {
   ...cms,
-  title: 'Ventilador mecánico UCI | Monnal T75 | I-ME',
+  title: 'Ventiladores mecánicos para UCI | I-ME',
   description:
-    'Ventilador mecánico para UCI adulto y pediátrico: Monnal T75 publicado en el catálogo. TEO y T60 no están activos. Precio bajo cotización.',
-  h1: 'Ventilador mecánico para UCI',
-  lead: 'El ventilador publicado para UCI adulto y pediátrico es el Monnal T75. La configuración se cotiza. TEO y T60 no están en el catálogo activo.',
-  productSlugs: [t75],
+    'Criterios para evaluar ventiladores mecánicos de UCI adulto y pediátrico. Cotice por WhatsApp o en línea.',
+  h1: 'Ventiladores mecánicos para UCI',
+  lead: 'Cotice el ventilador mecánico de UCI según el servicio y el perfil de paciente. La configuración y el precio se cotizan.',
+  productSlugs: [],
 };
-const productos = await getProductosBySlugs([t75], locale);
+const productos: Awaited<ReturnType<typeof getProductosBySlugs>> = [];
 ---
 
 <CampaignLandingPage locale={locale} content={content} productos={productos} />

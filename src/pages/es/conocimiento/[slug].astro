@@ -14,6 +14,7 @@ import { relacionadosEnTema, rutasConocimiento } from '../../../lib/conocimiento
 import RelacionadosTema from '../../../components/conocimiento/RelacionadosTema.astro';
 import InvimaConversion from '../../../components/conocimiento/InvimaConversion.astro';
 import { stripMarkdown } from '../../../lib/markdown';
+import { familyCatalogHref } from '../../../lib/seo-urls';
 import { descripcionInvima } from '../../../data/invima-seo';
 import { renderArticleBody } from '../../../lib/conocimiento-articulo';
 import {
@@ -54,7 +55,11 @@ const ctaLabel = esClusterInvima
     ? 'Solicitar evaluación INVIMA'
     : t(locale, 'conocimiento.cta_contacto');
 const canonical = buildCanonical(`/es/conocimiento/${articulo.slug}`);
-const title = buildPageTitle(articulo.titulo);
+// Checklist INVIMA: título SEO ≤60 pedido en arreglos011126 (la marca va al final).
+const esChecklistInvima = articulo.slug === 'checklist-invima-compra-equipos-medicos';
+const title = esChecklistInvima
+  ? 'Checklist INVIMA equipos médicos (PDF gratis) | I-ME'
+  : buildPageTitle(articulo.titulo);
 const description =
   descripcionInvima(articulo.slug, locale) ??
   truncateMetaDescription(stripMarkdown(articulo.cuerpo || articulo.titulo));
@@ -170,6 +175,25 @@ const jsonLd = combineJsonLd(
           />
         </div>
         {esClusterInvima && <InvimaConversion locale={locale} />}
+        {
+          esChecklistInvima && (
+            <section class="invima-valide" aria-labelledby="invima-valide-title">
+              <h2 id="invima-valide-title">Valide un registro INVIMA</h2>
+              <p>Consulte el registro de cada modelo antes de cotizar. Revise por familia:</p>
+              <ul>
+                <li>
+                  <a href={familyCatalogHref('es', 'mobiliario')}>Mobiliario</a>
+                </li>
+                <li>
+                  <a href={familyCatalogHref('es', 'monitores')}>Monitores</a>
+                </li>
+                <li>
+                  <a href={familyCatalogHref('es', 'ultrasonido')}>Ultrasonido</a>
+                </li>
+              </ul>
+            </section>
+          )
+        }
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
           <a href="/es/conocimiento/" class="btn btn-outline"

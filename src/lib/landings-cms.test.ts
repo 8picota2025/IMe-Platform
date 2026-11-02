@@ -197,11 +197,13 @@ describe('tanda 2: landings de fabricante', () => {
       ),
       'utf8'
     );
+    // arreglos011126 ítem 6: fab_northern retirada del código; el seed histórico (ya aplicado) la conserva.
+    const RETIRADAS = new Set(['fab_northern']);
     const filas = [
       ...sql.matchAll(
         /\('fabricante', '([a-z_]+)', \$ime_landing\$(.*?)\$ime_landing\$::jsonb, \$ime_landing\$(.*?)\$ime_landing\$::jsonb\)/g
       ),
-    ];
+    ].filter(f => !RETIRADAS.has(f[1]!));
     expect(filas.map(f => f[1]).sort()).toEqual([...listFabricanteLandingIds()].sort());
     for (const [, clave, es, en] of filas) {
       const id = clave as ReturnType<typeof listFabricanteLandingIds>[number];

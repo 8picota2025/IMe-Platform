@@ -12,7 +12,51 @@ export interface ProductoSeoCopy {
   intro: string;
 }
 
-const COPY: Record<string, { es: ProductoSeoCopy; en: ProductoSeoCopy }> = {
+// Locale ausente → getProductoSeoCopy usa el fallback (seoZuowei) para ese idioma.
+const COPY: Record<string, { es?: ProductoSeoCopy; en?: ProductoSeoCopy }> = {
+  // arreglos011126 — Bastón KP4202-20 (ES)
+  'baston-4-apoyos-base-pequena-color-negro-ref-kp4202-20-konfort-plus': {
+    es: {
+      title: 'Bastón 4 apoyos Konfort Plus KP4202-20 – Colombia | I-ME',
+      description:
+        'Bastón de 4 apoyos Konfort Plus KP4202-20 en Colombia. Cotice por WhatsApp o en línea. Envío y soporte técnico.',
+      h1: 'Bastón de 4 apoyos Konfort Plus KP4202-20 en Colombia',
+      intro:
+        'Bastón de 4 apoyos Konfort Plus KP4202-20 en Colombia. Cotice por WhatsApp o en línea. Envío y soporte técnico.',
+    },
+  },
+  // arreglos011126 — Mindray BC-10 y BC-30S (EN): título adaptado a cada modelo, ≤60 caracteres
+  'analizador-hematologico-automatico-mindray-ref-bc-10-mindray': {
+    en: {
+      title: 'Mindray BC-10 Hematology Analyzer – Colombia | I-ME',
+      description:
+        'Mindray BC-10 hematology analyzer in Colombia. Request a quote by WhatsApp or online. Documentation per reference.',
+      h1: 'Mindray BC-10 hematology analyzer in Colombia',
+      intro:
+        'Mindray BC-10 hematology analyzer in Colombia. Request a quote by WhatsApp or online. Documentation per reference.',
+    },
+  },
+  'analizador-hematologico-automatico-mindray-ref-bc-30s-mindray': {
+    en: {
+      title: 'Mindray BC-30S Hematology Analyzer – Colombia | I-ME',
+      description:
+        'Mindray BC-30S hematology analyzer in Colombia. Request a quote by WhatsApp or online. Documentation per reference.',
+      h1: 'Mindray BC-30S hematology analyzer in Colombia',
+      intro:
+        'Mindray BC-30S hematology analyzer in Colombia. Request a quote by WhatsApp or online. Documentation per reference.',
+    },
+  },
+  // arreglos011126 — Monitor M12 (EN): meta con «Request a quote», sin plazos de respuesta
+  'monitor-de-paciente-ref-m12-biolight': {
+    en: {
+      title: 'Biolight M12 patient monitor in Colombia | I-ME',
+      description:
+        'Biolight M12 patient monitor in Colombia. Request a quote by WhatsApp or online. Shipping and technical support.',
+      h1: 'Biolight M12 patient monitor in Colombia',
+      intro:
+        'Biolight M12 patient monitor in Colombia. Request a quote by WhatsApp or online. Shipping and technical support.',
+    },
+  },
   'monitor-de-paciente-ref-s12-biolight': {
     es: {
       title: 'Monitor Biolight S12 en Colombia | I-ME',

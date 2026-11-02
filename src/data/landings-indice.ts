@@ -125,13 +125,6 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   },
   {
     tipo: 'fabricante',
-    clave: 'fab_northern',
-    nombre: 'Northern Meditec',
-    path: '/es/fabricantes/northern-meditec/',
-    pathEn: '/en/manufacturers/northern-meditec/',
-  },
-  {
-    tipo: 'fabricante',
     clave: 'fab_ilumitec',
     nombre: 'Ilumitec',
     path: '/es/fabricantes/ilumitec/',

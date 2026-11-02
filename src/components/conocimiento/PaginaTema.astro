@@ -187,6 +187,21 @@ const jsonLd = combineJsonLd(
         <p class="tema-label">{t(locale, 'conocimiento.tema_label')}</p>
         <h1 id="tema-h1">{cluster.nombre}</h1>
         {intro && <p class="ph-sub">{intro}</p>}
+        {
+          esTemaInvimaEn && (
+            <p class="tema-cta">
+              <a class="btn btn-primary" href="#invima-prediagnostico">
+                Free pre-diagnosis for manufacturers
+              </a>
+              <a class="btn btn-outline" href="https://wa.me/573137247353">
+                WhatsApp +57 313 724 7353
+              </a>
+              <a class="btn btn-outline" href={rutasConocimiento.articulo('en', 'checklist-invima-compra-equipos-medicos')}>
+                INVIMA checklist
+              </a>
+            </p>
+          )
+        }
       </div>
     </header>
 
