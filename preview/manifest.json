@@ -1,0 +1,43 @@
+{
+  "kind": "low-res-storyboard-preview",
+  "purpose": "validacion",
+  "aspect_ratio": "16:9",
+  "render": {
+    "model": "recraft_v4_1",
+    "resolution": "1k",
+    "delivered": "960x548 jpeg"
+  },
+  "not_included": ["video-full-res", "audio-mix", "official-logo-lock", "video10.md"],
+  "frames": [
+    {
+      "index": 1,
+      "file": "01-apertura-congreso.jpg",
+      "job_id": "34906509-b5cb-4722-ab26-7cf30ec999d8"
+    },
+    {
+      "index": 2,
+      "file": "02-asesor-b2b.jpg",
+      "job_id": "9d904199-3886-4bb2-880c-acd635648220"
+    },
+    {
+      "index": 3,
+      "file": "03-entorno-clinico.jpg",
+      "job_id": "94e0adea-a3ce-4146-8005-2c8952f7bc08"
+    },
+    {
+      "index": 4,
+      "file": "04-catalogo-digital.jpg",
+      "job_id": "4b432a82-37a9-4958-941c-250509d07584"
+    },
+    {
+      "index": 5,
+      "file": "05-soporte-tecnico.jpg",
+      "job_id": "92c35562-007e-4226-9c4f-4620268b6d07"
+    },
+    {
+      "index": 6,
+      "file": "06-cierre-marca.jpg",
+      "job_id": "a971a225-9efe-4382-bbac-d446af2f7666"
+    }
+  ]
+}
