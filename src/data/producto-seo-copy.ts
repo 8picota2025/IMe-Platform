@@ -148,6 +148,43 @@ const COPY: Record<string, { es?: ProductoSeoCopy; en?: ProductoSeoCopy }> = {
         'The UC-arm price is not on this page. I-ME is the supplier and quotes the dynamic UC-arm DR by reference. Installation and technical service are defined in the proposal, not as a generic rate.',
     },
   },
+  // KEENON KLEENBOT C30 y C40 (ES/EN). Fuente: datasheets del fabricante (sin precios).
+  'kleenbot-c30-robot-limpieza-autonoma-ref-c30-keenon': {
+    es: {
+      title: 'Robot de limpieza KLEENBOT C30 en Colombia | I-ME',
+      description:
+        'Robot de limpieza autónoma KLEENBOT C30 en Colombia: hasta 600 m²/h, 610 mm de ancho y 3 a 6 h de autonomía. Cotice por WhatsApp o en línea.',
+      h1: 'Robot de limpieza autónoma KLEENBOT C30 en Colombia',
+      intro:
+        'Robot de limpieza autónoma KLEENBOT C30 para pisos duros interiores y alfombra de pelo bajo, con aspirado, barrido y mopa seca, hasta 600 m²/h. Precio bajo cotización.',
+    },
+    en: {
+      title: 'KLEENBOT C30 cleaning robot in Colombia | I-ME',
+      description:
+        'KLEENBOT C30 autonomous cleaning robot in Colombia: up to 600 m²/h, 610 mm cleaning width, 3 to 6 h runtime. Quote by WhatsApp or online.',
+      h1: 'KLEENBOT C30 autonomous cleaning robot in Colombia',
+      intro:
+        'KLEENBOT C30 autonomous cleaning robot for indoor hard floors and low-pile carpet, with vacuuming, sweeping and dust-mopping, up to 600 m²/h. Price on request.',
+    },
+  },
+  'kleenbot-c40-robot-limpieza-autonoma-ref-c40-keenon': {
+    es: {
+      title: 'Robot de limpieza 4 en 1 KLEENBOT C40 | I-ME',
+      description:
+        'Robot de limpieza 4 en 1 KLEENBOT C40 en Colombia: barrido, aspirado, fregado y extracción de agua, hasta 1.100 m²/h. Cotice por WhatsApp o en línea.',
+      h1: 'Robot de limpieza 4 en 1 KLEENBOT C40 en Colombia',
+      intro:
+        'Robot de limpieza 4 en 1 KLEENBOT C40 con separación húmedo-seco, succión de 23.500 Pa, batería de 50 Ah de cambio rápido y hasta 1.100 m²/h. Precio bajo cotización.',
+    },
+    en: {
+      title: 'KLEENBOT C40 4-in-1 cleaning robot | I-ME',
+      description:
+        'KLEENBOT C40 4-in-1 cleaning robot in Colombia: sweeping, vacuuming, scrubbing and water extraction, up to 1,100 m²/h. Quote by WhatsApp or online.',
+      h1: 'KLEENBOT C40 4-in-1 cleaning robot in Colombia',
+      intro:
+        'KLEENBOT C40 4-in-1 cleaning robot with dry/wet separation, 23,500 Pa suction, a 50 Ah quick-swap battery and up to 1,100 m²/h. Price on request.',
+    },
+  },
 };
 
 export function getProductoSeoCopy(slug: string, locale: Locale): ProductoSeoCopy | undefined {

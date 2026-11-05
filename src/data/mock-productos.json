@@ -108832,5 +108832,504 @@
         "analizador-bioquimico-semiautomatico-sunnymed-sy-b010"
       ]
     }
+  },
+  {
+    "id": "07660dc1-73e4-4ad1-8d8c-440bf9a19e8d",
+    "slug": "kleenbot-c30-robot-limpieza-autonoma-ref-c30-keenon",
+    "sku": "KEENON-KLEENBOT-C30",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "tipo_id": "3e2982dc-eebb-4eb4-912e-087e2b08f3c7",
+    "nombre_es": "KLEENBOT C30 Robot de Limpieza Autónoma",
+    "nombre_en": "KLEENBOT C30 Autonomous Cleaning Robot",
+    "descripcion_corta_es": "Robot de limpieza autónoma para pisos duros interiores y alfombra de pelo bajo, con aspirado, barrido y mopa seca, hasta 600 m²/h.",
+    "descripcion_corta_en": "Autonomous cleaning robot for indoor hard floors and low-pile carpet, with vacuuming, sweeping and dust mopping, up to 600 m²/h.",
+    "descripcion_larga_es": "KLEENBOT C30 es un robot de limpieza autónoma para ambientes interiores. Combina los modos de barrido, aspirado y mopa seca con un cepillo de rodillo de 610 mm y una succión de hasta 19.000 Pa. Su batería LFP de 25,6 V y 28,5 Ah ofrece entre 3 y 6 horas de operación en barrido y aspirado, y hasta 10 horas en mopa seca. Se carga automáticamente en la base de carga incluida.",
+    "descripcion_larga_en": "KLEENBOT C30 is an autonomous cleaning robot for indoor spaces. It combines sweeping, vacuuming and dust-mopping modes with a 610 mm roller brush and suction of up to 19,000 Pa. Its 25.6 V, 28.5 Ah LFP battery gives 3 to 6 hours of operation in sweeping and vacuuming, and up to 10 hours in dust-mopping mode. It charges automatically at the bundled charging dock.",
+    "especificaciones": [
+      {
+        "clave": "Modos de limpieza",
+        "valor": "Barrido; aspirado (barrido + aspirado); mopa seca (empuje de polvo)",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Eficiencia de limpieza",
+        "valor": "Hasta 600 m²/h",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Área de limpieza",
+        "valor": "Hasta 2.500 m² por tarea (con carga completa)",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Succión",
+        "valor": "Hasta 19.000 Pa",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Ancho máximo de limpieza",
+        "valor": "610 mm (dos cepillos laterales + cepillo de rodillo)",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Recolección de polvo",
+        "valor": "3,5 L por bolsa",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Autonomía",
+        "valor": "3 a 6 h en barrido y aspirado; hasta 10 h en mopa seca",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Ruido",
+        "valor": "≤ 70 dB",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Velocidad máxima de desplazamiento",
+        "valor": "0,8 m/s",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Distancia de frenado",
+        "valor": "50 cm",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Altura de obstáculos superables",
+        "valor": "20 mm",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Alfombra",
+        "valor": "Hasta 10 mm de pelo",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Pendiente",
+        "valor": "≤ 8°",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Batería",
+        "valor": "LFP, 25,6 V, 28,5 Ah",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Carga",
+        "valor": "Automática con la base de carga incluida",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Entrada de carga",
+        "valor": "100-240 V~, 50/60 Hz",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Tiempo de carga",
+        "valor": "5 a 6 h",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Material",
+        "valor": "ABS y aleación de aluminio",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Posicionamiento",
+        "valor": "Láser, precisión a nivel de centímetro",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Sensores",
+        "valor": "LiDAR (240°, alcance ≤ 25 m), visión estéreo (120°, 0,1-1,5 m), sensor de colisión, IMU",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "7 pulgadas, 1024 × 600",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "Wi-Fi 2,4 GHz",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Sistema operativo",
+        "valor": "Linux (control) y Android (interacción)",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Idiomas de la app",
+        "valor": "Chino, inglés, japonés, coreano, francés",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Funciones de la app",
+        "valor": "Limpieza inmediata, programada, manual y modo de enseñanza",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Operación",
+        "valor": "0 a 40 °C · 20 % a 80 % HR · interior, pisos duros y alfombra de pelo bajo ≤ 10 mm",
+        "grupo": "Ambiente"
+      },
+      {
+        "clave": "Almacenamiento",
+        "valor": "-15 a 45 °C · 20 % a 80 % HR",
+        "grupo": "Ambiente"
+      },
+      {
+        "clave": "Dimensiones del robot (An × Pr × Al)",
+        "valor": "490 × 610 × 750 mm con empujador de polvo; 490 × 520 × 750 mm sin empujador",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Peso del robot",
+        "valor": "35 kg con batería; 30 kg sin batería",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Base de carga (An × Pr × Al)",
+        "valor": "220 × 130 × 330 mm · 2,4 kg",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Contenido de la caja",
+        "valor": "Robot ×1, base de carga ×1, manual ×1, cepillo lateral ×4, paño de mopa ×2, cepillo de rodillo ×2, raspador de cepillo de rodillo ×3, bolsa de polvo ×20, filtro HEPA ×1",
+        "grupo": "Incluye"
+      },
+      {
+        "clave": "Consumibles disponibles",
+        "valor": "Cepillo lateral, paño de mopa, cepillo de rodillo, raspador, bolsa de polvo y filtro HEPA",
+        "grupo": "Incluye"
+      },
+      {
+        "clave": "Color",
+        "valor": "Blanco perlado",
+        "grupo": "Incluye"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/kleenbot-c30-robot-limpieza-autonoma/robot-producto-kleenbot-c30.webp",
+    "galeria": [
+      "/assets/productos/importados/kleenbot-c30-robot-limpieza-autonoma/robot-producto-kleenbot-c30.webp"
+    ],
+    "ficha_pdf": "/assets/productos/importados/kleenbot-c30-robot-limpieza-autonoma/ficha-tecnica.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 477,
+    "aplicaciones_es": [
+      "Pisos duros interiores",
+      "Alfombras de pelo bajo de hasta 10 mm",
+      "Limpieza diaria de ambientes interiores",
+      "Limpieza programada desde la app"
+    ],
+    "aplicaciones_en": [
+      "Indoor hard floors",
+      "Low-pile carpets up to 10 mm",
+      "Daily cleaning of indoor spaces",
+      "Scheduled cleaning from the app"
+    ],
+    "marca": "KEENON",
+    "proveedor_ref": "keenon",
+    "atributos": {
+      "beneficios_es": [
+        "Aspirado, barrido y mopa seca en un solo equipo",
+        "Hasta 600 m²/h con 610 mm de ancho de limpieza",
+        "De 3 a 6 h de autonomía en barrido y aspirado; hasta 10 h en mopa seca",
+        "Navegación con LiDAR, visión estéreo y sensor de colisión",
+        "Pantalla de expresión de 7″ con luces y contenidos personalizables"
+      ],
+      "beneficios_en": [
+        "Vacuuming, sweeping and dust-mopping in one machine",
+        "Up to 600 m²/h with a 610 mm cleaning width",
+        "3 to 6 h of runtime in sweeping and vacuuming; up to 10 h in dust-mopping",
+        "Navigation with LiDAR, stereo vision and a collision sensor",
+        "7-inch expression screen with lights and customizable content"
+      ],
+      "valor_es": "KLEENBOT C30 automatiza la limpieza diaria de pisos duros interiores con limpieza programada desde la app, base de carga automática y consumibles de fácil reposición. Precio bajo cotización.",
+      "valor_en": "KLEENBOT C30 automates daily cleaning of indoor hard floors with scheduled cleaning from the app, an automatic charging dock and easy-to-replace consumables. Price on request.",
+      "seo_keywords_es": [
+        "KLEENBOT C30",
+        "C30 robot de limpieza",
+        "robot de limpieza autónoma",
+        "robot aspiradora y fregadora",
+        "robot de limpieza de pisos duros",
+        "robot de limpieza para oficinas",
+        "robot de limpieza interior",
+        "KEENON C30"
+      ],
+      "seo_keywords_en": [
+        "KLEENBOT C30",
+        "C30 cleaning robot",
+        "autonomous cleaning robot",
+        "robot vacuum and mop",
+        "hard floor cleaning robot",
+        "office cleaning robot",
+        "indoor cleaning robot",
+        "KEENON C30"
+      ],
+      "marca": "KEENON"
+    }
+  },
+  {
+    "id": "55677cde-1384-497f-a414-2ed463f230f3",
+    "slug": "kleenbot-c40-robot-limpieza-autonoma-ref-c40-keenon",
+    "sku": "KEENON-KLEENBOT-C40",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "tipo_id": "3e2982dc-eebb-4eb4-912e-087e2b08f3c7",
+    "nombre_es": "KLEENBOT C40 Robot de Limpieza Autónoma 4 en 1",
+    "nombre_en": "KLEENBOT C40 4-in-1 Autonomous Cleaning Robot",
+    "descripcion_corta_es": "Robot de limpieza 4 en 1 para espacios pequeños y medianos: barrido, aspirado, fregado y extracción de agua, con separación húmedo-seco y hasta 1.100 m²/h.",
+    "descripcion_corta_en": "4-in-1 cleaning robot for small and medium spaces: sweeping, vacuuming, scrubbing and water extraction, with dry/wet separation and up to 1,100 m²/h.",
+    "descripcion_larga_es": "KLEENBOT C40 es un robot de limpieza autónoma 4 en 1 para espacios interiores pequeños y medianos. Su sistema de tres cepillos separa residuos secos y húmedos para evitar la contaminación cruzada, y su succión de hasta 23.500 Pa seca el piso tras el fregado. Incluye tanque de agua limpia de 16 L, batería LFP de 25,6 V y 50 Ah de cambio rápido, y pantalla táctil de 11,6 pulgadas.",
+    "descripcion_larga_en": "KLEENBOT C40 is a 4-in-1 autonomous cleaning robot for small and medium indoor spaces. Its three-brush system separates dry and wet debris to avoid cross-contamination, and suction of up to 23,500 Pa dries the floor after scrubbing. It includes a 16 L clean-water tank, a 25.6 V, 50 Ah LFP battery with quick-swap design, and an 11.6-inch touchscreen.",
+    "especificaciones": [
+      {
+        "clave": "Modos de limpieza",
+        "valor": "Barrido; barrido + aspirado; barrido + mopa seca; barrido + fregado; extracción de agua",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Eficiencia de limpieza",
+        "valor": "Hasta 1.100 m²/h",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Área de limpieza",
+        "valor": "Hasta 3.000 m² en aspirado y 2.500 m² en fregado",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Succión",
+        "valor": "Hasta 23.500 Pa",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Ancho de limpieza",
+        "valor": "Barrido: 560 mm (con dos cepillos laterales); aspirado y fregado: 400 mm",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Recolección",
+        "valor": "Bolsa de 8 L y contenedor separado de 0,7 L",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Tanque de agua limpia",
+        "valor": "16 L",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Autonomía",
+        "valor": "Barrido hasta 15 h; mopa seca hasta 10 h; aspirado hasta 6 h; fregado hasta 5 h",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Ruido",
+        "valor": "70 dB",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Velocidad de desplazamiento",
+        "valor": "0,8 m/s",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Alfombra",
+        "valor": "Hasta 10 mm de pelo",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Salto de desnivel (navegación)",
+        "valor": "35 mm",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Altura de obstáculos superables",
+        "valor": "15 mm (navegación, barrido + aspirado); 5 mm (barrido + fregado, no recomendado)",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Paso mínimo",
+        "valor": "65 cm de ancho y 75 cm de alto",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Pendiente",
+        "valor": "≤ 8° (solo navegación); ≤ 2° (tarea de limpieza)",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Batería",
+        "valor": "LFP, 25,6 V, 50 Ah, con cambio rápido",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Carga",
+        "valor": "Automática con base de carga (se compra aparte) o manual con el cargador incluido",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Entrada de carga",
+        "valor": "100-240 V~, 50/60 Hz",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Tiempo de carga",
+        "valor": "Aprox. 2 h",
+        "grupo": "Batería y carga"
+      },
+      {
+        "clave": "Material",
+        "valor": "ABS y aleación de aluminio",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Posicionamiento",
+        "valor": "Fusión de sensores (LiDAR y VSLAM), precisión a nivel de centímetro",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Sensores",
+        "valor": "LiDAR (alcance ≤ 40 m), visión estéreo (170° horizontal), VSLAM, láser de línea, ultrasonido, cámara RGB, sensor de colisión, IMU",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "11,6 pulgadas táctil, 1920 × 1080",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Interacción",
+        "valor": "Luz, táctil y avisos de voz",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "Wi-Fi, ESP01 y 4G",
+        "grupo": "Hardware y navegación"
+      },
+      {
+        "clave": "Sistema operativo",
+        "valor": "Linux (control) y Android (interacción)",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Idiomas de la app",
+        "valor": "Chino, inglés, japonés, coreano, francés, tailandés y alemán",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Funciones de la app",
+        "valor": "Limpieza inmediata, programada, manual y modo de enseñanza; reanudación por punto de corte y coordinación de varios equipos",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Operación",
+        "valor": "0 a 40 °C · 20 % a 80 % HR · interior, pisos duros y alfombra de pelo bajo ≤ 10 mm",
+        "grupo": "Ambiente"
+      },
+      {
+        "clave": "Almacenamiento",
+        "valor": "-15 a 45 °C · 20 % a 80 % HR",
+        "grupo": "Ambiente"
+      },
+      {
+        "clave": "Dimensiones del robot (An × Pr × Al)",
+        "valor": "616 × 550 × 690 mm",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Peso del robot",
+        "valor": "70 kg con batería y tanques vacíos (solo robot)",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Base de carga (An × Pr × Al)",
+        "valor": "534 × 225 × 407 mm · aprox. 20 kg",
+        "grupo": "Dimensiones y peso"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/kleenbot-c40-robot-limpieza-autonoma/robot-producto-kleenbot-c40.webp",
+    "galeria": [
+      "/assets/productos/importados/kleenbot-c40-robot-limpieza-autonoma/robot-producto-kleenbot-c40.webp",
+      "/assets/productos/importados/kleenbot-c40-robot-limpieza-autonoma/robot-galeria-kleenbot-c40-01.webp"
+    ],
+    "ficha_pdf": "/assets/productos/importados/kleenbot-c40-robot-limpieza-autonoma/ficha-tecnica.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 478,
+    "aplicaciones_es": [
+      "Espacios interiores pequeños y medianos",
+      "Barrido, aspirado y fregado en un solo recorrido",
+      "Pisos duros interiores",
+      "Alfombras de pelo bajo de hasta 10 mm",
+      "Operación con recarga automática y cambio rápido de batería"
+    ],
+    "aplicaciones_en": [
+      "Small and medium indoor spaces",
+      "Sweeping, vacuuming and scrubbing in one pass",
+      "Indoor hard floors",
+      "Low-pile carpets up to 10 mm",
+      "Operation with automatic recharging and quick battery swap"
+    ],
+    "marca": "KEENON",
+    "proveedor_ref": "keenon",
+    "atributos": {
+      "beneficios_es": [
+        "Separación de tres cepillos: residuos secos y húmedos no se mezclan",
+        "Secado inmediato tras el fregado con succión de hasta 23.500 Pa",
+        "Batería de 50 Ah de cambio rápido para operación casi continua",
+        "Tanque de aguas residuales desmontable y lavable",
+        "Percepción 3D con LiDAR, visión estéreo, láser de línea y ultrasonido"
+      ],
+      "beneficios_en": [
+        "Three-brush system: dry and wet debris are kept apart",
+        "Immediate drying after scrubbing with suction up to 23,500 Pa",
+        "50 Ah quick-swap battery for near-continuous operation",
+        "Removable, washable wastewater tank",
+        "3D perception with LiDAR, stereo vision, line laser and ultrasonic sensors"
+      ],
+      "valor_es": "KLEENBOT C40 reúne barrido, aspirado, fregado y extracción de agua en un equipo con tanque de 16 L y batería de cambio rápido para reducir las paradas por carga. Precio bajo cotización.",
+      "valor_en": "KLEENBOT C40 combines sweeping, vacuuming, scrubbing and water extraction in one machine, with a 16 L tank and a quick-swap battery to reduce stops for charging. Price on request.",
+      "seo_keywords_es": [
+        "KLEENBOT C40",
+        "C40 robot de limpieza",
+        "robot de limpieza 4 en 1",
+        "robot fregadora autónoma",
+        "robot de limpieza húmedo y seco",
+        "robot de limpieza para espacios medianos",
+        "KEENON C40"
+      ],
+      "seo_keywords_en": [
+        "KLEENBOT C40",
+        "C40 cleaning robot",
+        "4-in-1 cleaning robot",
+        "autonomous scrubber robot",
+        "wet and dry cleaning robot",
+        "cleaning robot for medium spaces",
+        "KEENON C40"
+      ],
+      "marca": "KEENON"
+    }
   }
 ]
