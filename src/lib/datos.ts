@@ -12,6 +12,7 @@ import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
 import { resolveMarca } from './producto-origen';
 import { resolvePrecioPublico } from './format';
+import { plazoEntregaDesdeAtributos } from './plazo-entrega';
 
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
@@ -309,6 +310,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     beneficios:
       (locale === 'en' ? raw.atributos?.beneficios_en : raw.atributos?.beneficios_es) ?? [],
     valor: (locale === 'en' ? raw.atributos?.valor_en : raw.atributos?.valor_es) ?? null,
+    plazo_entrega: plazoEntregaDesdeAtributos(raw.atributos, locale),
     preguntas_frecuentes:
       (locale === 'en'
         ? raw.atributos?.preguntas_frecuentes_en
@@ -375,6 +377,8 @@ export interface Producto {
   aplicaciones: string[];
   beneficios: string[];
   valor: string | null;
+  /** Plazo de entrega propio (atributos.plazo_entrega_es/en). null = texto fijo de i18n. */
+  plazo_entrega?: string | null;
   preguntas_frecuentes: Array<{ q: string; a: string }>;
   seo_keywords: string[];
   marca: string | null;

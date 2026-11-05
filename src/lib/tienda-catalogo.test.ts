@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  conSeoTienda,
   enlaceFamiliaTensiometro,
   itemDeTienda,
   rangoPrecios,
@@ -69,6 +70,34 @@ describe('tienda catalogo', () => {
       count: 2,
     });
     expect(rangoPrecios([{ precio: null }])).toBeNull();
+  });
+
+  it('usa el plazo compartido de la categoría en SEO y FAQ; sin plazo, texto fijo', () => {
+    const rango = { min: 327250, max: 2971430, count: 25 };
+    const conPlazo = textoSeoTienda('es', 'sillas', {
+      ...rango,
+      plazo: 'Entrega en 5 a 7 días hábiles',
+    });
+    expect(conPlazo.description).toContain('Entrega en 5 a 7 días hábiles.');
+    expect(conPlazo.description).not.toContain('menos de 10');
+    expect(conPlazo.lead).toContain('Entrega en 5 a 7 días hábiles.');
+
+    const sinPlazo = textoSeoTienda('es', 'sillas', { ...rango, plazo: null });
+    expect(sinPlazo.description).toContain('menos de 10 días hábiles');
+
+    const content = {
+      title: 't',
+      description: 'd',
+      h1: 'h',
+      lead: 'l',
+      faqs: [] as Array<{ q: string; a: string }>,
+    };
+    const faq = conSeoTienda(content, 'es', 'sillas', { ...rango, plazo: 'Entrega en 5 días' });
+    expect(faq.faqs.at(-1)?.a).toBe(
+      'Sí, hay envío a Colombia. Entrega en 5 días. El flete no está incluido en el precio publicado.'
+    );
+    const faqEn = conSeoTienda(content, 'en', 'sillas', { ...rango, plazo: null });
+    expect(faqEn.faqs.at(-1)?.a).toContain('Delivery is in under 10 business days.');
   });
 
   it('enlaza la ficha del tensiómetro digital con la página de familia', () => {

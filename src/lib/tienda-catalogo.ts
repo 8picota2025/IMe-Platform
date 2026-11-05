@@ -6,9 +6,18 @@ import type { Locale } from '../i18n/utils';
 import { buildCatalogoIndex, type CatalogoIndexItem } from './catalogo';
 import { getProductosBySlugs, type Producto } from './datos';
 import { formatMoneda, tienePrecioPublico } from './format';
+import { fraseEntrega, plazoCompartido } from './plazo-entrega';
 import { truncateMetaDescription } from './seo';
 
 export type TiendaCategoria = 'sillas' | 'caminadores' | 'bastones' | 'tensiometros';
+
+export interface RangoTienda {
+  min: number;
+  max: number;
+  count: number;
+  /** Plazo de entrega compartido por todos los productos de la categoría; null si difieren. */
+  plazo?: string | null;
+}
 
 const TIPO: Record<TiendaCategoria, string> = {
   sillas: 'sillas-de-ruedas',
@@ -58,15 +67,16 @@ export function rangoPrecios(
 export function textoSeoTienda(
   locale: Locale,
   categoria: TiendaCategoria,
-  rango: { min: number; max: number; count: number }
+  rango: RangoTienda
 ): { title: string; description: string; h1: string; lead: string } {
   const min = formatMoneda(rango.min, 'COP', locale) ?? '';
   const max = formatMoneda(rango.max, 'COP', locale) ?? '';
   const es = locale === 'es';
   const envio = es ? 'envío a Colombia' : 'shipping to Colombia';
-  const entrega = es
-    ? 'Entrega en menos de 10 días hábiles.'
-    : 'Delivery in under 10 business days.';
+  const entrega = fraseEntrega(
+    rango.plazo,
+    es ? 'Entrega en menos de 10 días hábiles.' : 'Delivery in under 10 business days.'
+  );
   const nombres = {
     sillas: es ? 'Sillas de ruedas' : 'Wheelchairs',
     caminadores: es ? 'Caminadores para adultos' : 'Adult walkers',
@@ -96,23 +106,18 @@ export function conSeoTienda<
     lead: string;
     faqs: Array<{ q: string; a: string }>;
   },
->(
-  content: T,
-  locale: Locale,
-  categoria: TiendaCategoria,
-  rango: { min: number; max: number; count: number } | null
-): T {
+>(content: T, locale: Locale, categoria: TiendaCategoria, rango: RangoTienda | null): T {
   if (!rango) return content;
   const seo = textoSeoTienda(locale, categoria, rango);
   const envio =
     locale === 'es'
       ? {
           q: '¿Hacen envío a Colombia y en qué plazo?',
-          a: 'Sí, hay envío a Colombia. La entrega es en menos de 10 días hábiles. El flete no está incluido en el precio publicado.',
+          a: `Sí, hay envío a Colombia. ${fraseEntrega(rango.plazo, 'La entrega es en menos de 10 días hábiles.')} El flete no está incluido en el precio publicado.`,
         }
       : {
           q: 'Do you ship to Colombia, and how soon?',
-          a: 'Yes, we ship to Colombia. Delivery is in under 10 business days. Freight is not included in the published price.',
+          a: `Yes, we ship to Colombia. ${fraseEntrega(rango.plazo, 'Delivery is in under 10 business days.')} Freight is not included in the published price.`,
         };
   const faqs = content.faqs.filter(
     f => !/precio está en la web|price on the website/i.test(`${f.q} ${f.a}`)
@@ -145,7 +150,7 @@ export function enlaceFamiliaTensiometro(
 export async function productosTienda(
   locale: Locale,
   categoria: TiendaCategoria
-): Promise<{ productos: Producto[]; rango: { min: number; max: number; count: number } | null }> {
+): Promise<{ productos: Producto[]; rango: RangoTienda | null }> {
   const indice = await buildCatalogoIndex(locale);
   const items = indice.filter(item => itemDeTienda(item, categoria));
   const slugs = items.map(item => item.slug);
@@ -154,5 +159,6 @@ export async function productosTienda(
     const bp = tienePrecioPublico(b.precio) ? b.precio : Number.POSITIVE_INFINITY;
     return ap - bp || a.nombre.localeCompare(b.nombre, locale);
   });
-  return { productos, rango: rangoPrecios(productos) };
+  const rango = rangoPrecios(productos);
+  return { productos, rango: rango && { ...rango, plazo: plazoCompartido(productos) } };
 }

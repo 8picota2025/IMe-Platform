@@ -18,6 +18,8 @@ export interface CarritoItem {
   moneda: string;
   stock: number | null;
   cantidad: number;
+  /** Plazo propio del producto (ficha). Ausente = texto fijo de entrega. */
+  plazo_entrega?: string | null;
 }
 
 export interface CarritoCliente {

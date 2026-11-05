@@ -151,7 +151,7 @@ const config = {
       </div>
       <div class="carrito-resumen__row">
         <span>{config.i18n.entrega}</span>
-        <span>{config.i18n.entregaPlazo}</span>
+        <span id="carrito-entrega">{config.i18n.entregaPlazo}</span>
       </div>
       <div class="carrito-resumen__row carrito-resumen__row--total">
         <span>{config.i18n.totalProductos}</span>
@@ -375,9 +375,8 @@ const config = {
       <strong id="carrito-dock-total">—</strong>
     </p>
     <p class="carrito-dock__nota">
-      {config.i18n.envio}: {config.i18n.envioPendiente} · {config.i18n.entrega}: {
-        config.i18n.entregaPlazo
-      }
+      {config.i18n.envio}: {config.i18n.envioPendiente} · {config.i18n.entrega}:{' '}
+      <span id="carrito-dock-entrega">{config.i18n.entregaPlazo}</span>
     </p>
     <div class="carrito-actions">
       <button id="carrito-vaciar" class="btn btn-secondary" type="button">
@@ -768,6 +767,7 @@ const config = {
     type Mercado,
   } from '../lib/carrito';
   import { formatMoneda } from '../lib/format';
+  import { plazoEntregaCarrito } from '../lib/plazo-entrega';
   import { collectVisitorPhone } from '../lib/visitor-phone-field';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
@@ -866,6 +866,8 @@ const config = {
     const resumenEl = document.getElementById('carrito-resumen');
     const subtotalEl = document.getElementById('carrito-subtotal');
     const totalEl = document.getElementById('carrito-total');
+    const entregaEl = document.getElementById('carrito-entrega');
+    const dockEntregaEl = document.getElementById('carrito-dock-entrega');
     const formEl = document.getElementById('carrito-form') as HTMLFormElement | null;
     const vaciarBtn = document.getElementById('carrito-vaciar');
     const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null;
@@ -946,6 +948,9 @@ const config = {
       if (subtotalEl) subtotalEl.textContent = totalFmt;
       if (totalEl) totalEl.textContent = totalFmt;
       if (dockTotalEl) dockTotalEl.textContent = totalFmt;
+      const entregaFmt = plazoEntregaCarrito(items, i18n.entregaPlazo);
+      if (entregaEl) entregaEl.textContent = entregaFmt;
+      if (dockEntregaEl) dockEntregaEl.textContent = entregaFmt;
     }
 
     function showAvisos(eliminados: CarritoItem[]) {

@@ -513,7 +513,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                 <li>{t(locale, 'producto.iva_incluido')}</li>
                 <li>{t(locale, 'producto.envio_colombia')}</li>
                 <li>{t(locale, 'producto.envio_no_incluido')}</li>
-                <li>{t(locale, 'producto.plazo_entrega')}</li>
+                <li>{producto.plazo_entrega ?? t(locale, 'producto.plazo_entrega')}</li>
               </ul>
 
               {isPurchasableProduct ? (
@@ -549,6 +549,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                     data-precio={producto.precio}
                     data-moneda={producto.moneda ?? 'COP'}
                     data-stock={producto.stock ?? ''}
+                    data-plazo-entrega={producto.plazo_entrega ?? ''}
                     data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
                     data-label-agregado={t(locale, 'carrito.agregado')}
                   >
@@ -3133,9 +3134,13 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP';
     const stockRaw = addCarritoBtn.dataset['stock'];
     const stock = stockRaw ? Number(stockRaw) : null;
+    const plazoEntrega = addCarritoBtn.dataset['plazoEntrega'] || null;
     if (!slug || !nombre || Number.isNaN(precio)) return;
     void import('../lib/carrito').then(({ agregarAlCarrito, abrirCarrito }) => {
-      agregarAlCarrito({ slug, nombre, precio, moneda, stock }, quantity);
+      agregarAlCarrito(
+        { slug, nombre, precio, moneda, stock, plazo_entrega: plazoEntrega },
+        quantity
+      );
       confirmarAdd(addCarritoBtn);
       if (goCheckout) {
         window.location.href = checkoutPath;
