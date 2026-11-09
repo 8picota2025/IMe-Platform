@@ -1,0 +1,57 @@
+name: Subir assets UniX (FTP dirigido)
+
+# Sube SOLO las tres carpetas de assets UniX a producción. deploy-prod.yml
+# excluye assets/productos/importados/** (~604 MB), así que fotos y fichas
+# nuevas de UniX no llegan con el deploy normal. Este workflow no construye
+# el sitio, no borra nada en el servidor y no toca otras carpetas.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    name: FTP · assets UniX
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            public/assets/productos/importados/unix-wanda-2-0-pro
+            public/assets/productos/importados/unix-panther-pro
+            public/assets/productos/importados/unix-pioneer-h
+          sparse-checkout-cone-mode: true
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Upload UniX folders (sin --delete)
+        env:
+          FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
+          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          PROD_PATH: ${{ secrets.HOSTINGER_PROD_PATH }}
+        run: |
+          set -euo pipefail
+          host="${FTP_HOST#ftp://}"; host="${host%/}"
+          root="${PROD_PATH%/}"
+          case "$root" in *..*) echo "HOSTINGER_PROD_PATH inseguro"; exit 1;; esac
+          base="$root/assets/productos/importados"
+          src=public/assets/productos/importados
+          cmds="set ftp:ssl-allow true; set ssl:verify-certificate no; set net:max-retries 3; set net:timeout 60;"
+          cmds="$cmds cd \"$base\" || exit 1; cls -1 | head -n 5;"
+          for d in unix-wanda-2-0-pro unix-panther-pro unix-pioneer-h; do
+            test -d "$src/$d" || { echo "Falta $src/$d"; exit 1; }
+            ls -la "$src/$d"
+            cmds="$cmds mirror -R --no-perms --verbose \"$src/$d\" \"$base/$d\";"
+          done
+          for d in unix-wanda-2-0-pro unix-panther-pro unix-pioneer-h; do
+            cmds="$cmds cls -l \"$base/$d\";"
+          done
+          lftp --env-password -u "$FTP_USER" "$host" -e "$cmds bye"
