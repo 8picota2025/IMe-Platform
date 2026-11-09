@@ -230,17 +230,6 @@ const rehabCards = rehabZuowei().map(producto => ({
                       </div>
                     ))}
                   </dl>
-                  {robot.certificados && (
-                    <>
-                      <p class="rbo-role">{unix.certsLabel}</p>
-                      <div class="rbo-card__links">
-                        {robot.certificados.map(certificado => (
-                          <a href={certificado.href}>{l10n(locale, certificado.label)}</a>
-                        ))}
-                      </div>
-                      <p class="rbo-fine">{unix.certsNote}</p>
-                    </>
-                  )}
                   <div class="rbo-card__links">
                     <a href={`${copy.productBase}${robot.slug}/`}>{unix.sheetCta}</a>
                     <a href={robot.pdf}>{l10n(locale, robot.pdfLabel)}</a>

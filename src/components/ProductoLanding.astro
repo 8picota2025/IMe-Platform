@@ -39,6 +39,13 @@ interface Props {
 const { producto, familia, relacionados, locale, seoH1, seoIntro, enlaces = [] } = Astro.props;
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
+// Los robots son equipos de servicio: nunca rotular sus usos como clínicos.
+const aplicacionesTitulo = t(
+  locale,
+  familia.slug === 'robots'
+    ? 'producto.aplicaciones_titulo_servicio'
+    : 'producto.aplicaciones_titulo'
+);
 
 const sinVenta = fichaZuoweiSinVenta(producto);
 const fichaZuowei = esFichaZuowei(producto);
@@ -800,7 +807,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               aria-selected="false"
               data-pdp-tab="apps"
             >
-              {t(locale, 'producto.aplicaciones_titulo')}
+              {aplicacionesTitulo}
             </button>
           )
         }
@@ -927,7 +934,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
             data-pdp-panel="apps"
             hidden
           >
-            <h2 class="sr-only">{t(locale, 'producto.aplicaciones_titulo')}</h2>
+            <h2 class="sr-only">{aplicacionesTitulo}</h2>
             <ul class="aplicaciones__grid" role="list">
               {producto.aplicaciones.map(item => (
                 <li class="aplicaciones__item">

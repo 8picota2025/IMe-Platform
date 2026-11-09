@@ -613,7 +613,6 @@ export interface UnixRobot {
   role: L10n;
   summary: L10n;
   specs: RobotSpec[];
-  certificados?: Array<{ label: L10n; href: string }>;
 }
 
 const unixAsset = (carpeta: string, file: string) =>
@@ -650,24 +649,6 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
       { label: { es: 'Autonomía', en: 'Runtime' }, value: '8–16 h · carga ~2 h' },
       { label: { es: 'Navegación', en: 'Navigation' }, value: 'LiDAR ×1 · tracción diferencial' },
       { label: { es: 'Cómputo', en: 'Compute' }, value: 'NVIDIA Jetson Orin NX 16G (100 TOPS)' },
-    ],
-    certificados: [
-      {
-        label: { es: 'Declaración FCC (SDOC)', en: 'FCC declaration (SDOC)' },
-        href: unixAsset('unix-wanda-2-0-pro/certificados', 'certificado-fcc-sdoc-wanda-2-0.pdf'),
-      },
-      {
-        label: { es: 'CE · EMC', en: 'CE · EMC' },
-        href: unixAsset('unix-wanda-2-0-pro/certificados', 'certificado-ce-emc-wanda-2-0.pdf'),
-      },
-      {
-        label: { es: 'CE · RED 2014/53/EU', en: 'CE · RED 2014/53/EU' },
-        href: unixAsset('unix-wanda-2-0-pro/certificados', 'certificado-ce-red-wanda-2-0.pdf'),
-      },
-      {
-        label: { es: 'CE · Máquinas 2006/42/CE', en: 'CE · Machinery 2006/42/EC' },
-        href: unixAsset('unix-wanda-2-0-pro/certificados', 'certificado-ce-md-wanda-2-0.pdf'),
-      },
     ],
   },
   {
@@ -747,9 +728,6 @@ export const UNIX_COPY = {
     title: 'UniX AI: humanoides y cuadrúpedo industrial en Colombia',
     lead: 'I-ME distribuye en Colombia la línea UniX AI: los humanoides Wanda 2.0 Pro y Panther Pro, y el cuadrúpedo industrial Pioneer H. Las cifras salen de las fichas del fabricante. El precio es bajo cotización.',
     note: 'Las fotos son escenas de demostración del fabricante. Esta página no publica precios, plazos de entrega, garantías ni registros INVIMA para estos modelos, porque no figuran en el material oficial. Ninguno se presenta como dispositivo médico.',
-    certsNote:
-      'La declaración FCC y el certificado EMC listan el modelo Wanda 2.0 Ultra. Confirme con I-ME a qué modelos aplica cada certificado antes de cotizar.',
-    certsLabel: 'Certificados de la línea Wanda 2.0',
     sheetCta: 'Ver ficha',
     quoteCta: 'Cotizar este modelo',
   },
@@ -757,9 +735,6 @@ export const UNIX_COPY = {
     title: 'UniX AI: humanoid and industrial quadruped robots in Colombia',
     lead: 'I-ME distributes the UniX AI line in Colombia: the Wanda 2.0 Pro and Panther Pro humanoids, and the Pioneer H industrial quadruped. Figures come from the manufacturer sheets. Price is on quote.',
     note: 'Photos are manufacturer demonstration scenes. This page does not publish prices, lead times, warranties or INVIMA registrations for these models, because they are not in the official material. None is presented as a medical device.',
-    certsNote:
-      'The FCC declaration and the EMC certificate list the Wanda 2.0 Ultra model. Confirm with I-ME which models each certificate applies to before requesting a quote.',
-    certsLabel: 'Wanda 2.0 line certificates',
     sheetCta: 'View sheet',
     quoteCta: 'Quote this model',
   },

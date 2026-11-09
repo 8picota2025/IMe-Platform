@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import en from '../i18n/en.json';
+import es from '../i18n/es.json';
 import { getCampaignLanding } from './comercial-landings';
 import { getFamiliaSeo } from './familia-seo';
 import { PROMO_PADBOT_EN, PROMO_PADBOT_ES } from './promo-padbot';
@@ -204,10 +206,7 @@ describe('línea UniX AI en la landing de robots', () => {
   });
 
   it('referencia solo archivos que existen en public/', () => {
-    const rutas = [
-      ...UNIX_ROBOTS.flatMap(robot => [robot.image, robot.pdf]),
-      ...UNIX_ROBOTS.flatMap(robot => (robot.certificados ?? []).map(c => c.href)),
-    ];
+    const rutas = [...UNIX_ROBOTS.flatMap(robot => [robot.image, robot.pdf])];
     for (const ruta of rutas) {
       expect(existsSync(new URL(`.${ruta}`, publicDir)), ruta).toBe(true);
     }
@@ -240,8 +239,23 @@ describe('línea UniX AI en la landing de robots', () => {
     expect(PAGE.en.lead).not.toMatch(/Wanda 3|Martian|KEENON|Unitree|Reeman|Pudu/);
   });
 
-  it('declara el modelo Ultra de las certificaciones en vez de afirmar que el Pro está certificado', () => {
-    expect(UNIX_COPY.es.certsNote).toContain('Wanda 2.0 Ultra');
-    expect(UNIX_COPY.en.certsNote).toContain('Wanda 2.0 Ultra');
+  it('no publica certificados emitidos para Wanda 2.0 Ultra en la ficha del Pro', () => {
+    // FCC SDoC, CE EMC, CE RED y CE Máquinas nombran solo «Wanda 2.0 Ultra».
+    // Se retiran hasta que el fabricante confirme que aplican al Pro.
+    expect(
+      existsSync(
+        new URL('./assets/productos/importados/unix-wanda-2-0-pro/certificados/', publicDir)
+      )
+    ).toBe(false);
+    const wanda = productos.find(item => item.slug === UNIX_ROBOTS[0]!.slug);
+    const texto = JSON.stringify({ UNIX_ROBOTS, UNIX_COPY, wanda });
+    expect(texto).not.toMatch(/Ultra|certificado-|FCC|EMC/);
+  });
+
+  it('rotula las aplicaciones de robots sin lenguaje clínico', () => {
+    expect(es.producto.aplicaciones_titulo_servicio).toBe('Aplicaciones');
+    expect(en.producto.aplicaciones_titulo_servicio).toBe('Applications');
+    expect(es.producto.aplicaciones_titulo_servicio).not.toMatch(/clínic/i);
+    expect(en.producto.aplicaciones_titulo_servicio).not.toMatch(/clinic/i);
   });
 });
