@@ -26,9 +26,7 @@ async function filesUnder(directory) {
 }
 
 function isSitemapXmlName(name) {
-  return /^(?:sitemap-index|sitemap-(?:pages|products|knowledge)-\d+|sitemap-\d+)\.xml$/.test(
-    name
-  );
+  return /^(?:sitemap-index|sitemap-(?:pages|products|knowledge)-\d+|sitemap-\d+)\.xml$/.test(name);
 }
 
 async function main() {
@@ -117,11 +115,98 @@ async function main() {
     fail('sitemap sin rutas editoriales conocimiento/knowledge');
   }
 
+  await checkFichasUnix();
+
   reportAndExit();
   if (errors.length === 0) {
     console.log(
       `validate-seo: OK (robots + ${sitemapFiles.length} sitemap XML, ${pageCount} URLs página)`
     );
+  }
+}
+
+/**
+ * Fichas UniX: sin stock documentado ni precio público, el HTML no puede afirmar
+ * disponibilidad; el título lleva un único sufijo de marca; la meta cabe en 155 caracteres;
+ * la ficha EN emite FAQPage y sus grupos de especificaciones están en inglés.
+ */
+const FICHAS_UNIX = [
+  {
+    locale: 'es',
+    segmento: 'productos',
+    slug: 'unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix',
+  },
+  {
+    locale: 'es',
+    segmento: 'productos',
+    slug: 'unix-panther-pro-robot-humanoide-ref-panther-pro-unix',
+  },
+  {
+    locale: 'es',
+    segmento: 'productos',
+    slug: 'unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix',
+  },
+  {
+    locale: 'en',
+    segmento: 'products',
+    slug: 'unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix',
+  },
+  {
+    locale: 'en',
+    segmento: 'products',
+    slug: 'unix-panther-pro-robot-humanoide-ref-panther-pro-unix',
+  },
+  {
+    locale: 'en',
+    segmento: 'products',
+    slug: 'unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix',
+  },
+];
+const DISPONIBILIDAD_SIN_STOCK =
+  />\s*(?:Disponible|Available|Stock disponible|Stock Disponible|Stock Available)\s*</;
+const GRUPOS_EN_ESPANOL =
+  /^(?:Básicos|Rendimiento|Articulaciones|Percepción|Inteligencia|Comunicación|Accesorios|Sistema|Batería|Movilidad|Seguridad|Teleoperación|Cabeza|Cómputo|Conectividad|Funciones|Brazo biónico|Cámaras)$/;
+
+async function checkFichasUnix() {
+  for (const { locale, segmento, slug } of FICHAS_UNIX) {
+    const archivo = join(DIST, locale, segmento, slug, 'index.html');
+    const etiqueta = `${locale}/${segmento}/${slug}`;
+    let html;
+    try {
+      html = await readFile(archivo, 'utf8');
+    } catch {
+      fail(`ficha UniX ausente en dist/: ${etiqueta}`);
+      continue;
+    }
+
+    if (DISPONIBILIDAD_SIN_STOCK.test(html)) {
+      fail(`ficha UniX afirma disponibilidad sin stock documentado: ${etiqueta}`);
+    }
+    const frase = locale === 'es' ? 'Disponibilidad bajo cotización' : 'Availability on request';
+    if (!html.includes(frase)) fail(`ficha UniX sin «${frase}»: ${etiqueta}`);
+
+    const titulo = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '';
+    const sufijos = titulo.match(/\| I-ME/g)?.length ?? 0;
+    if (sufijos !== 1 || !titulo.endsWith('| I-ME')) {
+      fail(`título UniX con sufijo de marca repetido o ausente (${sufijos}): ${etiqueta}`);
+    }
+
+    const meta = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '';
+    if (!meta || meta.length > 155) {
+      fail(`meta description UniX vacía o de ${meta.length} caracteres (máx. 155): ${etiqueta}`);
+    }
+
+    if (!html.includes('"@type":"FAQPage"')) fail(`ficha UniX sin FAQPage JSON-LD: ${etiqueta}`);
+
+    if (locale === 'en') {
+      const grupos = [...html.matchAll(/specs-grupo__titulo"[^>]*>([^<]*)</g)].map(m =>
+        m[1].trim()
+      );
+      const enEspanol = grupos.filter(g => GRUPOS_EN_ESPANOL.test(g));
+      if (enEspanol.length > 0) {
+        fail(`grupos de especificaciones en español en EN (${enEspanol.join(', ')}): ${etiqueta}`);
+      }
+    }
   }
 }
 

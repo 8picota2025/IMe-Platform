@@ -13,6 +13,7 @@ import { getAccionComercial, getProductPurchaseMode } from '../lib/comercial';
 import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
+import { etiquetaDisponibilidad } from '../lib/disponibilidad-producto';
 import { familyCatalogHref } from '../lib/seo-urls';
 import { enlaceFamiliaTensiometro } from '../lib/tienda-catalogo';
 import { fichaPdfEspejo } from '../lib/fichas-pdf-manifest';
@@ -122,15 +123,12 @@ const modalidadTexto =
     : locale === 'en'
       ? 'Equipment'
       : 'Equipo';
+// Sin stock documentado nunca se afirma «Disponible» (ver lib/disponibilidad-producto).
 const disponibilidadTexto = sinVenta
   ? ctaSinVenta
-  : noDisponible
-    ? t(locale, 'producto.ficha_no_disponible')
-    : producto.stock != null && producto.stock > 0
-      ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
-      : producto.stock === 0
-        ? t(locale, 'producto.ficha_no_disponible')
-        : t(locale, 'producto.ficha_disponible');
+  : etiquetaDisponibilidad(producto, locale, stock =>
+      t(locale, 'carrito.stock_limitado').replace('{stock}', String(stock))
+    );
 const productSegment = locale === 'en' ? 'products' : 'productos';
 const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.slug}/`;
 const modelo = especificaciones.find(item => /^(modelo|model)$/i.test(item.clave))?.valor;
@@ -347,7 +345,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                   >
                     <img
                       src={getOptimizedImageUrl(src, 160, 'webp')}
-                      alt=""
+                      alt={altPorIndice[index] ?? ''}
                       width="72"
                       height="72"
                       loading={index === 0 ? 'eager' : 'lazy'}

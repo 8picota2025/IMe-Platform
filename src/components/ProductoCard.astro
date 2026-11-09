@@ -7,6 +7,7 @@
 import { t, type Locale } from '../i18n/utils';
 import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
+import { nivelDisponibilidad, valorCortoDisponibilidad } from '../lib/disponibilidad-producto';
 import { fichaZuoweiSinVenta } from '../lib/zuowei-sin-venta';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 
@@ -194,16 +195,20 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
           }
         </div>
         <div class="producto-card__meta-item">
-          <span class="producto-card__meta-label">{t(locale, 'producto.ficha_stock')}</span>
+          <span class="producto-card__meta-label">
+            {
+              !sinVenta && nivelDisponibilidad(producto) === 'stock_documentado'
+                ? t(locale, 'producto.ficha_stock')
+                : t(locale, 'producto.ficha_disponibilidad')
+            }
+          </span>
           <strong class="producto-card__meta-value">
             {
               sinVenta
                 ? t(locale, 'producto.sin_venta_cta')
-                : noDisponible || producto.stock === 0
-                  ? t(locale, 'producto.ficha_no_disponible')
-                  : producto.stock != null && producto.stock > 0
-                    ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
-                    : t(locale, 'producto.ficha_disponible')
+                : valorCortoDisponibilidad(producto, locale, stock =>
+                    t(locale, 'carrito.stock_limitado').replace('{stock}', String(stock))
+                  )
             }
           </strong>
         </div>

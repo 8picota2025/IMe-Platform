@@ -231,7 +231,7 @@ const rehabCards = rehabZuowei().map(producto => ({
                     ))}
                   </dl>
                   <div class="rbo-card__links">
-                    <a href={`${copy.productBase}${robot.slug}/`}>{unix.sheetCta}</a>
+                    <a href={`${copy.productBase}${robot.slug}/`}>{l10n(locale, robot.sheetCta)}</a>
                     <a href={robot.pdf}>{l10n(locale, robot.pdfLabel)}</a>
                     <a href="#robotica-form">{unix.quoteCta}</a>
                   </div>

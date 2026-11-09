@@ -125,6 +125,13 @@ describe('getCampaignLandingCms', () => {
 // Claves cuyo copy se corrigió con un UPDATE posterior (arreglos011126 ítem 6): el seed no las cubre.
 const CLAVES_CORREGIDAS_POR_MIGRACION = new Map([
   ['ventiladores_mecanicos', '20261102140000_ventiladores_landing_sin_marcas.sql'],
+  // Tanda UniX/SEO: meta de distribuidores de robots con la línea UniX.
+  ['robotica_rehabilitacion', '20261109210000_robotica_rehabilitacion_copy_cms.sql'],
+]);
+
+// Mismo criterio para familias: slug → migración que corrige su copy en BD.
+const SLUGS_FAMILIA_CORREGIDOS_POR_MIGRACION = new Map([
+  ['robots', '20261109210100_familia_robots_copy_cms.sql'],
 ]);
 
 describe('seed de la tanda 1', () => {
@@ -316,9 +323,27 @@ describe('tanda 3: familias', () => {
     const filas = filasDelSeed('20260927020100_seed_landings_familia.sql', 'familia');
     expect(filas).toHaveLength(FAMILIA_SEO.length);
     for (const [slug, es, en] of filas) {
+      // Tanda UniX/SEO: esta familia tiene una migración posterior con UPDATE; se verifica abajo.
+      if (SLUGS_FAMILIA_CORREGIDOS_POR_MIGRACION.has(slug)) continue;
       const familia = getFamiliaSeo(slug)!;
       expect(es, slug).toEqual(copyFamiliaDesdeTs(familia, 'es'));
       expect(en, slug).toEqual(copyFamiliaDesdeTs(familia, 'en'));
+    }
+  });
+
+  it('las correcciones posteriores al seed coinciden con el copy del código', () => {
+    for (const [slug, migracion] of SLUGS_FAMILIA_CORREGIDOS_POR_MIGRACION) {
+      const sql = readFileSync(
+        new URL(`../../supabase/migrations/${migracion}`, import.meta.url),
+        'utf8'
+      );
+      const m = sql.match(
+        /contenido_es = \$ime_landing\$(.*?)\$ime_landing\$::jsonb,\s*contenido_en = \$ime_landing\$(.*?)\$ime_landing\$::jsonb/s
+      );
+      expect(m, `${migracion} debe contener el UPDATE de ${slug}`).not.toBeNull();
+      const familia = getFamiliaSeo(slug)!;
+      expect(JSON.parse(m![1]!), `${slug} (es)`).toEqual(copyFamiliaDesdeTs(familia, 'es'));
+      expect(JSON.parse(m![2]!), `${slug} (en)`).toEqual(copyFamiliaDesdeTs(familia, 'en'));
     }
   });
 
