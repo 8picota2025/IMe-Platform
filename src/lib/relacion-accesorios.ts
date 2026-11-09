@@ -106,8 +106,12 @@ export function seleccionarRelacionados(
   }
 
   const referencias = [...elegidos.values()];
+  // Misma marca primero (p. ej. la línea UniX): ordenar solo por slug las dejaría fuera del límite.
+  const marca = producto.marca?.trim().toLocaleLowerCase() ?? '';
+  const esMismaMarca = (item: Producto): number =>
+    marca && (item.marca?.trim().toLocaleLowerCase() ?? '') === marca ? 0 : 1;
   const familia = mismaFamilia
     .filter(item => item.slug !== producto.slug && !elegidos.has(item.slug))
-    .sort(porSlug);
+    .sort((a, b) => esMismaMarca(a) - esMismaMarca(b) || porSlug(a, b));
   return [...referencias, ...familia].slice(0, limite);
 }

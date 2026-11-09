@@ -571,6 +571,30 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     nuevo: raw.nuevo,
     activo: raw.activo,
     orden: raw.orden,
+    ...mockCamposIdioma(raw, locale),
+  };
+}
+
+/** Especificaciones y alt de galería por idioma (mock). Vacío si el JSON no los trae. */
+function mockCamposIdioma(
+  raw: (typeof mockProductos)[0],
+  locale: Locale
+): Pick<Producto, 'especificaciones_en' | 'galeria_alt' | 'imagen_ancho' | 'imagen_alto'> {
+  const campos = raw as {
+    especificaciones_en?: unknown[];
+    galeria_alt_es?: string[];
+    galeria_alt_en?: string[];
+    imagen_ancho?: number;
+    imagen_alto?: number;
+  };
+  const galeriaAlt = locale === 'en' ? campos.galeria_alt_en : campos.galeria_alt_es;
+  return {
+    ...(locale === 'en' && Array.isArray(campos.especificaciones_en)
+      ? { especificaciones_en: campos.especificaciones_en }
+      : {}),
+    ...(Array.isArray(galeriaAlt) && galeriaAlt.length > 0 ? { galeria_alt: galeriaAlt } : {}),
+    ...(campos.imagen_ancho ? { imagen_ancho: campos.imagen_ancho } : {}),
+    ...(campos.imagen_alto ? { imagen_alto: campos.imagen_alto } : {}),
   };
 }
 

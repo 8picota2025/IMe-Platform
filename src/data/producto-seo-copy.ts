@@ -8,12 +8,51 @@ import { seoZuowei } from './zuowei-catalogo';
 export interface ProductoSeoCopy {
   title: string;
   description: string;
-  h1: string;
-  intro: string;
+  /** Sin h1/intro la ficha conserva el nombre del producto como H1 y su descripción corta. */
+  h1?: string;
+  intro?: string;
 }
 
 // Locale ausente → getProductoSeoCopy usa el fallback (seoZuowei) para ese idioma.
 const COPY: Record<string, { es?: ProductoSeoCopy; en?: ProductoSeoCopy }> = {
+  // UniX AI (robots humanoides y cuadrúpedo). Solo title/description: el H1 no cambia.
+  // Cifras de las fichas del fabricante ya publicadas en mock-productos.json.
+  'unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix': {
+    es: {
+      title: 'Robot humanoide UniX Wanda 2.0 Pro en Colombia | I-ME',
+      description:
+        'Robot humanoide UniX Wanda 2.0 Pro: 23 GDL, brazos biónicos de 8 GDL, LiDAR y Jetson Orin NX 16G. Cotización por proyecto con I-ME en Colombia.',
+    },
+    en: {
+      title: 'UniX Wanda 2.0 Pro Humanoid Robot in Colombia | I-ME',
+      description:
+        'UniX Wanda 2.0 Pro humanoid robot: 23 DoF, 8-DoF bionic arms, LiDAR and Jetson Orin NX 16G. Project-based quote from I-ME in Colombia and LATAM.',
+    },
+  },
+  'unix-panther-pro-robot-humanoide-ref-panther-pro-unix': {
+    es: {
+      title: 'UniX Panther Pro: robot humanoide con ruedas en Colombia | I-ME',
+      description:
+        'UniX Panther Pro: humanoide con base omnidireccional 4WD, 34 GDL, brazos de 8 GDL y Jetson Orin NX 16G. Cotización por proyecto con I-ME en Colombia.',
+    },
+    en: {
+      title: 'UniX Panther Pro Wheeled Humanoid Robot in Colombia | I-ME',
+      description:
+        'UniX Panther Pro wheeled humanoid: omnidirectional 4WD base, 34 DoF, 8-DoF arms, Jetson Orin NX 16G. Project-based quote from I-ME in Colombia.',
+    },
+  },
+  'unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix': {
+    es: {
+      title: 'UniX Pioneer H: robot cuadrúpedo industrial en Colombia | I-ME',
+      description:
+        'UniX Pioneer H: cuadrúpedo industrial IP67 de ~41 kg con ruedas en las patas, carga de 25 kg y dos LiDAR 3D. Cotización por proyecto con I-ME en Colombia.',
+    },
+    en: {
+      title: 'UniX Pioneer H Industrial Quadruped Robot in Colombia | I-ME',
+      description:
+        'UniX Pioneer H industrial quadruped: IP67, ~41 kg, wheel-on-leg, 25 kg payload, two 3D LiDARs. Project-based quote from I-ME in Colombia.',
+    },
+  },
   // arreglos011126 — PadBot C3 (ES/EN). Fuente: ficha técnica del fabricante (parámetros básicos).
   'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': {
     es: {

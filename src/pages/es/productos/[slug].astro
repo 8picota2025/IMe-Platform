@@ -117,6 +117,8 @@ const jsonLd = combineJsonLd(
   locale={locale}
   currentPath={`/es/productos/${producto.slug}`}
   ogImage={seo.ogImage}
+  {...producto.imagen_ancho ? { ogImageWidth: producto.imagen_ancho } : {}}
+  {...producto.imagen_alto ? { ogImageHeight: producto.imagen_alto } : {}}
   jsonLd={jsonLd}
   noindex={noindex}
   ocultarMencionesInvima={fichaZuoweiSinVenta(producto)}
@@ -126,7 +128,8 @@ const jsonLd = combineJsonLd(
     familia={familia}
     relacionados={relacionados}
     locale={locale}
-    {...seoCopy ? { seoH1: seoCopy.h1, seoIntro: seoCopy.intro } : {}}
+    {...seoCopy?.h1 ? { seoH1: seoCopy.h1 } : {}}
+    {...seoCopy?.intro ? { seoIntro: seoCopy.intro } : {}}
     {...enlaces.length > 0 ? { enlaces } : {}}
   />
 </Layout>

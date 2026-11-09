@@ -350,6 +350,16 @@
     "activo": true
   },
   {
+    "id": "5d2a7c1e-8b4f-4f6a-9c3e-7a1b2d4e6f80",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-humanoides-cuadrupedos",
+    "nombre_es": "Humanoides y cuadrúpedos",
+    "nombre_en": "Humanoid and quadruped robots",
+    "orden": 20,
+    "activo": true
+  },
+  {
     "id": "2c659346-3e83-4810-9050-659445b69e8a",
     "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
     "familia_slug": "movilidad-rehabilitacion",

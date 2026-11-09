@@ -356,9 +356,9 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     title_es: 'Robots de servicio e ingeniería robótica en Colombia | I-ME',
     title_en: 'Service robots and robotics engineering in Colombia | I-ME',
     description_es:
-      'Distribuidores de robots en Colombia: recepción, telepresencia, limpieza autónoma, logística AMR e ingeniería con LiDAR SLAM.',
+      'Distribuidores de robots en Colombia: humanoides y cuadrúpedos UniX, recepción, telepresencia, limpieza autónoma y logística AMR con LiDAR SLAM.',
     description_en:
-      'Robot distributors in Colombia: reception, telepresence, autonomous cleaning, AMR logistics and LiDAR SLAM engineering.',
+      'Robot distributors in Colombia: UniX humanoids and quadrupeds, reception, telepresence, autonomous cleaning and AMR logistics with LiDAR SLAM.',
     intro_es:
       'I-ME distribuye robots de servicio en Colombia y hace la ingeniería de integración: recepción, telepresencia, logística interna, limpieza autónoma y educación, con navegación LiDAR SLAM sobre el plano real de la sede.',
     intro_en:

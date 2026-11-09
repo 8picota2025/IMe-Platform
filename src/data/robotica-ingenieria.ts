@@ -610,6 +610,8 @@ export interface UnixRobot {
   height: number;
   pdf: string;
   pdfLabel: L10n;
+  /** Texto del enlace a la ficha del producto; nombra el modelo para no repetir «Ver ficha». */
+  sheetCta: L10n;
   role: L10n;
   summary: L10n;
   specs: RobotSpec[];
@@ -628,6 +630,10 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
     height: 900,
     pdf: unixAsset('unix-wanda-2-0-pro', 'ficha-unix-wanda-2-0-pro-especificaciones-en.pdf'),
     pdfLabel: { es: 'Ficha técnica (EN)', en: 'Technical sheet (EN)' },
+    sheetCta: {
+      es: 'Ver ficha del robot humanoide UniX Wanda 2.0 Pro',
+      en: 'View the UniX Wanda 2.0 Pro humanoid robot',
+    },
     role: {
       es: 'Humanoide de servicio: recepción, guía y manipulación',
       en: 'Service humanoid: reception, guidance and handling',
@@ -660,6 +666,10 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
     height: 900,
     pdf: unixAsset('unix-panther-pro', 'ficha-unix-panther-pro-especificaciones-en.pdf'),
     pdfLabel: { es: 'Ficha técnica (EN)', en: 'Technical sheet (EN)' },
+    sheetCta: {
+      es: 'Ver ficha del robot humanoide con ruedas UniX Panther Pro',
+      en: 'View the UniX Panther Pro wheeled humanoid robot',
+    },
     role: {
       es: 'Humanoide con ruedas: seguridad, retail e inspección',
       en: 'Wheeled humanoid: security, retail and inspection',
@@ -695,6 +705,10 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
     height: 585,
     pdf: unixAsset('unix-pioneer-h', 'ficha-unix-pioneer-h-parametros.pdf'),
     pdfLabel: { es: 'Parámetros (ficha en chino)', en: 'Parameters (Chinese sheet)' },
+    sheetCta: {
+      es: 'Ver ficha del robot cuadrúpedo UniX Pioneer H',
+      en: 'View the UniX Pioneer H quadruped robot',
+    },
     role: {
       es: 'Cuadrúpedo industrial con ruedas en las patas',
       en: 'Industrial quadruped with wheels on the legs',
@@ -728,14 +742,12 @@ export const UNIX_COPY = {
     title: 'UniX AI: humanoides y cuadrúpedo industrial en Colombia',
     lead: 'I-ME distribuye en Colombia la línea UniX AI: los humanoides Wanda 2.0 Pro y Panther Pro, y el cuadrúpedo industrial Pioneer H. Las cifras salen de las fichas del fabricante. El precio es bajo cotización.',
     note: 'Las fotos son escenas de demostración del fabricante. Esta página no publica precios, plazos de entrega, garantías ni registros INVIMA para estos modelos, porque no figuran en el material oficial. Ninguno se presenta como dispositivo médico.',
-    sheetCta: 'Ver ficha',
     quoteCta: 'Cotizar este modelo',
   },
   en: {
     title: 'UniX AI: humanoid and industrial quadruped robots in Colombia',
     lead: 'I-ME distributes the UniX AI line in Colombia: the Wanda 2.0 Pro and Panther Pro humanoids, and the Pioneer H industrial quadruped. Figures come from the manufacturer sheets. Price is on quote.',
     note: 'Photos are manufacturer demonstration scenes. This page does not publish prices, lead times, warranties or INVIMA registrations for these models, because they are not in the official material. None is presented as a medical device.',
-    sheetCta: 'View sheet',
     quoteCta: 'Quote this model',
   },
 } as const;
@@ -744,7 +756,7 @@ export const PAGE = {
   es: {
     title: 'Distribuidores de robots en Colombia y Latinoamérica | I-ME',
     description:
-      'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica: limpieza autónoma, recepción, telepresencia y logística con LiDAR SLAM. Cotice con I-ME.',
+      'Distribuidores de robots en Colombia y Latinoamérica: humanoides y cuadrúpedos UniX, recepción, telepresencia, limpieza y logística AMR con LiDAR SLAM.',
     h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia y Latinoamérica',
     eyebrow:
       'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica · soporte I-ME',
@@ -805,7 +817,7 @@ export const PAGE = {
   en: {
     title: 'Robot Distributors in Colombia and Latin America | I-ME',
     description:
-      'Robot distributors and robotics engineering in Colombia and Latin America: autonomous cleaning, reception, telepresence and logistics with LiDAR SLAM. Contact I-ME.',
+      'Robot distributors in Colombia and Latin America: UniX humanoids and quadrupeds, reception, telepresence, cleaning and AMR logistics with LiDAR SLAM.',
     h1: 'Robot Distributors and Robotics Engineering in Colombia and Latin America',
     eyebrow: 'Robot distributors and robotics engineering in Colombia and Latin America · I-ME',
     lead: 'I-ME distributes service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight service robots are in the catalog. Gait rehabilitation adds the Zuowei ZW568, ZW598 and ZW518. Other architectures are engineered per project.',
