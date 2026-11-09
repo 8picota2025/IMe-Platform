@@ -20,6 +20,8 @@ import {
   ROBOTICA_PATH,
   ROBOTS,
   STEPS,
+  UNIX_COPY,
+  UNIX_ROBOTS,
   VERTICALS,
   buildRoboticaJsonLd,
   l10n,
@@ -34,6 +36,7 @@ interface Props {
 const { locale } = Astro.props;
 const copy = pageCopy(locale);
 const campaign = ROBOTICA_COPY[locale];
+const unix = UNIX_COPY[locale];
 const isEn = locale === 'en';
 const path = isEn ? ROBOTICA_PATH.en : ROBOTICA_PATH.es;
 const canonical = buildCanonical(path);
@@ -193,6 +196,62 @@ const rehabCards = rehabZuowei().map(producto => ({
             }
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="rbo-section" aria-labelledby="rbo-unix">
+      <div class="rbo-wrap">
+        <header class="rbo-head">
+          <h2 id="rbo-unix">{unix.title}</h2>
+          <p>{unix.lead}</p>
+        </header>
+        <div class="rbo-grid">
+          {
+            UNIX_ROBOTS.map(robot => (
+              <article class="rbo-card">
+                <img
+                  src={robot.image}
+                  alt={`${robot.model}. ${l10n(locale, robot.role)}`}
+                  width={robot.width}
+                  height={robot.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="rbo-card__body">
+                  <p class="rbo-sku">{robot.sku}</p>
+                  <h3>{robot.model}</h3>
+                  <p class="rbo-role">{l10n(locale, robot.role)}</p>
+                  <p>{l10n(locale, robot.summary)}</p>
+                  <dl>
+                    {robot.specs.map(spec => (
+                      <div>
+                        <dt>{l10n(locale, spec.label)}</dt>
+                        <dd>{spec.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {robot.certificados && (
+                    <>
+                      <p class="rbo-role">{unix.certsLabel}</p>
+                      <div class="rbo-card__links">
+                        {robot.certificados.map(certificado => (
+                          <a href={certificado.href}>{l10n(locale, certificado.label)}</a>
+                        ))}
+                      </div>
+                      <p class="rbo-fine">{unix.certsNote}</p>
+                    </>
+                  )}
+                  <div class="rbo-card__links">
+                    <a href={`${copy.productBase}${robot.slug}/`}>{unix.sheetCta}</a>
+                    <a href={robot.pdf}>{l10n(locale, robot.pdfLabel)}</a>
+                    <a href="#robotica-form">{unix.quoteCta}</a>
+                  </div>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+        <p class="rbo-fine">{unix.note}</p>
       </div>
     </section>
 
