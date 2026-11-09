@@ -595,6 +595,151 @@ export const FAQS: ReadonlyArray<{ q: L10n; a: L10n }> = [
   },
 ];
 
+/**
+ * Línea UniX AI. Sección propia: no entra en ROBOTS, que conserva los ocho robots
+ * del catálogo activo. Cifras tomadas de las fichas oficiales del fabricante
+ * (Wanda 2.0 Pro y Panther en inglés; Pioneer H en la ficha de parámetros en chino).
+ * Precio bajo cotización. Sin INVIMA, plazos, stock ni garantías no documentados.
+ */
+export interface UnixRobot {
+  sku: string;
+  model: string;
+  slug: string;
+  image: string;
+  width: number;
+  height: number;
+  pdf: string;
+  pdfLabel: L10n;
+  role: L10n;
+  summary: L10n;
+  specs: RobotSpec[];
+}
+
+const unixAsset = (carpeta: string, file: string) =>
+  `/assets/productos/importados/${carpeta}/${file}`;
+
+export const UNIX_ROBOTS: readonly UnixRobot[] = [
+  {
+    sku: 'UNIX-WANDA-2-0-PRO',
+    model: 'UniX Wanda 2.0 Pro',
+    slug: 'unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix',
+    image: unixAsset('unix-wanda-2-0-pro', 'robot-producto-unix-wanda-2-0-pro.webp'),
+    width: 1600,
+    height: 900,
+    pdf: unixAsset('unix-wanda-2-0-pro', 'ficha-unix-wanda-2-0-pro-especificaciones-en.pdf'),
+    pdfLabel: { es: 'Ficha técnica (EN)', en: 'Technical sheet (EN)' },
+    role: {
+      es: 'Humanoide de servicio: recepción, guía y manipulación',
+      en: 'Service humanoid: reception, guidance and handling',
+    },
+    summary: {
+      es: 'Tamaño completo de 1680 mm, 23 GDL, brazos biónicos de 8 GDL con 12 kg de carga y cómputo NVIDIA Jetson Orin NX 16G (100 TOPS). Parada física e inalámbrica y teleoperación con gafas VR.',
+      en: 'Full size at 1680 mm, 23 DoF, 8-DoF bionic arms with 12 kg load and NVIDIA Jetson Orin NX 16G compute (100 TOPS). Physical and wireless emergency stop and VR teleoperation.',
+    },
+    specs: [
+      { label: { es: 'Dimensiones', en: 'Size' }, value: '527 × 620 × 1680 mm' },
+      {
+        label: { es: 'Grados de libertad', en: 'Degrees of freedom' },
+        value: '23 DoF · 8 DoF por brazo',
+      },
+      {
+        label: { es: 'Carga y alcance', en: 'Load and reach' },
+        value: '12 kg ambos brazos · 982 mm por brazo',
+      },
+      { label: { es: 'Autonomía', en: 'Runtime' }, value: '8–16 h · carga ~2 h' },
+      { label: { es: 'Navegación', en: 'Navigation' }, value: 'LiDAR ×1 · tracción diferencial' },
+      { label: { es: 'Cómputo', en: 'Compute' }, value: 'NVIDIA Jetson Orin NX 16G (100 TOPS)' },
+    ],
+  },
+  {
+    sku: 'UNIX-PANTHER-PRO',
+    model: 'UniX Panther Pro',
+    slug: 'unix-panther-pro-robot-humanoide-ref-panther-pro-unix',
+    image: unixAsset('unix-panther-pro', 'robot-producto-unix-panther-pro.webp'),
+    width: 1600,
+    height: 900,
+    pdf: unixAsset('unix-panther-pro', 'ficha-unix-panther-pro-especificaciones-en.pdf'),
+    pdfLabel: { es: 'Ficha técnica (EN)', en: 'Technical sheet (EN)' },
+    role: {
+      es: 'Humanoide con ruedas: seguridad, retail e inspección',
+      en: 'Wheeled humanoid: security, retail and inspection',
+    },
+    summary: {
+      es: 'Tamaño completo de 1600 mm, 34 GDL, base omnidireccional de cuatro ruedas, torso con elevación de 600 mm y cómputo NVIDIA Jetson Orin NX 16G (100 TOPS).',
+      en: 'Full size at 1600 mm, 34 DoF, omnidirectional four-wheel base, 600 mm torso lift and NVIDIA Jetson Orin NX 16G compute (100 TOPS).',
+    },
+    specs: [
+      { label: { es: 'Dimensiones', en: 'Size' }, value: '450 × 450 × 1600 mm · paso mín. 65 cm' },
+      {
+        label: { es: 'Grados de libertad', en: 'Degrees of freedom' },
+        value: '34 DoF · 8 DoF por brazo',
+      },
+      {
+        label: { es: 'Carga y alcance', en: 'Load and reach' },
+        value: '6 kg ambos brazos · 982 mm por brazo',
+      },
+      {
+        label: { es: 'Movilidad', en: 'Mobility' },
+        value: '4WD omnidireccional · 2 m/s · giro sobre sí mismo',
+      },
+      { label: { es: 'Autonomía', en: 'Runtime' }, value: '8–10 h · batería 48 V / 18 Ah' },
+      { label: { es: 'Cómputo', en: 'Compute' }, value: 'NVIDIA Jetson Orin NX 16G (100 TOPS)' },
+    ],
+  },
+  {
+    sku: 'UNIX-PIONEER-H',
+    model: 'UniX Pioneer H',
+    slug: 'unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix',
+    image: unixAsset('unix-pioneer-h', 'robot-producto-unix-pioneer-h.webp'),
+    width: 836,
+    height: 585,
+    pdf: unixAsset('unix-pioneer-h', 'ficha-unix-pioneer-h-parametros.pdf'),
+    pdfLabel: { es: 'Parámetros (ficha en chino)', en: 'Parameters (Chinese sheet)' },
+    role: {
+      es: 'Cuadrúpedo industrial con ruedas en las patas',
+      en: 'Industrial quadruped with wheels on the legs',
+    },
+    summary: {
+      es: 'Unos 41 kg con batería, IP67, carga sostenida de 25 kg, subida de escaleras de hasta 25 cm y dos LiDAR 3D para percepción.',
+      en: 'About 41 kg with battery, IP67, 25 kg sustained payload, stair climbing up to 25 cm and two 3D LiDARs for perception.',
+    },
+    specs: [
+      {
+        label: { es: 'Peso y tamaño', en: 'Weight and size' },
+        value: '~41 kg · ~930 × 480 × 585 mm',
+      },
+      { label: { es: 'Protección', en: 'Protection' }, value: 'IP67 · −20 a 55 °C' },
+      {
+        label: { es: 'Carga y velocidad', en: 'Payload and speed' },
+        value: '25 kg sostenidos · 6 m/s máx.',
+      },
+      { label: { es: 'Escaleras y pendiente', en: 'Stairs and slope' }, value: '25 cm · 45° máx.' },
+      { label: { es: 'Autonomía', en: 'Runtime' }, value: '5 h en vacío · 3,5 h a carga máxima' },
+      {
+        label: { es: 'Percepción', en: 'Perception' },
+        value: '2 LiDAR 3D · RTK · cámaras gran angular',
+      },
+    ],
+  },
+];
+
+export const UNIX_COPY = {
+  es: {
+    title: 'UniX AI: humanoides y cuadrúpedo industrial en Colombia',
+    lead: 'I-ME distribuye en Colombia la línea UniX AI: los humanoides Wanda 2.0 Pro y Panther Pro, y el cuadrúpedo industrial Pioneer H. Las cifras salen de las fichas del fabricante. El precio es bajo cotización.',
+    note: 'Las fotos son escenas de demostración del fabricante. Esta página no publica precios, plazos de entrega, garantías ni registros INVIMA para estos modelos, porque no figuran en el material oficial. Ninguno se presenta como dispositivo médico.',
+    sheetCta: 'Ver ficha',
+    quoteCta: 'Cotizar este modelo',
+  },
+  en: {
+    title: 'UniX AI: humanoid and industrial quadruped robots in Colombia',
+    lead: 'I-ME distributes the UniX AI line in Colombia: the Wanda 2.0 Pro and Panther Pro humanoids, and the Pioneer H industrial quadruped. Figures come from the manufacturer sheets. Price is on quote.',
+    note: 'Photos are manufacturer demonstration scenes. This page does not publish prices, lead times, warranties or INVIMA registrations for these models, because they are not in the official material. None is presented as a medical device.',
+    sheetCta: 'View sheet',
+    quoteCta: 'Quote this model',
+  },
+} as const;
+
 export const PAGE = {
   es: {
     title: 'Distribuidores de robots en Colombia y Latinoamérica | I-ME',

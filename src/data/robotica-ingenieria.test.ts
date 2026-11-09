@@ -1,5 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import en from '../i18n/en.json';
+import es from '../i18n/es.json';
 import { getCampaignLanding } from './comercial-landings';
 import { getFamiliaSeo } from './familia-seo';
 import { PROMO_PADBOT_EN, PROMO_PADBOT_ES } from './promo-padbot';
@@ -12,6 +14,8 @@ import {
   ROBOTICA_COPY,
   ROBOTICA_PATH,
   ROBOTS,
+  UNIX_COPY,
+  UNIX_ROBOTS,
   VERTICALS,
   WARRANTY,
   buildRoboticaJsonLd,
@@ -168,5 +172,90 @@ describe('landing de distribuidores de robots', () => {
     expect(texto).not.toMatch(/110\s*V/);
     expect(PAGE.es.rehabTitle).toContain('Rehabilitación de la marcha');
     expect(PAGE.en.rehabTitle).toContain('Gait rehabilitation');
+  });
+});
+
+describe('línea UniX AI en la landing de robots', () => {
+  const productos = JSON.parse(
+    readFileSync(new URL('../data/mock-productos.json', import.meta.url), 'utf8')
+  ) as Array<Record<string, unknown>>;
+  const publicDir = new URL('../../public/', import.meta.url);
+
+  it('publica exactamente Wanda 2.0 Pro, Panther Pro y Pioneer H, sin entrar en ROBOTS', () => {
+    expect(UNIX_ROBOTS.map(robot => robot.model)).toEqual([
+      'UniX Wanda 2.0 Pro',
+      'UniX Panther Pro',
+      'UniX Pioneer H',
+    ]);
+    expect(ROBOTS).toHaveLength(8);
+    expect(ROBOTS.some(robot => robot.sku.startsWith('UNIX'))).toBe(false);
+  });
+
+  it('enlaza cada modelo a una ficha de producto activa, por cotización y sin precio', () => {
+    for (const robot of UNIX_ROBOTS) {
+      const producto = productos.find(item => item.slug === robot.slug);
+      expect(producto, robot.slug).toBeDefined();
+      expect(producto?.sku).toBe(robot.sku);
+      expect(producto?.activo).toBe(true);
+      expect(producto?.precio).toBeNull();
+      expect(producto?.fulfillment_mode).toBe('cotizacion');
+      expect(producto?.tipo_comercial).toBe('equipo');
+      expect(producto?.marca).toBe('UniX');
+      expect(producto?.familia_slug).toBe('robots');
+    }
+  });
+
+  it('referencia solo archivos que existen en public/', () => {
+    const rutas = [...UNIX_ROBOTS.flatMap(robot => [robot.image, robot.pdf])];
+    for (const ruta of rutas) {
+      expect(existsSync(new URL(`.${ruta}`, publicDir)), ruta).toBe(true);
+    }
+    for (const robot of UNIX_ROBOTS) {
+      const producto = productos.find(item => item.slug === robot.slug);
+      expect(producto?.ficha_pdf).toBe(robot.pdf);
+      expect(producto?.imagen_principal).toBe(robot.image);
+    }
+  });
+
+  it('copia cifras literales de las fichas del fabricante', () => {
+    const wanda = UNIX_ROBOTS[0]!;
+    expect(wanda.specs.map(spec => spec.value).join(' ')).toContain('527 × 620 × 1680 mm');
+    expect(wanda.specs.map(spec => spec.value).join(' ')).toContain('12 kg');
+    const panther = UNIX_ROBOTS[1]!;
+    expect(panther.specs.map(spec => spec.value).join(' ')).toContain('6 kg');
+    const pioneer = UNIX_ROBOTS[2]!;
+    expect(pioneer.specs.map(spec => spec.value).join(' ')).toContain('25 kg');
+    expect(pioneer.specs.map(spec => spec.value).join(' ')).toContain('IP67');
+  });
+
+  it('no publica Wanda 3.0, Martian, KEENON, Unitree, Reeman, Pudu, SDK ni precios', () => {
+    const texto = JSON.stringify({ UNIX_ROBOTS, UNIX_COPY });
+    expect(texto).not.toMatch(/Wanda 3|Martian|KEENON|Keenon|Unitree|Reeman|Pudu|SDK/);
+    expect(texto).not.toMatch(/Equitronic|Northern|Monnal/);
+    expect(texto).not.toMatch(/\$\s?\d{2,}|COP\s?\d/);
+    expect(texto).not.toMatch(/275 TOPS/);
+    expect(texto).not.toMatch(/clínic|clinic|telepresencia médica/i);
+    expect(PAGE.es.lead).not.toMatch(/Wanda 3|Martian|KEENON|Unitree|Reeman|Pudu/);
+    expect(PAGE.en.lead).not.toMatch(/Wanda 3|Martian|KEENON|Unitree|Reeman|Pudu/);
+  });
+
+  it('no publica certificados emitidos para Wanda 2.0 Ultra en la ficha del Pro', () => {
+    // FCC SDoC, CE EMC, CE RED y CE Máquinas nombran solo «Wanda 2.0 Ultra».
+    // Se retiran hasta que el fabricante confirme que aplican al Pro.
+    expect(
+      existsSync(
+        new URL('./assets/productos/importados/unix-wanda-2-0-pro/certificados/', publicDir)
+      )
+    ).toBe(false);
+    const wanda = productos.find(item => item.slug === UNIX_ROBOTS[0]!.slug);
+    const texto = JSON.stringify({ UNIX_ROBOTS, UNIX_COPY, wanda });
+    expect(texto).not.toMatch(/Ultra|certificado-|FCC|EMC/);
+  });
+
+  it('rotula las aplicaciones de robots sin lenguaje clínico', () => {
+    expect(es.producto.aplicaciones_titulo_servicio).toBe('Aplicaciones');
+    expect(en.producto.aplicaciones_titulo_servicio).toBe('Applications');
+    expect(es.producto.aplicaciones_titulo_servicio).not.toMatch(/clínic/i);
+    expect(en.producto.aplicaciones_titulo_servicio).not.toMatch(/clinic/i);
   });
 });

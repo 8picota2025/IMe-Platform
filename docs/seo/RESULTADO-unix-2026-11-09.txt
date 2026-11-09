@@ -1,0 +1,59 @@
+RESULTADO — BRIEF UniX (2026-11-09)
+Rama: feat/unix-wanda-panther-pioneer
+PR: https://github.com/8picota2025/IMe-Platform/pull/268 (base main, sin merge ni deploy)
+
+== URLs de producto (ES / EN) ==
+Wanda 2.0 Pro
+  /es/productos/unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix/
+  /en/products/unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix/
+Panther Pro
+  /es/productos/unix-panther-pro-robot-humanoide-ref-panther-pro-unix/
+  /en/products/unix-panther-pro-robot-humanoide-ref-panther-pro-unix/
+Pioneer H
+  /es/productos/unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix/
+  /en/products/unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix/
+
+Landing de distribuidores de robots (sección UniX AI):
+  /es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/
+  /en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america/
+
+== Assets (public/) ==
+Wanda 2.0 Pro: public/assets/productos/importados/unix-wanda-2-0-pro/
+  ficha-unix-wanda-2-0-pro-especificaciones-en.pdf
+  (certificados retirados 2026-11-09: los 4 PDF nombran solo Wanda 2.0 Ultra)
+Panther Pro:   public/assets/productos/importados/unix-panther-pro/
+  ficha-unix-panther-pro-especificaciones-en.pdf
+Pioneer H:     public/assets/productos/importados/unix-pioneer-h/
+  ficha-unix-pioneer-h-parametros.pdf (ficha del fabricante en chino)
+
+== Supabase (public.productos, proyecto nnfbucwiasuggyfoyydo) ==
+Wanda 2.0 Pro  b4ebb51d-f7a4-4de4-a49e-1538f60d2ab1  UNIX-WANDA-2-0-PRO   orden 478
+Panther Pro    a3250a46-470a-4e1d-969e-031d21d4db15  UNIX-PANTHER-PRO     orden 479
+Pioneer H      a32b2513-44fc-4923-9513-80122e0d4a4f  UNIX-PIONEER-H       orden 480
+Estado post-sync: activo=true, disponible=true, precio=NULL, fulfillment_mode=cotizacion, invima_estado=pendiente.
+Método: dry-run con rollback, luego ejecución real vía execute_sql (SUPABASE_SERVICE_ROLE_KEY no disponible localmente).
+Verificación: md5 combinado por fila contra el archivo del repo, 3/3 coinciden.
+
+== Decisiones ==
+- Precio NULL y fulfillment cotizacion en los 3 productos. Sin precio, stock, plazos ni garantías.
+- Panther: se publica Panther Pro. Pro Max figura en la ficha del fabricante y no se publica.
+- Certificados Wanda (revisión 2026-11-09): FCC SDoC, CE EMC (LCS), CE RED (EU-type) y CE Máquinas (TÜV Austria 26-IS-0645-41-TAT-26-OUMD-0039) nombran como modelo solo «Wanda 2.0 Ultra». Se retiraron de public/, de la landing y del texto del repo hasta que el fabricante confirme que aplican al Pro.
+- Pioneer H: valores tomados de la ficha en chino; la FAQ indica el idioma.
+- Fotos: solo oficiales del fabricante. Wanda galería 02 recortada para quitar un subtítulo en chino.
+- Sin videos alojados.
+- UNIX_ROBOTS es un bloque aparte; ROBOTS sigue en 8 entradas.
+- Lead de la landing sin cambios: el texto de la landing viene del seed CMS, y landings-cms.test.ts exige paridad.
+
+== Verificación ==
+npm run validate: pasa (lint, check, test 95 archivos / 834 tests, build 1479 páginas).
+Cero precios publicados y cero marcas excluidas: cubierto por el bloque UniX de src/data/robotica-ingenieria.test.ts, que falla si aparece Wanda 3, Martian, KEENON, Unitree, Reeman, Pudu, SDK, Equitronic, Northern, Monnal, 275 TOPS, o un precio en COP/$.
+
+== Pendientes ==
+- Etiqueta de pestaña: resuelto. Familia robots usa producto.aplicaciones_titulo_servicio («Aplicaciones» / «Applications»); el resto de familias conserva «Aplicaciones clínicas».
+- CMS: descripcion_larga_es/en de Wanda 2.0 Pro en Supabase aún menciona certificados CE/FCC y el Ultra; sincronizar con mock-productos.json en la tanda CMS.
+- Lead de la landing (CMS seed): actualizar en una tanda CMS, no en código.
+- Tipo de Pioneer H: confirmar clasificación con el equipo.
+- Panther Pro Max: decidir si se publica en ficha propia.
+- Aplicabilidad de certificados a Wanda 2.0 Pro: pedir al fabricante certificados que nombren el Pro antes de volver a publicarlos.
+- Videos de YouTube: no embebidos; no verificados en @imebiomed.
+- Revisión visual de tarjetas UniX en la landing: en la captura de página completa aparecían vacías (lazy loading); no confirmado como bug.
