@@ -616,7 +616,8 @@ export interface UnixRobot {
   certificados?: Array<{ label: L10n; href: string }>;
 }
 
-const unixAsset = (carpeta: string, file: string) => `/assets/productos/importados/${carpeta}/${file}`;
+const unixAsset = (carpeta: string, file: string) =>
+  `/assets/productos/importados/${carpeta}/${file}`;
 
 export const UNIX_ROBOTS: readonly UnixRobot[] = [
   {
@@ -638,8 +639,14 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
     },
     specs: [
       { label: { es: 'Dimensiones', en: 'Size' }, value: '527 × 620 × 1680 mm' },
-      { label: { es: 'Grados de libertad', en: 'Degrees of freedom' }, value: '23 DoF · 8 DoF por brazo' },
-      { label: { es: 'Carga y alcance', en: 'Load and reach' }, value: '12 kg ambos brazos · 982 mm por brazo' },
+      {
+        label: { es: 'Grados de libertad', en: 'Degrees of freedom' },
+        value: '23 DoF · 8 DoF por brazo',
+      },
+      {
+        label: { es: 'Carga y alcance', en: 'Load and reach' },
+        value: '12 kg ambos brazos · 982 mm por brazo',
+      },
       { label: { es: 'Autonomía', en: 'Runtime' }, value: '8–16 h · carga ~2 h' },
       { label: { es: 'Navegación', en: 'Navigation' }, value: 'LiDAR ×1 · tracción diferencial' },
       { label: { es: 'Cómputo', en: 'Compute' }, value: 'NVIDIA Jetson Orin NX 16G (100 TOPS)' },
@@ -682,9 +689,18 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
     },
     specs: [
       { label: { es: 'Dimensiones', en: 'Size' }, value: '450 × 450 × 1600 mm · paso mín. 65 cm' },
-      { label: { es: 'Grados de libertad', en: 'Degrees of freedom' }, value: '34 DoF · 8 DoF por brazo' },
-      { label: { es: 'Carga y alcance', en: 'Load and reach' }, value: '6 kg ambos brazos · 982 mm por brazo' },
-      { label: { es: 'Movilidad', en: 'Mobility' }, value: '4WD omnidireccional · 2 m/s · giro sobre sí mismo' },
+      {
+        label: { es: 'Grados de libertad', en: 'Degrees of freedom' },
+        value: '34 DoF · 8 DoF por brazo',
+      },
+      {
+        label: { es: 'Carga y alcance', en: 'Load and reach' },
+        value: '6 kg ambos brazos · 982 mm por brazo',
+      },
+      {
+        label: { es: 'Movilidad', en: 'Mobility' },
+        value: '4WD omnidireccional · 2 m/s · giro sobre sí mismo',
+      },
       { label: { es: 'Autonomía', en: 'Runtime' }, value: '8–10 h · batería 48 V / 18 Ah' },
       { label: { es: 'Cómputo', en: 'Compute' }, value: 'NVIDIA Jetson Orin NX 16G (100 TOPS)' },
     ],
@@ -707,12 +723,21 @@ export const UNIX_ROBOTS: readonly UnixRobot[] = [
       en: 'About 41 kg with battery, IP67, 25 kg sustained payload, stair climbing up to 25 cm and two 3D LiDARs for perception.',
     },
     specs: [
-      { label: { es: 'Peso y tamaño', en: 'Weight and size' }, value: '~41 kg · ~930 × 480 × 585 mm' },
+      {
+        label: { es: 'Peso y tamaño', en: 'Weight and size' },
+        value: '~41 kg · ~930 × 480 × 585 mm',
+      },
       { label: { es: 'Protección', en: 'Protection' }, value: 'IP67 · −20 a 55 °C' },
-      { label: { es: 'Carga y velocidad', en: 'Payload and speed' }, value: '25 kg sostenidos · 6 m/s máx.' },
+      {
+        label: { es: 'Carga y velocidad', en: 'Payload and speed' },
+        value: '25 kg sostenidos · 6 m/s máx.',
+      },
       { label: { es: 'Escaleras y pendiente', en: 'Stairs and slope' }, value: '25 cm · 45° máx.' },
       { label: { es: 'Autonomía', en: 'Runtime' }, value: '5 h en vacío · 3,5 h a carga máxima' },
-      { label: { es: 'Percepción', en: 'Perception' }, value: '2 LiDAR 3D · RTK · cámaras gran angular' },
+      {
+        label: { es: 'Percepción', en: 'Perception' },
+        value: '2 LiDAR 3D · RTK · cámaras gran angular',
+      },
     ],
   },
 ];
@@ -722,7 +747,8 @@ export const UNIX_COPY = {
     title: 'UniX AI: humanoides y cuadrúpedo industrial en Colombia',
     lead: 'I-ME distribuye en Colombia la línea UniX AI: los humanoides Wanda 2.0 Pro y Panther Pro, y el cuadrúpedo industrial Pioneer H. Las cifras salen de las fichas del fabricante. El precio es bajo cotización.',
     note: 'Las fotos son escenas de demostración del fabricante. Esta página no publica precios, plazos de entrega, garantías ni registros INVIMA para estos modelos, porque no figuran en el material oficial. Ninguno se presenta como dispositivo médico.',
-    certsNote: 'La declaración FCC y el certificado EMC listan el modelo Wanda 2.0 Ultra. Confirme con I-ME a qué modelos aplica cada certificado antes de cotizar.',
+    certsNote:
+      'La declaración FCC y el certificado EMC listan el modelo Wanda 2.0 Ultra. Confirme con I-ME a qué modelos aplica cada certificado antes de cotizar.',
     certsLabel: 'Certificados de la línea Wanda 2.0',
     sheetCta: 'Ver ficha',
     quoteCta: 'Cotizar este modelo',
@@ -731,7 +757,8 @@ export const UNIX_COPY = {
     title: 'UniX AI: humanoid and industrial quadruped robots in Colombia',
     lead: 'I-ME distributes the UniX AI line in Colombia: the Wanda 2.0 Pro and Panther Pro humanoids, and the Pioneer H industrial quadruped. Figures come from the manufacturer sheets. Price is on quote.',
     note: 'Photos are manufacturer demonstration scenes. This page does not publish prices, lead times, warranties or INVIMA registrations for these models, because they are not in the official material. None is presented as a medical device.',
-    certsNote: 'The FCC declaration and the EMC certificate list the Wanda 2.0 Ultra model. Confirm with I-ME which models each certificate applies to before requesting a quote.',
+    certsNote:
+      'The FCC declaration and the EMC certificate list the Wanda 2.0 Ultra model. Confirm with I-ME which models each certificate applies to before requesting a quote.',
     certsLabel: 'Wanda 2.0 line certificates',
     sheetCta: 'View sheet',
     quoteCta: 'Quote this model',
