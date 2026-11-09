@@ -6,6 +6,7 @@
 import { t, type Locale } from '../i18n/utils';
 import { normalizarTexto, type CatalogoIndexItem } from './catalogo';
 import { getAccionComercial } from './comercial';
+import { etiquetaDisponibilidad, valorCortoDisponibilidad } from './disponibilidad-producto';
 import { normalizarMoneda, tienePrecioPublico } from './format';
 import { resetTransientUiState } from './motion';
 import {
@@ -1229,12 +1230,6 @@ export function initCatalogo(locale: Locale): () => void {
     return t(locale, 'catalogo.modalidad_cotizacion');
   }
 
-  function disponibilidadTexto(valor?: string): string {
-    if (valor === '0') return t(locale, 'catalogo.disponibilidad_no');
-    if (valor === '1') return t(locale, 'catalogo.disponibilidad_si');
-    return t(locale, 'catalogo.disponibilidad_todas');
-  }
-
   function precioTexto(card: HTMLElement): string {
     const raw = Number(card.dataset['precio'] ?? '');
     if (!tienePrecioPublico(raw)) return t(locale, 'producto.precio_solicitud_corto');
@@ -1272,18 +1267,23 @@ export function initCatalogo(locale: Locale): () => void {
     quickviewNombre.textContent = nombre;
     quickviewDescripcion.textContent = descripcion;
     if (quickviewModalidad) quickviewModalidad.textContent = modalidadTexto(fulfillment);
+    // Sin stock documentado nunca se muestra «Disponible» (ver lib/disponibilidad-producto).
+    const stockLimitadoTexto = (stock: number) =>
+      t(locale, 'carrito.stock_limitado').replace('{stock}', String(stock));
+    const entradaDisponibilidad = {
+      disponible: disponible !== '0',
+      stock: card.dataset['stock'] ? Number(card.dataset['stock']) : null,
+      precio: Number(precio) || null,
+      fulfillment_mode: fulfillment,
+    };
     if (quickviewDisponibilidad)
       quickviewDisponibilidad.textContent = sinVenta
         ? t(locale, 'producto.sin_venta_cta')
-        : disponibilidadTexto(disponible);
+        : etiquetaDisponibilidad(entradaDisponibilidad, locale, stockLimitadoTexto);
     if (quickviewStock)
       quickviewStock.textContent = sinVenta
         ? t(locale, 'producto.sin_venta_cta')
-        : disponible === '0' || card.dataset['stock'] === '0'
-          ? t(locale, 'producto.ficha_no_disponible')
-          : card.dataset['stock']
-            ? t(locale, 'carrito.stock_limitado').replace('{stock}', card.dataset['stock'] ?? '')
-            : t(locale, 'producto.ficha_disponible');
+        : valorCortoDisponibilidad(entradaDisponibilidad, locale, stockLimitadoTexto);
     if (quickviewPrecio)
       quickviewPrecio.textContent = sinVenta
         ? t(locale, 'producto.sin_venta_cta')
