@@ -108832,5 +108832,672 @@
         "analizador-bioquimico-semiautomatico-sunnymed-sy-b010"
       ]
     }
+  },
+  {
+    "id": "b4ebb51d-f7a4-4de4-a49e-1538f60d2ab1",
+    "slug": "unix-wanda-2-0-pro-robot-humanoide-ref-wanda-2-0-pro-unix",
+    "sku": "UNIX-WANDA-2-0-PRO",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "tipo_id": "0a894f87-2fc5-435d-b17e-f5ccf3ef7c41",
+    "nombre_es": "UniX Wanda 2.0 Pro Robot Humanoide",
+    "nombre_en": "UniX Wanda 2.0 Pro Humanoid Robot",
+    "descripcion_corta_es": "Humanoide de tamaño completo con brazo biónico de 8 GDL, pinza adaptativa de dos dedos, 23 GDL totales y cómputo NVIDIA Jetson Orin NX 16G.",
+    "descripcion_corta_en": "Full-size humanoid with an 8-DoF bionic arm, two-finger adaptive gripper, 23 total DoF and NVIDIA Jetson Orin NX 16G compute.",
+    "descripcion_larga_es": "Wanda 2.0 Pro es un robot humanoide de tamaño completo, de 1680 mm de alto, con 23 grados de libertad. Tiene cabeza con cámara estéreo HD y cámara Orbbec Gemini 2, y dos brazos biónicos de 8 GDL con carga de 12 kg por ambos brazos y alcance de 982 mm por brazo. La base de tracción diferencial con motores hub incorpora LiDAR y una cámara RGB-D Orbbec 336 para navegación y percepción.\n\nLa plataforma de cómputo es NVIDIA Jetson Orin NX 16G (100 TOPS) y admite múltiples modelos de lenguaje, por ejemplo DeepSeek. Incluye parada de emergencia física e inalámbrica, y la teleoperación se realiza con gafas VR (quest3S).\n\nLos certificados CE y FCC de la línea Wanda 2.0 están disponibles para consulta. La declaración FCC y el certificado EMC listan el modelo Wanda 2.0 Ultra; confirme con I-ME la aplicabilidad al modelo Pro antes de cotizar. La cotización, la configuración y el alcance de instalación se definen por proyecto.",
+    "descripcion_larga_en": "Wanda 2.0 Pro is a full-size humanoid robot, 1680 mm tall, with 23 degrees of freedom. Its head carries an HD stereo camera and an Orbbec Gemini 2 camera, and it has two 8-DoF bionic arms with a 12 kg load across both arms and a 982 mm reach per arm. The differential drive base with hub motors includes LiDAR and an Orbbec 336 RGB-D camera for navigation and perception.\n\nThe compute platform is NVIDIA Jetson Orin NX 16G (100 TOPS) and supports multiple language models, for example DeepSeek. It includes physical and wireless emergency stops, and teleoperation uses VR glasses (quest3S).\n\nCE and FCC certificates for the Wanda 2.0 line are available for review. The FCC declaration and the EMC certificate list the Wanda 2.0 Ultra model; confirm with I-ME whether they apply to the Pro model before requesting a quote. The quote, configuration and installation scope are defined per project.",
+    "especificaciones": [
+      {
+        "clave": "Grados de libertad totales",
+        "valor": "23 DoF",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Dimensiones (L × A × H)",
+        "valor": "527 mm × 620 mm × 1680 mm",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Ancho mínimo de paso",
+        "valor": "75 cm",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Campo de visión de cabeza",
+        "valor": "Yaw ±90°, Pitch ±30°",
+        "grupo": "Cabeza"
+      },
+      {
+        "clave": "Cámaras de cabeza",
+        "valor": "HD Stereo Camera ×1 + Orbbec Gemini 2 Camera ×1",
+        "grupo": "Cabeza"
+      },
+      {
+        "clave": "GDL por brazo",
+        "valor": "8 DoF",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Carga de ambos brazos",
+        "valor": "12 kg",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Alcance de un brazo",
+        "valor": "982 mm",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Efector final",
+        "valor": "Pinza adaptativa de dos dedos",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Altura de elevación del torso",
+        "valor": "280 mm",
+        "grupo": "Torso"
+      },
+      {
+        "clave": "Parada de emergencia",
+        "valor": "Física / inalámbrica",
+        "grupo": "Seguridad"
+      },
+      {
+        "clave": "Interacción por voz",
+        "valor": "Compatible con múltiples LLM (p. ej. DeepSeek)",
+        "grupo": "Funciones"
+      },
+      {
+        "clave": "Plataforma de cómputo",
+        "valor": "NVIDIA Jetson Orin NX 16G (100 TOPS)",
+        "grupo": "Cómputo"
+      },
+      {
+        "clave": "Tiempo de carga",
+        "valor": "~2 h",
+        "grupo": "Batería"
+      },
+      {
+        "clave": "Autonomía",
+        "valor": "8–16 h",
+        "grupo": "Batería"
+      },
+      {
+        "clave": "Velocidad máxima",
+        "valor": "1,5 m/s",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Sensores de navegación",
+        "valor": "LiDAR ×1",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Tracción",
+        "valor": "Diferencial con dos motores hub",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Cámara RGB-D",
+        "valor": "Orbbec 336 RGB-D Camera",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Altura de obstáculo superable",
+        "valor": "≤ 20 mm",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Dispositivo VR de teleoperación",
+        "valor": "quest3S",
+        "grupo": "Teleoperación"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/unix-wanda-2-0-pro/robot-producto-unix-wanda-2-0-pro.webp",
+    "galeria": [
+      "/assets/productos/importados/unix-wanda-2-0-pro/robot-producto-unix-wanda-2-0-pro.webp",
+      "/assets/productos/importados/unix-wanda-2-0-pro/robot-galeria-unix-wanda-2-0-pro-02.webp",
+      "/assets/productos/importados/unix-wanda-2-0-pro/robot-galeria-unix-wanda-2-0-pro-03.webp"
+    ],
+    "ficha_pdf": "/assets/productos/importados/unix-wanda-2-0-pro/ficha-unix-wanda-2-0-pro-especificaciones-en.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 478,
+    "aplicaciones_es": [
+      "Recepción y guía en salas de exhibición",
+      "Servicio en habitaciones de hotel",
+      "Manipulación de objetos en demostraciones",
+      "Investigación y educación en robótica"
+    ],
+    "aplicaciones_en": [
+      "Reception and guidance in exhibition halls",
+      "Hotel room service",
+      "Object handling in demonstrations",
+      "Robotics research and education"
+    ],
+    "beneficios_es": [
+      "Brazo biónico de 8 GDL con pinza adaptativa de dos dedos",
+      "Cámara estéreo HD y cámara Orbbec para percepción",
+      "Navegación con LiDAR y base de tracción diferencial",
+      "Teleoperación con gafas VR y parada de emergencia física o inalámbrica",
+      "Compatible con múltiples modelos de lenguaje"
+    ],
+    "beneficios_en": [
+      "8-DoF bionic arm with two-finger adaptive gripper",
+      "HD stereo and Orbbec cameras for perception",
+      "LiDAR navigation and differential drive base",
+      "VR teleoperation with physical or wireless emergency stop",
+      "Compatible with multiple language models"
+    ],
+    "valor_es": "Wanda 2.0 Pro es una plataforma humanoide para recepción, guía y manipulación de objetos, con especificaciones publicadas por el fabricante y cotización por proyecto.",
+    "valor_en": "Wanda 2.0 Pro is a humanoid platform for reception, guidance and object handling, with manufacturer-published specifications and project-based quotes.",
+    "marca": "UniX",
+    "proveedor_ref": "unix-ai-robots",
+    "preguntas_frecuentes_es": [
+      {
+        "q": "¿Cuál es el precio?",
+        "a": "No se publica precio. La cotización se confirma por proyecto con I-ME, incluidos configuración y alcance de instalación."
+      },
+      {
+        "q": "¿Es un dispositivo médico?",
+        "a": "No. Es un robot humanoide de servicio. El material del fabricante no lo presenta como dispositivo médico."
+      },
+      {
+        "q": "¿Dónde está la ficha técnica?",
+        "a": "La ficha oficial del fabricante en inglés está disponible para descarga en esta página."
+      }
+    ],
+    "preguntas_frecuentes_en": [],
+    "seo_keywords_es": [
+      "UniX Wanda 2.0 Pro",
+      "robot humanoide",
+      "robot humanoide de servicio",
+      "robot con brazo biónico",
+      "robots humanoides en Colombia",
+      "robot de recepción humanoide",
+      "UniX AI robots",
+      "robot humanoide para hoteles",
+      "robot humanoide para exhibiciones"
+    ],
+    "seo_keywords_en": [
+      "UniX Wanda 2.0 Pro",
+      "humanoid robot",
+      "service humanoid robot",
+      "robot with bionic arm",
+      "humanoid robots in Colombia",
+      "humanoid reception robot",
+      "UniX AI robots",
+      "humanoid robot for hotels",
+      "humanoid robot for exhibitions"
+    ],
+    "atributos": {}
+  },
+  {
+    "id": "a3250a46-470a-4e1d-969e-031d21d4db15",
+    "slug": "unix-panther-pro-robot-humanoide-ref-panther-pro-unix",
+    "sku": "UNIX-PANTHER-PRO",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "tipo_id": "0a894f87-2fc5-435d-b17e-f5ccf3ef7c41",
+    "nombre_es": "UniX Panther Pro Robot Humanoide con Ruedas",
+    "nombre_en": "UniX Panther Pro Wheeled Humanoid Robot",
+    "descripcion_corta_es": "Humanoide de tamaño completo con base omnidireccional de cuatro ruedas, 34 GDL, brazos biónicos de 8 GDL y cómputo Jetson Orin NX 16G.",
+    "descripcion_corta_en": "Full-size humanoid with an omnidirectional four-wheel base, 34 DoF, 8-DoF bionic arms and Jetson Orin NX 16G compute.",
+    "descripcion_larga_es": "Panther Pro es un robot humanoide con ruedas, de tamaño completo, de 1600 mm de alto y base de 450 mm × 450 mm, con 34 grados de libertad. Su chasis es omnidireccional de cuatro ruedas con tracción 4WD y puede girar sobre sí mismo. El torso eleva 600 mm y los dos brazos biónicos de 8 GDL tienen carga de 6 kg por ambos brazos y alcance de 982 mm por brazo.\n\nLa cabeza incluye cámara estéreo HD y cámara RGB-D, con giro yaw de ±90° y pitch de +20° a −86°. La batería es de 48 V / 18 Ah, con autonomía de 8 a 10 h. El cómputo es NVIDIA Jetson Orin NX 16G (100 TOPS). Tiene puertos HDMI, USB, RJ45, depuración, alimentación de 24 V y CAN 2.0.\n\nEl paso mínimo es de 65 cm, la velocidad máxima de 2 m/s y el sensor de navegación es un LiDAR. La ficha oficial también incluye el modelo Pro Max, que no se publica en esta página. La cotización, la configuración y el alcance de instalación se definen por proyecto.",
+    "descripcion_larga_en": "Panther Pro is a full-size wheeled humanoid robot, 1600 mm tall with a 450 mm × 450 mm base, and 34 degrees of freedom. Its chassis is an omnidirectional four-wheel drive (4WD) base that can spin in place. The torso lifts 600 mm, and its two 8-DoF bionic arms have a 6 kg load across both arms and a 982 mm reach per arm.\n\nThe head includes an HD stereo camera and an RGB-D camera, with yaw of ±90° and pitch from +20° to −86°. The battery is 48 V / 18 Ah with 8 to 10 h of runtime. The compute platform is NVIDIA Jetson Orin NX 16G (100 TOPS). It has HDMI, USB, RJ45, debug, 24 V power and CAN 2.0 ports.\n\nThe minimum passage width is 65 cm, maximum speed is 2 m/s, and the navigation sensor is one LiDAR. The official sheet also covers the Pro Max model, which is not published on this page. The quote, configuration and installation scope are defined per project.",
+    "especificaciones": [
+      {
+        "clave": "Grados de libertad totales",
+        "valor": "34 DoF",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Dimensiones (L × A × H)",
+        "valor": "450 mm × 450 mm × 1600 mm",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Ancho mínimo de paso",
+        "valor": "65 cm",
+        "grupo": "Sistema"
+      },
+      {
+        "clave": "Campo de visión de cabeza",
+        "valor": "Yaw ±90°, Pitch +20°/−86°",
+        "grupo": "Cabeza"
+      },
+      {
+        "clave": "Cámaras de cabeza",
+        "valor": "HD Stereo Camera ×1 + RGB-D Camera ×1",
+        "grupo": "Cabeza"
+      },
+      {
+        "clave": "GDL por brazo",
+        "valor": "8 DoF",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Carga de ambos brazos",
+        "valor": "6 kg",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Alcance de un brazo",
+        "valor": "982 mm",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Efector final",
+        "valor": "Pinza adaptativa de dos dedos / mano diestra de cinco dedos (opcional)",
+        "grupo": "Brazo biónico"
+      },
+      {
+        "clave": "Altura de elevación del torso",
+        "valor": "600 mm",
+        "grupo": "Torso"
+      },
+      {
+        "clave": "Parada de emergencia",
+        "valor": "Física / inalámbrica",
+        "grupo": "Seguridad"
+      },
+      {
+        "clave": "Interacción por voz",
+        "valor": "Compatible con múltiples LLM (p. ej. DeepSeek)",
+        "grupo": "Funciones"
+      },
+      {
+        "clave": "Puertos",
+        "valor": "HDMI ×1, USB ×1, RJ45 ×1, depuración ×1, alimentación 24 V ×2, montaje externo ×2",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Comunicación",
+        "valor": "CAN 2.0",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Plataforma de cómputo",
+        "valor": "NVIDIA Jetson Orin NX 16G (100 TOPS)",
+        "grupo": "Cómputo"
+      },
+      {
+        "clave": "Autonomía",
+        "valor": "8–10 h",
+        "grupo": "Batería"
+      },
+      {
+        "clave": "Tiempo de carga",
+        "valor": "~2,5 h",
+        "grupo": "Batería"
+      },
+      {
+        "clave": "Batería",
+        "valor": "48 V / 18 Ah",
+        "grupo": "Batería"
+      },
+      {
+        "clave": "Velocidad máxima",
+        "valor": "2 m/s",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Tracción",
+        "valor": "Omnidireccional de cuatro ruedas (4WD)",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Altura de obstáculo superable",
+        "valor": "≤ 20 mm",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Ángulo máximo de subida",
+        "valor": "6°",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Radio de giro mínimo",
+        "valor": "0 mm (giro sobre sí mismo)",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Sensores de navegación",
+        "valor": "LiDAR ×1",
+        "grupo": "Movilidad"
+      },
+      {
+        "clave": "Dispositivo VR de teleoperación",
+        "valor": "quest3S",
+        "grupo": "Teleoperación"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/unix-panther-pro/robot-producto-unix-panther-pro.webp",
+    "galeria": [
+      "/assets/productos/importados/unix-panther-pro/robot-producto-unix-panther-pro.webp",
+      "/assets/productos/importados/unix-panther-pro/robot-galeria-unix-panther-pro-02.webp",
+      "/assets/productos/importados/unix-panther-pro/robot-galeria-unix-panther-pro-03.webp"
+    ],
+    "ficha_pdf": "/assets/productos/importados/unix-panther-pro/ficha-unix-panther-pro-especificaciones-en.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 479,
+    "aplicaciones_es": [
+      "Rondas de seguridad y patrullaje",
+      "Retail: atención y reposición en tienda",
+      "Inspección de edificios",
+      "Demostraciones y entretenimiento"
+    ],
+    "aplicaciones_en": [
+      "Security patrols and rounds",
+      "Retail: store assistance and restocking",
+      "Building inspection",
+      "Demonstrations and entertainment"
+    ],
+    "beneficios_es": [
+      "Chasis omnidireccional de cuatro ruedas con giro sobre sí mismo",
+      "Torso con elevación de 600 mm para alcanzar zonas a nivel de piso",
+      "Brazos biónicos de 8 GDL con pinza adaptativa o mano diestra opcional",
+      "Puertos de expansión para integración",
+      "Parada de emergencia física o inalámbrica"
+    ],
+    "beneficios_en": [
+      "Omnidirectional four-wheel chassis that can spin in place",
+      "600 mm torso lift to reach floor-level areas",
+      "8-DoF bionic arms with adaptive gripper or optional dexterous hand",
+      "Expansion ports for integration",
+      "Physical or wireless emergency stop"
+    ],
+    "valor_es": "Panther Pro es un humanoide con ruedas para tareas de seguridad, retail e inspección, con especificaciones publicadas por el fabricante y cotización por proyecto.",
+    "valor_en": "Panther Pro is a wheeled humanoid for security, retail and inspection tasks, with manufacturer-published specifications and project-based quotes.",
+    "marca": "UniX",
+    "proveedor_ref": "unix-ai-robots",
+    "preguntas_frecuentes_es": [
+      {
+        "q": "¿Cuál es el precio?",
+        "a": "No se publica precio. La cotización se confirma por proyecto con I-ME, incluidos configuración y alcance de instalación."
+      },
+      {
+        "q": "¿Es un dispositivo médico?",
+        "a": "No. Es un robot humanoide con ruedas para servicio, seguridad e inspección. El material del fabricante no lo presenta como dispositivo médico."
+      },
+      {
+        "q": "¿El modelo Pro Max está en esta página?",
+        "a": "No. La ficha oficial del fabricante incluye el Pro Max, pero esta página publica solo el modelo Pro."
+      }
+    ],
+    "preguntas_frecuentes_en": [],
+    "seo_keywords_es": [
+      "UniX Panther Pro",
+      "robot humanoide con ruedas",
+      "robot humanoide de servicio",
+      "robot de seguridad humanoide",
+      "robots humanoides en Colombia",
+      "robot humanoide para retail",
+      "UniX AI robots",
+      "robot de inspección de edificios"
+    ],
+    "seo_keywords_en": [
+      "UniX Panther Pro",
+      "wheeled humanoid robot",
+      "service humanoid robot",
+      "security humanoid robot",
+      "humanoid robots in Colombia",
+      "humanoid robot for retail",
+      "UniX AI robots",
+      "building inspection robot"
+    ],
+    "atributos": {}
+  },
+  {
+    "id": "a32b2513-44fc-4923-9513-80122e0d4a4f",
+    "slug": "unix-pioneer-h-robot-cuadrupedo-ref-pioneer-h-unix",
+    "sku": "UNIX-PIONEER-H",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "tipo_id": "0a894f87-2fc5-435d-b17e-f5ccf3ef7c41",
+    "nombre_es": "UniX Pioneer H Robot Cuadrúpedo Industrial",
+    "nombre_en": "UniX Pioneer H Industrial Quadruped Robot",
+    "descripcion_corta_es": "Cuadrúpedo industrial de unos 41 kg con ruedas en las patas, carga sostenida de 25 kg, IP67 y cómputo Jetson Orin NX 16G.",
+    "descripcion_corta_en": "Industrial quadruped of about 41 kg with wheels at the legs, 25 kg sustained payload, IP67 and Jetson Orin NX 16G compute.",
+    "descripcion_larga_es": "Pioneer H es un robot cuadrúpedo de la línea Pioneer de UniX AI, en versión de ruedas en las patas. Según la ficha de parámetros del fabricante, pesa unos 41 kg con batería, mide unos 930 × 480 × 585 mm de pie, tiene protección IP67 y opera entre −20 °C y 55 °C. Sostiene 25 kg de carga mientras camina, sube escaleras de hasta 25 cm, alcanza 6 m/s de velocidad máxima (8 m/s en límite) y tiene un ángulo máximo de subida de 45°.\n\nSu percepción combina dos cámaras gran angular, dos LiDAR 3D, IMU y RTK. La navegación autónoma es opcional y la evitación de obstáculos es estándar. La batería de 15 000 mAh ofrece 5 h en vacío y 3,5 h a carga máxima.\n\nLa ficha de parámetros del fabricante está en chino; los valores de esta página se tomaron de ella. La cotización, la configuración y el alcance de instalación se definen por proyecto.",
+    "descripcion_larga_en": "Pioneer H is a quadruped robot from UniX AI's Pioneer line, in its wheel-on-leg version. According to the manufacturer's parameter sheet, it weighs about 41 kg with battery, measures about 930 × 480 × 585 mm standing, is rated IP67 and operates between −20 °C and 55 °C. It carries a 25 kg payload while walking, climbs stairs up to 25 cm, reaches 6 m/s maximum speed (8 m/s limit) and has a 45° maximum climbing angle.\n\nIts sensing combines two wide-angle cameras, two 3D LiDARs, an IMU and RTK. Autonomous navigation is optional and obstacle avoidance is standard. The 15,000 mAh battery gives 5 h unloaded and 3.5 h at full load.\n\nThe manufacturer's parameter sheet is in Chinese; the values on this page were taken from it. The quote, configuration and installation scope are defined per project.",
+    "especificaciones": [
+      {
+        "clave": "Tamaño de pie (L × A × H)",
+        "valor": "~930 × 480 × 585 mm",
+        "grupo": "Básicos"
+      },
+      {
+        "clave": "Tamaño tendido (L × A × H)",
+        "valor": "~930 × 630 × 200 mm",
+        "grupo": "Básicos"
+      },
+      {
+        "clave": "Peso total (con batería)",
+        "valor": "~41 kg",
+        "grupo": "Básicos"
+      },
+      {
+        "clave": "Temperatura de trabajo",
+        "valor": "−20 a 55 °C",
+        "grupo": "Básicos"
+      },
+      {
+        "clave": "Protección",
+        "valor": "IP67",
+        "grupo": "Básicos"
+      },
+      {
+        "clave": "Cómputo",
+        "valor": "CPU de 8 núcleos + Jetson Orin NX 16G (100 TOPS)",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Autonomía",
+        "valor": "5 h en vacío · 3,5 h a carga máxima",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Velocidad máxima",
+        "valor": "6 m/s",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Velocidad límite",
+        "valor": "8 m/s",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Carga sostenida al caminar",
+        "valor": "25 kg",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Altura continua de escaleras",
+        "valor": "25 cm",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Ángulo máximo de subida",
+        "valor": "45°",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Par máximo de articulación",
+        "valor": "180 N·m",
+        "grupo": "Articulaciones"
+      },
+      {
+        "clave": "Motores",
+        "valor": "12 motores de articulación de aluminio + 4 motores de rueda de alta potencia",
+        "grupo": "Articulaciones"
+      },
+      {
+        "clave": "Rango articular",
+        "valor": "Cuerpo −30° a 40° · muslo ±140° · pierna ±160°",
+        "grupo": "Articulaciones"
+      },
+      {
+        "clave": "Cámaras",
+        "valor": "2 gran angular (DFOV 122°, HFOV 111°, VFOV 70°)",
+        "grupo": "Percepción"
+      },
+      {
+        "clave": "LiDAR 3D",
+        "valor": "2",
+        "grupo": "Percepción"
+      },
+      {
+        "clave": "IMU",
+        "valor": "1",
+        "grupo": "Percepción"
+      },
+      {
+        "clave": "Posicionamiento",
+        "valor": "Módulo RTK ×1",
+        "grupo": "Percepción"
+      },
+      {
+        "clave": "Navegación autónoma",
+        "valor": "Opcional",
+        "grupo": "Inteligencia"
+      },
+      {
+        "clave": "Evitación de obstáculos",
+        "valor": "Estándar",
+        "grupo": "Inteligencia"
+      },
+      {
+        "clave": "WiFi / Bluetooth",
+        "valor": "Estándar",
+        "grupo": "Comunicación"
+      },
+      {
+        "clave": "Celular",
+        "valor": "4G",
+        "grupo": "Comunicación"
+      },
+      {
+        "clave": "Interfaces",
+        "valor": "Gigabit Ethernet ×2, USB 3.0 ×2, RS232 ×1, RS485 ×1, SBUS ×2, PPS ×1",
+        "grupo": "Comunicación"
+      },
+      {
+        "clave": "Transmisión de imagen en tiempo real",
+        "valor": "Estándar",
+        "grupo": "Comunicación"
+      },
+      {
+        "clave": "Batería",
+        "valor": "15 000 mAh",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Control remoto",
+        "valor": "Sin pantalla",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Estación de carga con regreso autónomo",
+        "valor": "Opcional",
+        "grupo": "Accesorios"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/unix-pioneer-h/robot-producto-unix-pioneer-h.webp",
+    "galeria": [
+      "/assets/productos/importados/unix-pioneer-h/robot-producto-unix-pioneer-h.webp"
+    ],
+    "ficha_pdf": "/assets/productos/importados/unix-pioneer-h/ficha-unix-pioneer-h-parametros.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 480,
+    "aplicaciones_es": [
+      "Inspección en entornos industriales complejos",
+      "Transporte de carga sostenida en planta",
+      "Recorridos en exteriores con protección IP67",
+      "Desarrollo y pruebas de robótica"
+    ],
+    "aplicaciones_en": [
+      "Inspection in complex industrial environments",
+      "Sustained payload transport on site",
+      "Outdoor routes with IP67 protection",
+      "Robotics development and testing"
+    ],
+    "beneficios_es": [
+      "Carga sostenida de 25 kg durante la marcha",
+      "Protección IP67 y operación entre −20 °C y 55 °C",
+      "Dos LiDAR 3D y cámaras gran angular para percepción",
+      "Batería de 15 000 mAh con 3,5 h a carga máxima",
+      "Interfaces para desarrollo secundario y actualización OTA estándar"
+    ],
+    "beneficios_en": [
+      "25 kg sustained payload while walking",
+      "IP67 protection and operation between −20 °C and 55 °C",
+      "Two 3D LiDARs and wide-angle cameras for perception",
+      "15,000 mAh battery with 3.5 h at full load",
+      "Interfaces for secondary development and standard OTA updates"
+    ],
+    "valor_es": "Pioneer H es un cuadrúpedo industrial para carga sostenida y recorridos exigentes, con especificaciones tomadas de la ficha del fabricante y cotización por proyecto.",
+    "valor_en": "Pioneer H is an industrial quadruped for sustained payloads and demanding routes, with specifications taken from the manufacturer's sheet and project-based quotes.",
+    "marca": "UniX",
+    "proveedor_ref": "unix-ai-robots",
+    "preguntas_frecuentes_es": [
+      {
+        "q": "¿Cuál es el precio?",
+        "a": "No se publica precio. La cotización se confirma por proyecto con I-ME, incluidos configuración y alcance de instalación."
+      },
+      {
+        "q": "¿Es un dispositivo médico?",
+        "a": "No. Es un robot industrial. El material del fabricante no lo presenta como dispositivo médico."
+      },
+      {
+        "q": "¿En qué idioma está la ficha técnica?",
+        "a": "La ficha de parámetros del fabricante está en chino. Los valores de esta página se tomaron de ella; I-ME puede orientar sobre su lectura."
+      }
+    ],
+    "preguntas_frecuentes_en": [],
+    "seo_keywords_es": [
+      "UniX Pioneer H",
+      "robot cuadrúpedo industrial",
+      "robot cuadrúpedo con ruedas",
+      "robot industrial de carga",
+      "robots industriales en Colombia",
+      "robot IP67",
+      "UniX AI robots",
+      "robot para inspección industrial"
+    ],
+    "seo_keywords_en": [
+      "UniX Pioneer H",
+      "industrial quadruped robot",
+      "wheeled quadruped robot",
+      "industrial payload robot",
+      "industrial robots in Colombia",
+      "IP67 robot",
+      "UniX AI robots",
+      "industrial inspection robot"
+    ],
+    "atributos": {}
   }
 ]
