@@ -31,8 +31,13 @@ import {
 
 import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import { quoteAnnexHasSpecContent } from '../../../src/lib/quote-pdf-annex.ts';
-import { aplicarNotaImportesUsd, notaImportesUsd } from '../../../src/lib/cotizacion-recaudo.ts';
 import {
+  aplicarNotaImportesUsd,
+  lineasMedioPagoCotizacion,
+  notaImportesUsd,
+} from '../../../src/lib/cotizacion-recaudo.ts';
+import {
+  IME_DIRECCION_EMISOR,
   IME_EMAIL_PUBLICO,
   IME_NIT,
   IME_RAZON_SOCIAL,
@@ -433,7 +438,11 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const banco =
     snapshot.bancoLineas && snapshot.bancoLineas.length > 0
       ? snapshot.bancoLineas
-      : ['Transferencia bancaria:', 'Bancolombia/Ahorros'];
+      : lineasMedioPagoCotizacion(
+          null,
+          ['Transferencia bancaria:', 'Bancolombia/Ahorros'],
+          snapshot.moneda
+        );
 
   // ——— Página 1: COTIZACIÓN ———
   let page = doc.addPage([PAGE_W, PAGE_H]);
@@ -681,7 +690,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     `${et('Teléfono', 'Phone')}: ${IME_WHATSAPP_DISPLAY}`,
     `${et('Correo', 'Email')}: ${IME_EMAIL_PUBLICO}`,
     `${et('Web', 'Web')}: ${IME_WEB}`,
-    'Medellín, Colombia',
+    IME_DIRECCION_EMISOR,
   ];
   let companyBottom = companyTop + 14;
   emisorLineas.forEach((linea, index) => {

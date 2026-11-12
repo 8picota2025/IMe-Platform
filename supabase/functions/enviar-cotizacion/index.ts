@@ -48,13 +48,11 @@ import {
 } from '../_shared/transferencia-bancaria.ts';
 import {
   aplicarNotaImportesUsd,
-  cuentaRecaudoPorId,
   cuentaRecaudoValida,
-  esCuentaRecaudoDefault,
   lineasMedioPagoCotizacion,
+  resolverCuentaRecaudo,
   normalizarCondicionPago,
   normalizarCuentaRecaudo,
-  textoBancarioCuenta,
   textoBancarioCuentaIdioma,
 } from '../../../src/lib/cotizacion-recaudo.ts';
 import {
@@ -455,7 +453,7 @@ Deno.serve(async req => {
       condicionPagoEn: normalizarCondicionPago(
         (row as { condicion_pago_en?: string | null }).condicion_pago_en
       ),
-      bancoLineas: lineasMedioPagoCotizacion(cuentaId, bancoLineasCotizacion(banco)),
+      bancoLineas: lineasMedioPagoCotizacion(cuentaId, bancoLineasCotizacion(banco), oferta.moneda),
     });
   };
 
@@ -693,8 +691,7 @@ Deno.serve(async req => {
   }
 
   // CTA Wompi → formalizar (crea pedidos.id y firma checkout). Nunca IME-Q-… como reference.
-  const wompiCtaUrl =
-    oferta.moneda.toUpperCase() === 'COP' ? formalizarUrl : null;
+  const wompiCtaUrl = oferta.moneda.toUpperCase() === 'COP' ? formalizarUrl : null;
   meta.wompi_checkout_url = null;
   meta.wompi_formalizar_url = wompiCtaUrl;
   let pdfBytes: Awaited<ReturnType<typeof renderPdf>>;
@@ -800,39 +797,39 @@ Deno.serve(async req => {
           : 'presupuesto';
     const cuentaIdCorreo = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
     const bancoPorDefecto = getDatosBancariosTransferencia();
-    const datosBancarios =
-      idioma === 'es-en'
-        ? esCuentaRecaudoDefault(cuentaIdCorreo)
-          ? textoBancarioCuentaIdioma(
-              {
-                id: 'bancolombia_ahorros',
-                etiqueta: 'Bancolombia',
-                banco: bancoPorDefecto.banco,
-                tipo_cuenta: bancoPorDefecto.tipo_cuenta,
-                numero_cuenta: bancoPorDefecto.numero_cuenta,
-                titular: bancoPorDefecto.titular,
-                nit: bancoPorDefecto.nit,
-                swift: bancoPorDefecto.swift,
-              },
-              'es-en'
-            )
-          : textoBancarioCuentaIdioma(cuentaRecaudoPorId(cuentaIdCorreo), 'es-en')
-        : esCuentaRecaudoDefault(cuentaIdCorreo)
-          ? datosBancariosTexto(bancoPorDefecto)
-          : textoBancarioCuenta(cuentaRecaudoPorId(cuentaIdCorreo));
-    const condicionesEn = String((row as { condiciones_en?: string | null }).condiciones_en ?? '').trim();
+    const recaudoCorreo = resolverCuentaRecaudo(cuentaIdCorreo, oferta.moneda);
+    const datosBancarios = recaudoCorreo.historica
+      ? idioma === 'es-en'
+        ? textoBancarioCuentaIdioma(
+            {
+              id: 'bancolombia_ahorros',
+              etiqueta: 'Bancolombia',
+              banco: bancoPorDefecto.banco,
+              tipo_cuenta: bancoPorDefecto.tipo_cuenta,
+              numero_cuenta: bancoPorDefecto.numero_cuenta,
+              titular: bancoPorDefecto.titular,
+              nit: bancoPorDefecto.nit,
+              swift: bancoPorDefecto.swift,
+            },
+            'es-en'
+          )
+        : datosBancariosTexto(bancoPorDefecto)
+      : textoBancarioCuentaIdioma(recaudoCorreo.cuenta, idioma === 'es-en' ? 'es-en' : 'es');
+    const condicionesEn = String(
+      (row as { condiciones_en?: string | null }).condiciones_en ?? ''
+    ).trim();
     const condicionesCorreo =
       idioma === 'es-en'
         ? `${aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, 'es')}${
-            condicionesEn
-              ? `\n\n${aplicarNotaImportesUsd(condicionesEn, oferta.moneda, 'en')}`
-              : ''
+            condicionesEn ? `\n\n${aplicarNotaImportesUsd(condicionesEn, oferta.moneda, 'en')}` : ''
           }`
         : aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, locale);
     const emailVars = {
       cliente_nombre: escapeHtml(textoCliente(String(row.nombre ?? ''), 'texto')),
       cliente_empresa: escapeHtml(textoCliente(String(row.empresa ?? ''), 'razon')),
-      cliente_nit: escapeHtml(textoCliente(String((row as { nit?: string | null }).nit ?? ''), 'nit')),
+      cliente_nit: escapeHtml(
+        textoCliente(String((row as { nit?: string | null }).nit ?? ''), 'nit')
+      ),
       cliente_email: escapeHtml(textoCliente(String(row.email ?? ''), 'email')),
       cliente_telefono: escapeHtml(textoCliente(String(row.telefono ?? ''), 'telefono')),
       cliente_direccion: escapeHtml(

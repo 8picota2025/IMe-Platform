@@ -6,8 +6,11 @@
 import { IME_WHATSAPP_DISPLAY, IME_WHATSAPP_E164, IME_WHATSAPP_TEL } from './contacto-oficial.ts';
 
 export const IME_RAZON_SOCIAL = 'International Medical Enterprise IME S.A.S.';
-export const IME_NIT = '901871720';
-export const IME_NIT_CON_DV = '901871720-1';
+/** NIT del RUT, con dígito de verificación. Es el que imprime el emisor. */
+export const IME_NIT = '901871720-1';
+export const IME_NIT_CON_DV = IME_NIT;
+/** Domicilio del RUT. No es la sede operativa de Envigado. */
+export const IME_DIRECCION_EMISOR = 'CR 43 A 1 50, Medellín, Colombia';
 export const IME_WEB = 'i-me.com.co';
 export const IME_EMAIL_PUBLICO = 'info@i-me.com.co';
 export const IME_EMAIL_DOMINIO = 'i-me.com.co';
@@ -53,7 +56,9 @@ export function esTelefonoIme(value: string | null | undefined): boolean {
 
 export function esNitIme(value: string | null | undefined): boolean {
   const digitos = String(value ?? '').replace(/\D/g, '');
-  return digitos === '901871720' || digitos === '9018717201';
+  const conDv = IME_NIT.replace(/\D/g, '');
+  const sinDv = conDv.slice(0, -1);
+  return digitos === sinDv || digitos === conDv;
 }
 
 function compactarNombre(value: string): string {

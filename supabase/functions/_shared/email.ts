@@ -4,6 +4,7 @@
  * Todos los envios se registran en email_log (best-effort).
  */
 
+import { IME_DIRECCION_EMISOR, IME_NIT } from '../../../src/lib/contacto-cliente.ts';
 import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { resultadoPlantillaInactiva } from '../../../src/lib/cotizacion-oferta.ts';
@@ -61,7 +62,12 @@ export function itemsToHtml(
   const unitLabel = locale === 'en' ? 'Unit' : locale === 'es-en' ? 'Unitario / Unit' : 'Unitario';
   const totalLabel =
     locale === 'en' ? 'Line total' : locale === 'es-en' ? 'Total / Line total' : 'Total';
-  const pendingLabel = locale === 'en' ? 'to be validated' : locale === 'es-en' ? 'por validar / to be validated' : 'por validar';
+  const pendingLabel =
+    locale === 'en'
+      ? 'to be validated'
+      : locale === 'es-en'
+        ? 'por validar / to be validated'
+        : 'por validar';
 
   return items
     .map(i => {
@@ -69,7 +75,12 @@ export function itemsToHtml(
       const nombreEs = escapeHtml(String(i.nombre ?? fallbackName));
       const nombreEn = String(i.nombre_en ?? '').trim();
       const nombre =
-        locale === 'es-en' && nombreEn && nombreEn.toLowerCase() !== String(i.nombre ?? '').trim().toLowerCase()
+        locale === 'es-en' &&
+        nombreEn &&
+        nombreEn.toLowerCase() !==
+          String(i.nombre ?? '')
+            .trim()
+            .toLowerCase()
           ? `${nombreEs}<br><span style="color:#3d5a63">${escapeHtml(nombreEn)}</span>`
           : nombreEs;
       const precio = formatMoney(i.precio_unitario, i.moneda, locale);
@@ -191,7 +202,11 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
       '<p>Soy <strong>{{nombre_comercial}}</strong>, asesor(a) comercial de I-ME. Te envío el presupuesto con el detalle completo.<br>' +
       'I am <strong>{{nombre_comercial}}</strong>, I-ME commercial advisor. Please find the full quotation attached.</p>' +
       '<p><strong>Datos del cliente / Client</strong><br>Razón social / Company: {{cliente_empresa}}<br>NIT / Tax ID: {{cliente_nit}}<br>Contacto / Contact: {{cliente_nombre}}<br>Correo / Email: {{cliente_email}}<br>Teléfono / Phone: {{cliente_telefono}}<br>Dirección / Address: {{cliente_direccion}}<br>Ciudad / City: {{cliente_ciudad}}<br>País / Country: {{cliente_pais}}</p>' +
-      '<p><strong>Emisor / Issuer</strong><br>International Medical Enterprise IME S.A.S.<br>NIT 901871720<br>{{correo_comercial}} · {{telefono_comercial}}<br>i-me.com.co</p>' +
+      '<p><strong>Emisor / Issuer</strong><br>International Medical Enterprise IME S.A.S.<br>NIT ' +
+      IME_NIT +
+      '<br>' +
+      IME_DIRECCION_EMISOR +
+      '<br>{{correo_comercial}} · {{telefono_comercial}}<br>i-me.com.co</p>' +
       '<p><strong>Total a pagar / Amount due:</strong> {{total}} {{moneda}} · <strong>Validez / Valid until:</strong> {{validez}}</p>' +
       '<p>{{iva_resumen}}</p>' +
       '<p><strong>Productos / Products</strong></p><ul>{{items_html}}</ul>' +

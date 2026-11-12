@@ -2,9 +2,10 @@
  * IVA de una cotización.
  *
  * Precedencia de la tarifa, por línea:
- * 1. `tratamiento_iva` de la línea (19, 5, excluido, exento)
- * 2. ficha del producto (`excluido_iva` o `tarifa_iva_pct`)
- * 3. si el producto no trae tarifa, 19 %
+ * 1. `tratamiento_iva` explícito de la línea (19, 5, excluido, exento), también en USD
+ * 2. USD sin tarifa explícita: excluido (no hereda el 19 % del catálogo)
+ * 3. ficha del producto (`excluido_iva` o `tarifa_iva_pct`)
+ * 4. si el producto no trae tarifa, 19 %
  *
  * `impuestos_incluidos` es de la cotización: el precio digitado ya es el total
  * con IVA. No se vuelve a sumar el impuesto encima.
@@ -70,9 +71,12 @@ export function resolverTratamientoLinea(
   producto: ProductoIva | null | undefined,
   moneda?: string | null
 ): TratamientoIva {
+  const explicito = parseTratamientoIva(linea.tratamiento_iva);
+  if (explicito) return explicito;
   const divisa = String(moneda ?? linea.moneda ?? 'COP').toUpperCase();
+  // Sin tarifa en la línea, una cotización en USD no hereda el 19 % del catálogo.
   if (divisa === 'USD') return 'excluido';
-  return parseTratamientoIva(linea.tratamiento_iva) ?? tratamientoDesdeProducto(producto);
+  return tratamientoDesdeProducto(producto);
 }
 
 export function roundMoney(value: number): number {

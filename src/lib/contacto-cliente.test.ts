@@ -4,6 +4,9 @@ import {
   esNitIme,
   esRazonSocialIme,
   esTelefonoIme,
+  IME_DIRECCION_EMISOR,
+  IME_NIT,
+  IME_NIT_CON_DV,
   textoCliente,
   validarContactoClienteBorrador,
   validarContactoClienteParaEnvio,
@@ -57,6 +60,15 @@ describe('contacto de I-ME fuera del cliente', () => {
         telefono: '+974 5555 0101',
       })
     ).toMatchObject({ ok: true, email: 'essam@2mtrading.com' });
+  });
+
+  it('el emisor usa el NIT del RUT con DV y la dirección de Medellín', () => {
+    expect(IME_NIT).toBe('901871720-1');
+    expect(IME_NIT_CON_DV).toBe(IME_NIT);
+    expect(IME_DIRECCION_EMISOR).toBe('CR 43 A 1 50, Medellín, Colombia');
+    expect(IME_DIRECCION_EMISOR).not.toMatch(/Envigado/i);
+    expect(esNitIme(IME_NIT)).toBe(true);
+    expect(esNitIme('901871720')).toBe(true);
   });
 
   it('en borrador admite vacío y rechaza un marcador de I-ME', () => {

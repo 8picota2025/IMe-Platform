@@ -253,6 +253,84 @@ it('adds the Spanish USD note in the offer notes', async () => {
   expect(drawn).not.toMatch(/\$\d/);
 });
 
+it('adds 19% VAT on a USD quote whose lines declare tratamiento 19', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000076',
+    clienteNombre: 'Sandy',
+    empresa: 'Shanghai Zenva Etar International Trading Co., Ltd',
+    condiciones: 'Pago 80/20.',
+    moneda: 'USD',
+    total: 0,
+    impuestosIncluidos: false,
+    lineas: [
+      {
+        slug: 'invima-3003',
+        nombre: 'Tasa INVIMA 3003',
+        cantidad: 1,
+        precio_unitario: 1182.36,
+        subtotal: 1182.36,
+        moneda: 'USD',
+        tratamiento_iva: '19',
+      },
+      {
+        slug: 'honorarios-ime',
+        nombre: 'Honorarios I-ME',
+        cantidad: 1,
+        precio_unitario: 2715.97,
+        subtotal: 2715.97,
+        moneda: 'USD',
+        tratamiento_iva: '19',
+      },
+      {
+        slug: 'traduccion',
+        nombre: 'Traduccion oficial',
+        cantidad: 30,
+        precio_unitario: 11.53,
+        subtotal: 345.9,
+        moneda: 'USD',
+        tratamiento_iva: '19',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
+  expect(drawn).toContain('4.244,23');
+  expect(drawn).toContain('806,40');
+  expect(drawn).toContain('IVA 19%');
+  expect(drawn).toContain('USD 5.050,63');
+  expect(drawn).not.toContain('IVA 0%');
+  expect(drawn).not.toContain('USD 4.244,23');
+});
+
+it('keeps a USD line marked excluido at VAT 0', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000077',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'USD',
+    total: 0,
+    impuestosIncluidos: false,
+    lineas: [
+      {
+        slug: 'tasa',
+        nombre: 'Tasa oficial',
+        cantidad: 1,
+        precio_unitario: 1182.36,
+        subtotal: 1182.36,
+        moneda: 'USD',
+        tratamiento_iva: 'excluido',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
+  expect(drawn).toContain('IVA 0%');
+  expect(drawn).toContain('USD 1.182,36');
+  expect(drawn).not.toContain('1.407,01');
+});
+
 it('does not add VAT on top when the quote price already includes it', async () => {
   const text = vi.spyOn(PDFPage.prototype, 'drawText');
   await renderQuotePdf({
@@ -382,7 +460,10 @@ it('prints a dash in the client block when the contact is empty or belongs to I-
   expect(strings).toContain('Teléfono / Phone: -');
   expect(strings).toContain('NIT / Tax ID: -');
   expect(drawn).toContain('International Medical Enterprise IME S.A.S.');
-  expect(drawn).toContain('NIT: 901871720');
+  expect(drawn).toContain('NIT: 901871720-1');
+  expect(drawn).not.toMatch(/NIT: 901871720(?!-1)/);
+  expect(drawn).toContain('CR 43 A 1 50, Medellín, Colombia');
+  expect(drawn).not.toMatch(/Envigado/i);
   expect(drawn).toContain('info@i-me.com.co');
   expect(drawn).toContain('i-me.com.co');
   expect(drawn).toContain('+57 313 724 7353');

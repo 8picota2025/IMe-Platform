@@ -81,6 +81,91 @@ describe('IVA por línea de la cotización', () => {
     });
     expect(total).toBe(178_900);
   });
+
+  it('COP con tratamiento 19 sigue sumando el 19 % sobre el precio neto', () => {
+    const desglose = desgloseCotizacion(
+      [{ ...walker, precio_unitario: 1000, tratamiento_iva: '19' }],
+      { impuestosIncluidos: false, moneda: 'COP' }
+    );
+    expect(desglose.base).toBe(1000);
+    expect(desglose.iva).toBe(190);
+    expect(desglose.total).toBe(1190);
+    expect(desglose.tasaUnica).toBe(19);
+  });
+});
+
+describe('IVA de líneas en USD', () => {
+  const zenva = [
+    {
+      slug: 'invima-3003',
+      nombre: 'Tasa INVIMA 3003',
+      cantidad: 1,
+      precio_unitario: 1182.36,
+      subtotal: 1182.36,
+      moneda: 'USD',
+      tratamiento_iva: '19' as const,
+    },
+    {
+      slug: 'honorarios-ime',
+      nombre: 'Honorarios I-ME',
+      cantidad: 1,
+      precio_unitario: 2715.97,
+      subtotal: 2715.97,
+      moneda: 'USD',
+      tratamiento_iva: '19' as const,
+    },
+    {
+      slug: 'traduccion',
+      nombre: 'Traducción oficial',
+      cantidad: 30,
+      precio_unitario: 11.53,
+      subtotal: 345.9,
+      moneda: 'USD',
+      tratamiento_iva: '19' as const,
+    },
+  ];
+
+  it('IME-Q-2026-000076: un tratamiento 19 explícito suma IVA 19 % aunque la moneda sea USD', () => {
+    const desglose = desgloseCotizacion(zenva, { impuestosIncluidos: false, moneda: 'USD' });
+    expect(desglose.base).toBe(4244.23);
+    expect(desglose.iva).toBe(806.4);
+    expect(desglose.total).toBe(5050.63);
+    expect(desglose.tasaUnica).toBe(19);
+    expect(
+      resolverTratamientoLinea(zenva[0]!, { tarifa_iva_pct: 0, excluido_iva: true }, 'USD')
+    ).toBe('19');
+    expect(totalPagarCotizacion(zenva, { impuestosIncluidos: false, moneda: 'USD' })).toBe(5050.63);
+  });
+
+  it('una línea USD excluida de forma explícita queda en 0 aunque el catálogo esté al 19 %', () => {
+    const linea = {
+      ...walker,
+      moneda: 'USD',
+      precio_unitario: 100,
+      tratamiento_iva: 'excluido' as const,
+    };
+    const desglose = desgloseCotizacion([linea], {
+      impuestosIncluidos: false,
+      moneda: 'USD',
+      productos: new Map([[linea.slug, { tarifa_iva_pct: 19, excluido_iva: false }]]),
+    });
+    expect(resolverTratamientoLinea(linea, { tarifa_iva_pct: 19 }, 'USD')).toBe('excluido');
+    expect(desglose.iva).toBe(0);
+    expect(desglose.base).toBe(100);
+    expect(desglose.total).toBe(100);
+  });
+
+  it('USD sin tratamiento explícito no hereda el 19 % del catálogo', () => {
+    const linea = { ...walker, moneda: 'USD', precio_unitario: 100, tratamiento_iva: undefined };
+    const desglose = desgloseCotizacion([linea], {
+      impuestosIncluidos: false,
+      moneda: 'USD',
+      productos: new Map([[linea.slug, { tarifa_iva_pct: 19 }]]),
+    });
+    expect(resolverTratamientoLinea(linea, { tarifa_iva_pct: 19 }, 'USD')).toBe('excluido');
+    expect(desglose.iva).toBe(0);
+    expect(desglose.total).toBe(100);
+  });
 });
 
 describe('enlace Wompi de la cotización', () => {

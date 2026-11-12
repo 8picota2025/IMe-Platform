@@ -1,7 +1,9 @@
 /**
  * Cuentas de recaudo y condición de pago de una cotización.
- * NULL / Bancolombia Ahorros COP conserva el PDF histórico.
+ * Sin id explícito, COP conserva Bancolombia (PDF histórico / env) y USD usa
+ * davivienda_sa. Un id del catálogo siempre gana a la moneda.
  */
+import { IME_NIT } from './contacto-cliente.ts';
 
 export const CUENTA_RECAUDO_DEFAULT = 'bancolombia_ahorros';
 
@@ -32,7 +34,7 @@ export const CUENTAS_RECAUDO: readonly CuentaRecaudo[] = [
     tipo_cuenta: 'Ahorros',
     numero_cuenta: '61400006521',
     titular: 'I-ME International Medical Enterprise S.A.S.',
-    nit: '901871720',
+    nit: IME_NIT,
     swift: '',
   },
   {
@@ -42,16 +44,49 @@ export const CUENTAS_RECAUDO: readonly CuentaRecaudo[] = [
     tipo_cuenta: '',
     numero_cuenta: '0550108900697583',
     titular: 'International Medical Enterprise IME S.A.S.',
-    nit: '901871720',
+    nit: IME_NIT,
     swift: 'CAFECOBBXXX',
   },
 ];
 
 const CUENTAS_POR_ID = new Map(CUENTAS_RECAUDO.map(cuenta => [cuenta.id, cuenta]));
 
+/** Id vacío o Bancolombia. No mira la moneda: el medio de pago usa `resolverCuentaRecaudo`. */
 export function esCuentaRecaudoDefault(value: unknown): boolean {
   const id = String(value ?? '').trim();
   return id === '' || id === CUENTA_RECAUDO_DEFAULT;
+}
+
+function exigirCuenta(id: string): CuentaRecaudo {
+  const cuenta = CUENTAS_POR_ID.get(id);
+  if (!cuenta) throw new Error(`Cuenta de recaudo ausente: ${id}`);
+  return cuenta;
+}
+
+/**
+ * null / vacío sigue la moneda. COP → Bancolombia histórico (env o boceto).
+ * USD → davivienda_sa. Un id del catálogo gana siempre, incluso si no coincide
+ * con la moneda.
+ */
+export function resolverCuentaRecaudo(
+  cuentaId: unknown,
+  moneda?: string | null
+): { cuenta: CuentaRecaudo; historica: boolean } {
+  const id = String(cuentaId ?? '').trim();
+  if (id === CUENTA_RECAUDO_DEFAULT) {
+    return { cuenta: exigirCuenta(CUENTA_RECAUDO_DEFAULT), historica: true };
+  }
+  if (id && CUENTAS_POR_ID.has(id)) {
+    return { cuenta: exigirCuenta(id), historica: false };
+  }
+  if (
+    String(moneda ?? 'COP')
+      .trim()
+      .toUpperCase() === 'USD'
+  ) {
+    return { cuenta: exigirCuenta('davivienda_sa'), historica: false };
+  }
+  return { cuenta: exigirCuenta(CUENTA_RECAUDO_DEFAULT), historica: true };
 }
 
 export function cuentaRecaudoValida(value: unknown): boolean {
@@ -59,16 +94,15 @@ export function cuentaRecaudoValida(value: unknown): boolean {
   return id === '' || CUENTAS_POR_ID.has(id);
 }
 
-/** Id persistible. Vacío queda null (mismo PDF que Bancolombia por defecto). */
+/** Id persistible. Vacío queda null y el PDF elige la cuenta según la moneda. */
 export function normalizarCuentaRecaudo(value: unknown): string | null {
   const id = String(value ?? '').trim();
   if (!id || id === CUENTA_RECAUDO_DEFAULT) return id === CUENTA_RECAUDO_DEFAULT ? id : null;
   return CUENTAS_POR_ID.has(id) ? id : null;
 }
 
-export function cuentaRecaudoPorId(value: unknown): CuentaRecaudo {
-  const id = String(value ?? '').trim();
-  return CUENTAS_POR_ID.get(id) ?? CUENTAS_RECAUDO[0]!;
+export function cuentaRecaudoPorId(value: unknown, moneda?: string | null): CuentaRecaudo {
+  return resolverCuentaRecaudo(value, moneda).cuenta;
 }
 
 /** Resumen visible bajo el selector del editor. */
@@ -94,12 +128,18 @@ export function lineasPagoCuenta(cuenta: CuentaRecaudo): string[] {
 }
 
 /**
- * Cuenta explícita distinta del default. Si no, se conservan las líneas
- * históricas (env en Edge, defaults del boceto en el cliente).
+ * Cuenta explícita distinta de Bancolombia: líneas del catálogo.
+ * null en COP (o sin moneda) conserva las líneas históricas (env en Edge,
+ * defaults del boceto en el cliente). null en USD imprime davivienda_sa.
  */
-export function lineasMedioPagoCotizacion(cuentaId: unknown, lineasPorDefecto: string[]): string[] {
-  if (esCuentaRecaudoDefault(cuentaId)) return lineasPorDefecto;
-  return lineasPagoCuenta(cuentaRecaudoPorId(cuentaId));
+export function lineasMedioPagoCotizacion(
+  cuentaId: unknown,
+  lineasPorDefecto: string[],
+  moneda?: string | null
+): string[] {
+  const recaudo = resolverCuentaRecaudo(cuentaId, moneda);
+  if (recaudo.historica) return lineasPorDefecto;
+  return lineasPagoCuenta(recaudo.cuenta);
 }
 
 const INSTRUCCIONES_TRANSFERENCIA =
@@ -129,7 +169,9 @@ export function textoBancarioCuentaIdioma(
   if (idioma === 'es') return textoBancarioCuenta(cuenta);
   const banco = idioma === 'es-en' ? `Banco / Bank: ${cuenta.banco}` : `Bank: ${cuenta.banco}`;
   const titular =
-    idioma === 'es-en' ? `Titular / Account name: ${cuenta.titular}` : `Account name: ${cuenta.titular}`;
+    idioma === 'es-en'
+      ? `Titular / Account name: ${cuenta.titular}`
+      : `Account name: ${cuenta.titular}`;
   const nit = idioma === 'es-en' ? `NIT / Tax ID: ${cuenta.nit}` : `Tax ID: ${cuenta.nit}`;
   const lineas = [banco, titular, nit];
   if (cuenta.tipo_cuenta) {
