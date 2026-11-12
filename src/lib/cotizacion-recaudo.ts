@@ -1,6 +1,6 @@
 /**
  * Cuentas de recaudo y condición de pago de una cotización.
- * NULL / Bancolombia Ahorros COP conserva el PDF histórico.
+ * Sin cuenta explícita: Bancolombia en COP y Davivienda en USD.
  */
 
 export const CUENTA_RECAUDO_DEFAULT = 'bancolombia_ahorros';
@@ -49,9 +49,9 @@ export const CUENTAS_RECAUDO: readonly CuentaRecaudo[] = [
 
 const CUENTAS_POR_ID = new Map(CUENTAS_RECAUDO.map(cuenta => [cuenta.id, cuenta]));
 
-export function esCuentaRecaudoDefault(value: unknown): boolean {
+export function esCuentaRecaudoDefault(value: unknown, moneda = 'COP'): boolean {
   const id = String(value ?? '').trim();
-  return id === '' || id === CUENTA_RECAUDO_DEFAULT;
+  return cuentaRecaudoPorId(id, moneda).id === CUENTA_RECAUDO_DEFAULT;
 }
 
 export function cuentaRecaudoValida(value: unknown): boolean {
@@ -59,16 +59,17 @@ export function cuentaRecaudoValida(value: unknown): boolean {
   return id === '' || CUENTAS_POR_ID.has(id);
 }
 
-/** Id persistible. Vacío queda null (mismo PDF que Bancolombia por defecto). */
+/** Id persistible. Vacío queda null (cuenta por defecto según moneda). */
 export function normalizarCuentaRecaudo(value: unknown): string | null {
   const id = String(value ?? '').trim();
   if (!id || id === CUENTA_RECAUDO_DEFAULT) return id === CUENTA_RECAUDO_DEFAULT ? id : null;
   return CUENTAS_POR_ID.has(id) ? id : null;
 }
 
-export function cuentaRecaudoPorId(value: unknown): CuentaRecaudo {
+export function cuentaRecaudoPorId(value: unknown, moneda = 'COP'): CuentaRecaudo {
   const id = String(value ?? '').trim();
-  return CUENTAS_POR_ID.get(id) ?? CUENTAS_RECAUDO[0]!;
+  const defaultId = moneda.toUpperCase() === 'USD' ? 'davivienda_sa' : CUENTA_RECAUDO_DEFAULT;
+  return CUENTAS_POR_ID.get(id) ?? CUENTAS_POR_ID.get(defaultId)!;
 }
 
 /** Resumen visible bajo el selector del editor. */
@@ -97,9 +98,13 @@ export function lineasPagoCuenta(cuenta: CuentaRecaudo): string[] {
  * Cuenta explícita distinta del default. Si no, se conservan las líneas
  * históricas (env en Edge, defaults del boceto en el cliente).
  */
-export function lineasMedioPagoCotizacion(cuentaId: unknown, lineasPorDefecto: string[]): string[] {
-  if (esCuentaRecaudoDefault(cuentaId)) return lineasPorDefecto;
-  return lineasPagoCuenta(cuentaRecaudoPorId(cuentaId));
+export function lineasMedioPagoCotizacion(
+  cuentaId: unknown,
+  lineasPorDefecto: string[],
+  moneda = 'COP'
+): string[] {
+  if (esCuentaRecaudoDefault(cuentaId, moneda)) return lineasPorDefecto;
+  return lineasPagoCuenta(cuentaRecaudoPorId(cuentaId, moneda));
 }
 
 const INSTRUCCIONES_TRANSFERENCIA =
@@ -129,7 +134,9 @@ export function textoBancarioCuentaIdioma(
   if (idioma === 'es') return textoBancarioCuenta(cuenta);
   const banco = idioma === 'es-en' ? `Banco / Bank: ${cuenta.banco}` : `Bank: ${cuenta.banco}`;
   const titular =
-    idioma === 'es-en' ? `Titular / Account name: ${cuenta.titular}` : `Account name: ${cuenta.titular}`;
+    idioma === 'es-en'
+      ? `Titular / Account name: ${cuenta.titular}`
+      : `Account name: ${cuenta.titular}`;
   const nit = idioma === 'es-en' ? `NIT / Tax ID: ${cuenta.nit}` : `Tax ID: ${cuenta.nit}`;
   const lineas = [banco, titular, nit];
   if (cuenta.tipo_cuenta) {

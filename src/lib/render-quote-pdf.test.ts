@@ -382,7 +382,9 @@ it('prints a dash in the client block when the contact is empty or belongs to I-
   expect(strings).toContain('Teléfono / Phone: -');
   expect(strings).toContain('NIT / Tax ID: -');
   expect(drawn).toContain('International Medical Enterprise IME S.A.S.');
-  expect(drawn).toContain('NIT: 901871720');
+  expect(strings).toContain('NIT: 901871720-1');
+  expect(drawn).toContain('CR 43 A 1 50, Medellín, Colombia');
+  expect(drawn).not.toContain('Envigado');
   expect(drawn).toContain('info@i-me.com.co');
   expect(drawn).toContain('i-me.com.co');
   expect(drawn).toContain('+57 313 724 7353');
@@ -562,3 +564,43 @@ it('aligns the table header and the footer to the same content width', async () 
     expect(band?.width).toBe(515.5);
   }
 });
+
+it.each(['es', 'en'] as const)(
+  'imprime el desglose USD de 000076 y Davivienda por defecto (%s)',
+  async locale => {
+    const text = vi.spyOn(PDFPage.prototype, 'drawText');
+    await renderQuotePdf({
+      numero: 'IME-Q-2026-000076',
+      clienteNombre: 'Zenva',
+      condiciones: '',
+      moneda: 'USD',
+      total: 5050.63,
+      impuestosIncluidos: false,
+      locale,
+      lineas: [1182.36, 2715.97, 345.9].map((precio, i) => ({
+        slug: '',
+        nombre: `Servicio ${i}`,
+        cantidad: 1,
+        precio_unitario: precio,
+        subtotal: precio,
+        moneda: 'USD',
+        tratamiento_iva: '19',
+      })),
+    });
+    const strings = text.mock.calls.map(([s]) => s);
+    const drawn = strings.join('\n');
+    expect(strings).toContain('SUBTOTAL');
+    expect(strings).toContain(locale === 'es' ? 'IVA 19%' : 'VAT 19%');
+    expect(strings).toContain(locale === 'es' ? 'TOTAL A PAGAR' : 'TOTAL DUE');
+    for (const importe of locale === 'es'
+      ? ['4.244,23', '806,40', '5.050,63']
+      : ['4,244.23', '806.40', '5,050.63']) {
+      expect(drawn).toContain(importe);
+    }
+    expect(strings).toContain('NIT: 901871720-1');
+    expect(drawn).toContain('CR 43 A 1 50, Medellín, Colombia');
+    expect(drawn).toContain('0550108900697583');
+    expect(drawn).toContain('CAFECOBBXXX');
+    expect(drawn).not.toMatch(/Envigado|61400006521|Bancolombia/);
+  }
+);

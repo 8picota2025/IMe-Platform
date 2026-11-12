@@ -51,3 +51,21 @@ describe('condición de pago y nota USD', () => {
     expect(aplicarNotaImportesUsd(conNota, 'COP', 'es')).toBe(base);
   });
 });
+
+it.each([null, undefined, '', 'desconocida'])(
+  'elige recaudo por moneda sin cuenta válida: %s',
+  cuenta => {
+    const historicas = bancoLineasCotizacion();
+    expect(lineasMedioPagoCotizacion(cuenta, historicas, 'COP')).toEqual(historicas);
+    expect(cuentaRecaudoPorId(cuenta, 'USD').id).toBe('davivienda_sa');
+    const usd = lineasMedioPagoCotizacion(cuenta, historicas, 'USD').join('\n');
+    expect(usd).toContain('0550108900697583');
+    expect(usd).toContain('CAFECOBBXXX');
+    expect(usd).not.toContain('61400006521');
+  }
+);
+
+it('conserva una cuenta seleccionada explícitamente en ambas monedas', () => {
+  expect(cuentaRecaudoPorId('bancolombia_ahorros', 'USD').id).toBe('bancolombia_ahorros');
+  expect(cuentaRecaudoPorId('davivienda_sa', 'COP').id).toBe('davivienda_sa');
+});

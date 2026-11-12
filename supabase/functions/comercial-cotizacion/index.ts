@@ -249,7 +249,8 @@ function publicRow(
       texto: `${row.condiciones ?? ''}\n${(row as { condiciones_en?: string | null }).condiciones_en ?? ''}`,
     }),
     nit: (row as { nit?: string | null }).nit ?? null,
-    direccion_facturacion: (row as { direccion_facturacion?: string | null }).direccion_facturacion ?? null,
+    direccion_facturacion:
+      (row as { direccion_facturacion?: string | null }).direccion_facturacion ?? null,
     direccion_envio: (row as { direccion_envio?: string | null }).direccion_envio ?? null,
     ciudad: (row as { ciudad?: string | null }).ciudad ?? null,
     pais: (row as { pais?: string | null }).pais ?? null,
@@ -676,7 +677,11 @@ async function handlePdf(
     condicionPagoEn: normalizarCondicionPago(
       (live as { condicion_pago_en?: string | null }).condicion_pago_en
     ),
-    bancoLineas: lineasMedioPagoCotizacion(live.cuenta_recaudo, bancoLineasCotizacion()),
+    bancoLineas: lineasMedioPagoCotizacion(
+      live.cuenta_recaudo,
+      bancoLineasCotizacion(),
+      live.moneda
+    ),
   });
   return json(
     {

@@ -131,3 +131,51 @@ describe('enlace Wompi de la cotización', () => {
     });
   });
 });
+
+it('IME-Q-2026-000076 suma IVA 19 % a las tres partidas USD', () => {
+  const lineas = [1182.36, 2715.97, 345.9].map(precio => ({
+    slug: '',
+    cantidad: 1,
+    precio_unitario: precio,
+    moneda: 'USD',
+    tratamiento_iva: '19',
+  }));
+  expect(desgloseCotizacion(lineas, { impuestosIncluidos: false, moneda: 'USD' })).toMatchObject({
+    base: 4244.23,
+    iva: 806.4,
+    total: 5050.63,
+    tasaUnica: 19,
+  });
+});
+
+it.each(['COP', 'USD'])('respeta la tarifa explícita y el catálogo en %s', moneda => {
+  for (const tratamiento of ['19', '5', 'exento', 'excluido']) {
+    expect(
+      resolverTratamientoLinea(
+        { tratamiento_iva: tratamiento, moneda },
+        { tarifa_iva_pct: 19 },
+        moneda
+      )
+    ).toBe(tratamiento);
+  }
+  expect(resolverTratamientoLinea({ moneda }, null, moneda)).toBe('19');
+  expect(resolverTratamientoLinea({ moneda }, { excluido_iva: true }, moneda)).toBe('excluido');
+  const lineas = ['exento', 'excluido'].map(tratamiento_iva => ({
+    slug: '',
+    cantidad: 1,
+    precio_unitario: 100,
+    moneda,
+    tratamiento_iva,
+  }));
+  expect(desgloseCotizacion(lineas, { impuestosIncluidos: false, moneda })).toMatchObject({
+    base: 200,
+    iva: 0,
+    total: 200,
+  });
+  expect(
+    desgloseCotizacion([{ ...lineas[0]!, tratamiento_iva: '19', precio_unitario: 119 }], {
+      impuestosIncluidos: true,
+      moneda,
+    })
+  ).toMatchObject({ base: 100, iva: 19, total: 119 });
+});
