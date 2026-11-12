@@ -21,7 +21,12 @@ import { desgloseCotizacion, etiquetaIvaTotales, roundMoney } from './cotizacion
 
 import { lineasDeResumen } from './quote-specs-summary';
 import { quoteAnnexHasSpecContent } from './quote-pdf-annex';
-import { aplicarNotaImportesUsd, notaImportesUsd } from './cotizacion-recaudo';
+import {
+  aplicarNotaImportesUsd,
+  notaImportesUsd,
+  cuentaRecaudoPorId,
+  lineasPagoCuenta,
+} from './cotizacion-recaudo';
 import {
   IME_EMAIL_PUBLICO,
   IME_NIT,
@@ -423,7 +428,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const banco =
     snapshot.bancoLineas && snapshot.bancoLineas.length > 0
       ? snapshot.bancoLineas
-      : ['Transferencia bancaria:', 'Bancolombia/Ahorros'];
+      : lineasPagoCuenta(cuentaRecaudoPorId(null, snapshot.moneda));
 
   // ——— Página 1: COTIZACIÓN ———
   let page = doc.addPage([PAGE_W, PAGE_H]);
@@ -654,7 +659,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     `${et('Teléfono', 'Phone')}: ${IME_WHATSAPP_DISPLAY}`,
     `${et('Correo', 'Email')}: ${IME_EMAIL_PUBLICO}`,
     `${et('Web', 'Web')}: ${IME_WEB}`,
-    'Medellín, Colombia',
+    'CR 43 A 1 50, Medellín, Colombia',
   ];
   let companyBottom = companyTop + 14;
   emisorLineas.forEach((linea, index) => {

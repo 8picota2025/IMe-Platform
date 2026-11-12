@@ -68,10 +68,8 @@ export function tratamientoDesdeProducto(producto: ProductoIva | null | undefine
 export function resolverTratamientoLinea(
   linea: { tratamiento_iva?: unknown; moneda?: string | null },
   producto: ProductoIva | null | undefined,
-  moneda?: string | null
+  _moneda?: string | null
 ): TratamientoIva {
-  const divisa = String(moneda ?? linea.moneda ?? 'COP').toUpperCase();
-  if (divisa === 'USD') return 'excluido';
   return parseTratamientoIva(linea.tratamiento_iva) ?? tratamientoDesdeProducto(producto);
 }
 

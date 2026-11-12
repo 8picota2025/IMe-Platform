@@ -556,7 +556,11 @@ async function renderQuotePdfLocal(
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
       condicionPago: snapshot.condicion_pago ?? null,
-      bancoLineas: lineasMedioPagoCotizacion(snapshot.cuenta_recaudo, bancoLineasCotizacion()),
+      bancoLineas: lineasMedioPagoCotizacion(
+        snapshot.cuenta_recaudo,
+        bancoLineasCotizacion(),
+        snapshot.moneda
+      ),
       impuestosIncluidos: snapshot.impuestos_incluidos === true,
       wompiUrl: null,
     });

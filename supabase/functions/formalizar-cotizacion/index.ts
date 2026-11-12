@@ -102,7 +102,14 @@ async function loadCotizacionValidada(
   // GUARDA 31-10-2026: cotización marcada NO ENVIAR no se formaliza ni dispara correos.
   const guardaNoEnviar = verificarNoEnviar(row as unknown as Record<string, unknown>);
   if (!guardaNoEnviar.ok) {
-    return { ok: false, response: errorResponse({ code: guardaNoEnviar.code, message: guardaNoEnviar.message }, 409, origin) };
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: guardaNoEnviar.code, message: guardaNoEnviar.message },
+        409,
+        origin
+      ),
+    };
   }
   const yaConvertida = Boolean(row.pedido_id) || row.estado === 'convertida';
   if (yaConvertida) {
@@ -303,7 +310,9 @@ Deno.serve(async req => {
   });
   const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
   const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
-  const cuentaElegida = esCuentaRecaudoDefault(cuentaId) ? null : cuentaRecaudoPorId(cuentaId);
+  const cuentaElegida = esCuentaRecaudoDefault(cuentaId, moneda)
+    ? null
+    : cuentaRecaudoPorId(cuentaId, moneda);
   const bancarios = cuentaElegida
     ? {
         banco: cuentaElegida.banco,

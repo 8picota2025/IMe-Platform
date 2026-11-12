@@ -6,8 +6,8 @@
 import { IME_WHATSAPP_DISPLAY, IME_WHATSAPP_E164, IME_WHATSAPP_TEL } from './contacto-oficial.ts';
 
 export const IME_RAZON_SOCIAL = 'International Medical Enterprise IME S.A.S.';
-export const IME_NIT = '901871720';
-export const IME_NIT_CON_DV = '901871720-1';
+export const IME_NIT = '901871720-1';
+export const IME_NIT_CON_DV = IME_NIT;
 export const IME_WEB = 'i-me.com.co';
 export const IME_EMAIL_PUBLICO = 'info@i-me.com.co';
 export const IME_EMAIL_DOMINIO = 'i-me.com.co';

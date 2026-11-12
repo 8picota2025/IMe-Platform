@@ -455,7 +455,7 @@ Deno.serve(async req => {
       condicionPagoEn: normalizarCondicionPago(
         (row as { condicion_pago_en?: string | null }).condicion_pago_en
       ),
-      bancoLineas: lineasMedioPagoCotizacion(cuentaId, bancoLineasCotizacion(banco)),
+      bancoLineas: lineasMedioPagoCotizacion(cuentaId, bancoLineasCotizacion(banco), oferta.moneda),
     });
   };
 
@@ -693,8 +693,7 @@ Deno.serve(async req => {
   }
 
   // CTA Wompi → formalizar (crea pedidos.id y firma checkout). Nunca IME-Q-… como reference.
-  const wompiCtaUrl =
-    oferta.moneda.toUpperCase() === 'COP' ? formalizarUrl : null;
+  const wompiCtaUrl = oferta.moneda.toUpperCase() === 'COP' ? formalizarUrl : null;
   meta.wompi_checkout_url = null;
   meta.wompi_formalizar_url = wompiCtaUrl;
   let pdfBytes: Awaited<ReturnType<typeof renderPdf>>;
@@ -802,7 +801,7 @@ Deno.serve(async req => {
     const bancoPorDefecto = getDatosBancariosTransferencia();
     const datosBancarios =
       idioma === 'es-en'
-        ? esCuentaRecaudoDefault(cuentaIdCorreo)
+        ? esCuentaRecaudoDefault(cuentaIdCorreo, oferta.moneda)
           ? textoBancarioCuentaIdioma(
               {
                 id: 'bancolombia_ahorros',
@@ -816,23 +815,25 @@ Deno.serve(async req => {
               },
               'es-en'
             )
-          : textoBancarioCuentaIdioma(cuentaRecaudoPorId(cuentaIdCorreo), 'es-en')
-        : esCuentaRecaudoDefault(cuentaIdCorreo)
+          : textoBancarioCuentaIdioma(cuentaRecaudoPorId(cuentaIdCorreo, oferta.moneda), 'es-en')
+        : esCuentaRecaudoDefault(cuentaIdCorreo, oferta.moneda)
           ? datosBancariosTexto(bancoPorDefecto)
-          : textoBancarioCuenta(cuentaRecaudoPorId(cuentaIdCorreo));
-    const condicionesEn = String((row as { condiciones_en?: string | null }).condiciones_en ?? '').trim();
+          : textoBancarioCuenta(cuentaRecaudoPorId(cuentaIdCorreo, oferta.moneda));
+    const condicionesEn = String(
+      (row as { condiciones_en?: string | null }).condiciones_en ?? ''
+    ).trim();
     const condicionesCorreo =
       idioma === 'es-en'
         ? `${aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, 'es')}${
-            condicionesEn
-              ? `\n\n${aplicarNotaImportesUsd(condicionesEn, oferta.moneda, 'en')}`
-              : ''
+            condicionesEn ? `\n\n${aplicarNotaImportesUsd(condicionesEn, oferta.moneda, 'en')}` : ''
           }`
         : aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, locale);
     const emailVars = {
       cliente_nombre: escapeHtml(textoCliente(String(row.nombre ?? ''), 'texto')),
       cliente_empresa: escapeHtml(textoCliente(String(row.empresa ?? ''), 'razon')),
-      cliente_nit: escapeHtml(textoCliente(String((row as { nit?: string | null }).nit ?? ''), 'nit')),
+      cliente_nit: escapeHtml(
+        textoCliente(String((row as { nit?: string | null }).nit ?? ''), 'nit')
+      ),
       cliente_email: escapeHtml(textoCliente(String(row.email ?? ''), 'email')),
       cliente_telefono: escapeHtml(textoCliente(String(row.telefono ?? ''), 'telefono')),
       cliente_direccion: escapeHtml(
