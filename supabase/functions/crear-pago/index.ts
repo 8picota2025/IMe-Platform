@@ -40,6 +40,7 @@ import {
 import { isPurchasable } from '../../../src/lib/commerce-policy.ts';
 import { resolveSubmittedPhone } from '../../../src/lib/visitor-phone.ts';
 import { liberarReservasPedido, reservarStockProducto } from '../_shared/stock-reservas.ts';
+import { verificarNoEnviar } from '../_shared/guarda-envio.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -653,6 +654,15 @@ Deno.serve(
       }
       const cotizacion = cotizacionData as CotizacionOfertaRow;
       cotizacionAtribucion = cotizacion;
+      // Paridad con formalizar-cotizacion (#251): NO ENVIAR mata el cobro locked.
+      const guardaNoEnviar = verificarNoEnviar(cotizacion as unknown as Record<string, unknown>);
+      if (!guardaNoEnviar.ok) {
+        return errorResponse(
+          { code: guardaNoEnviar.code, message: guardaNoEnviar.message },
+          409,
+          origin
+        );
+      }
       if (cotizacion.pedido_id || cotizacion.estado === 'convertida') {
         return errorResponse(
           { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
