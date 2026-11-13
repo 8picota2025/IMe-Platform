@@ -146,6 +146,23 @@ export function calcularTotalOfertado(lineas: CotizacionLineaOferta[]): number {
   );
 }
 
+/**
+ * Total a cobrar de una oferta ya enviada.
+ * Manda `precio_total_ofertado` (congelado en enviar-cotizacion) sobre un
+ * desglose recalculado con el catálogo vivo: si el IVA de ficha cambia después
+ * del envío, formalizar/Wompi/convertir no deben alterar el monto ofrecido.
+ */
+export function totalCobroOfertaLocked(
+  row: { precio_total_ofertado?: number | string | null },
+  desgloseTotal: number,
+  lineas: CotizacionLineaOferta[]
+): number {
+  const locked = Number(row.precio_total_ofertado);
+  if (Number.isFinite(locked) && locked > 0) return locked;
+  if (Number.isFinite(desgloseTotal) && desgloseTotal > 0) return desgloseTotal;
+  return calcularTotalOfertado(lineas);
+}
+
 export function normalizarMonedaOferta(value: unknown): 'COP' | 'USD' {
   return String(value ?? 'COP')
     .trim()

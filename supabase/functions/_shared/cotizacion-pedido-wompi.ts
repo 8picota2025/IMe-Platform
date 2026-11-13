@@ -3,31 +3,20 @@
  * La referencia de pasarela es siempre el UUID del pedido — nunca el número IME-Q-….
  */
 import {
-  calcularTotalOfertado,
   parseLineasOferta,
   splitNombreApellido,
+  totalCobroOfertaLocked,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 import { desgloseDeLineas } from './cotizacion-pago.ts';
 
-type SupabaseLike = {
-  from: (table: string) => any;
-};
+/** Cliente supabase-js (query builder encadenado). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- evita tipar todo el builder Deno
+type SupabaseLike = { from: (table: string) => any };
 
 export type PedidoWompiDesdeCotizacion =
   | { ok: true; pedidoId: string; total: number; moneda: string; created: boolean }
   | { ok: false; code: string; message: string };
-
-function totalAPagar(
-  desgloseTotal: number,
-  row: CotizacionOfertaRow,
-  lineas: ReturnType<typeof parseLineasOferta>
-): number {
-  if (desgloseTotal > 0) return desgloseTotal;
-  const locked = Number(row.precio_total_ofertado);
-  if (Number.isFinite(locked) && locked > 0) return locked;
-  return calcularTotalOfertado(lineas);
-}
 
 /**
  * Inserta pedido pendiente + reclama la cotización (estado convertida).
@@ -83,7 +72,9 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
     impuestosIncluidos,
     moneda,
   });
-  const total = totalAPagar(desglose.total, row, lineas);
+  // Preferir el total congelado al enviar: el desglose vivo puede cambiar si el
+  // IVA de catálogo se edita después (p.ej. excluido → 19 %).
+  const total = totalCobroOfertaLocked(row, desglose.total, lineas);
   if (!(total > 0)) {
     return { ok: false, code: 'TOTAL_INVALIDO', message: 'Total a pagar invalido' };
   }
