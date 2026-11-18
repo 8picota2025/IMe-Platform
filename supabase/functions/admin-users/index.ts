@@ -1,8 +1,15 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import {
+  assertOwnerDelete,
+  assertOwnerHierarchyMutation,
+  canManageCmsUsers,
+  wouldRemoveLastActiveOwner,
+  type AdminManageRole,
+} from '../../../src/lib/admin-users-authz.ts';
 
-type AdminRole = 'owner' | 'admin' | 'catalogo' | 'ventas' | 'operaciones' | 'lectura';
+type AdminRole = AdminManageRole;
 
 interface AdminUsersRequest {
   action?: 'list' | 'upsert' | 'delete';
@@ -78,8 +85,8 @@ Deno.serve(async req => {
     } = await supabase.auth.getUser(token);
     if (userError || !user) return unauthorized(origin);
 
-    const allowed = await canManageUsers(supabase, user.id);
-    if (!allowed) {
+    const actor = await loadActor(supabase, user.id);
+    if (!actor || !canManageCmsUsers(actor)) {
       return errorResponse(
         {
           code: 'FORBIDDEN',
@@ -97,7 +104,7 @@ Deno.serve(async req => {
       const email = normalizeEmail(body.email);
       if (!userId && !email) return badRequest('Usuario requerido', origin);
       return jsonResponse(
-        await deleteAdminUser(supabase, { userId, email, actorUserId: user.id }),
+        await deleteAdminUser(supabase, { userId, email, actor }),
         origin
       );
     }
@@ -113,6 +120,47 @@ Deno.serve(async req => {
     if (!VALID_ROLES.has(rol)) return badRequest('Rol invalido', origin);
     if (password && password.length < 8)
       return badRequest('La contrasena debe tener minimo 8 caracteres', origin);
+
+    const existingAuth = await findUserByEmail(supabase, email);
+    const existingProfile = await findProfile(
+      supabase,
+      existingAuth?.id ?? '',
+      email
+    );
+    const hierarchy = assertOwnerHierarchyMutation({
+      actor,
+      nextRol: rol,
+      target: existingProfile
+        ? {
+            userId: String(existingProfile.user_id ?? ''),
+            email: String(existingProfile.email ?? email),
+            rol: String(existingProfile.rol ?? ''),
+            activo: existingProfile.activo === true,
+          }
+        : null,
+      setsPassword: Boolean(password),
+    });
+    if (!hierarchy.ok) {
+      throw new AdminUsersInputError(hierarchy.message, 403);
+    }
+
+    if (existingProfile?.rol === 'owner' && existingProfile.activo === true) {
+      const otherOwners = await countOtherActiveOwners(
+        supabase,
+        String(existingProfile.user_id ?? existingAuth?.id ?? '')
+      );
+      const lastOwner = wouldRemoveLastActiveOwner({
+        target: {
+          userId: String(existingProfile.user_id ?? ''),
+          rol: 'owner',
+          activo: true,
+        },
+        nextRol: rol,
+        nextActivo: activo,
+        otherActiveOwners: otherOwners,
+      });
+      if (!lastOwner.ok) throw new AdminUsersInputError(lastOwner.message, 403);
+    }
 
     const authUser = await ensureAuthUser(supabase, {
       email,
@@ -164,7 +212,10 @@ Deno.serve(async req => {
   }
 });
 
-async function canManageUsers(supabase: ReturnType<typeof getServerSupabase>, userId: string) {
+async function loadActor(
+  supabase: ReturnType<typeof getServerSupabase>,
+  userId: string
+): Promise<{ userId: string; rol: AdminRole; activo: boolean } | null> {
   const { data, error } = await supabase
     .from('admin_profiles')
     .select('rol, activo')
@@ -172,7 +223,24 @@ async function canManageUsers(supabase: ReturnType<typeof getServerSupabase>, us
     .maybeSingle();
   if (error) throw error;
   const profile = data as Row | null;
-  return profile?.activo === true && (profile.rol === 'owner' || profile.rol === 'admin');
+  if (!profile) return null;
+  const rol = String(profile.rol ?? '') as AdminRole;
+  if (!VALID_ROLES.has(rol)) return null;
+  return { userId, rol, activo: profile.activo === true };
+}
+
+async function countOtherActiveOwners(
+  supabase: ReturnType<typeof getServerSupabase>,
+  excludeUserId: string
+): Promise<number> {
+  const { count, error } = await supabase
+    .from('admin_profiles')
+    .select('user_id', { count: 'exact', head: true })
+    .eq('rol', 'owner')
+    .eq('activo', true)
+    .neq('user_id', excludeUserId);
+  if (error) throw error;
+  return count ?? 0;
 }
 
 async function listAdminUsers(supabase: ReturnType<typeof getServerSupabase>) {
@@ -258,7 +326,11 @@ async function ensureAuthUser(
 
 async function deleteAdminUser(
   supabase: ReturnType<typeof getServerSupabase>,
-  params: { userId: string; email: string; actorUserId: string }
+  params: {
+    userId: string;
+    email: string;
+    actor: { userId: string; rol: AdminRole; activo: boolean };
+  }
 ) {
   const authUsers = await listAllAuthUsers(supabase);
   const authUser =
@@ -268,21 +340,28 @@ async function deleteAdminUser(
   const targetUserId = authUser?.id ?? params.userId;
   const targetEmail = normalizeEmail(authUser?.email) || params.email;
 
-  if (targetUserId && targetUserId === params.actorUserId) {
+  if (targetUserId && targetUserId === params.actor.userId) {
     throw new AdminUsersInputError('No puedes eliminar tu propio usuario activo.');
   }
 
   const profile = await findProfile(supabase, targetUserId, targetEmail);
+  const ownerDelete = assertOwnerDelete({
+    actor: params.actor,
+    target: profile
+      ? {
+          userId: String(profile.user_id ?? targetUserId),
+          email: String(profile.email ?? targetEmail),
+          rol: String(profile.rol ?? ''),
+          activo: profile.activo === true,
+        }
+      : null,
+  });
+  if (!ownerDelete.ok) throw new AdminUsersInputError(ownerDelete.message, 403);
+
   if (profile?.rol === 'owner' && profile.activo === true) {
-    const { count, error } = await supabase
-      .from('admin_profiles')
-      .select('user_id', { count: 'exact', head: true })
-      .eq('rol', 'owner')
-      .eq('activo', true)
-      .neq('user_id', targetUserId);
-    if (error) throw error;
-    if (!count)
-      throw new AdminUsersInputError('No puedes eliminar el ultimo owner activo del CMS.');
+    const otherOwners = await countOtherActiveOwners(supabase, targetUserId);
+    if (!otherOwners)
+      throw new AdminUsersInputError('No puedes eliminar el ultimo owner activo del CMS.', 403);
   }
 
   if (authUser) {

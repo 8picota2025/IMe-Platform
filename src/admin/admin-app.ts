@@ -3238,6 +3238,12 @@ const ADMIN_ROLES: Array<[string, string]> = [
   ['owner', 'Owner'],
 ];
 
+function rolesDisponiblesParaActor(): Array<[string, string]> {
+  // Solo owner puede asignar owner; admin gestiona el resto (el Edge Function también lo enforce).
+  if (state.rol === 'owner') return ADMIN_ROLES;
+  return ADMIN_ROLES.filter(([value]) => value !== 'owner');
+}
+
 async function usuariosView(): Promise<string> {
   const { data, error } = await supabase!.functions.invoke('admin-users', {
     body: { action: 'list' },
@@ -3246,6 +3252,7 @@ async function usuariosView(): Promise<string> {
   const users = (((data as { users?: AdminUserRow[] } | null)?.users ?? []) as AdminUserRow[]).sort(
     (a, b) => a.email.localeCompare(b.email)
   );
+  const rolesSelect = rolesDisponiblesParaActor();
 
   return `
     <section class="admin-panel">
@@ -3253,10 +3260,10 @@ async function usuariosView(): Promise<string> {
         <h2>Crear o sincronizar acceso CMS</h2>
       </div>
       <form class="admin-form" data-admin-user-form style="padding:16px">
-        <div class="admin-alert">Este formulario crea o actualiza el usuario en Supabase Auth y sincroniza su perfil en <code>admin_profiles</code>. Sin usuario Auth no puede iniciar sesión, aunque exista un perfil CMS.</div>
+        <div class="admin-alert">Este formulario crea o actualiza el usuario en Supabase Auth y sincroniza su perfil en <code>admin_profiles</code>. Sin usuario Auth no puede iniciar sesión, aunque exista un perfil CMS.${state.rol === 'owner' ? '' : ' Solo un <strong>owner</strong> puede asignar o modificar el rol owner.'}</div>
         <div class="admin-editor__cols">
           ${field('email', 'Email', '', true, 'email')}
-          ${selectStatic('rol', 'Rol', 'lectura', ADMIN_ROLES)}
+          ${selectStatic('rol', 'Rol', 'lectura', rolesSelect)}
         </div>
         <div class="admin-editor__cols">
           ${field('nombre', 'Nombre del asesor (sale en emails y PDFs de cotización)', '', false, 'text', 'maxlength="120" placeholder="Equipo Comercial I-ME"')}
@@ -3310,6 +3317,10 @@ function adminUserActions(user: AdminUserRow): string {
   const userId = escapeHtml(user.user_id);
   const role = escapeHtml(user.rol);
   const active = user.activo ? '1' : '0';
+  // Jerarquía owner: solo otro owner puede editar/eliminar filas owner (Edge + trigger DB).
+  if (user.rol === 'owner' && state.rol !== 'owner') {
+    return `<span class="admin-help">Reservado a owner</span>`;
+  }
   return `
     <div class="admin-row-actions">
       <button class="admin-button admin-button--ghost" type="button" data-admin-user-edit="${email}" data-admin-user-id="${userId}" data-admin-user-rol="${role}" data-admin-user-activo="${active}" data-admin-user-nombre="${escapeHtml(user.nombre ?? '')}" data-admin-user-telefono="${escapeHtml(user.telefono ?? '')}">Editar</button>
