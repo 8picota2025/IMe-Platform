@@ -189,17 +189,30 @@ describe('Streamable HTTP commerce MCP', () => {
 
 /** Exercise real Supabase query construction and the actual shared dispatcher. */
 function fakeDatabase() {
-  const writes: Array<{ table: string; body: Record<string, unknown> }> = [];
+  const writes: Array<{ table: string; method: string; body: Record<string, unknown> }> = [];
   const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
     const table = url.pathname.split('/').at(-1)!;
-    if (init?.method === 'POST') {
-      writes.push({ table, body: JSON.parse(String(init.body)) });
+    const method = (init?.method ?? 'GET').toUpperCase();
+    if (method === 'POST' || method === 'PATCH') {
+      writes.push({ table, method, body: JSON.parse(String(init?.body ?? '{}')) });
+      if (method === 'PATCH') {
+        return new Response(JSON.stringify(null), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
       return new Response(
         JSON.stringify(
           table === 'solicitudes_cotizacion'
             ? { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', estado: 'nueva' }
-            : null
+            : table === 'comercio_confirmaciones'
+              ? {
+                  id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+                  vence_en: '2099-01-01T00:00:00.000Z',
+                  estado: 'pendiente',
+                }
+              : null
         ),
         { status: 201, headers: { 'Content-Type': 'application/json' } }
       );
@@ -285,5 +298,37 @@ describe('shared commerce core', () => {
       ok: false,
     });
     expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it('proponer_stock never writes productos; requires CMS preparar_cambio_stock', async () => {
+    const { db, writes } = fakeDatabase();
+    const result = await ejecutarComercio(
+      'proponer_stock',
+      {
+        producto_id: 'product-test',
+        stock: 99999,
+        disponible: true,
+        motivo: 'reactivación sin revisión',
+        actor: 'mcp-http:test',
+      },
+      db
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      confirmacion_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      propuesto: { stock: 99999, disponible: true },
+    });
+    expect(writes.some(w => w.table === 'productos' && w.method === 'PATCH')).toBe(false);
+    expect(writes).toContainEqual(
+      expect.objectContaining({
+        table: 'comercio_confirmaciones',
+        method: 'POST',
+        body: expect.objectContaining({
+          herramienta: 'preparar_cambio_stock',
+          entidad_id: 'product-test',
+          payload: { stock: 99999, disponible: true },
+        }),
+      })
+    );
   });
 });

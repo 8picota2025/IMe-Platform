@@ -81,6 +81,8 @@ describe('precio y secretos', () => {
     });
     expect(limpia).toEqual({ nombre: 'Acme' });
     expect(MCP_TOOLS).not.toContain('activar_dropship');
+    expect(MCP_TOOLS).toContain('preparar_cambio_stock');
+    expect(MCP_TOOLS).toContain('confirmar_cambio_stock');
   });
 });
 
