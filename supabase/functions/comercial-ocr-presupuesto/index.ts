@@ -17,6 +17,7 @@ import {
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { precioCatalogoParaOcr, type OcrCatalogHit } from '../../../src/lib/ocr-catalog-price.ts';
 import { extractQuoteFromImage } from '../_shared/vision-quote-ocr.ts';
 
 const FN_NAME = 'comercial-ocr-presupuesto';
@@ -76,17 +77,19 @@ async function mirrorLocal(
 
 function improveLines(
   extracted: CotizacionLineaOferta[],
-  catalogHits: Map<string, { slug: string; precio: number; nombre: string }>
+  catalogHits: Map<string, OcrCatalogHit>,
+  monedaExtracto: 'COP' | 'USD'
 ): CotizacionLineaOferta[] {
   return extracted.map(line => {
     const key = line.nombre.toLowerCase().slice(0, 40);
-    let best: { slug: string; precio: number; nombre: string } | undefined;
+    let bestHit: OcrCatalogHit | undefined;
     for (const [k, v] of catalogHits) {
       if (key.includes(k) || k.includes(key.slice(0, 12))) {
-        best = v;
+        bestHit = v;
         break;
       }
     }
+    const best = bestHit ? precioCatalogoParaOcr(bestHit, monedaExtracto) : null;
     if (best && best.precio > 0) {
       const precio = best.precio;
       return {
@@ -95,6 +98,7 @@ function improveLines(
         nombre: best.nombre || line.nombre,
         precio_unitario: precio,
         subtotal: Math.round(precio * line.cantidad * 100) / 100,
+        moneda: best.moneda,
         notas: [
           line.notas,
           line.precio_unitario > 0
@@ -106,7 +110,7 @@ function improveLines(
           .slice(0, 240),
       };
     }
-    // Sin match: conservar precio competencia; marcar revisión.
+    // Sin match (o moneda distinta / oferta no usable): conservar competencia; marcar revisión.
     const precio = line.precio_unitario;
     return {
       ...line,
@@ -258,14 +262,16 @@ Deno.serve(
       );
     }
 
-    // Typeahead catálogo para mejorar precios I-ME.
-    const catalogHits = new Map<string, { slug: string; precio: number; nombre: string }>();
+    // Typeahead catálogo para mejorar precios I-ME (vigencia oferta + misma moneda).
+    const catalogHits = new Map<string, OcrCatalogHit>();
     for (const p of extract.productos.slice(0, 12)) {
       const q = p.nombre.slice(0, 48).replace(/[%_,]/g, ' ').replace(/\s+/g, ' ').trim();
       if (q.length < 2) continue;
       const { data: hits } = await supabase
         .from('productos')
-        .select('slug,nombre_es,precio,precio_oferta,precio_regular,moneda')
+        .select(
+          'slug,nombre_es,precio,precio_oferta,precio_regular,moneda,oferta_inicio,oferta_fin'
+        )
         .eq('activo', true)
         .or(`nombre_es.ilike.%${q}%,sku.ilike.%${q}%,slug.ilike.%${q}%`)
         .limit(3);
@@ -276,14 +282,21 @@ Deno.serve(
             precio?: number | null;
             precio_oferta?: number | null;
             precio_regular?: number | null;
+            moneda?: string | null;
+            oferta_inicio?: string | null;
+            oferta_fin?: string | null;
           }
         | undefined;
       if (hit) {
-        const precio = Number(hit.precio_oferta || hit.precio || hit.precio_regular || 0);
         catalogHits.set(p.nombre.toLowerCase().slice(0, 40), {
           slug: hit.slug,
           nombre: hit.nombre_es,
-          precio,
+          precio: hit.precio ?? null,
+          precio_oferta: hit.precio_oferta ?? null,
+          precio_regular: hit.precio_regular ?? null,
+          moneda: hit.moneda ?? null,
+          oferta_inicio: hit.oferta_inicio ?? null,
+          oferta_fin: hit.oferta_fin ?? null,
         });
       }
     }
@@ -297,7 +310,7 @@ Deno.serve(
       moneda: extract.moneda,
       notas: p.notas,
     }));
-    const mejoradas = improveLines(lineasRaw, catalogHits);
+    const mejoradas = improveLines(lineasRaw, catalogHits, extract.moneda);
     const lineas = sanitizarLineasComercial(mejoradas, extract.moneda);
     const total = calcularTotalOfertado(lineas);
 
