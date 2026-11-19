@@ -567,14 +567,15 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                   </p>
                   {producto.tipo_comercial === 'equipo' && (
                     <a
-                      class="btn-pdp btn-pdp--quiet"
+                      class="btn-pdp btn-pdp--secondary"
+                      data-quote-cta="pdp_commerce_quote"
                       href={
                         locale === 'en'
                           ? `/en/quote/?producto=${producto.slug}`
                           : `/es/cotizacion/?producto=${producto.slug}`
                       }
                     >
-                      {locale === 'en' ? 'Request a quote' : 'Cotizar'}
+                      {locale === 'en' ? 'Request a quote' : 'Solicitar cotización'}
                     </a>
                   )}
                 </>
@@ -680,6 +681,20 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               <button
                 type="button"
                 class="quote-btn quote-btn--primary"
+                data-quote-cta="pdp_quote"
+                data-ensure-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
+                data-cantidad-desde="#quote-qty-input"
+              >
+                {t(locale, 'producto.quote_solicitar_ahora')}
+              </button>
+              <button
+                type="button"
+                class="quote-btn quote-btn--secondary"
                 data-add-cotizacion={producto.slug}
                 data-nombre={producto.nombre}
                 data-imagen={imagenProducto}
@@ -690,19 +705,6 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                 data-no-abrir
               >
                 {t(locale, 'producto.quote_agregar')}
-              </button>
-              <button
-                type="button"
-                class="quote-btn quote-btn--secondary"
-                data-ensure-cotizacion={producto.slug}
-                data-nombre={producto.nombre}
-                data-imagen={imagenProducto}
-                data-url={productUrl}
-                data-modelo={modelo ?? ''}
-                data-marca={producto.marca ?? ''}
-                data-cantidad-desde="#quote-qty-input"
-              >
-                {t(locale, 'producto.quote_solicitar_ahora')}
               </button>
 
               <p class="quote-card__aviso" role="status" aria-live="polite" data-quote-aviso hidden>
@@ -724,9 +726,11 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                   target="_blank"
                   rel="noopener noreferrer"
                   data-quote-asesor
+                  data-commercial-origin="pdp_quote_whatsapp"
                 >
                   {t(locale, 'producto.quote_ayuda')}
                 </a>
+                <a href="tel:+573137247353">+57 313 724 7353</a>
                 {producto.ficha_pdf && (
                   <button
                     type="button"
@@ -1202,6 +1206,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
             <button
               type="button"
               class="btn-hero-primary"
+              data-quote-cta="pdp_quote_footer"
               data-ensure-cotizacion={producto.slug}
               data-nombre={producto.nombre}
               data-imagen={imagenProducto}
@@ -1216,6 +1221,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
             <button
               type="button"
               class="btn-hero-primary"
+              data-quote-cta="pdp_quote_footer"
               data-ensure-cotizacion={producto.slug}
               data-nombre={producto.nombre}
               data-imagen={imagenProducto}
@@ -1223,21 +1229,26 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               data-modelo={modelo ?? ''}
               data-marca={producto.marca ?? ''}
             >
-              {t(locale, 'producto.cotizar_cta')}
+              {locale === 'en' ? 'Request a quote' : 'Solicitar cotización'}
             </button>
           )
         }
         {
           esCommerce && isPurchasableProduct ? (
-            <a
-              href={whatsappHref}
-              class="pdp-help-link pdp-help-link--on-dark"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t(locale, 'producto.commerce_ayuda_whatsapp')} ·{' '}
-              {t(locale, 'producto.commerce_telefono')}
-            </a>
+            <>
+              <a
+                href={whatsappHref}
+                class="pdp-help-link pdp-help-link--on-dark"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-commercial-origin="pdp_footer_whatsapp"
+              >
+                {t(locale, 'producto.commerce_ayuda_whatsapp')}
+              </a>
+              <a class="pdp-help-link pdp-help-link--on-dark" href="tel:+573137247353">
+                {t(locale, 'producto.commerce_telefono')}
+              </a>
+            </>
           ) : (
             <a
               href={whatsappHref}
@@ -1291,7 +1302,8 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
           <p class="cta-sticky__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
           <button
             type="button"
-            class="quote-btn quote-btn--secondary quote-btn--compact"
+            class="quote-btn quote-btn--primary quote-btn--compact"
+            data-quote-cta="pdp_quote_sticky"
             data-ensure-cotizacion={producto.slug}
             data-nombre={producto.nombre}
             data-imagen={imagenProducto}

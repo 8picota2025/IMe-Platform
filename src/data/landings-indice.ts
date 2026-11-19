@@ -217,7 +217,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'mobiliario',
-    nombre: 'Cama hospitalaria y cama eléctrica',
+    nombre: 'Cama hospitalaria eléctrica',
     path: '/es/familias/mobiliario/',
     pathEn: '/en/families/mobiliario/',
   },

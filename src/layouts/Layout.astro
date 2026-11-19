@@ -35,6 +35,7 @@ interface Props {
   showAsesor?: boolean;
   showQuoteRequest?: boolean;
   ocultarMencionesInvima?: boolean;
+  lcpImage?: string;
 }
 
 const {
@@ -54,9 +55,14 @@ const {
   showAsesor = true,
   showQuoteRequest = true,
   ocultarMencionesInvima = false,
+  lcpImage,
 } = Astro.props;
 
 const commercialBarAllowed =
+  currentPath === '/es' ||
+  currentPath === '/es/' ||
+  currentPath === '/en' ||
+  currentPath === '/en/' ||
   /\/(?:es\/productos|en\/products)(?:\/|$)/.test(currentPath) ||
   /\/(?:es\/(?:imagenologia|torres-laparoscopia|robotica-rehabilitacion|distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica|esterilizacion)|en\/(?:imaging|laparoscopy-towers|robotics-rehabilitation|robot-distributors-and-robotics-engineering-in-colombia-and-latin-america|sterilization))(?:\/|$)/.test(
     currentPath
@@ -81,6 +87,7 @@ const commercialBarAllowed =
       {...noindex !== undefined ? { noindex } : {}}
       {...fontAwesome !== undefined ? { fontAwesome } : {}}
       monolingual={monolingual}
+      {...lcpImage !== undefined ? { lcpImage } : {}}
     />
     <AnalyticsHead />
     <ClientRouter />

@@ -82,7 +82,7 @@
 
 @media (max-width: 767px) {
   body.has-mobile-commercial-bar {
-    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
   }
 
   body.has-mobile-commercial-bar .asesor-fab {

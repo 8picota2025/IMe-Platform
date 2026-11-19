@@ -332,10 +332,7 @@ export function buildProductoSeo(
     (categoria && !includesLoose(producto.nombre, categoria, locale)
       ? categoria.trim()
       : undefined);
-  const market =
-    locale === 'en'
-      ? 'For Colombia, Latin America and Spain.'
-      : 'Para Colombia, Latinoamérica y España.';
+  const quoteCta = locale === 'en' ? 'Request a quote from I-ME.' : 'Solicite cotización a I-ME.';
   // Sibling products frequently share one generic `descripcion_corta` (the same
   // paragraph for four belt sizes). Leading with the product name is what keeps
   // each meta description distinct.
@@ -347,7 +344,7 @@ export function buildProductoSeo(
   const baseDescription = descriptionIsDistinct
     ? rawDescription
     : `${producto.nombre.trim()}. ${rawDescription}`;
-  const seoTail = [primaryIntent ? `${primaryIntent}.` : '', market].filter(Boolean).join(' ');
+  const seoTail = [primaryIntent ? `${primaryIntent}.` : '', quoteCta].filter(Boolean).join(' ');
   const baseBudget = seoTail ? 154 - seoTail.length : 155;
   const lead = compactMetaLead(baseDescription, Math.max(72, baseBudget));
   const leadWithStop = /[.!?]$/.test(lead) ? lead : `${lead}.`;

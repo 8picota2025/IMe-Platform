@@ -163,6 +163,7 @@ const servicios = [
   ogImage={seo.ogImage}
   jsonLd={jsonLd}
   fontAwesome={true}
+  lcpImage="/assets/img/equipos-biomedicos-vanguardia-opt.webp"
 >
   <div class="site-faithful">
     <!-- HERO -->
@@ -200,7 +201,15 @@ const servicios = [
             centers across Colombia.
           </p>
           <div class="hero-actions">
-            <a href="/en/catalog/" class="btn btn-primary">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-open-cotizacion
+              data-quote-cta="home_hero"
+            >
+              Request a quote
+            </button>
+            <a href="/en/catalog/" class="btn btn-outline-white">
               <i class="fas fa-microscope"></i> View catalog
             </a>
             <a
@@ -210,11 +219,13 @@ const servicios = [
               rel="noopener noreferrer"
               data-commercial-origin="home_hero_whatsapp"
             >
-              <i class="fab fa-whatsapp"></i> Talk to an advisor
+              <i class="fab fa-whatsapp"></i> WhatsApp
             </a>
           </div>
           <p class="hero-response-note">
             <i class="fas fa-clock" aria-hidden="true"></i> Commercial reply within 24 hours · No obligation
+            ·
+            <a href="tel:+573137247353">+57 313 724 7353</a>
           </p>
           <div class="hero-stats">
             <div>

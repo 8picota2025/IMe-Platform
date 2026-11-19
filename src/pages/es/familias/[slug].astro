@@ -49,16 +49,15 @@ const canonical = canonicalAlias ?? seo.canonical;
 const noindex = canonicalAlias !== null;
 // Una landing canónica muestra solo su familia editorial real. `familias_filtro`
 // contiene asociaciones amplias para búsqueda y no debe definir pertenencia.
-const productos = (await buildCatalogoIndex(locale)).filter(
-  item => item.familia.slug === content.slug
-);
+const catalogo = await buildCatalogoIndex(locale);
+const productos = catalogo.filter(item => item.familia.slug === content.slug);
 const familyPage = paginateCatalogItems(productos, 1);
 const faq = content.faq.map(f => ({ q: f.q_es, a: f.a_es }));
 const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipos';
 const hubLinks = getFamiliaHubLinks(slug, locale);
 const relatedProducts = content.relatedSlugs.flatMap(relatedSlug => {
-  const item = productos.find(producto => producto.slug === relatedSlug);
+  const item = catalogo.find(producto => producto.slug === relatedSlug);
   return item ? [item] : [];
 });
 
@@ -157,7 +156,11 @@ const jsonLd = combineJsonLd(
           {(slug === 'sala-cirugia' || slug === 'robots') && <NotaPromoPadbot locale={locale} />}
           {relatedProducts.length > 0 && (
             <nav aria-label="Productos relacionados" style="margin:1.25rem 0 0">
-              <h2 style="font-size:1.05rem;margin:0 0 0.5rem">Productos relacionados</h2>
+              <h2 style="font-size:1.05rem;margin:0 0 0.5rem">
+                {slug === 'mobiliario'
+                  ? 'Camas hospitalarias en el catálogo'
+                  : 'Productos relacionados'}
+              </h2>
               <ul style="margin:0;padding-left:1.25rem;line-height:1.7">
                 {relatedProducts.map(producto => (
                   <li>

@@ -15,7 +15,7 @@ import { relacionadosEnTema, rutasConocimiento } from '../../../lib/conocimiento
 import RelacionadosTema from '../../../components/conocimiento/RelacionadosTema.astro';
 import InvimaConversion from '../../../components/conocimiento/InvimaConversion.astro';
 import { stripMarkdown } from '../../../lib/markdown';
-import { descripcionInvima } from '../../../data/invima-seo';
+import { descripcionInvima, INVIMA_CHECKLIST_EN } from '../../../data/invima-seo';
 import { extraerPreguntasFrecuentes, renderArticleBody } from '../../../lib/conocimiento-articulo';
 import { familyCatalogHref } from '../../../lib/seo-urls';
 import {
@@ -58,9 +58,8 @@ const ctaLabel = esClusterInvima
 const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
 // Checklist INVIMA: title ≤60 chars (brand suffix included), same wording as the ES page.
 const esChecklistInvima = articulo.slug === 'checklist-invima-compra-equipos-medicos';
-const title = esChecklistInvima
-  ? 'INVIMA checklist for buying medical equipment | I-ME'
-  : buildPageTitle(articulo.titulo);
+const title = esChecklistInvima ? INVIMA_CHECKLIST_EN.title : buildPageTitle(articulo.titulo);
+const h1 = esChecklistInvima ? INVIMA_CHECKLIST_EN.h1 : articulo.titulo;
 const description =
   descripcionInvima(articulo.slug, locale) ??
   truncateMetaDescription(stripMarkdown(articulo.cuerpo || articulo.titulo));
@@ -131,7 +130,7 @@ const jsonLd = combineJsonLd(
             </p>
           )
         }
-        <h1 id="article-h1">{articulo.titulo}</h1>
+        <h1 id="article-h1">{h1}</h1>
         <p class="ph-sub article-meta">
           {t(locale, 'conocimiento.publicado')}
           {
@@ -179,10 +178,25 @@ const jsonLd = combineJsonLd(
           esChecklistInvima && (
             <section class="invima-valide" aria-labelledby="invima-valide-title">
               <h2 id="invima-valide-title">Check an INVIMA registration</h2>
-              <p>Check each model's registration before requesting a quote. Browse by family:</p>
+              <p>Check each model's registration before requesting a quote. Related pages:</p>
               <ul>
                 <li>
-                  <a href={familyCatalogHref('en', 'mobiliario')}>Furniture</a>
+                  <a href="/en/knowledge/topic/invima-regulacion/">
+                    INVIMA: medical device regulation in Colombia
+                  </a>
+                </li>
+                <li>
+                  <a href="/en/medical-device-registration-colombia/">
+                    Medical device registration in Colombia
+                  </a>
+                </li>
+                <li>
+                  <a href="/es/conocimiento/checklist-invima-compra-equipos-medicos/">
+                    Checklist INVIMA en español
+                  </a>
+                </li>
+                <li>
+                  <a href={familyCatalogHref('en', 'mobiliario')}>Hospital beds and furniture</a>
                 </li>
                 <li>
                   <a href={familyCatalogHref('en', 'monitores')}>Monitors</a>

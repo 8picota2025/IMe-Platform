@@ -454,4 +454,23 @@ describe('buildProductoSeo · meta description sin cortes a mitad de palabra', (
     expect(source.startsWith(lead)).toBe(true);
     expect(' .,;:'.includes(source.charAt(lead.length))).toBe(true);
   });
+
+  it('orienta la meta a cotización sin poner precio ni la palabra quote en el title', () => {
+    const seo = buildProductoSeo(
+      {
+        nombre: 'Detector plano inalámbrico Ref. TCQ-III Angell',
+        descripcion_corta: 'Detector plano inalámbrico para radiografía digital.',
+        imagen_principal: null,
+        slug: 'detector-plano-inalambrico-ref-tcq-iii-angell',
+        seo_keywords: ['flat panel detector'],
+      },
+      'en',
+      'Imaging',
+      'Angell'
+    );
+    expect(seo.description.toLowerCase()).toContain('request a quote');
+    expect(seo.description.length).toBeLessThanOrEqual(155);
+    expect(seo.title.toLowerCase()).not.toContain('quote');
+    expect(seo.title).toContain('TCQ-III');
+  });
 });

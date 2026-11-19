@@ -189,14 +189,14 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'mobiliario',
-    name_es: 'Cama hospitalaria y cama eléctrica',
-    name_en: 'Hospital beds in Colombia',
+    name_es: 'Cama hospitalaria eléctrica',
+    name_en: 'Hospital bed',
     title_es: 'Cama hospitalaria eléctrica para clínicas de Colombia | I-ME',
-    title_en: 'Electric hospital bed Colombia for clinics and wards | I-ME',
+    title_en: 'Hospital bed for clinics in Colombia | I-ME',
     description_es:
-      'Cama hospitalaria y cama eléctrica hospitalaria para clínicas en Colombia. Compare B-1000 Pro, B-2000 y B-2000 Plus y cotice la configuración del servicio.',
+      'Cama hospitalaria eléctrica para clínicas en Colombia. Compare los modelos publicados, incluida la manual, y solicite cotización de la configuración del servicio.',
     description_en:
-      'Electric and manual hospital beds for wards and ICU in Colombia. Compare B-1000 Pro, B-2000 and B-2000 Plus, then request a quote for your service.',
+      'Hospital bed for clinics in Colombia: electric and manual models published in the catalog. Compare them and request a quote for the ward.',
     intro_es:
       'La cama hospitalaria se define por el servicio, el personal y el recorrido del área. La cama eléctrica hospitalaria cambia de posición con motores; la manual, con manivelas. Las dos se cotizan por referencia, no como un mueble genérico.',
     intro_en:
@@ -1149,6 +1149,18 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     },
   ],
   mobiliario: [
+    {
+      href_es: '/es/productos/cama-hospitalaria-electrica-ref-b-1000-pro-advanced/',
+      href_en: '/en/products/cama-hospitalaria-electrica-ref-b-1000-pro-advanced/',
+      label_es: 'Cama hospitalaria eléctrica B-1000 Pro',
+      label_en: 'Electric hospital bed B-1000 Pro',
+    },
+    {
+      href_es: '/es/productos/cama-hospitalaria-electrica-ref-v6k-saikang/',
+      href_en: '/en/products/cama-hospitalaria-electrica-ref-v6k-saikang/',
+      label_es: 'Cama hospitalaria eléctrica V6K',
+      label_en: 'Electric hospital bed V6K',
+    },
     {
       href_es: '/es/familias/emergencias-traslado-inmovilizacion/',
       href_en: '/en/families/emergencias-traslado-inmovilizacion/',

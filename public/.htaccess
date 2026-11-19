@@ -1993,3 +1993,9 @@ RewriteRule ^en/products/autoclave-t-6-ref-t-max-6-tuttnauer/?$ /en/products/aut
 RewriteRule ^es/productos/dinamico-de-brazo-ref-dr-uc-arm-angell/?$ /es/productos/dr-dinamico-de-brazo-ref-dr-uc-arm-angell/ [R=301,L]
 RewriteRule ^en/products/dinamico-de-brazo-ref-dr-uc-arm-angell/?$ /en/products/dr-dinamico-de-brazo-ref-dr-uc-arm-angell/ [R=301,L]
 # End SEO product slug migrations (modelo+fabricante)
+
+# One indexable URL per resource. Specific rules above keep a single hop.
+# Extensionless paths without a trailing slash canonicalize to the slash form on the apex host.
+RewriteCond %{REQUEST_URI} !\.[A-Za-z0-9]{1,8}$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.+[^/])$ https://i-me.com.co/$1/ [R=301,L,QSA]

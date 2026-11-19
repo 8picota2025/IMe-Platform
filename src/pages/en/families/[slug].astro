@@ -46,16 +46,15 @@ const canonical = canonicalAlias ?? seo.canonical;
 const noindex = canonicalAlias !== null;
 // Canonical family pages use the editorial family only. `familias_filtro`
 // contains broad search associations and does not define membership.
-const productos = (await buildCatalogoIndex(locale)).filter(
-  item => item.familia.slug === content.slug
-);
+const catalogo = await buildCatalogoIndex(locale);
+const productos = catalogo.filter(item => item.familia.slug === content.slug);
 const familyPage = paginateCatalogItems(productos, 1);
 const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
 const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipment';
 const hubLinks = getFamiliaHubLinks(slug, locale);
 const relatedProducts = content.relatedSlugs.flatMap(relatedSlug => {
-  const item = productos.find(producto => producto.slug === relatedSlug);
+  const item = catalogo.find(producto => producto.slug === relatedSlug);
   return item ? [item] : [];
 });
 
@@ -158,7 +157,9 @@ const jsonLd = combineJsonLd(
           {(slug === 'sala-cirugia' || slug === 'robots') && <NotaPromoPadbot locale={locale} />}
           {relatedProducts.length > 0 && (
             <nav aria-label="Related products" style="margin:1.25rem 0 0">
-              <h2 style="font-size:1.05rem;margin:0 0 0.5rem">Related products</h2>
+              <h2 style="font-size:1.05rem;margin:0 0 0.5rem">
+                {slug === 'mobiliario' ? 'Hospital beds in this catalog' : 'Related products'}
+              </h2>
               <ul style="margin:0;padding-left:1.25rem;line-height:1.7">
                 {relatedProducts.map(producto => (
                   <li>

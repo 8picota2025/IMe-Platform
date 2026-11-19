@@ -3,6 +3,7 @@
  * Copy prudente: no promete aprobación, plazos ni ROI. Distingue asesoría de autoridad.
  */
 import type { Locale } from '../i18n/utils';
+import { INVIMA_REGISTRATION_EN } from './invima-seo';
 
 export const INVIMA_FABRICANTES_CAMPAIGN = 'invima_fabricantes' as const;
 export const INVIMA_FABRICANTES_FAMILIA = 'invima-regulacion';
@@ -289,10 +290,9 @@ const ES: InvimaFabricantesCopy = {
 
 const EN: InvimaFabricantesCopy = {
   tag: 'Manufacturers · INVIMA',
-  title: 'Medical device registration Colombia (INVIMA) for foreign manufacturers | I-ME',
-  description:
-    'Support for foreign medical device manufacturers evaluating INVIMA registration and Colombia market entry. Request a product assessment — no approval guarantees.',
-  h1: 'INVIMA registration for foreign medical device manufacturers',
+  title: INVIMA_REGISTRATION_EN.title,
+  description: INVIMA_REGISTRATION_EN.description,
+  h1: INVIMA_REGISTRATION_EN.h1,
   lead: 'If you manufacture medical devices or biomedical equipment outside Colombia and need to determine the regulatory pathway, prepare the dossier and coordinate local actors, I-ME helps reduce friction and clarify next steps — without confusing advisory work with INVIMA’s decision.',
   primaryCta: 'Request a product assessment',
   secondaryCta: 'Quote INVIMA support',
@@ -466,7 +466,7 @@ const EN: InvimaFabricantesCopy = {
   relatedTitle: 'Knowledge Hub guides',
   relatedGuides: [
     {
-      title: 'INVIMA topic: regulation and registration lookup',
+      title: 'INVIMA: medical device regulation in Colombia',
       href: '/en/knowledge/topic/invima-regulacion/',
     },
     {
