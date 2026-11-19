@@ -1,0 +1,1344 @@
+{
+  "canal": "@imebiomed",
+  "fechaAnalisis": "2026-10-30",
+  "zonaHoraria": "America/Bogota",
+  "sitio": "https://i-me.com.co",
+  "whatsapp": "+57 313 724 7353",
+  "whatsappUrl": "https://wa.me/573137247353",
+  "paginaVideos": {
+    "existeEnRepo": false,
+    "propuesta": "/es/videos/",
+    "propuestaEn": "/en/videos/",
+    "nota": "Este plan no crea la página ni toca código de producción. El índice embebe solo piezas con recomendación subir, y las de revisión cuando se cumplan las condiciones."
+  },
+  "decisiones": {
+    "acesi13a16": {
+      "eleccion": "ninguno",
+      "motivo": "Concurso y QR de agosto 2026 caducados. 13 sería el máster si se fuera a archivar uno; no se sube. 15 y 16 repiten 13. 14 añade un descuento de asistencia."
+    },
+    "grupoInstitucional": {
+      "ids": [
+        "01",
+        "06",
+        "07",
+        "09",
+        "10",
+        "12"
+      ],
+      "horizontal": "06",
+      "vertical": "07",
+      "motivo": "Un archivo por formato. 06 es el horizontal sobrio. 07 es su corte vertical de 25 s. 09 y 10 se descartan por STOCK y «Asistencia que se mueve» (10 es el mismo reel que 09). 12 no se suma: queda en revisión por si más adelante reemplaza a 07. 01 es otro tema (IMEIA) y no se publica hasta revisar la interfaz."
+    },
+    "listosParaSubir": [
+      "06",
+      "07"
+    ],
+    "stryker": "En los fotogramas de 02 y 05 no se lee Stryker. El quirófano de 05 sigue siendo un robot quirúrgico con claim de precisión. No se publica."
+  },
+  "keywordsYouTubeColombia": {
+    "metodo": "Sugerencias de YouTube (suggestqueries, cliente firefox, ds=yt, hl=es, gl=co) el 2026-10-30, más términos ya usados en docs/seo/top20-keywords.json que no son claims regulatorios. El autocompletado de YouTube para Colombia devuelve pocas frases; no se inventaron volúmenes de búsqueda.",
+    "equiposBiomedicos": [
+      "equipos biomédicos",
+      "equipos médicos",
+      "equipos hospitalarios",
+      "equipos biomédicos Colombia",
+      "distribuidor equipos médicos"
+    ],
+    "roboticaHospitalaria": [
+      "robots para hospitales",
+      "robot recepcionista",
+      "robótica en medicina",
+      "robótica biomédica",
+      "robots médicos"
+    ],
+    "notaRobotica": "«Robots médicos», «robots enfermeros» y «telepresencia → telesalud» salen en el autocompletado y no se usan. El mensaje publicable es robótica de servicio.",
+    "esterilizacion": [
+      "esterilización hospitalaria",
+      "central de esterilización",
+      "central de esterilización y equipos (CEYE)",
+      "autoclave hospitalario",
+      "autoclave esterilización"
+    ],
+    "imagenologia": [
+      "imagenología",
+      "imagenología y radiología",
+      "rayos x digital",
+      "equipo de rayos x digital",
+      "mamografía digital",
+      "ecógrafo",
+      "ecógrafo portátil",
+      "arco en c",
+      "arco en c en quirófano",
+      "lámpara quirúrgica",
+      "lámpara cialítica",
+      "incubadora neonatal"
+    ],
+    "deCatalogoInterno": [
+      "monitores de signos vitales",
+      "monitor paciente hospital",
+      "máquina de anestesia hospital",
+      "mesa quirúrgica eléctrica",
+      "camillas"
+    ],
+    "noUsar": [
+      "Términos de autocompletado atados a Siemens, GE o Steris",
+      "Cualquier frase con INVIMA, FDA o garantía",
+      "telesalud y telemedicina como promesa del P2",
+      "robots enfermeros y robótica asistencial"
+    ]
+  },
+  "calendario": [
+    {
+      "orden": 1,
+      "id": "06",
+      "fecha": "2026-11-03T10:00:00-05:00",
+      "estado": "publicar",
+      "privacy": "public"
+    },
+    {
+      "orden": 2,
+      "id": "07",
+      "fecha": "2026-11-06T10:00:00-05:00",
+      "estado": "publicar",
+      "privacy": "public"
+    },
+    {
+      "orden": 3,
+      "id": "18",
+      "fecha": "2026-11-11T10:00:00-05:00",
+      "estado": "bloqueado",
+      "privacy": "private"
+    },
+    {
+      "orden": 4,
+      "id": "08",
+      "fecha": "2026-11-14T10:00:00-05:00",
+      "estado": "bloqueado",
+      "privacy": "private"
+    },
+    {
+      "orden": 5,
+      "id": "04",
+      "fecha": "2026-11-18T10:00:00-05:00",
+      "estado": "bloqueado",
+      "privacy": "private"
+    },
+    {
+      "orden": 6,
+      "id": "01",
+      "fecha": "2026-11-21T10:00:00-05:00",
+      "estado": "bloqueado",
+      "privacy": "private"
+    },
+    {
+      "orden": 7,
+      "id": "02",
+      "fecha": "2026-11-25T10:00:00-05:00",
+      "estado": "bloqueado",
+      "privacy": "private"
+    }
+  ],
+  "playlists": [
+    "Cómo elegir equipamiento | I-ME",
+    "Robótica de servicio | I-ME",
+    "Equipos biomédicos en Colombia | I-ME",
+    "Esterilización hospitalaria | I-ME"
+  ],
+  "marca": {
+    "correccionesWhisper": "Enime, IMED, AMI, EMA, IDM, INE, imen, entraime y «Y me» son I-ME. cotizanime.com.se y IME-COM-CO son i-me.com.co. imaginología es imagenología. P2 con locker es W2. P3 de bandejas es W3s. P2 de 1,68 kg es T2.",
+    "fabricantesNombrables": "Angell aparece en 02 y 05 y está en el catálogo. No se nombran Equitronic, Stryker, Northern, Monnal ni otras marcas que no distribuimos."
+  },
+  "videos": [
+    {
+      "id": "01",
+      "archivo": "01_imeia-9x16.mp4",
+      "duracionS": 62,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Vertical de 62 s. Con la regla de este encargo (short solo si es vertical y dura 60 s o menos) se publica como vídeo, no como Short.",
+      "recomendacion": "requiere_revision",
+      "recomendacionTexto": "requiere revisión",
+      "duplicadoDe": null,
+      "motivo": "No es el mismo metraje que 06/07: habla de IMEIA. Queda fuera de la primera tanda vertical (esa plaza es 07) hasta revisar el audio y la interfaz. El fotograma muestra filas «Aplicación clínica» y «Rango de inversión», y el rótulo «Asistente biomédico». El audio dice que convierte necesidades clínicas en criterios técnicos. IMEIA en el sitio es un asesor comercial de equipamiento: sin diagnóstico, sin consejo clínico y sin precio comprometido. Hay que confirmar que la pantalla no recomienda una alternativa ni un rango de inversión.",
+      "titulo": "Equipamiento hospitalario en Colombia: IMEIA ordena el proyecto | I-ME",
+      "descripcion": "Equipamiento hospitalario en Colombia: IMEIA ayuda a ordenar el proyecto de dotación en https://i-me.com.co.\nCuéntanos qué servicio quieres equipar por WhatsApp +57 313 724 7353. La conversación prepara criterios técnicos y una solicitud de cotización.\n\nIMEIA es el asistente de I-ME para proyectos de equipamiento. Pregunta por el servicio, compara referencias del catálogo y deja el proyecto listo para cotizar.\n\nEste texto no ofrece diagnóstico, no interpreta una necesidad clínica y no publica precios. La propuesta económica sale después, por cotización.\n\nCapítulos:\n0:00 Equipar un servicio\n0:09 IMEIA parte de la necesidad\n0:25 Un sistema, no productos sueltos\n0:46 Empieza con una conversación\n\nEnlaces:\n- Cotización: https://i-me.com.co/es/cotizacion/\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Contacto: https://i-me.com.co/es/contacto/\n\n#EquipamientoHospitalario #IMEIA #IME\n",
+      "tags": [
+        "equipamiento hospitalario",
+        "equipos biomédicos Colombia",
+        "cómo equipar un hospital",
+        "proyecto de equipamiento",
+        "cotización equipos médicos",
+        "dotación hospitalaria",
+        "compras hospitalarias",
+        "I-ME",
+        "IMEIA",
+        "hospitales Colombia",
+        "tecnología biomédica",
+        "asesoría en equipamiento"
+      ],
+      "hashtags": [
+        "#EquipamientoHospitalario",
+        "#IMEIA",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "private",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Clips generados con Higgsfield/Seedance y voz ElevenLabs, según el guion de producción. Marcar la casilla de contenido sintético.",
+      "playlist": "Cómo elegir equipamiento | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/cotizacion/",
+      "paginaEmbebeNota": "No hay ficha propia de IMEIA. El widget está en el sitio. Embeber en cotización solo después de la revisión. También en el índice /es/videos/ cuando exista.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/contacto/"
+      ],
+      "noEmbeber": [],
+      "orden": 6,
+      "publicar": false,
+      "fechaSugerida": "2026-11-21T10:00:00-05:00",
+      "fechaCondicion": "Solo si se aprueba la interfaz (sin «aplicación clínica» ni «rango de inversión») y el audio habla de criterios de equipamiento.",
+      "choques": [
+        {
+          "cita": "convierte las necesidades clínicas en criterios técnicos",
+          "donde": "audio 00:16",
+          "regla": "El asesor es comercial. «Necesidades clínicas» suena a lectura clínica. Reformular a necesidades del servicio o del proyecto de dotación."
+        },
+        {
+          "cita": "Asistente biomédico / Aplicación clínica / Rango de inversión",
+          "donde": "fotograma f3, interfaz en pantalla",
+          "regla": "Sin consejo clínico y sin precio comprometido. Un rango de inversión en pantalla es un compromiso económico."
+        },
+        {
+          "cita": "La alternativa intermedia cubre los requisitos definidos sin asumir el coste de funciones que probablemente no utilizarás.",
+          "donde": "fotograma f3",
+          "regla": "Recomienda una alternativa y habla de coste. Confirmar que sale de una ficha real y quitarlo si no."
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "archivo": "02_renacer-16x9.mp4",
+      "duracionS": 155,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 155 s.",
+      "recomendacion": "requiere_revision",
+      "recomendacionTexto": "requiere revisión",
+      "duplicadoDe": null,
+      "motivo": "Pieza de marca útil (obra, instalación, logística) si se corta el bloque clínico. En los 6 fotogramas no se lee Stryker, Equitronic, Northern ni Monnal. Sí se lee Angell en el equipo de imagen: Angell está en el catálogo y se puede nombrar. El audio, desde 1:30, afirma precisión tridimensional, un robot quirúrgico que amplifica la precisión del cirujano, y robots que esterilizan instrumental. Eso no se publica. El relato de «un hospital» también puede parecer un caso real no documentado.",
+      "titulo": "Equipamiento hospitalario en Colombia: de la obra al servicio | I-ME",
+      "descripcion": "Equipamiento hospitalario en Colombia: I-ME acompaña la obra, la instalación y la puesta en marcha en https://i-me.com.co.\nCuéntanos el proyecto por WhatsApp +57 313 724 7353. Revisamos referencias del catálogo y armamos la cotización.\n\nRecorrido de un proyecto de dotación: diagnóstico del espacio, diseño, instalación y logística interna. El equipo de imagen que aparece es Angell, fabricante del catálogo I-ME.\n\nPublicar solo la versión sin el quirófano robótico y sin la frase de precisión tridimensional. Los robots de esta pieza, si se dejan, se presentan como logística de servicio.\n\nCapítulos:\n0:00 El hospital en silencio\n0:30 Diagnóstico, diseño y habilitación\n0:58 Instalación y personas\n1:52 Logística interna\n\nEnlaces:\n- Proyectos: https://i-me.com.co/es/proyectos/\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Rayos X digital: https://i-me.com.co/es/imagenologia/rayos-x-digital/\n- Robots de servicio: https://i-me.com.co/es/familias/robots/\n\n#EquipamientoHospitalario #CotizacionHospitalaria #IME\n",
+      "tags": [
+        "equipamiento hospitalario",
+        "equipos biomédicos Colombia",
+        "cómo equipar un hospital",
+        "proyecto de equipamiento",
+        "cotización equipos médicos",
+        "dotación hospitalaria",
+        "compras hospitalarias",
+        "I-ME",
+        "IMEIA",
+        "hospitales Colombia",
+        "tecnología biomédica",
+        "asesoría en equipamiento"
+      ],
+      "hashtags": [
+        "#EquipamientoHospitalario",
+        "#CotizacionHospitalaria",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "private",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "El guion de Renacer usa planos generativos. Marcar contenido sintético. No presentar el edificio como una obra ejecutada por I-ME.",
+      "playlist": "Equipos biomédicos en Colombia | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/proyectos/",
+      "paginaEmbebeNota": "Embeber en proyectos solo después del corte. Índice propuesto: /es/videos/.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/nosotros/"
+      ],
+      "noEmbeber": [
+        "https://i-me.com.co/es/imagenologia/",
+        "https://i-me.com.co/es/robotica-rehabilitacion/"
+      ],
+      "orden": 7,
+      "publicar": false,
+      "fechaSugerida": "2026-11-25T10:00:00-05:00",
+      "fechaCondicion": "Solo si se retira el tramo 1:30–1:52 (precisión tridimensional y robot quirúrgico) y se reescribe «lo esterilizan» / «tiempo para cuidar». Recalcular capítulos después del corte.",
+      "choques": [
+        {
+          "cita": "Un diagnóstico por imagen, con precisión tridimensional.",
+          "donde": "audio 1:30 y subtítulo en fotograma",
+          "regla": "Promesa de precisión. No comparar ni atribuir un resultado diagnóstico."
+        },
+        {
+          "cita": "En el quirófano, el cirujano no suelta el control: el robot amplifica su precisión.",
+          "donde": "audio 1:40–1:48",
+          "regla": "Robot quirúrgico y superioridad clínica. I-ME no lo anuncia así. El plano no muestra la palabra Stryker, pero el tipo de plano es el que el proyecto ya había marcado."
+        },
+        {
+          "cita": "transportan el instrumental, lo esterilizan.",
+          "donde": "audio 2:00",
+          "regla": "Atribuye la esterilización al robot. La esterilización es un equipo (autoclave), no una función del robot de servicio."
+        },
+        {
+          "cita": "tiempo para cuidar.",
+          "donde": "audio 2:12",
+          "regla": "Desplaza el mensaje a cuidado clínico. Cerrar en tiempo del equipo para la operación."
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "archivo": "03_renacer-antesdespues-9x16.mp4",
+      "duracionS": 30,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 30 s.",
+      "recomendacion": "duplicado",
+      "recomendacionTexto": "duplicado de 02",
+      "duplicadoDe": "02",
+      "motivo": "Corte vertical del cierre de 02 (antes/después del edificio y la frase «Del abandono al siglo XXI»). No aporta un mensaje distinto. El audio transcrito es solo el cierre, con la marca mal oída como «Y me». Si 02 se corrige y se publica, este short no se sube.",
+      "titulo": "Equipamiento hospitalario en Colombia: antes y después | I-ME",
+      "descripcion": "Equipamiento hospitalario en Colombia: así se ve un proyecto de dotación en https://i-me.com.co.\nEscríbenos por WhatsApp +57 313 724 7353 para cotizar la obra y los equipos.\n\nNo publicar. Es el cierre vertical de 02. Si más adelante se necesita un Short del edificio, rehacerlo sin «tiempo para cuidar» y sin presentar la fachada como un caso atendido.\n\nEnlaces:\n- Proyectos: https://i-me.com.co/es/proyectos/\n\n#EquipamientoHospitalario #CotizacionHospitalaria #IME\n",
+      "tags": [
+        "equipamiento hospitalario",
+        "equipos biomédicos Colombia",
+        "cómo equipar un hospital",
+        "proyecto de equipamiento",
+        "cotización equipos médicos",
+        "dotación hospitalaria",
+        "compras hospitalarias",
+        "I-ME",
+        "IMEIA",
+        "hospitales Colombia",
+        "tecnología biomédica",
+        "asesoría en equipamiento"
+      ],
+      "hashtags": [
+        "#EquipamientoHospitalario",
+        "#CotizacionHospitalaria",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Mismo material generativo que 02.",
+      "playlist": "No crear. No subir.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/proyectos/",
+        "https://i-me.com.co/es/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "De la abandona del siglo XXI. Tecnología que multiplica el talento colombiano. Y me.",
+          "donde": "audio completo",
+          "regla": "Es el cierre de 02, con la marca ilegible. No añade un claim nuevo, pero tampoco se publica aparte."
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "archivo": "04_renacer-logistica-9x16.mp4",
+      "duracionS": 30,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 30 s.",
+      "recomendacion": "requiere_revision",
+      "recomendacionTexto": "requiere revisión",
+      "duplicadoDe": null,
+      "motivo": "Es un corte de 02, pero el tema (robot de logística y central de esterilización) sí sirve como Short distinto si se cambia el audio. El fotograma del pasillo muestra un robot de reparto. El fotograma del autoclave muestra a una persona cargando instrumental, no a un robot esterilizando. El audio dice lo contrario: que los robots esterilizan y devuelven «tiempo para cuidar».",
+      "titulo": "Esterilización hospitalaria: central y logística interna | I-ME",
+      "descripcion": "Esterilización hospitalaria en Colombia: autoclaves y logística interna para la central, en https://i-me.com.co.\nCotiza la central de esterilización por WhatsApp +57 313 724 7353. El robot de servicio mueve carga; el autoclave es otro equipo.\n\nShort para la central de esterilización y el reparto interno de documentos o insumos no estériles. Publicar solo con audio nuevo: el robot no esteriliza instrumental.\n\nI-ME publica autoclaves de vapor en el catálogo. La capacidad de cada referencia está en su ficha, no en este vídeo.\n\nEnlaces:\n- Esterilización: https://i-me.com.co/es/esterilizacion/\n- Autoclaves hospitalarios: https://i-me.com.co/es/esterilizacion/autoclaves-hospitalarios/\n- Robots de servicio: https://i-me.com.co/es/familias/robots/\n- PadBot W2: https://i-me.com.co/es/productos/padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot/\n\n#EsterilizacionHospitalaria #Autoclave #IME\n",
+      "tags": [
+        "esterilización hospitalaria",
+        "central de esterilización",
+        "autoclave hospitalario",
+        "autoclave esterilización",
+        "CEYE",
+        "control de infecciones hospital",
+        "equipos biomédicos Colombia",
+        "dotación central de esterilización",
+        "I-ME",
+        "hospitales Colombia",
+        "cotización autoclave",
+        "esterilizadores de vapor"
+      ],
+      "hashtags": [
+        "#EsterilizacionHospitalaria",
+        "#Autoclave",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "private",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Corte del máster Renacer, con planos generativos. Marcar la casilla.",
+      "playlist": "Esterilización hospitalaria | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/esterilizacion/",
+      "paginaEmbebeNota": "Embeber en esterilización y en autoclaves solo con el audio corregido.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/esterilizacion/autoclaves-hospitalarios/",
+        "https://i-me.com.co/es/familias/robots/"
+      ],
+      "noEmbeber": [],
+      "orden": 5,
+      "publicar": false,
+      "fechaSugerida": "2026-11-18T10:00:00-05:00",
+      "fechaCondicion": "Solo con locución nueva que separe el autoclave del robot de reparto y elimine «tiempo para cuidar».",
+      "choques": [
+        {
+          "cita": "Otros robots se encargan de lo repetitivo. Transportan el instrumental y lo esterilizan.",
+          "donde": "audio",
+          "regla": "El robot no es un esterilizador. En pantalla se ve un autoclave operado por una persona."
+        },
+        {
+          "cita": "tiempo para cuidar.",
+          "donde": "audio",
+          "regla": "Cuidado clínico. Sustituir por tiempo de operación para el equipo humano."
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "archivo": "05_renacer-quirofano-9x16.mp4",
+      "duracionS": 30,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 30 s.",
+      "recomendacion": "descartar",
+      "recomendacionTexto": "descartar",
+      "duplicadoDe": null,
+      "motivo": "El short está construido sobre el tramo que no se puede publicar. El primer fotograma es un Angell con el subtítulo «precisión tridimensional». El fotograma del quirófano muestra la consola de un robot quirúrgico y el subtítulo «En el quirófano, el cirujano no suelta el control». El audio cierra con «el robot amplifica su precisión». No aparece la palabra Stryker en los 6 fotogramas; el problema es el claim, no solo la marca. No hay un recorte útil: el mensaje del short es ese claim.",
+      "titulo": "Imagenología para hospitales en Colombia | I-ME",
+      "descripcion": "Imagenología para hospitales en Colombia: sistemas del catálogo I-ME en https://i-me.com.co.\nCotiza rayos X, mamografía o arco en C por WhatsApp +57 313 724 7353.\n\nNo subir este archivo. El título de arriba sirve solo si algún día se rehace un short de imagenología con el Angell del catálogo, sin quirófano robótico y sin hablar de precisión.\n\nEnlaces:\n- Imagenología: https://i-me.com.co/es/imagenologia/\n- Rayos X digital: https://i-me.com.co/es/imagenologia/rayos-x-digital/\n- Arco en C: https://i-me.com.co/es/imagenologia/arco-en-c/\n\n#Imagenologia #RayosXDigital #IME\n",
+      "tags": [
+        "imagenología",
+        "rayos x digital",
+        "equipo de rayos x digital",
+        "radiología hospital",
+        "mamografía digital",
+        "arco en c quirófano",
+        "equipos biomédicos Colombia",
+        "equipos radiología hospital",
+        "diagnóstico por imagen",
+        "I-ME",
+        "hospitales Colombia",
+        "cotización imagenología"
+      ],
+      "hashtags": [
+        "#Imagenologia",
+        "#RayosXDigital",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Planos generativos del máster Renacer, incluido el quirófano.",
+      "playlist": "No crear. No subir.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber en imagenología ni en sala de cirugía.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/imagenologia/",
+        "https://i-me.com.co/es/familias/sala-cirugia/",
+        "https://i-me.com.co/es/imagenologia/arco-en-c/",
+        "https://i-me.com.co/es/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Un diagnóstico por imagen, con precisión tridimensional.",
+          "donde": "audio y subtítulo, fotograma f1",
+          "regla": "Promesa de precisión diagnóstica. Angell puede mostrarse; el adjetivo no."
+        },
+        {
+          "cita": "En el quirófano, el cirujano no suelta el control. El robot amplifica su precisión.",
+          "donde": "audio y subtítulo, fotograma f3",
+          "regla": "Robot quirúrgico y claim de precisión. Descartar el short entero."
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "archivo": "06_imecorp-master-16x9.mp4",
+      "duracionS": 60,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": false,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal. Aunque dura 60 s, no es vertical, así que no es Short.",
+      "recomendacion": "subir",
+      "recomendacionTexto": "subir",
+      "duplicadoDe": null,
+      "motivo": "Elegido del grupo 01/06/07/09/10/12 como la pieza horizontal. Sin voz. Los rótulos preguntan por la referencia, la documentación y quién responde, y cierran en i-me.com.co. No promete resultado clínico, no nombra INVIMA y no muestra marcas de terceros. La foto de producto (equipo de rayos X) se usa como referencia visual; el texto no afirma un modelo ni una certificación.",
+      "titulo": "Equipos biomédicos en Colombia: comprobar antes de comprar | I-ME",
+      "descripcion": "Equipos biomédicos en Colombia: antes de comprar, comprueba la referencia en https://i-me.com.co.\nCuéntanos qué equipo necesitas por WhatsApp +57 313 724 7353. I-ME arma la cotización con la ficha del catálogo.\n\nUna minuta para compras, gerencia e ingeniería. Cuatro preguntas: si el equipo responde a la necesidad del servicio, qué documentación lo respalda, qué incluye la propuesta y quién responde después.\n\nSin cifras de cobertura, sin sellos y sin precios. El siguiente paso es una referencia concreta del catálogo.\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Imagenología: https://i-me.com.co/es/imagenologia/\n- Rayos X digital: https://i-me.com.co/es/imagenologia/rayos-x-digital/\n- Contacto: https://i-me.com.co/es/contacto/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia",
+        "comprar equipos médicos"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "public",
+      "isAiGeneratedContent": false,
+      "isAiGeneratedNota": "Tipografía y fondos de campaña. El storyboard dice que la fotografía de producto no pasa por un modelo generativo. No marcar la casilla salvo que en el máster aparezca una escena realista sintética que estos fotogramas no muestran.",
+      "playlist": "Cómo elegir equipamiento | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/catalogo/",
+      "paginaEmbebeNota": "También en el índice /es/videos/ cuando se cree. Cabe en nosotros como pieza de criterio de compra.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/nosotros/",
+        "https://i-me.com.co/es/imagenologia/rayos-x-digital/"
+      ],
+      "noEmbeber": [],
+      "orden": 1,
+      "publicar": true,
+      "fechaSugerida": "2026-11-03T10:00:00-05:00",
+      "fechaCondicion": null,
+      "choques": []
+    },
+    {
+      "id": "07",
+      "archivo": "07_imecorp-social-9x16.mp4",
+      "duracionS": 25,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": false,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 25 s.",
+      "recomendacion": "subir",
+      "recomendacionTexto": "subir",
+      "duplicadoDe": null,
+      "motivo": "Elegido como el único vertical del grupo 01/06/07/09/10/12. Es el corte social de 06 (otra relación de aspecto, otro inventario de YouTube), no un segundo mensaje. Rótulos alineados con el máster. Defecto menor: en un fotograma la pregunta «¿Qué documentación lo respalda?» queda partida y se lee «lo respalda» en la línea siguiente. No cambia el claim. Si hay tiempo de reexportar, corregir ese corte; no bloquea la subida.",
+      "titulo": "Equipos biomédicos en Colombia: preguntas antes de cotizar | I-ME",
+      "descripcion": "Equipos biomédicos en Colombia: cuatro preguntas antes de cotizar, en https://i-me.com.co.\nEscríbenos por WhatsApp +57 313 724 7353 y partimos de una referencia del catálogo.\n\nShort de la misma campaña que el vídeo horizontal. Sirve para el estante de Shorts del canal @imebiomed.\n\nPregunta por la necesidad del servicio, la documentación, la propuesta y el acompañamiento. Luego abre el catálogo.\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Contacto: https://i-me.com.co/es/contacto/\n- Rayos X digital: https://i-me.com.co/es/imagenologia/rayos-x-digital/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia",
+        "shorts equipos médicos"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "public",
+      "isAiGeneratedContent": false,
+      "isAiGeneratedNota": "Mismo criterio que 06: gráfico con fotografía de producto.",
+      "playlist": "Cómo elegir equipamiento | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/catalogo/",
+      "paginaEmbebeNota": "Short. En la página /es/videos/ va junto a 06, no como segunda campaña.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/nosotros/"
+      ],
+      "noEmbeber": [],
+      "orden": 2,
+      "publicar": true,
+      "fechaSugerida": "2026-11-06T10:00:00-05:00",
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "¿Qué documentación / lo respalda?",
+          "donde": "rótulo partido, fotograma f2",
+          "regla": "No es un claim clínico. Es un corte de línea. Corregir si se reexporta."
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "archivo": "08_ime-presentacion-16x9.mp4",
+      "duracionS": 114,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 114 s.",
+      "recomendacion": "requiere_revision",
+      "recomendacionTexto": "requiere revisión",
+      "duplicadoDe": null,
+      "motivo": "Es el recorrido de catálogo más útil para SEO (imagen, quirófano, monitorización, neonatología, camillas, financiación), pero hoy no se puede subir. En pantalla se lee «FDA e INVIMA vigentes» sobre un quirófano sintético, y el cierre dice «Financiamiento médico disponible para equipar su institución hoy». El audio añade garantía internacional, cientos de referencias y más de 15 fabricantes. Esas cifras y sellos no se publican sin evidencia por referencia. El texto de YouTube de abajo ya omite todo eso y solo sirve para la versión recortada.",
+      "titulo": "Equipos biomédicos en Colombia: imagenología, UCI y quirófano | I-ME",
+      "descripcion": "Equipos biomédicos en Colombia: imagenología, monitorización, quirófano y neonatología en https://i-me.com.co.\nPide la cotización del servicio por WhatsApp +57 313 724 7353. Cada referencia se confirma en su ficha.\n\nRecorrido del catálogo I-ME para instituciones: rayos X y mamografía, sala de cirugía, monitores y anestesia, neonatología, mobiliario, ultrasonido y camillas. La financiación del proyecto se conversa aparte; este vídeo no publica plazos ni cuotas.\n\nSubir solo si se eliminan el plano del quirófano sintético y cualquier rótulo o frase de registros, sellos o cantidades de fabricantes.\n\nCapítulos:\n0:00 Instituciones de salud en Colombia\n0:23 Imagen y sala\n0:46 Monitorización y anestesia\n1:08 Neonatología y mobiliario\n1:31 Camillas y cómo cotizar\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Imagenología: https://i-me.com.co/es/imagenologia/\n- Rayos X digital: https://i-me.com.co/es/imagenologia/rayos-x-digital/\n- Mamografía digital: https://i-me.com.co/es/imagenologia/mamografia-digital/\n- Lámpara cialítica: https://i-me.com.co/es/lampara-cialitica/\n- Sala de cirugía: https://i-me.com.co/es/familias/sala-cirugia/\n- Monitoreo UCI: https://i-me.com.co/es/dotacion-monitoreo-uci/\n- Neonatología: https://i-me.com.co/es/familias/neonatologia/\n- Ultrasonido: https://i-me.com.co/es/familias/ultrasonido/\n- Camillas: https://i-me.com.co/es/camillas-medicas/\n- Financiación: https://i-me.com.co/es/financiacion/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos Colombia",
+        "imagenología",
+        "rayos x digital",
+        "mamografía digital",
+        "monitores de signos vitales",
+        "máquina de anestesia hospital",
+        "incubadora neonatal",
+        "lámpara quirúrgica",
+        "camillas médicas",
+        "ecógrafo",
+        "equipamiento hospitalario",
+        "I-ME",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "private",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "El plano de apertura y el quirófano con «FDA e INVIMA» son escenas sintéticas. Aunque se retiren, revisar el resto del máster antes de dejar la casilla en blanco.",
+      "playlist": "Equipos biomédicos en Colombia | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/catalogo/",
+      "paginaEmbebeNota": "Cuando esté limpio, embeber en catálogo. Los enlaces de familia van en la descripción, no hace falta un embed en cada landing.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/imagenologia/"
+      ],
+      "noEmbeber": [
+        "https://i-me.com.co/es/"
+      ],
+      "orden": 4,
+      "publicar": false,
+      "fechaSugerida": "2026-11-14T10:00:00-05:00",
+      "fechaCondicion": "Solo sin el rótulo y la locución de FDA/INVIMA, sin garantía, sin «cientos de referencias», sin «más de 15 fabricantes» y sin «financiamiento disponible hoy».",
+      "choques": [
+        {
+          "cita": "FDA e INVIMA vigentes",
+          "donde": "rótulo sobre el quirófano sintético, fotograma ~0:23; el audio dice «certificaciones EFDA e in-vima vigentes»",
+          "regla": "No inventar INVIMA ni FDA. El sello general no se publica."
+        },
+        {
+          "cita": "garantía internacional",
+          "donde": "audio, hacia el cierre",
+          "regla": "No anunciar garantía."
+        },
+        {
+          "cita": "Hay cientos de referencias médicas y más de 15 fabricantes internacionales",
+          "donde": "audio",
+          "regla": "Cifras no verificadas en este encargo. Quitarlas."
+        },
+        {
+          "cita": "Financiamiento médico disponible para equipar su institución hoy.",
+          "donde": "rótulo final",
+          "regla": "Promete disponibilidad inmediata. La página de financiación existe; no se publican plazos ni un «hoy»."
+        },
+        {
+          "cita": "comienzo de vida",
+          "donde": "rótulo sobre incubadora, fotograma ~1:08",
+          "regla": "Tono de cuidado del paciente. Dejar el nombre del equipo (neonatología) y quitar el eslogan."
+        }
+      ]
+    },
+    {
+      "id": "09",
+      "archivo": "09_reel-creativo-9x16.mp4",
+      "duracionS": 30,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": false,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 30 s.",
+      "recomendacion": "descartar",
+      "recomendacionTexto": "descartar",
+      "duplicadoDe": null,
+      "motivo": "Reel de agosto 2026, sin voz. En pantalla: «Asistencia que se mueve» sobre un diagrama en inglés (Head Switch, SIM Card) y, después, tarjetas de catálogo con la etiqueta STOCK en robótica, monitoreo, UCI/cama y rayos X. STOCK afirma disponibilidad que este plan no puede respaldar. El vertical de la tanda es 07, que no trae esos rótulos.",
+      "titulo": "Equipos biomédicos en Colombia: recorrido de catálogo | I-ME",
+      "descripcion": "Equipos biomédicos en Colombia: mira el catálogo vigente en https://i-me.com.co.\nPara disponibilidad real escribe por WhatsApp +57 313 724 7353. No uses este vídeo.\n\nNo subir. La etiqueta STOCK y el rótulo «Asistencia que se mueve» se quedan en el archivo.\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": false,
+      "isAiGeneratedNota": "Motion graphics sobre fichas y un diagrama. No hace falta la casilla si no se sube.",
+      "playlist": "No crear. No subir.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/catalogo/",
+        "https://i-me.com.co/es/",
+        "https://i-me.com.co/es/familias/robots/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Asistencia que se mueve",
+          "donde": "rótulo, fotograma f2",
+          "regla": "Presenta el robot como asistencia. En I-ME la línea PadBot es robótica de servicio."
+        },
+        {
+          "cita": "STOCK",
+          "donde": "cuatro tarjetas del fotograma f4 (robótica, monitoreo, UCI/cama, rayos X)",
+          "regla": "Disponibilidad no verificada. No publicar stock."
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "archivo": "10_equipos-biomedicos-9x16.mp4",
+      "duracionS": 30,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": false,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 30 s.",
+      "recomendacion": "duplicado",
+      "recomendacionTexto": "duplicado de 09",
+      "duplicadoDe": "09",
+      "motivo": "Los fotogramas f2 y f4 son indistinguibles de 09: el mismo diagrama, el mismo rótulo «Asistencia que se mueve» y las mismas tarjetas STOCK. Mismo descarte, aunque el nombre del archivo sea otro.",
+      "titulo": "Equipos biomédicos en Colombia: recorrido de catálogo | I-ME",
+      "descripcion": "Equipos biomédicos en Colombia: el catálogo está en https://i-me.com.co.\nCotiza por WhatsApp +57 313 724 7353. No subas este archivo: es el mismo reel que 09.\n\nNo subir. Duplicado visual de 09, con los mismos rótulos.\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": false,
+      "isAiGeneratedNota": "Igual que 09.",
+      "playlist": "No crear. No subir.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/catalogo/",
+        "https://i-me.com.co/es/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Asistencia que se mueve",
+          "donde": "rótulo, fotograma f2",
+          "regla": "Igual que 09."
+        },
+        {
+          "cita": "STOCK",
+          "donde": "fotograma f4",
+          "regla": "Igual que 09."
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "archivo": "11_catalogo-destacados-16x9.mp4",
+      "duracionS": 30,
+      "resolucion": "1280x720",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 30 s. No es Short.",
+      "recomendacion": "descartar",
+      "recomendacionTexto": "descartar",
+      "duplicadoDe": null,
+      "motivo": "720p, con páginas de manual en inglés y un audio que dice «robots asistenciales» y «visita IME-COM-CO». El hueco de catálogo en horizontal lo cubre 08 cuando se limpie, no esta pieza.",
+      "titulo": "Equipos biomédicos en Colombia: destacados del catálogo | I-ME",
+      "descripcion": "Equipos biomédicos en Colombia: abre el catálogo en https://i-me.com.co.\nCotiza por WhatsApp +57 313 724 7353. No uses este montaje de 720p.\n\nNo subir. Dominio mal dicho y robots presentados como asistenciales.\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": false,
+      "isAiGeneratedNota": "Montaje de fichas y manuales. No subir.",
+      "playlist": "No crear. No subir.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/catalogo/",
+        "https://i-me.com.co/es/familias/robots/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Robots asistenciales, imagenología digital, soporte crítico y quirófano.",
+          "donde": "audio",
+          "regla": "«Asistenciales» acerca el robot al cuidado. La línea del catálogo es de servicio."
+        },
+        {
+          "cita": "Visita IME-COM-CO.",
+          "donde": "audio",
+          "regla": "La marca y el dominio son I-ME y i-me.com.co."
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "archivo": "12_futuro-salud-9x16.mp4",
+      "duracionS": 42,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 42 s.",
+      "recomendacion": "requiere_revision",
+      "recomendacionTexto": "requiere revisión",
+      "duplicadoDe": null,
+      "motivo": "Tiene la mejor locución del grupo vertical, pero no entra en la tanda: el Short elegido es 07. Además hay que mirar tres cosas antes de sustituir a 07. El audio dice que la tecnología queda «preparada para cuidar», que «construimos capacidad clínica» y que «un quirófano no se detiene». Un fotograma de quirófano muestra un procedimiento. Otro muestra uniformes con un logo pequeño no identificado. Whisper oyó «Enime»; en el texto de YouTube la marca es I-ME.",
+      "titulo": "Equipamiento hospitalario en Colombia: soporte después de entregar | I-ME",
+      "descripcion": "Equipamiento hospitalario en Colombia: selección, instalación y soporte, en https://i-me.com.co.\nCuéntanos el servicio por WhatsApp +57 313 724 7353. I-ME cotiza la referencia y el acompañamiento de puesta en marcha.\n\nNo sustituye a 07 salvo que se apruebe el audio. El mensaje publicable es operativo: el monitor y el ventilador se entregan instalados, y hay una persona de I-ME después de la entrega.\n\nQuitar «capacidad clínica», «preparada para cuidar» y «el quirófano no se detiene». Confirmar que el logo del uniforme no es un hospital ni una marca de terceros.\n\nEnlaces:\n- Servicios: https://i-me.com.co/es/servicios/\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Monitoreo UCI: https://i-me.com.co/es/dotacion-monitoreo-uci/\n- Ventiladores: https://i-me.com.co/es/ventiladores-mecanicos-uci/\n- Sala de cirugía: https://i-me.com.co/es/familias/sala-cirugia/\n\n#EquipamientoHospitalario #CotizacionHospitalaria #IME\n",
+      "tags": [
+        "equipamiento hospitalario",
+        "equipos biomédicos Colombia",
+        "cómo equipar un hospital",
+        "proyecto de equipamiento",
+        "cotización equipos médicos",
+        "dotación hospitalaria",
+        "compras hospitalarias",
+        "I-ME",
+        "IMEIA",
+        "hospitales Colombia",
+        "tecnología biomédica",
+        "asesoría en equipamiento",
+        "soporte equipos biomédicos"
+      ],
+      "hashtags": [
+        "#EquipamientoHospitalario",
+        "#CotizacionHospitalaria",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "private",
+      "isAiGeneratedContent": false,
+      "isAiGeneratedNota": "El paquete no dice si las tomas con personas son banco o generativas. Confirmar antes de marcar la casilla. No presentarlas como una instalación de I-ME.",
+      "playlist": "No programar. Si sustituye a 07, va a «Cómo elegir equipamiento | I-ME».",
+      "paginaEmbebe": "https://i-me.com.co/es/servicios/",
+      "paginaEmbebeNota": "No embeber hasta la revisión. Si se aprueba, puede reemplazar a 07 en el índice, no sumarse.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": "Sin fecha. Solo reemplazaría a 07, no se suma al calendario.",
+      "choques": [
+        {
+          "cita": "cuando la tecnología correcta llega, se instala y queda preparada para cuidar",
+          "donde": "audio",
+          "regla": "«Preparada para cuidar» es promesa clínica. Dejar instalación y puesta en marcha."
+        },
+        {
+          "cita": "cuando un quirófano no se detiene",
+          "donde": "audio",
+          "regla": "Promesa absoluta de continuidad. Quitar."
+        },
+        {
+          "cita": "Construimos capacidad clínica",
+          "donde": "audio; Whisper oyó «Enime»",
+          "regla": "Capacidad clínica. La marca es I-ME. Hablar de capacidad de dotación del servicio."
+        },
+        {
+          "cita": "Logo pequeño en el uniforme, no identificado",
+          "donde": "fotograma del pasillo",
+          "regla": "Puede ser un tercero. Confirmar o desenfocar antes de cualquier publicación."
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "archivo": "13_acesi-master-16x9.mp4",
+      "duracionS": 150,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 150 s.",
+      "recomendacion": "descartar",
+      "recomendacionTexto": "descartar",
+      "duplicadoDe": null,
+      "motivo": "Decisión ACESI: ninguno. 13 es el máster más completo (1080p, 23 MB) y sería el único candidato si el concurso siguiera vigente. No sigue. El cierre pide escanear un QR, registrarse y ganar. Un fotograma muestra el QR sobre la fachada de un hospital de un parque biomédico que no es un caso I-ME. Whisper parte la marca (imen, entraime, Enime). No se sube ni se guarda como «uno de cuatro».",
+      "titulo": "Tecnología biomédica para hospitales en Colombia | I-ME",
+      "descripcion": "Tecnología biomédica para hospitales en Colombia: proyectos de dotación en https://i-me.com.co.\nHablemos del servicio por WhatsApp +57 313 724 7353. Este archivo de evento no se publica.\n\nNo subir. El archivo cierra con un QR y un sorteo de ACESI 2026 que ya no existe. No reutilizar el final ni la fachada del hospital que aparece detrás del código.\n\nCapítulos:\n0:00 La decisión de equipar\n0:26 Qué capacidad busca el servicio\n0:53 Acompañamiento I-ME\n0:57 Líneas del catálogo\n1:24 Cómo hacer viable el proyecto\n2:04 No publicar: QR y concurso\n\nEnlaces:\n- Catálogo: https://i-me.com.co/es/catalogo/\n- Financiación: https://i-me.com.co/es/financiacion/\n- Contacto: https://i-me.com.co/es/contacto/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Pieza de evento con escenas cinematográficas. No subir.",
+      "playlist": "No crear una playlist de ACESI.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber. Tampoco en /congreso ni /evento.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/congreso",
+        "https://i-me.com.co/evento",
+        "https://i-me.com.co/es/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Su visita puede tener premio. Regístrese, explore nuestra web, participe y gane.",
+          "donde": "audio del máster, desde 2:04 «Escanee el código»",
+          "regla": "Concurso de ACESI (agosto 2026) caducado a 30 de octubre de 2026. El QR también apunta a una mecánica temporal."
+        },
+        {
+          "cita": "capacidad para cuidar",
+          "donde": "audio",
+          "regla": "Secundario frente al concurso. Si algún día se recorta el final, revisar también esta frase."
+        },
+        {
+          "cita": "ESCANEE EL CÓDIGO / CONOZCA IME / ESCANEE AQUÍ",
+          "donde": "fotograma final, QR sobre fachada de hospital ajeno",
+          "regla": "CTA temporal y locación de un tercero."
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "archivo": "14_acesi-v11-16x9.mp4",
+      "duracionS": 123,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 123 s.",
+      "recomendacion": "descartar",
+      "recomendacionTexto": "descartar",
+      "duplicadoDe": null,
+      "motivo": "Otra edición ACESI (V11), no un duplicado idéntico de 13: abre pidiendo el celular para un «descuento de asistencia» y cierra con premio. Peor claim comercial que el máster, sobre el mismo concurso caducado. Entra en la decisión «ninguno».",
+      "titulo": "Tecnología biomédica para hospitales en Colombia | I-ME",
+      "descripcion": "Tecnología biomédica para hospitales en Colombia, en https://i-me.com.co.\nCotiza por WhatsApp +57 313 724 7353. Este archivo de ACESI no se publica.\n\nNo subir.\n\nCapítulos:\n0:00 Apertura de evento, no publicar\n0:20 Decisión de equipamiento\n1:40 Cierre de evento, no publicar\n\nEnlaces:\n- Contacto: https://i-me.com.co/es/contacto/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Edición de evento. No subir.",
+      "playlist": "No crear una playlist de ACESI.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/congreso",
+        "https://i-me.com.co/evento"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Tengan preparados sus celulares antes del final del vídeo para registrarse y obtener su descuento de asistencia.",
+          "donde": "audio, apertura",
+          "regla": "Descuento atado a un evento pasado. No prometer descuentos."
+        },
+        {
+          "cita": "Su visita puede tener un beneficio. Regístrese, explore nuestra web, participe y gane.",
+          "donde": "audio, cierre",
+          "regla": "Concurso caducado."
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "archivo": "15_acesi-video8-16x9.mp4",
+      "duracionS": 155,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 155 s.",
+      "recomendacion": "duplicado",
+      "recomendacionTexto": "duplicado de 13",
+      "duplicadoDe": "13",
+      "motivo": "Misma narración que el máster 13 (hospitales, EPS, IPS, premio y QR), 5 s más largo. Misma decisión: ninguno. No aporta un corte salvable distinto.",
+      "titulo": "Tecnología biomédica para hospitales en Colombia | I-ME",
+      "descripcion": "Tecnología biomédica para hospitales en Colombia, en https://i-me.com.co.\nEscríbenos por WhatsApp +57 313 724 7353. No subas este duplicado de 13.\n\nNo subir. Misma mecánica de concurso que 13.\n\nCapítulos:\n0:00 La decisión de equipar\n2:04 No publicar: QR y concurso\n\nEnlaces:\n- Contacto: https://i-me.com.co/es/contacto/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Variante del máster ACESI.",
+      "playlist": "No crear una playlist de ACESI.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/congreso",
+        "https://i-me.com.co/evento"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Su visita puede tener premio. Regístrese, explore nuestra web, participe y gane.",
+          "donde": "audio",
+          "regla": "Igual que 13. Whisper oyó la marca como Ine y AMI; es I-ME."
+        }
+      ]
+    },
+    {
+      "id": "16",
+      "archivo": "16_acesi-video4-16x9.mp4",
+      "duracionS": 137,
+      "resolucion": "1920x1080",
+      "orientacion": "horizontal",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Horizontal de 137 s.",
+      "recomendacion": "duplicado",
+      "recomendacionTexto": "duplicado de 13",
+      "duplicadoDe": "13",
+      "motivo": "Misma narración de concurso que 13, en un archivo de 2 MB para 137 s. El primer fotograma equidistante es un plano azul sólido. No sirve ni como archivo de evento.",
+      "titulo": "Tecnología biomédica para hospitales en Colombia | I-ME",
+      "descripcion": "Tecnología biomédica para hospitales en Colombia, en https://i-me.com.co.\nWhatsApp +57 313 724 7353. No subas este archivo.\n\nNo subir. Duplicado comprimido de 13. Abre en un plano azul y repite el cierre de evento. Las marcas de tiempo no se reutilizan.\n\nCapítulos:\n0:00 Plano azul, no usar como capítulo\n2:00 Cierre de evento, no publicar\n\nEnlaces:\n- Contacto: https://i-me.com.co/es/contacto/\n\n#EquiposBiomedicos #HospitalesColombia #IME\n",
+      "tags": [
+        "equipos biomédicos",
+        "equipos biomédicos Colombia",
+        "equipamiento hospitalario",
+        "equipos para hospitales",
+        "equipos para clínicas",
+        "tecnología biomédica",
+        "distribuidor equipos médicos",
+        "dotación hospitalaria",
+        "cotización equipos médicos",
+        "I-ME",
+        "International Medical Enterprise",
+        "hospitales Colombia"
+      ],
+      "hashtags": [
+        "#EquiposBiomedicos",
+        "#HospitalesColombia",
+        "#IME"
+      ],
+      "categoria": "EDUCATION",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Variante degradada del máster ACESI.",
+      "playlist": "No crear una playlist de ACESI.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/congreso",
+        "https://i-me.com.co/evento"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Su visita puede tener premio. Regístrese, explore nuestra web, participe y gane.",
+          "donde": "audio",
+          "regla": "Concurso caducado. Whisper oyó EMA en vez de I-ME."
+        }
+      ]
+    },
+    {
+      "id": "17",
+      "archivo": "17_robotica-60s.mp4",
+      "duracionS": 60,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "short",
+      "tipoMotivo": "Vertical de 60 s. Entra en Short por la regla de este encargo.",
+      "recomendacion": "descartar",
+      "recomendacionTexto": "descartar",
+      "duplicadoDe": null,
+      "motivo": "El short sí es el claim que hay que evitar, en audio y en rótulos quemados. Pide asistencia para levantarse, desplazarse y recuperar autonomía; «tecnología que observa»; escala «de un gran hospital a una región remota»; «robótica asistencial»; «el futuro del cuidado». En pantalla: «HOSPITAL AUTÓNOMO» y «DE UN GRAN HOSPITAL A UNA REGIÓN REMOTA». Eso se lee como dispositivo de cuidado y como telemedicina. Un recorte de los segundos de logística sería otro vídeo, no este máster. La pieza de robots que sí se prepara es 18.",
+      "titulo": "Robots de servicio para hospitales: logística interna | I-ME",
+      "descripcion": "Robots de servicio para hospitales: logística interna en https://i-me.com.co. Recepción, reparto y mapas.\nCotiza la línea de servicio por WhatsApp +57 313 724 7353. Son robots de servicio, para operación del edificio.\n\nNo subir 17. El título describe el mensaje que sí se puede decir, y que este archivo no dice. Usar 18 cuando la voz coincida con las fichas PadBot.\n\nEnlaces:\n- Robots: https://i-me.com.co/es/familias/robots/\n- Distribuidores de robots: https://i-me.com.co/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/\n\n#RobotsParaHospitales #RoboticaDeServicio #IME\n",
+      "tags": [
+        "robots para hospitales",
+        "robot recepcionista",
+        "robótica hospitalaria",
+        "robótica de servicio",
+        "robot logística hospital",
+        "PadBot",
+        "recepción clínica",
+        "logística interna hospital",
+        "videollamada entre sedes",
+        "I-ME",
+        "hospitales Colombia",
+        "ingeniería robótica",
+        "robots de servicio"
+      ],
+      "hashtags": [
+        "#RobotsParaHospitales",
+        "#RoboticaDeServicio",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "no_subir",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "Pieza producida como robótica asistencial, con imagen generativa. No subir.",
+      "playlist": "No crear. La playlist de robots queda para 18.",
+      "paginaEmbebe": null,
+      "paginaEmbebeNota": "No embeber en familias/robots ni en robótica de rehabilitación.",
+      "tambienEmbeber": [],
+      "noEmbeber": [
+        "https://i-me.com.co/es/familias/robots/",
+        "https://i-me.com.co/es/robotica-rehabilitacion/",
+        "https://i-me.com.co/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/",
+        "https://i-me.com.co/es/"
+      ],
+      "orden": null,
+      "publicar": false,
+      "fechaSugerida": null,
+      "fechaCondicion": null,
+      "choques": [
+        {
+          "cita": "Asistencia para levantarse. Desplazarse. Recuperar autonomía.",
+          "donde": "audio 00:15",
+          "regla": "Función de cuidado y rehabilitación. No es un robot de servicio."
+        },
+        {
+          "cita": "Tecnología que observa cuando hace falta, para que alguien pueda estar allí cuando importa.",
+          "donde": "audio 00:20",
+          "regla": "Vigilancia o acompañamiento clínico. No anunciarlo."
+        },
+        {
+          "cita": "Desde un gran hospital hasta un centro asistencial. Desde una capital hasta una región remota.",
+          "donde": "audio 00:34 y rótulo «DE UN GRAN HOSPITAL A UNA REGIÓN REMOTA.»",
+          "regla": "Lectura de telemedicina o cobertura clínica remota."
+        },
+        {
+          "cita": "llevar la robótica asistencial a nuestra región",
+          "donde": "audio 00:52; Whisper oyó IDM",
+          "regla": "Robótica asistencial. La marca es I-ME. El término correcto es robótica de servicio."
+        },
+        {
+          "cita": "IME. El futuro del cuidado empieza ahora.",
+          "donde": "audio 00:57; Whisper oyó IMED",
+          "regla": "Promesa de cuidado. Cerrar en operación y logística."
+        },
+        {
+          "cita": "HOSPITAL AUTÓNOMO",
+          "donde": "rótulo",
+          "regla": "Sugiere un hospital que funciona solo. No es el mensaje de integración con el equipo humano."
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "archivo": "18_padbot-v1.mp4",
+      "duracionS": 107,
+      "resolucion": "1080x1920",
+      "orientacion": "vertical",
+      "voz": true,
+      "tipo": "video",
+      "tipoMotivo": "Vertical de 107 s. Pasa de 60 s: se sube como vídeo, no como Short.",
+      "recomendacion": "requiere_revision",
+      "recomendacionTexto": "requiere revisión",
+      "duplicadoDe": null,
+      "motivo": "Es la pieza con más intención de búsqueda (robots para hospitales, robot recepcionista), y las tarjetas en pantalla ya están bien: X3, P2, W2 con locker, W3s con bandejas, y el cierre de puesta en marcha. La voz no. Whisper oyó «PadBot P2 trae locker» donde la tarjeta dice W2, «P3» donde la tarjeta dice W3s, y «P2, 1,68 kilos» donde la ficha del educativo es T2. El guion v2 ya corrige esos nombres y sigue en borrador: no programar hasta que la voz del archivo diga W2, W3s y T2. El dominio se oyó como cotizanime.com.se.",
+      "titulo": "Robots para hospitales: recepción, comunicación y logística | I-ME",
+      "descripcion": "Robots para hospitales, de servicio: recepción, videollamada y logística interna en https://i-me.com.co.\nCotiza el modelo PadBot por WhatsApp +57 313 724 7353. I-ME levanta el plano, el mapa y la puesta en marcha.\n\nLínea PadBot de I-ME para clínicas, hospitales y edificios institucionales. Son robots de servicio para la operación del sitio: orientación de visitantes, videollamada entre salas o sedes, reparto de documentos e insumos no estériles, bandejas de cafetería y un modelo educativo. La videollamada conecta con un operador; no es un acto clínico.\n\nCifras que ya están en las fichas del catálogo: X3 con pantalla corporal de 19 pulgadas; X2 de 15 kg y batería de 20.000 mAh; P2 plegable de 6,5 kg, pantalla HD de 10 pulgadas, WiFi o 4G; W2 con locker y 10 h de autonomía; W3s con pantalla Full HD de 15,6 pulgadas; T2 de 1,68 kg.\n\nSubir solo cuando la voz nombre W2, W3s y T2 igual que las tarjetas. Hasta entonces, private.\n\nCapítulos:\n0:00 Línea PadBot de I-ME\n0:21 Recepción: PadBot X3\n0:43 Comunicación: PadBot P2\n1:04 Logística: PadBot W2\n1:26 Bandejas: PadBot W3s\n1:36 T2 y puesta en marcha\n\nEnlaces:\n- Familia robots: https://i-me.com.co/es/familias/robots/\n- Distribuidores de robots: https://i-me.com.co/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/\n- PadBot X3: https://i-me.com.co/es/productos/padbot-x3-robot-recepcion-ref-padbot-x3-padbot/\n- PadBot X2: https://i-me.com.co/es/productos/padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot/\n- PadBot P2: https://i-me.com.co/es/productos/padbot-p2-robot-telepresencia-ref-padbot-p2-padbot/\n- PadBot W2: https://i-me.com.co/es/productos/padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot/\n- PadBot W3s: https://i-me.com.co/es/productos/padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot/\n- PadBot T2: https://i-me.com.co/es/productos/padbot-t2-robot-educativo-social-ref-padbot-t2-padbot/\n\n#RobotsParaHospitales #RoboticaDeServicio #IME\n",
+      "tags": [
+        "robots para hospitales",
+        "robot recepcionista",
+        "robótica hospitalaria",
+        "robótica de servicio",
+        "robot logística hospital",
+        "PadBot",
+        "recepción clínica",
+        "logística interna hospital",
+        "videollamada entre sedes",
+        "I-ME",
+        "hospitales Colombia",
+        "ingeniería robótica",
+        "robots de servicio"
+      ],
+      "hashtags": [
+        "#RobotsParaHospitales",
+        "#RoboticaDeServicio",
+        "#IME"
+      ],
+      "categoria": "SCIENCE_TECHNOLOGY",
+      "privacy": "private",
+      "isAiGeneratedContent": true,
+      "isAiGeneratedNota": "El guion v2 marca b-roll generativo en la apertura y en tres transiciones. Los seis fotogramas revisados son fichas con foto de estudio. Marcar la casilla si el máster conserva ese b-roll.",
+      "playlist": "Robótica de servicio | I-ME",
+      "paginaEmbebe": "https://i-me.com.co/es/familias/robots/",
+      "paginaEmbebeNota": "Embeber en /es/familias/robots/ y en la landing de distribuidores. No embeber el reel completo en /es/robotica-rehabilitacion/: esa ruta está armada como rehabilitación. La ficha de P2 sí existe en /es/robotica-rehabilitacion/telepresencia/ y en la URL de producto; enlazarla, sin llamar al P2 dispositivo médico ni telemedicina. El guion v2 ya advirtió que esa landing dice «telepresencia médica» y «rondas clínicas»: no copiar esas frases al vídeo ni a la descripción.",
+      "tambienEmbeber": [
+        "https://i-me.com.co/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica/"
+      ],
+      "noEmbeber": [
+        "https://i-me.com.co/es/robotica-rehabilitacion/"
+      ],
+      "orden": 3,
+      "publicar": false,
+      "fechaSugerida": "2026-11-11T10:00:00-05:00",
+      "fechaCondicion": "Solo si la voz dice W2 (locker), W3s (bandejas) y T2 (1,68 kg), y el dominio se entiende como i-me.com.co. Los capítulos salen de fotogramas equidistantes: reajustarlos en el estudio.",
+      "choques": [
+        {
+          "cita": "Para mover documentos e insumos no estériles, Padbot P2 trae Locker",
+          "donde": "audio; la tarjeta del fotograma dice PadBot W2",
+          "regla": "Modelo mal nombrado. El locker es W2, no P2. P2 es la videollamada."
+        },
+        {
+          "cita": "En cafetería y comedor, Padbot P3 se reparte en bandejas",
+          "donde": "audio; la tarjeta dice PadBot W3s",
+          "regla": "El reparto de bandejas es W3s. No existe un P3 en el catálogo enlazado."
+        },
+        {
+          "cita": "Y para educación y actividades institucionales, Padbot P2, 1,68 kilos",
+          "donde": "audio",
+          "regla": "1,68 kg es la ficha de T2. P2 en ficha pesa 6,5 kg."
+        },
+        {
+          "cita": "Cotizanime.com.se",
+          "donde": "audio, cierre",
+          "regla": "El dominio es i-me.com.co. Whisper también puede haber deformado una locución correcta: confirmar al oído."
+        }
+      ]
+    }
+  ]
+}
