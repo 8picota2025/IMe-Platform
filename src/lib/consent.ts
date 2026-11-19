@@ -11,6 +11,8 @@
  * + actualización expresa antes de activarla — fuera de alcance aquí.
  */
 
+import { readAnalyticsLanding } from './analytics-landing';
+
 export const CONSENT_STORAGE_KEY = 'ime_consent';
 
 /**
@@ -170,9 +172,17 @@ export function loadAnalyticsScripts(ids: AnalyticsIds): boolean {
     document.head.appendChild(gaScript);
     window.gtag = window.gtag || pushGtagCommand;
     window.gtag('js', new Date());
+    // The tag stays unloaded until analytics consent (ADR-0012). That is why
+    // Search Console clicks exceed GA4 sessions: visitors who do not accept
+    // are not measured. Once consent exists, page_location must be on the
+    // config hit. Without it GA4 records the landing page as "(not set)".
+    const landing = readAnalyticsLanding();
     window.gtag('config', ids.gaId, {
       send_page_view: false,
       cookie_domain: ids.analyticsDomain === 'auto' ? 'auto' : ids.analyticsDomain,
+      page_location: landing?.page_location || window.location.href,
+      page_referrer: landing?.page_referrer || document.referrer,
+      page_title: landing?.page_title || document.title,
     });
   }
 

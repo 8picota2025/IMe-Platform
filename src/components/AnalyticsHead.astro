@@ -23,6 +23,24 @@ const analyticsDomain = resolveAnalyticsDomain();
   data-clarity={clarityId}
 />
 
+<script is:inline>
+  try {
+    const imeLandingKey = 'ime_analytics_landing';
+    if (!sessionStorage.getItem(imeLandingKey)) {
+      sessionStorage.setItem(
+        imeLandingKey,
+        JSON.stringify({
+          page_location: location.href,
+          page_referrer: document.referrer || '',
+          page_title: document.title,
+        })
+      );
+    }
+  } catch {
+    /* sessionStorage blocked: the module still records the URL after consent */
+  }
+</script>
+
 <script>
   import { installAnalytics, trackPageView } from '../lib/analytics';
   import {

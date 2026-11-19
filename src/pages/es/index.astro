@@ -160,6 +160,7 @@ const servicios = [
   ogImage={seo.ogImage}
   jsonLd={jsonLd}
   fontAwesome={true}
+  lcpImage="/assets/img/equipos-biomedicos-vanguardia-opt.webp"
 >
   <div class="site-faithful">
     <!-- ═══ HERO ═══ -->
@@ -197,7 +198,15 @@ const servicios = [
             clínicas y centros de salud en todo Colombia.
           </p>
           <div class="hero-actions">
-            <a href="/es/catalogo/" class="btn btn-primary">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-open-cotizacion
+              data-quote-cta="home_hero"
+            >
+              Solicitar cotización
+            </button>
+            <a href="/es/catalogo/" class="btn btn-outline-white">
               <i class="fas fa-microscope"></i> Ver catálogo
             </a>
             <a
@@ -207,12 +216,13 @@ const servicios = [
               rel="noopener noreferrer"
               data-commercial-origin="home_hero_whatsapp"
             >
-              <i class="fab fa-whatsapp"></i> Hablar con un asesor
+              <i class="fab fa-whatsapp"></i> WhatsApp
             </a>
           </div>
           <p class="hero-response-note">
             <i class="fas fa-clock" aria-hidden="true"></i> Respuesta comercial en menos de 24 horas ·
-            Sin compromiso
+            Sin compromiso ·
+            <a href="tel:+573137247353">+57 313 724 7353</a>
           </p>
           <div class="hero-stats">
             <div>

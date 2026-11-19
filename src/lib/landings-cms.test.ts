@@ -132,6 +132,7 @@ const CLAVES_CORREGIDAS_POR_MIGRACION = new Map([
 // Mismo criterio para familias: slug → migración que corrige su copy en BD.
 const SLUGS_FAMILIA_CORREGIDOS_POR_MIGRACION = new Map([
   ['robots', '20261109210100_familia_robots_copy_cms.sql'],
+  ['mobiliario', '20261119120000_familia_mobiliario_seo_cro.sql'],
 ]);
 
 describe('seed de la tanda 1', () => {

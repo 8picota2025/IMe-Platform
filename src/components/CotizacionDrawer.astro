@@ -583,6 +583,19 @@ const config = {
     }
 
     unsubAbrirCotizacion = alAbrirCotizacion(open);
+    document.addEventListener(
+      'click',
+      event => {
+        const opener =
+          event.target instanceof Element
+            ? event.target.closest<HTMLElement>('[data-open-cotizacion]')
+            : null;
+        if (!opener) return;
+        event.preventDefault();
+        open();
+      },
+      { signal }
+    );
     closeBtn?.addEventListener('click', close, { signal });
     backdrop?.addEventListener('click', close, { signal });
 

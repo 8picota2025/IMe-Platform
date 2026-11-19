@@ -376,6 +376,7 @@ const canonical = buildCanonical('/en/contact/');
 </style>
 
 <script>
+  import { emitAnalyticsEvent } from '../../lib/analytics';
   import { submitCotizacion } from '../../lib/submit-cotizacion';
   import { collectVisitorPhone } from '../../lib/visitor-phone-field';
   import { mensajeExitoCotizacion } from '../../lib/cotizacion-submit';
@@ -472,6 +473,11 @@ const canonical = buildCanonical('/en/contact/');
       });
 
       if (result.ok) {
+        emitAnalyticsEvent('quote_success', {
+          origin: 'contact_form',
+          locale: 'en',
+          price_mode: 'quote',
+        });
         setStatus(mensajeExitoCotizacion('en', result.emails), 'success');
         form.reset();
         if (submitBtn) {

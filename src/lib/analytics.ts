@@ -1,3 +1,4 @@
+import { readAnalyticsLanding, rememberAnalyticsLanding } from './analytics-landing';
 import { hasAnalyticsConsent } from './consent';
 
 export type AnalyticsEventName =
@@ -15,6 +16,7 @@ export type AnalyticsEventName =
   | 'quote_open'
   | 'quote_begin'
   | 'quote_success'
+  | 'generate_lead'
   | 'whatsapp_click'
   | 'tel_click'
   | 'imeia_open'
@@ -217,9 +219,32 @@ function sendFirstPartyEvent(name: AnalyticsEventName, params: AnalyticsParams):
     .catch(() => undefined);
 }
 
+/** GA4 landing page stays "(not set)" when the first hit omits page_location. */
+export function buildGa4EventParams(
+  params: AnalyticsParams = {},
+  page?: {
+    page_location?: string;
+    page_path?: string;
+    page_title?: string;
+    page_referrer?: string;
+  }
+): AnalyticsParams {
+  const base: AnalyticsParams = {};
+  if (page?.page_location) base.page_location = page.page_location;
+  if (page?.page_path) base.page_path = page.page_path;
+  if (page?.page_title) base.page_title = page.page_title;
+  if (page?.page_referrer) base.page_referrer = page.page_referrer;
+  return normalizeParams({ ...base, ...params });
+}
+
 function pushDataLayer(name: AnalyticsEventName, params: AnalyticsParams): void {
   if (typeof window === 'undefined') return;
-  const payload = normalizeParams(params);
+  const payload = buildGa4EventParams(params, {
+    page_location: window.location.href,
+    page_path: window.location.pathname,
+    page_title: document.title,
+    page_referrer: document.referrer,
+  });
   window.dataLayer = window.dataLayer ?? [];
   window.dataLayer.push({ event: name, ...payload });
   if (name === 'page_view') window.__imeAnalyticsLastPageViewPayload = payload;
@@ -249,17 +274,34 @@ export function emitAnalyticsEvent(name: AnalyticsEventName, params: AnalyticsPa
  */
 export function replayPageViewToGtag(): void {
   if (typeof window === 'undefined') return;
-  const payload = window.__imeAnalyticsLastPageViewPayload;
-  if (!payload) return;
-  window.gtag?.('event', 'page_view', payload);
-  if (hasAnalyticsConsent() && !window.__imeAnalyticsFirstPartyReplayed) {
+  const landing = readAnalyticsLanding();
+  const current = window.__imeAnalyticsLastPageViewPayload;
+  const landingPayload: AnalyticsParams | undefined = landing
+    ? {
+        page_location: landing.page_location,
+        page_title: landing.page_title,
+        ...(landing.page_referrer ? { page_referrer: landing.page_referrer } : {}),
+      }
+    : current;
+  if (!landingPayload && !current) return;
+  if (landingPayload) window.gtag?.('event', 'page_view', landingPayload);
+  if (
+    current?.page_location &&
+    landingPayload?.page_location &&
+    current.page_location !== landingPayload.page_location
+  ) {
+    window.gtag?.('event', 'page_view', current);
+  }
+  const firstParty = landingPayload ?? current;
+  if (firstParty && hasAnalyticsConsent() && !window.__imeAnalyticsFirstPartyReplayed) {
     window.__imeAnalyticsFirstPartyReplayed = true;
-    sendFirstPartyEvent('page_view', payload);
+    sendFirstPartyEvent('page_view', firstParty);
   }
 }
 
 export function trackPageView(): void {
   if (typeof window === 'undefined') return;
+  rememberAnalyticsLanding();
   const pathname = window.location.pathname;
   const search = window.location.search;
   const pageKey = `${pathname}${search}`;
@@ -303,6 +345,22 @@ function handleClick(event: MouseEvent): void {
     emitAnalyticsEvent('imeia_open', {
       page_path: window.location.pathname,
     });
+  }
+
+  const quoteCta = target.closest<HTMLElement>(
+    '[data-quote-cta], [data-ensure-cotizacion], [data-mobile-quote-trigger], [data-open-cotizacion]'
+  );
+  if (quoteCta) {
+    emitAnalyticsEvent('cta_clicked', {
+      text: (quoteCta.textContent ?? quoteCta.getAttribute('aria-label') ?? 'quote').trim(),
+      cta_id:
+        quoteCta.dataset.quoteCta ||
+        quoteCta.dataset.ensureCotizacion ||
+        quoteCta.dataset.openCotizacion ||
+        'mobile_quote',
+      page_path: window.location.pathname,
+    });
+    return;
   }
 
   const quoteButton = target.closest<HTMLElement>('[data-add-cotizacion]');
@@ -442,6 +500,16 @@ export function installAnalytics(config: AnalyticsConfig): void {
     const detail = (event as CustomEvent<AnalyticsDetail>).detail;
     if (!detail?.name) return;
     pushDataLayer(detail.name, detail.params ?? {});
+    if (detail.name === 'quote_success') {
+      const params = detail.params ?? {};
+      pushDataLayer('generate_lead', {
+        lead_source: typeof params.origin === 'string' ? params.origin : 'quote_form',
+        price_mode: params.price_mode,
+        item_count: params.item_count,
+        product_count: params.product_count,
+        locale: params.locale,
+      });
+    }
   });
 
   document.addEventListener('click', handleClick, { capture: true });
