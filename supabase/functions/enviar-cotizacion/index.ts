@@ -563,7 +563,8 @@ Deno.serve(async req => {
     );
   }
 
-  // GUARDA 31-10-2026: nunca enviar sin aprobación ni con marca "NO ENVIAR" (incidente 27-10).
+  // Guarda: bloquea solo la marca explícita "NO ENVIAR".
+  // La aprobación previa (aprobado_por/aprobado_at) ya no impide el envío (2026-11-20).
   // Se evalúa sobre la fila ya persistida (incluye condiciones recién guardadas) y vale para email y WhatsApp.
   const guarda = verificarEnvioPermitido(row as unknown as Record<string, unknown>);
   if (!guarda.ok) {
