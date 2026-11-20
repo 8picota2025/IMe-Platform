@@ -34,6 +34,8 @@ if (error) throw error;
 const rows = (data ?? []).map((p) => ({
   id: p.id,
   slug: p.slug,
+  url_canonica: `https://i-me.com.co/es/productos/${p.slug}/`,
+  url_canonica_en: `https://i-me.com.co/en/products/${p.slug}/`,
   sku: p.sku || p.slug,
   gtin: p.gtin || null,
   nombre_es: p.nombre_es,

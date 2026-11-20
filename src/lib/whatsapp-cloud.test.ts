@@ -194,6 +194,9 @@ describe('WhatsApp Cloud API — IMEIA composition', () => {
       ],
     });
     expect(reply.texto).toContain('Monitor de Paciente M12 Biolight');
+    expect(reply.texto).toContain(
+      'https://i-me.com.co/es/productos/monitor-de-paciente-ref-m12-biolight/'
+    );
     expect(reply.texto).toContain(IME_WHATSAPP_DISPLAY);
     expect(reply.texto).toContain(IME_COTIZACION_URL);
     expect(reply.texto).not.toMatch(/\bRS[-\s]?\d{4,}/i);

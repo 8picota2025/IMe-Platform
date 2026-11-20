@@ -18,6 +18,17 @@ describe('htaccess indexación', () => {
     );
   });
 
+  it('manda fichas sin locale a la URL canónica y deja el índice de productos', () => {
+    expect(htaccess).toContain('RewriteRule ^producto/([^/]+)/?$ /es/productos/$1/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^productos/([^/]+)/?$ /es/productos/$1/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^es/producto/([^/]+)/?$ /es/productos/$1/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^product/([^/]+)/?$ /en/products/$1/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^products/([^/]+)/?$ /en/products/$1/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^en/product/([^/]+)/?$ /en/products/$1/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^es/productos/?$ /es/catalogo/ [R=301,L]');
+    expect(htaccess).toContain('RewriteRule ^en/products/?$ /en/catalog/ [R=301,L]');
+  });
+
   it('responde 410 al slug truncado g-g sin tocar las reglas g-gmrn', () => {
     expect(htaccess).toContain('RewriteRule ^(?:es/productos|en/products)/g-g/?$ - [G,L]');
     expect(htaccess).toContain('g-gmrn');

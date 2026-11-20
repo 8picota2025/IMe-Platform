@@ -25,6 +25,15 @@ RewriteRule ^$ https://i-me.com.co/es/ [R=301,L]
 RewriteCond %{HTTP_HOST} ^www\.i-me\.com\.co$ [NC]
 RewriteRule ^ https://i-me.com.co%{REQUEST_URI} [R=301,L]
 
+# Fichas mal armadas (IMEia arma /producto/{slug} desde el slug del catálogo).
+# El segmento ([^/]+) es obligatorio: no toca el índice /es/productos/ → /es/catalogo/.
+RewriteRule ^producto/([^/]+)/?$ /es/productos/$1/ [R=301,L]
+RewriteRule ^productos/([^/]+)/?$ /es/productos/$1/ [R=301,L]
+RewriteRule ^es/producto/([^/]+)/?$ /es/productos/$1/ [R=301,L]
+RewriteRule ^product/([^/]+)/?$ /en/products/$1/ [R=301,L]
+RewriteRule ^products/([^/]+)/?$ /en/products/$1/ [R=301,L]
+RewriteRule ^en/product/([^/]+)/?$ /en/products/$1/ [R=301,L]
+
 # Imports relativos antiguos (lib/analytics) que el crawler resolvió como páginas.
 RewriteRule (?:^|/)lib/analytics/?$ - [G,L]
 

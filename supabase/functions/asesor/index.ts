@@ -37,7 +37,10 @@ import {
   esConsultaContacto,
   esConsultaSitioOLegal,
 } from '../../../src/lib/asesor-knowledge.ts';
-import { aplicarGuardrailInvima, detectarAccionHandoff } from '../../../src/lib/asesor-guardrails.ts';
+import {
+  aplicarGuardrailInvima,
+  detectarAccionHandoff,
+} from '../../../src/lib/asesor-guardrails.ts';
 import { IME_WHATSAPP_DISPLAY } from '../../../src/lib/contacto-oficial.ts';
 
 type Locale = 'es' | 'en';
@@ -250,7 +253,8 @@ Deno.serve(async req => {
       );
     }
 
-    const texto = typeof data.reply_texto === 'string' ? aplicarGuardrailInvima(data.reply_texto.trim()) : '';
+    const texto =
+      typeof data.reply_texto === 'string' ? aplicarGuardrailInvima(data.reply_texto.trim()) : '';
     if (status === 'timeout' || (status === 'failed' && !texto)) {
       const isTimeout = status === 'timeout';
       return errorResponse(
@@ -670,6 +674,12 @@ function normalizarNavigationContext(
   };
 }
 
+function urlCanonicaProducto(locale: Locale, slug: string): string {
+  return locale === 'en'
+    ? `https://i-me.com.co/en/products/${slug}/`
+    : `https://i-me.com.co/es/productos/${slug}/`;
+}
+
 async function _obtenerContextoCanonico(
   supabase: ReturnType<typeof getServerSupabase>,
   navigation: NavigationContext,
@@ -706,10 +716,7 @@ async function _obtenerContextoCanonico(
       especificaciones: Array.isArray(product.especificaciones) ? product.especificaciones : [],
       modalidad_venta: extraerString(product.fulfillment_mode),
       ficha_pdf: extraerString(product.ficha_pdf),
-      url_canonica:
-        locale === 'en'
-          ? `https://i-me.com.co/en/products/${product.slug}`
-          : `https://i-me.com.co/es/productos/${product.slug}`,
+      url_canonica: urlCanonicaProducto(locale, String(product.slug)),
     },
     category: null,
     type: null,
@@ -742,10 +749,7 @@ async function _obtenerContextoCanonico(
     canonical.comparable_products = (comparable ?? []).map(item => ({
       slug: item.slug as string,
       nombre: (locale === 'en' ? item.nombre_en || item.nombre_es : item.nombre_es) as string,
-      url_canonica:
-        locale === 'en'
-          ? `https://i-me.com.co/en/products/${item.slug}`
-          : `https://i-me.com.co/es/productos/${item.slug}`,
+      url_canonica: urlCanonicaProducto(locale, String(item.slug)),
     }));
   }
 
@@ -910,10 +914,7 @@ async function _obtenerContextoPorSlugs(
         especificaciones: Array.isArray(product.especificaciones) ? product.especificaciones : [],
         modalidad_venta: extraerString(product.fulfillment_mode),
         ficha_pdf: extraerString(product.ficha_pdf),
-        url_canonica:
-          locale === 'en'
-            ? `https://i-me.com.co/en/products/${product.slug}`
-            : `https://i-me.com.co/es/productos/${product.slug}`,
+        url_canonica: urlCanonicaProducto(locale, String(product.slug)),
         score: 1000 - index,
       };
     });
@@ -993,10 +994,7 @@ async function _obtenerContextoCatalogoPorMensaje(
     especificaciones: Array.isArray(product.especificaciones) ? product.especificaciones : [],
     modalidad_venta: extraerString(product.fulfillment_mode),
     ficha_pdf: extraerString(product.ficha_pdf),
-    url_canonica:
-      locale === 'en'
-        ? `https://i-me.com.co/en/products/${product.slug}`
-        : `https://i-me.com.co/es/productos/${product.slug}`,
+    url_canonica: urlCanonicaProducto(locale, String(product.slug)),
     score,
   }));
 
@@ -1019,10 +1017,7 @@ async function _obtenerContextoCatalogoPorMensaje(
         slug: String(product.slug),
         nombre: String(nombre ?? product.slug),
         descripcion_corta: extraerLocale(product, 'descripcion_corta', locale),
-        url_canonica:
-          locale === 'en'
-            ? `https://i-me.com.co/en/products/${product.slug}`
-            : `https://i-me.com.co/es/productos/${product.slug}`,
+        url_canonica: urlCanonicaProducto(locale, String(product.slug)),
       };
     });
 
@@ -1063,6 +1058,7 @@ REGLAS DE USO DEL CONTEXTO:
 - Tras elegir un ganador entre opciones, cierra con CTA de conversion (cotizacion web o WhatsApp ${IME_WHATSAPP_DISPLAY}) sin presion.
 - No afirmes precio, stock, disponibilidad, registro sanitario INVIMA (RS), certificaciones, garantia o plazo si no aparece en los datos canonicos o documentacion recuperada. Si el usuario lo pide, escala; no inventes el dato.
 - Si query_catalog_context.products esta vacio y no hay producto canonico, no inventes SKUs.
+- Enlaces de ficha: usa solo url_canonica del ítem. No construyas nunca una URL desde el slug. Si no hay url_canonica, no mandes enlace.
 - Si el contexto del navegador y los datos canonicos no coinciden, usa los datos canonicos del servidor.`;
 }
 
@@ -1127,7 +1123,7 @@ async function construirTarjetas(
           slug: s,
           nombre,
           imagen: (p.imagen_principal as string | null) ?? null,
-          url_landing: locale === 'en' ? `/en/products/${s}` : `/es/productos/${s}`,
+          url_landing: locale === 'en' ? `/en/products/${s}/` : `/es/productos/${s}/`,
           score: 1 - i * 0.05,
         };
       });
