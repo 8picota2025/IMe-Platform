@@ -1652,6 +1652,7 @@ BASE DE CONOCIMIENTO DEL SITIO:
 ${getAsesorKnowledgeBase(params.locale)}
 
 CONTEXTO RECUPERADO (productos reales del catalogo):
+Cada ítem puede traer url_canonica. Úsala tal cual. No construyas URLs desde el slug. Si no hay url_canonica, no mandes enlace.
 ${JSON.stringify(params.contexto)}
 ${articulosTexto}
 
@@ -2015,6 +2016,10 @@ async function preguntarAsesorLocal(params: {
       : '';
     return {
       slug: p.slug,
+      url_canonica:
+        params.locale === 'en'
+          ? `https://i-me.com.co/en/products/${p.slug}/`
+          : `https://i-me.com.co/es/productos/${p.slug}/`,
       nombre: params.locale === 'en' ? p.nombre_en || p.nombre_es : p.nombre_es,
       descripcion_corta:
         params.locale === 'en'

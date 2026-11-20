@@ -201,7 +201,12 @@ Método:
 - Máximo 1-2 preguntas de descubrimiento por turno, integradas.
 - SHORTLIST STICKY: "cuál de esos / el más completo / compara esos" → solo anchors ya dados. Prohibido saltar de línea.
 - Tras recomendar o elegir ganador, cierra con CTA proporcional, sin presión.
-- Ante riesgo para el paciente: protocolo institucional / manual del fabricante; no instrucciones invasivas.`;
+- Ante riesgo para el paciente: protocolo institucional / manual del fabricante; no instrucciones invasivas.
+
+Enlaces de ficha:
+- Usa solo url_canonica (en inglés, url_canonica_en si el ítem la trae) tal como viene en el contexto.
+- No construyas nunca una URL a partir del slug.
+- Si el ítem no trae URL canónica, no mandes enlace.`;
 }
 
 export function buildImeiaRuntimeSystemPrompt(locale: 'es' | 'en'): string {
@@ -274,6 +279,16 @@ export function imeiaPromptEvalChecks(prompt: string): string[] {
   return missing;
 }
 
+/** La ficha pública siempre lleva barra final. No inventa una ruta si no hay URL. */
+function urlFichaPublica(url: string | null | undefined): string | null {
+  const trimmed = url?.trim() ?? '';
+  if (!trimmed) return null;
+  if (/^https:\/\/i-me\.com\.co\/(?:es\/productos|en\/products)\/[^/?#]+$/i.test(trimmed)) {
+    return `${trimmed}/`;
+  }
+  return trimmed;
+}
+
 export function composeGroundedAsesorReply(params: {
   locale: 'es' | 'en';
   mensaje: string;
@@ -310,7 +325,7 @@ export function composeGroundedAsesorReply(params: {
 
   const lineas = products.map((product, index) => {
     const detalle = product.descripcion_corta?.trim() || product.slug;
-    const url = product.url_canonica?.trim();
+    const url = urlFichaPublica(product.url_canonica);
     const nombre = url ? `[${product.nombre}](${url})` : `**${product.nombre}**`;
     return `${index + 1}. ${nombre} — ${detalle}`;
   });
@@ -345,21 +360,27 @@ export function composeGroundedAsesorReply(params: {
   return { texto, slugs, modo: products.length ? 'keyword_degradado' : 'sin_resultados' };
 }
 
-
 // Guardrail INVIMA: ninguna respuesta saliente puede afirmar un registro
 // sanitario que el catálogo no tenga verificado (invima_estado='vigente').
-const INVIMA_RS_CODE_REGEX = /\b(?:INVIMA\s*)?\d{4}\s*(?:DM|EBC|RD|DV|M)\s*-?\s*\d{4,}(?:-R\d+)?\b/gi;
+const INVIMA_RS_CODE_REGEX =
+  /\b(?:INVIMA\s*)?\d{4}\s*(?:DM|EBC|RD|DV|M)\s*-?\s*\d{4,}(?:-R\d+)?\b/gi;
 const INVIMA_CLAIM_SENTENCE_REGEX =
   /[^.!?\n]*\b(?:cuenta(?:n)? con|tiene(?:n)?|posee(?:n)?|con)\s+(?:el\s+|su\s+)?registro(?:\s+sanitario)?\s+(?:INVIMA\s+)?(?:vigente|aprobado|INVIMA)[^.!?\n]*[.!?]?/gi;
 export const INVIMA_GUARDRAIL_TEXT =
   'El estado del registro sanitario INVIMA de este equipo lo confirma nuestro equipo comercial antes de cotizar.';
 
-export function aplicarGuardrailInvima(texto: string, rsVerificados: readonly string[] = []): string {
+export function aplicarGuardrailInvima(
+  texto: string,
+  rsVerificados: readonly string[] = []
+): string {
   if (!texto) return texto;
-  const ok = new Set(rsVerificados.map((r) => r.replace(/\s+/g, '').toUpperCase()));
+  const ok = new Set(rsVerificados.map(r => r.replace(/\s+/g, '').toUpperCase()));
   let cambiado = false;
-  let out = texto.replace(INVIMA_RS_CODE_REGEX, (m) => {
-    const norm = m.replace(/^INVIMA/i, '').replace(/\s+/g, '').toUpperCase();
+  let out = texto.replace(INVIMA_RS_CODE_REGEX, m => {
+    const norm = m
+      .replace(/^INVIMA/i, '')
+      .replace(/\s+/g, '')
+      .toUpperCase();
     if (ok.has(norm) || ok.has(m.replace(/\s+/g, '').toUpperCase())) return m;
     cambiado = true;
     return '[registro en verificación]';
@@ -371,6 +392,9 @@ export function aplicarGuardrailInvima(texto: string, rsVerificados: readonly st
     });
   }
   if (!cambiado) return texto;
-  out = out.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  out = out
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   return out.includes(INVIMA_GUARDRAIL_TEXT) ? out : `${out}\n\n${INVIMA_GUARDRAIL_TEXT}`.trim();
 }
