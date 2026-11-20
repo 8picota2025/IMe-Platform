@@ -22,6 +22,7 @@ import {
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 import { desgloseDeLineas } from '../_shared/cotizacion-pago.ts';
+import { verificarEnvioPermitido } from '../_shared/guarda-envio.ts';
 
 const ROLES = new Set(['owner', 'admin', 'ventas']);
 
@@ -97,6 +98,15 @@ Deno.serve(async req => {
       409,
       origin
     );
+  }
+
+  // Misma guarda que enviar-cotizacion (incidente 27-10): convertir crea un
+  // checkout Wompi/Stripe pagable con precios locked de la oferta. Sin esta
+  // marca, ventas puede saltarse aprobación/NO ENVIAR y abrir cobro underpriced
+  // (el trigger SQL solo bloquea transición a 'enviada', no a 'convertida').
+  const guarda = verificarEnvioPermitido(row as unknown as Record<string, unknown>);
+  if (!guarda.ok) {
+    return errorResponse({ code: guarda.code, message: guarda.message }, 409, origin);
   }
 
   const lineas = parseLineasOferta(row.productos);
