@@ -28,6 +28,10 @@ interface MockOptions {
   staleOpportunityIds?: string[];
   failTaskWrites?: boolean;
   failTargetWrites?: boolean;
+  /** POST/PATCH de persona con `phones` responde el 400 real de Twenty. */
+  rejectInvalidPhone?: boolean;
+  /** Ningún alta de persona prospera. */
+  rejectPeopleWrites?: boolean;
 }
 
 function collection(key: string, value: TwentyRecord | null): Response {
@@ -70,10 +74,32 @@ function installTwentyMock(options: MockOptions = {}) {
 
     if (url.pathname === '/rest/people') {
       if (method === 'GET') return collection('people', person);
+      if (options.rejectPeopleWrites || (options.rejectInvalidPhone && body?.phones)) {
+        return Response.json(
+          {
+            statusCode: 400,
+            error: 'Error',
+            messages: ['Provided phone number is invalid 700000001'],
+            code: 'INVALID_PHONE_NUMBER',
+          },
+          { status: 400 }
+        );
+      }
       person = { id: 'person-1', ...body };
       return record(person, 201);
     }
     if (url.pathname.startsWith('/rest/people/')) {
+      if (options.rejectPeopleWrites || (options.rejectInvalidPhone && body?.phones)) {
+        return Response.json(
+          {
+            statusCode: 400,
+            error: 'Error',
+            messages: ['Provided phone number is invalid 700000001'],
+            code: 'INVALID_PHONE_NUMBER',
+          },
+          { status: 400 }
+        );
+      }
       person = { ...(person ?? {}), id: url.pathname.split('/').at(-1)!, ...body };
       return record(person);
     }
@@ -566,4 +592,70 @@ Deno.test('lead magnet: herramientas y fichas; cargo acotado a 80 caracteres', (
   assertEquals(esCampanaLeadMagnet('proyectos'), false);
   assertEquals(esCampanaLeadMagnet(undefined), false);
   assert(leadMagnetJobTitle('x'.repeat(200)).length <= 80);
+});
+
+Deno.test(
+  'cotizacion: un telefono sin indicativo no bloquea persona ni oportunidad',
+  async () => {
+    const mock = installTwentyMock({ rejectInvalidPhone: true });
+    try {
+      const result = await new TwentyClient({
+        baseUrl: 'https://twenty.test',
+        apiKey: 'test-key',
+      }).syncCotizacionLead({
+        nombre: 'Contacto Web',
+        email: 'lead@example.test',
+        telefono: '700000001',
+        empresa: 'Clinica Demo',
+        mensaje: 'Cotizacion de equipo',
+        origen: 'lista_cotizacion',
+        tipoSolicitud: 'cotizacion',
+        productos: [{ nombre: 'Incubadora', slug: 'incubadora', cantidad: 1 }],
+        moneda: 'COP',
+        ownerId: 'owner-1',
+      });
+
+      assertEquals(result.ok, true);
+      assertEquals(result.data?.opportunityId, 'opportunity-1');
+      assertEquals(result.data?.personId, 'person-1');
+
+      const posts = callsFor(mock.calls, 'POST', '/rest/people');
+      assertEquals(posts.length, 2);
+      assertEquals(posts[0]?.body?.phones, { primaryPhoneNumber: '700000001' });
+      assertEquals(posts[1]?.body?.phones, undefined);
+      assertEquals(posts[1]?.body?.emails, { primaryEmail: 'lead@example.test' });
+      assertEquals(callsFor(mock.calls, 'POST', '/rest/opportunities').length, 1);
+
+      const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+      const markdown = (task?.bodyV2 as { markdown?: string } | undefined)?.markdown ?? '';
+      assertStringIncludes(markdown, '**Teléfono:** 700000001');
+    } finally {
+      mock.restore();
+    }
+  }
+);
+
+Deno.test('cotizacion: el error de telefono no guarda los digitos', async () => {
+  const mock = installTwentyMock({ rejectPeopleWrites: true });
+  try {
+    const result = await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncCotizacionLead({
+      nombre: 'Contacto Web',
+      email: 'lead@example.test',
+      telefono: '700000001',
+      empresa: 'Clinica Demo',
+      origen: 'lista_cotizacion',
+      tipoSolicitud: 'cotizacion',
+      ownerId: 'owner-1',
+    });
+
+    assertEquals(result.ok, false);
+    assertStringIncludes(result.error ?? '', 'HTTP 400 INVALID_PHONE_NUMBER');
+    assertEquals((result.error ?? '').includes('700000001'), false);
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/opportunities').length, 0);
+  } finally {
+    mock.restore();
+  }
 });
