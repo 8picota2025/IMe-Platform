@@ -10,12 +10,28 @@ import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+function jwtRole(token: string): string | null {
+  const part = token.split('.')[1];
+  if (!part) return null;
+  try {
+    const json = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = JSON.parse(json) as { role?: unknown };
+    return typeof payload.role === 'string' ? payload.role : null;
+  } catch {
+    return null;
+  }
+}
+
 function isServiceRole(req: Request): boolean {
   const expected = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.trim() ?? '';
-  if (!expected) return false;
   const bearer = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '').trim() ?? '';
   const apikey = req.headers.get('apikey')?.trim() ?? '';
-  return bearer === expected || apikey === expected;
+  const token = bearer || apikey;
+  if (!token) return false;
+  if (expected && (bearer === expected || apikey === expected)) return true;
+  // Clave nueva de servicio (no es JWT). La publishable del navegador no entra.
+  if (token.startsWith('sb_secret_')) return true;
+  return jwtRole(token) === 'service_role';
 }
 
 Deno.serve(async req => {
