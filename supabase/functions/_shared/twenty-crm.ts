@@ -165,6 +165,17 @@ function extractTwentyRecord(raw: unknown): TwentyRecord | null {
   return null;
 }
 
+/** Código estable de Twenty (`INVALID_PHONE_NUMBER`). El mensaje repite el número: no se guarda. */
+function twentyErrorCode(text: string): string | null {
+  try {
+    const json = JSON.parse(text) as { code?: unknown };
+    if (typeof json.code === 'string' && /^[A-Z0-9_]{1,64}$/.test(json.code)) return json.code;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 function getTwentyConfig(): TwentyConfig | null {
   const baseUrl = Deno.env.get('TWENTY_BASE_URL')?.trim().replace(/\/+$/, '');
   const apiKey = Deno.env.get('TWENTY_API_KEY')?.trim();
@@ -221,9 +232,14 @@ export class TwentyClient {
       });
 
       if (!res.ok) {
-        // `path` puede llevar email/teléfono en el filtro y el body puede
-        // contener datos internos: no persistir ninguno en logs ni en BD.
-        return { ok: false, error: `Twenty CRM: HTTP ${res.status}` };
+        // `path` puede llevar email/teléfono en el filtro y el mensaje de
+        // Twenty puede repetir el número. Solo se persiste el código estable.
+        const text = await res.text().catch(() => '');
+        const code = twentyErrorCode(text);
+        return {
+          ok: false,
+          error: code ? `Twenty CRM: HTTP ${res.status} ${code}` : `Twenty CRM: HTTP ${res.status}`,
+        };
       }
 
       const json = await res.json().catch(() => ({}));
@@ -678,6 +694,24 @@ export class TwentyClient {
     };
   }
 
+  /**
+   * Twenty responde 400 `INVALID_PHONE_NUMBER` y no crea a la persona si el
+   * nacional no trae indicativo válido. El reintento omite `phones`; el
+   * número crudo sigue en la tarea de la cotización.
+   */
+  private async writePerson(
+    method: 'POST' | 'PATCH',
+    path: string,
+    payload: Record<string, unknown>
+  ): Promise<TwentyResult<TwentyRecord>> {
+    const written = await this.requestRecord(method, path, payload);
+    if (written.ok || !payload.phones || !written.error?.includes('INVALID_PHONE_NUMBER')) {
+      return written;
+    }
+    const { phones: _phones, ...withoutPhone } = payload;
+    return this.requestRecord(method, path, withoutPhone);
+  }
+
   async upsertPerson(input: {
     firstName: string;
     lastName?: string;
@@ -718,28 +752,28 @@ export class TwentyClient {
     if (input.companyId) payload.companyId = input.companyId;
 
     if (existingId) {
-      const patched = await this.requestRecord('PATCH', `/people/${existingId}`, payload);
+      const patched = await this.writePerson('PATCH', `/people/${existingId}`, payload);
       if (patched.ok || !input.email) return patched;
       // Email puede chocar con workspace user u otro registro no filtrable.
       // Reintenta sin email para no bloquear tipificación del lead.
       const { emails: _emails, ...withoutEmail } = payload;
-      return this.requestRecord('PATCH', `/people/${existingId}`, withoutEmail);
+      return this.writePerson('PATCH', `/people/${existingId}`, withoutEmail);
     }
-    const created = await this.requestRecord('POST', '/people', payload);
+    const created = await this.writePerson('POST', '/people', payload);
     if (created.ok) return created;
 
     if (input.phoneNumber) {
       const raced = await this.findPersonByPhone(input.phoneNumber);
       if (raced.ok && raced.data?.id) {
-        const patched = await this.requestRecord('PATCH', `/people/${raced.data.id}`, payload);
+        const patched = await this.writePerson('PATCH', `/people/${raced.data.id}`, payload);
         if (patched.ok || !input.email) return patched;
         const { emails: _emails, ...withoutEmail } = payload;
-        return this.requestRecord('PATCH', `/people/${raced.data.id}`, withoutEmail);
+        return this.writePerson('PATCH', `/people/${raced.data.id}`, withoutEmail);
       }
     }
     if (input.email) {
       const { emails: _emails, ...withoutEmail } = payload;
-      return this.requestRecord('POST', '/people', withoutEmail);
+      return this.writePerson('POST', '/people', withoutEmail);
     }
     return created;
   }
@@ -1634,6 +1668,11 @@ export class TwentyClient {
           ...(input.attribution?.referrer ? [`**Referrer:** ${input.attribution.referrer}`] : []),
           ...(input.attribution?.sessionId
             ? [`**Session ID:** ${input.attribution.sessionId}`]
+            : []),
+          // Sin indicativo, Twenty rechaza el compuesto `phones` y el número
+          // solo vive aquí. Con indicativo válido queda en la ficha de persona.
+          ...(input.telefono?.trim() && !phoneCallingCode
+            ? [`**Teléfono:** ${input.telefono.trim()}`]
             : []),
           `**Mensaje:** ${input.mensaje || '—'}`,
           // Congreso/evento: productos de interés van en la tarea para seguimiento.
