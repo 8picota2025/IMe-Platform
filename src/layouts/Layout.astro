@@ -17,6 +17,7 @@ import PWABanner from '../components/PWABanner.astro';
 import ConsentBanner from '../components/ConsentBanner.astro';
 import type { Locale } from '../i18n/utils';
 import { t } from '../i18n/utils';
+import { buildOrganizationJsonLd, combineJsonLd } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -58,6 +59,15 @@ const {
   lcpImage,
 } = Astro.props;
 
+const ORG_ID = 'https://i-me.com.co/#organization';
+const resolvedJsonLd =
+  jsonLd && jsonLd.includes(ORG_ID)
+    ? jsonLd
+    : combineJsonLd(
+        jsonLd ? (JSON.parse(jsonLd) as Record<string, unknown>) : null,
+        buildOrganizationJsonLd()
+      );
+
 const commercialBarAllowed =
   currentPath === '/es' ||
   currentPath === '/es/' ||
@@ -83,7 +93,7 @@ const commercialBarAllowed =
       {...ogImageWidth !== undefined ? { ogImageWidth } : {}}
       {...ogImageHeight !== undefined ? { ogImageHeight } : {}}
       {...ogType !== undefined ? { ogType } : {}}
-      {...jsonLd !== undefined ? { jsonLd } : {}}
+      jsonLd={resolvedJsonLd}
       {...noindex !== undefined ? { noindex } : {}}
       {...fontAwesome !== undefined ? { fontAwesome } : {}}
       monolingual={monolingual}

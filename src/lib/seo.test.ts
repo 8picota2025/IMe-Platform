@@ -23,7 +23,14 @@ describe('buildOrganizationJsonLd', () => {
     const org = buildOrganizationJsonLd();
     const contact = (org.contactPoint as Array<{ telephone?: string }>)[0];
     expect(contact?.telephone).toBe('+57-313-724-7353');
-    expect(org.sameAs).toEqual(['https://wa.me/573137247353']);
+    expect(org.sameAs).toEqual([
+      'https://wa.me/573137247353',
+      'https://www.instagram.com/imebiomed/',
+      'https://x.com/IMEbiomed',
+      'https://www.linkedin.com/company/ime-international-medical-enterprise/',
+      'https://www.youtube.com/@IMEbiomed',
+    ]);
+    expect(org.sameAs).not.toContain('https://www.facebook.com/imebiomed');
     expect(JSON.stringify(org)).not.toContain('310-333-2607');
   });
 });

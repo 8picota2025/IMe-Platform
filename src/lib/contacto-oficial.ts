@@ -15,6 +15,40 @@ export const IME_WHATSAPP_TEL = '+57-313-724-7353';
 
 export const IME_WHATSAPP_URL = `https://wa.me/${IME_WHATSAPP_E164}`;
 
+/**
+ * Perfiles confirmados. Facebook («ime biomed») no entra: facebook.com/imebiomed
+ * no se pudo verificar como página de I-ME (login wall y Graph API sin objeto).
+ */
+export const IME_SOCIAL_PROFILES = [
+  {
+    id: 'instagram',
+    href: 'https://www.instagram.com/imebiomed/',
+    labelEs: 'Instagram de I-ME',
+    labelEn: 'I-ME on Instagram',
+  },
+  {
+    id: 'x',
+    href: 'https://x.com/IMEbiomed',
+    labelEs: 'I-ME en X',
+    labelEn: 'I-ME on X',
+  },
+  {
+    id: 'linkedin',
+    href: 'https://www.linkedin.com/company/ime-international-medical-enterprise/',
+    labelEs: 'LinkedIn de I-ME',
+    labelEn: 'I-ME on LinkedIn',
+  },
+  {
+    id: 'youtube',
+    href: 'https://www.youtube.com/@IMEbiomed',
+    labelEs: 'YouTube de I-ME',
+    labelEn: 'I-ME on YouTube',
+  },
+] as const;
+
+/** WhatsApp Business más los perfiles públicos. Mismo orden en schema y pie. */
+export const IME_SAME_AS = [IME_WHATSAPP_URL, ...IME_SOCIAL_PROFILES.map(profile => profile.href)];
+
 export const IME_EMAIL = 'info@i-me.com.co';
 
 /** Domicilio del RUT vigente. NIT 901871720-1. */

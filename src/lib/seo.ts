@@ -7,9 +7,9 @@ import type { Locale } from '../i18n/utils';
 import {
   IME_LOCALITY,
   IME_REGION,
+  IME_SAME_AS,
   IME_STREET,
   IME_WHATSAPP_TEL,
-  IME_WHATSAPP_URL,
 } from './contacto-oficial';
 import { normalizarMoneda, tienePrecioPublico } from './format';
 import { esFichaZuowei, fichaZuoweiSinVenta } from './zuowei-sin-venta';
@@ -494,7 +494,7 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
         contactOption: 'TollFree',
       },
     ],
-    sameAs: [IME_WHATSAPP_URL],
+    sameAs: [...IME_SAME_AS],
     areaServed: {
       '@type': 'Country',
       name: 'Colombia',
