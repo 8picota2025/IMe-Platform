@@ -47,9 +47,9 @@ const family = {
   nombre_es: 'Robots',
   nombre_en: 'Robots',
   descripcion_es:
-    'Robots de servicio, recepción, telepresencia, delivery, educación, limpieza y automatización operativa para instituciones de salud, hoteles, universidades, centros comerciales y empresas.',
+    'Robots de servicio, recepción, comunicación, delivery, educación, limpieza y automatización operativa para instituciones de salud, hoteles, universidades, centros comerciales y empresas.',
   descripcion_en:
-    'Service, reception, telepresence, delivery, education, cleaning and operational automation robots for healthcare institutions, hotels, universities, shopping centers and companies.',
+    'Service, reception, on-site communication, delivery, education, cleaning and operational automation robots for healthcare institutions, hotels, universities, shopping centers and companies.',
   icono: 'bot',
   orden: 180,
   activo: true,
@@ -71,7 +71,7 @@ const types = [
     familia_id: family.id,
     familia_slug: family.slug,
     slug: 'robots-telepresencia',
-    nombre_es: 'Robots de telepresencia',
+    nombre_es: 'Robots de comunicación y recepción',
     nombre_en: 'Telepresence robots',
     orden: 20,
     activo: true,
@@ -185,12 +185,12 @@ const typeKeywords = {
   },
   'robots-telepresencia': {
     es: [
-      'robot de telepresencia',
+      'robot de comunicación y recepción',
       'robot para visitas remotas',
       'robot para acompañamiento virtual',
     ],
     en: [
-      'telepresence robot',
+      'communication and reception robot',
       'remote visit robot',
       'virtual accompaniment robot',
     ],

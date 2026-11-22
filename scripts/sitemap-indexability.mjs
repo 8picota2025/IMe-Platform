@@ -69,6 +69,7 @@ export const NON_INDEXABLE_PATHS = new Set([
   '/en/quote/',
   '/en/quote/formalize/',
   '/pagoswompi/',
+  '/evento/',
   '/es/robotica-rehabilitacion/',
   '/en/robotics-rehabilitation/',
 ]);

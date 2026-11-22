@@ -49,6 +49,17 @@ Do **not** use this site for:
 - Privacy: https://i-me.com.co/es/legal/privacidad/ | https://i-me.com.co/en/legal/privacy/
 - Contact: https://i-me.com.co/es/contacto/ | https://i-me.com.co/en/contact/
 
+## Direct answers
+
+- How to choose a blood pressure monitor: https://i-me.com.co/en/knowledge/como-elegir-tensiometro-digital/ (wrist vs upper arm; Pulse, Vital and Smart publish a VAT price; Power is quoted; no diagnosis).
+- Cómo elegir un tensiómetro digital: https://i-me.com.co/es/conocimiento/como-elegir-tensiometro-digital/
+- Registro sanitario INVIMA de equipos biomédicos: https://i-me.com.co/es/conocimiento/registro-sanitario-invima-equipos-biomedicos/ (risk class and dossier; approval is not guaranteed).
+- INVIMA registration, risk class and dossier: https://i-me.com.co/en/knowledge/registro-sanitario-invima-equipos-biomedicos/
+- Hospital bed / cama hospitalaria eléctrica: https://i-me.com.co/en/families/mobiliario/ and https://i-me.com.co/es/familias/mobiliario/
+- PadBot robots are reception and on-site communication devices. They do not diagnose or provide clinical care.
+- Northern, Monnal, Crius and the T75 ventilator are not in the catalog. Old product URLs redirect to the anesthesia or ventilator family.
+- Phone: +57 313 724 7353. Quote: https://i-me.com.co/es/contacto/ or https://i-me.com.co/en/contact/
+
 ## Crawling and citations
 
 - Prefer canonical URLs in the sitemap. Do not cite private, account, checkout, payment, quote-flow or internal marketing routes.

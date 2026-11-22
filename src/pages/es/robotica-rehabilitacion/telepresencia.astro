@@ -14,9 +14,9 @@ import {
 const locale = 'es' as const;
 const productos = await getProductosBySlugs([TELEPRESENCIA_SLUG], locale);
 const producto = productos[0];
-const title = buildPageTitle('Telepresencia y comunicación en instalaciones con PadBot P2 | I-ME');
+const title = buildPageTitle('Comunicación y recepción con PadBot P2 | I-ME');
 const description =
-  'Telepresencia y comunicación en instalaciones en Colombia: PadBot P2, con video llamada, control remoto, WiFi/4G y autocarga según su ficha. I-ME lo cotiza por referencia.';
+  'Comunicación y recepción en Colombia con PadBot P2: video llamada, control remoto, WiFi/4G y autocarga según su ficha. I-ME lo cotiza por referencia. No diagnostica.';
 const canonical = buildCanonical('/es/robotica-rehabilitacion/telepresencia');
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -28,7 +28,7 @@ const jsonLd = combineJsonLd(
         '/es/distribuidores-de-robots-e-ingenieria-robotica-en-colombia-y-latinoamerica'
       ),
     },
-    { name: 'Telepresencia', url: canonical },
+    { name: 'Comunicación', url: canonical },
   ])
 );
 ---
@@ -52,13 +52,13 @@ const jsonLd = combineJsonLd(
           >Robótica</a
         >{' '}
         /
-        <span aria-current="page">Telepresencia</span>
+        <span aria-current="page">Comunicación</span>
       </nav>
-      <h1>Telepresencia y comunicación en instalaciones con PadBot P2</h1>
+      <h1>Comunicación y recepción en instalaciones con PadBot P2</h1>
       <p style="color:var(--text-mid);line-height:1.6">
-        El catálogo publica el PadBot P2 como robot de telepresencia plegable, con pantalla HD de 10
-        pulgadas, WiFi/4G, video llamada, control remoto y autocarga. El precio se cotiza. No
-        sustituye una valoración clínica.
+        El catálogo publica el PadBot P2 como robot de comunicación y recepción, plegable, con
+        pantalla HD de 10 pulgadas, WiFi/4G, video llamada, control remoto y autocarga. El precio se
+        cotiza. No diagnostica ni sustituye al personal.
       </p>
       <p>
         <a class="btn btn-primary" href="/es/contacto/">Solicitar cotización</a>

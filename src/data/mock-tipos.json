@@ -484,8 +484,8 @@
     "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
     "familia_slug": "robots",
     "slug": "robots-telepresencia",
-    "nombre_es": "Robots de telepresencia",
-    "nombre_en": "Telepresence robots",
+    "nombre_es": "Robots de comunicación y recepción",
+    "nombre_en": "Communication and reception robots",
     "orden": 20,
     "activo": true
   },

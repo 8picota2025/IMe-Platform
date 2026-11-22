@@ -29,8 +29,8 @@ export const INVIMA_REGISTRATION_EN = {
 /** Search snippets for the manufacturer guides; their URLs remain unchanged. */
 const descriptions: Record<string, Record<Locale, string>> = {
   'registro-sanitario-invima-equipos-biomedicos': {
-    es: 'Registro INVIMA para fabricantes de dispositivos médicos: requisitos, costes y tiempos para entrar a Colombia. Pida acompañamiento a I-ME.',
-    en: 'INVIMA registration for medical device manufacturers: requirements, costs and timelines for entering Colombia. Request support from I-ME.',
+    es: 'Clase de riesgo, dossier y qué revisar antes de fabricar o comprar equipos biomédicos en Colombia. I-ME evalúa el caso. La aprobación no se garantiza.',
+    en: 'Risk class, the dossier and what to check before making or buying biomedical equipment in Colombia. I-ME reviews the case. Approval is not guaranteed.',
   },
   'checklist-invima-compra-equipos-medicos': {
     es: 'Antes de firmar, verifique el registro INVIMA del modelo, titular, importador, garantía y documentos técnicos del equipo. Lista para comprar en Colombia.',

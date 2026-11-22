@@ -126,13 +126,13 @@ describe('getCampaignLandingCms', () => {
 const CLAVES_CORREGIDAS_POR_MIGRACION = new Map([
   ['ventiladores_mecanicos', '20261102140000_ventiladores_landing_sin_marcas.sql'],
   // Tanda UniX/SEO: meta de distribuidores de robots con la línea UniX.
-  ['robotica_rehabilitacion', '20261109210000_robotica_rehabilitacion_copy_cms.sql'],
+  ['robotica_rehabilitacion', '20261122180300_robotica_comunicacion_cms.sql'],
 ]);
 
 // Mismo criterio para familias: slug → migración que corrige su copy en BD.
 const SLUGS_FAMILIA_CORREGIDOS_POR_MIGRACION = new Map([
-  ['robots', '20261109210100_familia_robots_copy_cms.sql'],
-  ['mobiliario', '20261119120000_familia_mobiliario_seo_cro.sql'],
+  ['robots', '20261122180100_familia_robots_comunicacion.sql'],
+  ['mobiliario', '20261122180200_familia_mobiliario_ctr.sql'],
 ]);
 
 describe('seed de la tanda 1', () => {

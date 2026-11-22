@@ -2,8 +2,16 @@ import { describe, expect, it } from 'vitest';
 import {
   demoteLeadingMarkdownH1,
   extraerPreguntasFrecuentes,
+  quitarEncabezadoInicial,
   renderArticleBody,
 } from './conocimiento-articulo';
+
+describe('quitarEncabezadoInicial', () => {
+  it('quita solo el H1 inicial para no duplicar el titular de búsqueda', () => {
+    expect(quitarEncabezadoInicial('# Título largo\n\nPárrafo.')).toBe('Párrafo.');
+    expect(quitarEncabezadoInicial('Párrafo sin título.')).toBe('Párrafo sin título.');
+  });
+});
 
 describe('extraerPreguntasFrecuentes', () => {
   it('extrae pares de la sección de preguntas frecuentes (ES y EN)', () => {

@@ -25,6 +25,8 @@ Disallow: /8*/
 Disallow: /9*/
 Disallow: /es/pago/
 Disallow: /en/payment/
+Disallow: /evento/
+Disallow: /evento
 
 # Do NOT Disallow /_astro/ — CSS/JS needed for rendering.
 
