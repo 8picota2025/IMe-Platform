@@ -17,7 +17,12 @@ import InvimaConversion from '../../../components/conocimiento/InvimaConversion.
 import { stripMarkdown } from '../../../lib/markdown';
 import { familyCatalogHref } from '../../../lib/seo-urls';
 import { descripcionInvima } from '../../../data/invima-seo';
-import { extraerPreguntasFrecuentes, renderArticleBody } from '../../../lib/conocimiento-articulo';
+import {
+  extraerPreguntasFrecuentes,
+  quitarEncabezadoInicial,
+  renderArticleBody,
+} from '../../../lib/conocimiento-articulo';
+import { snippetConocimiento } from '../../../data/conocimiento-snippets';
 import {
   resolverImagenArticulo,
   resolverOgImagenArticulo,
@@ -56,14 +61,22 @@ const ctaLabel = esClusterInvima
     ? 'Solicitar evaluación INVIMA'
     : t(locale, 'conocimiento.cta_contacto');
 const canonical = buildCanonical(`/es/conocimiento/${articulo.slug}`);
+const snippet = snippetConocimiento(articulo.slug, locale);
 // Checklist INVIMA: título SEO ≤60 pedido en arreglos011126 (la marca va al final).
 const esChecklistInvima = articulo.slug === 'checklist-invima-compra-equipos-medicos';
-const title = esChecklistInvima
-  ? 'Checklist INVIMA para comprar equipos médicos | I-ME'
-  : buildPageTitle(articulo.titulo);
+const h1 = snippet?.h1 ?? articulo.titulo;
+const title = snippet?.title
+  ? snippet.title
+  : esChecklistInvima
+    ? 'Checklist INVIMA para comprar equipos médicos | I-ME'
+    : buildPageTitle(articulo.titulo);
 const description =
+  snippet?.description ??
   descripcionInvima(articulo.slug, locale) ??
   truncateMetaDescription(stripMarkdown(articulo.cuerpo || articulo.titulo));
+const cuerpo = snippet ? quitarEncabezadoInicial(articulo.cuerpo) : articulo.cuerpo;
+const faqsCuerpo = extraerPreguntasFrecuentes(articulo.cuerpo);
+const faqs = faqsCuerpo.length > 0 ? faqsCuerpo : (snippet?.faq ?? []);
 const imagen = resolverImagenArticulo(articulo, locale);
 const ogImagen = resolverOgImagenArticulo(articulo, locale);
 const ogImage = absoluteImagenUrl(ogImagen.src);
@@ -76,12 +89,12 @@ const jsonLd = combineJsonLd(
     ...(tema
       ? [{ name: tema.nombre, url: buildCanonical(rutasConocimiento.tema(locale, tema.slug)) }]
       : []),
-    { name: articulo.titulo, url: canonical },
+    { name: h1, url: canonical },
   ]),
   {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: articulo.titulo,
+    headline: h1,
     description,
     image: absoluteImagenUrl(imagen.src),
     datePublished: articulo.created_at,
@@ -92,7 +105,7 @@ const jsonLd = combineJsonLd(
     },
     mainEntityOfPage: canonical,
   },
-  esChecklistInvima ? buildFaqJsonLd(extraerPreguntasFrecuentes(articulo.cuerpo)) : null
+  faqs.length > 0 ? buildFaqJsonLd(faqs) : null
 );
 ---
 
@@ -124,7 +137,7 @@ const jsonLd = combineJsonLd(
               </>
             )
           }
-          <span aria-current="page">{articulo.titulo}</span>
+          <span aria-current="page">{h1}</span>
         </nav>
         {
           esBorrador(articulo) && (
@@ -133,7 +146,7 @@ const jsonLd = combineJsonLd(
             </p>
           )
         }
-        <h1 id="article-h1">{articulo.titulo}</h1>
+        <h1 id="article-h1">{h1}</h1>
         <p class="ph-sub article-meta">
           {t(locale, 'conocimiento.publicado')}
           {
@@ -163,7 +176,7 @@ const jsonLd = combineJsonLd(
             <div class="image-wrapper">
               <img
                 src={imagen.src}
-                alt={articulo.titulo}
+                alt={h1}
                 width={imagen.width}
                 height={imagen.height}
                 loading="eager"
@@ -173,7 +186,7 @@ const jsonLd = combineJsonLd(
           </div>
           <div
             class="article-body"
-            set:html={renderArticleBody(articulo.cuerpo, t(locale, 'conocimiento.vacio'))}
+            set:html={renderArticleBody(cuerpo, t(locale, 'conocimiento.vacio'))}
           />
         </div>
         {esClusterInvima && <InvimaConversion locale={locale} />}
@@ -194,6 +207,33 @@ const jsonLd = combineJsonLd(
                 </li>
               </ul>
             </section>
+          )
+        }
+        {
+          faqsCuerpo.length === 0 && snippet?.faq && snippet.faq.length > 0 && (
+            <section class="article-faq" aria-labelledby="article-faq-title">
+              <h2 id="article-faq-title">Preguntas frecuentes</h2>
+              {snippet.faq.map(item => (
+                <details>
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
+              ))}
+            </section>
+          )
+        }
+        {
+          snippet?.links && snippet.links.length > 0 && (
+            <nav class="article-next" aria-label="Siguiente paso">
+              <h2>Siguiente paso</h2>
+              <ul>
+                {snippet.links.map(link => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )
         }
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />

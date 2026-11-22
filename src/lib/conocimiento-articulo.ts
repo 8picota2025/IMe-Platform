@@ -13,6 +13,11 @@ export function renderArticleBody(markdown: string, fallback: string): string {
   return demoteLeadingMarkdownH1(renderMarkdown(source));
 }
 
+/** Drops a leading markdown H1 when the page hero already shows the search H1. */
+export function quitarEncabezadoInicial(markdown: string): string {
+  return (markdown || '').replace(/^\uFEFF?\s*#\s+[^\n]*\n+/, '');
+}
+
 const TITULO_FAQ = /^##\s+(preguntas frecuentes|frequently asked questions)\s*$/i;
 
 /**

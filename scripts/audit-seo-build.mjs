@@ -50,8 +50,13 @@ async function main() {
     })
   );
 
+  const bannedBrand = /\b(?:Northern|Monnal|Crius|T75)\b/i;
   for (const file of htmlFiles) {
     const html = await readFile(file, 'utf8');
+    const brandHit = html.match(bannedBrand);
+    if (brandHit) {
+      fail(`${relative(DIST, file)}: marca retirada (${brandHit[0]})`);
+    }
     const rel = relative(DIST, file).split(sep).join('/');
     const page = rel === 'index.html' ? '/' : `/${rel.replace(/index\.html$/, '')}`;
     const title = extractOne(html, /<title[^>]*>([\s\S]*?)<\/title>/i);

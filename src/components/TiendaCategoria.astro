@@ -31,6 +31,7 @@ interface Props {
   productos: Producto[];
   faqs: Faq[];
   filtro?: boolean;
+  guia?: { href: string; label: string };
 }
 
 const {
@@ -44,6 +45,7 @@ const {
   productos,
   faqs,
   filtro = true,
+  guia,
 } = Astro.props;
 const isEn = locale === 'en';
 const productBase = isEn ? '/en/products/' : '/es/productos/';
@@ -88,6 +90,13 @@ const jsonLd = combineJsonLd(
   </div>
   <section class="container" style="padding:var(--space-xl) 0;max-width:960px">
     {intro.map(p => <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>)}
+    {
+      guia && (
+        <p style="margin:0 0 1rem;line-height:1.6">
+          <a href={guia.href}>{guia.label}</a>
+        </p>
+      )
+    }
     {
       filtro && (
         <form class="tienda-filtros" onsubmit="return false">

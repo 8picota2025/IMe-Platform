@@ -213,8 +213,8 @@
     "slug": "robots",
     "nombre_es": "Robots",
     "nombre_en": "Robots",
-    "descripcion_es": "Robots de servicio, recepción, telepresencia, delivery, educación, limpieza y automatización operativa para instituciones de salud, hoteles, universidades, centros comerciales y empresas.",
-    "descripcion_en": "Service, reception, telepresence, delivery, education, cleaning and operational automation robots for healthcare institutions, hotels, universities, shopping centers and companies.",
+    "descripcion_es": "Robots de servicio, recepción, comunicación, delivery, educación, limpieza y automatización operativa para instituciones de salud, hoteles, universidades, centros comerciales y empresas.",
+    "descripcion_en": "Service, reception, on-site communication, delivery, education, cleaning and operational automation robots for healthcare institutions, hotels, universities, shopping centers and companies.",
     "icono": "bot",
     "orden": 180,
     "activo": true

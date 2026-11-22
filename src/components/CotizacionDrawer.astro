@@ -128,12 +128,14 @@ const config = {
         <input id="cotizacion-institucion" name="empresa" type="text" autocomplete="organization" />
       </div>
       <div class="cotizacion-field">
-        <label for="cotizacion-ciudad">{config.i18n.ciudad}</label>
-        <input id="cotizacion-ciudad" name="ciudad" type="text" autocomplete="address-level2" />
-      </div>
-      <div class="cotizacion-field">
         <label for="cotizacion-mensaje">{config.i18n.mensaje}</label>
-        <textarea id="cotizacion-mensaje" name="mensaje" rows={3}></textarea>
+        <textarea
+          id="cotizacion-mensaje"
+          name="mensaje"
+          rows={2}
+          placeholder={locale === 'en'
+            ? 'City, quantity and reference'
+            : 'Ciudad, cantidad y referencia'}></textarea>
       </div>
       <label class="cotizacion-checkbox">
         <input id="cotizacion-consentimiento" name="consentimiento" type="checkbox" required />

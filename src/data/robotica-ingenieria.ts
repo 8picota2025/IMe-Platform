@@ -150,8 +150,8 @@ export const ROBOTS: readonly CatalogRobot[] = [
     height: 1200,
     pdf: '/assets/productos/importados/padbot-p2-robot-comunicacion/ficha-padbot-p2-robot-comunicacion.pdf',
     role: {
-      es: 'Telepresencia y comunicación en instalaciones',
-      en: 'Telepresence and on-site communication',
+      es: 'Comunicación y recepción en instalaciones',
+      en: 'On-site communication and reception',
     },
     summary: {
       es: 'Videollamada HD en uno o dos sentidos con control remoto del desplazamiento y de la inclinación del cabezal. Seguimiento facial, comando de acercamiento y PadBot AI Brain opcional.',
@@ -376,8 +376,8 @@ export const VERTICALS: ReadonlyArray<{ id: string; label: L10n }> = [
   {
     id: 'telepresencia',
     label: {
-      es: 'Telepresencia y comunicación en instalaciones',
-      en: 'Telepresence and on-site communication',
+      es: 'Comunicación y recepción en instalaciones',
+      en: 'On-site communication and reception',
     },
   },
   { id: 'logistica', label: { es: 'Logística y delivery', en: 'Logistics and delivery' } },
@@ -535,8 +535,8 @@ export const STEPS: ReadonlyArray<{ title: L10n; body: L10n }> = [
 export const FAQS: ReadonlyArray<{ q: L10n; a: L10n }> = [
   {
     q: {
-      es: '¿Quiénes distribuyen robots de servicio, limpieza y telepresencia en Colombia?',
-      en: 'Who distributes service, cleaning and telepresence robots in Colombia?',
+      es: '¿Quiénes distribuyen robots de servicio, limpieza y comunicación en Colombia?',
+      en: 'Who distributes service, cleaning and reception robots in Colombia?',
     },
     a: {
       es: `I-ME (International Medical Enterprise IME S.A.S.) distribuye en Colombia los ocho robots de servicio del catálogo activo: PadBot X3, PadBot X2, PadBot P2, PadBot W2, PadBot W3s, robot C3 de limpieza autónoma, PadBot T2 y Cruzr (AHuman Future). La rehabilitación de la marcha suma el exoesqueleto Zuowei ZW568, el exoesqueleto Zuowei ZW598 y la silla de bipedestación Zuowei ZW518. La cotización y el alcance de instalación se confirman por proyecto. WhatsApp ${PHONE_DISPLAY} · ${EMAIL}.`,
@@ -575,8 +575,8 @@ export const FAQS: ReadonlyArray<{ q: L10n; a: L10n }> = [
   },
   {
     q: {
-      es: '¿Estos robots de recepción, telepresencia, logística o limpieza tienen registro INVIMA?',
-      en: 'Do these reception, telepresence, logistics or cleaning robots have an INVIMA registration?',
+      es: '¿Estos robots de recepción, comunicación, logística o limpieza tienen registro INVIMA?',
+      en: 'Do these reception, on-site communication, logistics or cleaning robots have an INVIMA registration?',
     },
     a: {
       es: 'No realizan diagnóstico, monitoreo clínico ni tratamiento sobre el paciente: operan como automatización, logística e infraestructura. La documentación aplicable se confirma por referencia, en el marco del Decreto 4725 cuando el equipo sea un dispositivo médico y de las normas de máquinas del manual (EN ISO 12100, EN 60335-2-72, IEC 60825-1, entre otras citadas en el C3). I-ME no publica un número de registro INVIMA genérico para la línea.',
@@ -756,11 +756,11 @@ export const PAGE = {
   es: {
     title: 'Distribuidores de robots en Colombia y Latinoamérica | I-ME',
     description:
-      'Distribuidores de robots en Colombia y Latinoamérica: humanoides y cuadrúpedos UniX, recepción, telepresencia, limpieza y logística AMR con LiDAR SLAM.',
+      'Distribuidores de robots en Colombia y Latinoamérica: humanoides y cuadrúpedos UniX, recepción, comunicación, limpieza y logística AMR con LiDAR SLAM.',
     h1: 'Distribuidores de Robots e Ingeniería Robótica en Colombia y Latinoamérica',
     eyebrow:
       'Distribuidores de robots e ingeniería robótica en Colombia y Latinoamérica · soporte I-ME',
-    lead: 'I-ME distribuye robots de servicio, limpieza autónoma, recepción, telepresencia y logística AMR para clínicas, hoteles, universidades y empresas en Colombia, y atiende proyectos de ingeniería robótica en Latinoamérica. Ocho robots de servicio están en catálogo. La rehabilitación de la marcha suma los Zuowei ZW568, ZW598 y ZW518. Otras arquitecturas se ingenian bajo proyecto.',
+    lead: 'I-ME distribuye robots de servicio, limpieza autónoma, recepción, comunicación y logística AMR para clínicas, hoteles, universidades y empresas en Colombia, y atiende proyectos de ingeniería robótica en Latinoamérica. Ocho robots de servicio están en catálogo. La rehabilitación de la marcha suma los Zuowei ZW568, ZW598 y ZW518. Otras arquitecturas se ingenian bajo proyecto.',
     heroAlt:
       'Robot humanoide de servicio en un lobby institucional, referencia visual de robótica de servicio en Colombia',
     primaryCta: 'Cotizar ingeniería robótica',
@@ -769,7 +769,7 @@ export const PAGE = {
     filterLegend: 'Filtrar por función',
     catalogTitle: 'Ocho robots de servicio en distribución directa',
     catalogLead:
-      'Robots de recepción, telepresencia, logística interna, limpieza autónoma y educación. Cada cifra sale del manual del fabricante. El precio es bajo cotización.',
+      'Robots de recepción, comunicación, logística interna, limpieza autónoma y educación. Cada cifra sale del manual del fabricante. El precio es bajo cotización.',
     sheetCta: 'Ver ficha',
     pdfCta: 'PDF técnico',
     quoteCta: 'Cotizar este modelo',
@@ -794,11 +794,11 @@ export const PAGE = {
     promoTitle: 'Equipamiento de quirófano e imagenología',
     formTitle: 'Cuéntenos el edificio y el flujo',
     formIntro:
-      'Institución, ciudad y el cuello de botella: recepción, telepresencia, logística AMR, limpieza o integración con ascensores. Respondemos con los modelos publicados y, si aplica, un alcance de ingeniería.',
+      'Institución, ciudad y el cuello de botella: recepción, comunicación, logística AMR, limpieza o integración con ascensores. Respondemos con los modelos publicados y, si aplica, un alcance de ingeniería.',
     familyHref: '/es/familias/robots/',
     familyLabel: 'Catálogo de la familia robots',
     teleHref: '/es/robotica-rehabilitacion/telepresencia/',
-    teleLabel: 'Ficha de telepresencia PadBot P2',
+    teleLabel: 'Ficha de comunicación PadBot P2',
     guideHref: '/es/conocimiento/robots-asistenciales-atencion-reduccion-carga-personal/',
     guideLabel: 'Guía: robots de servicio y carga operativa',
     crumbHub: 'Proyectos',
@@ -817,10 +817,10 @@ export const PAGE = {
   en: {
     title: 'Robot Distributors in Colombia and Latin America | I-ME',
     description:
-      'Robot distributors in Colombia and Latin America: UniX humanoids and quadrupeds, reception, telepresence, cleaning and AMR logistics with LiDAR SLAM.',
+      'Robot distributors in Colombia and Latin America: UniX humanoids and quadrupeds, reception, on-site communication, cleaning and AMR logistics with LiDAR SLAM.',
     h1: 'Robot Distributors and Robotics Engineering in Colombia and Latin America',
     eyebrow: 'Robot distributors and robotics engineering in Colombia and Latin America · I-ME',
-    lead: 'I-ME distributes service, autonomous cleaning, reception, telepresence and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight service robots are in the catalog. Gait rehabilitation adds the Zuowei ZW568, ZW598 and ZW518. Other architectures are engineered per project.',
+    lead: 'I-ME distributes service, autonomous cleaning, reception, on-site communication and AMR logistics robots for clinics, hotels, universities and companies in Colombia, and takes robotics engineering projects across Latin America. Eight service robots are in the catalog. Gait rehabilitation adds the Zuowei ZW568, ZW598 and ZW518. Other architectures are engineered per project.',
     heroAlt:
       'Service humanoid robot in an institutional lobby, a visual reference for service robotics in Colombia',
     primaryCta: 'Request robotics engineering',
@@ -829,7 +829,7 @@ export const PAGE = {
     filterLegend: 'Filter by function',
     catalogTitle: 'Eight service robots in direct distribution',
     catalogLead:
-      'Reception, telepresence, internal logistics, autonomous cleaning and education. Every figure comes from the manufacturer manual. Price is on request.',
+      'Reception, on-site communication, internal logistics, autonomous cleaning and education. Every figure comes from the manufacturer manual. Price is on request.',
     sheetCta: 'View sheet',
     pdfCta: 'Technical PDF',
     quoteCta: 'Quote this model',
@@ -854,11 +854,11 @@ export const PAGE = {
     promoTitle: 'Operating-room and imaging equipment',
     formTitle: 'Tell us the building and the workflow',
     formIntro:
-      'Institution, city and the bottleneck: reception, telepresence, AMR logistics, cleaning or elevator integration. We answer with published models and, when it applies, an engineering scope.',
+      'Institution, city and the bottleneck: reception, on-site communication, AMR logistics, cleaning or elevator integration. We answer with published models and, when it applies, an engineering scope.',
     familyHref: '/en/families/robots/',
     familyLabel: 'Robot family catalog',
     teleHref: '/en/robotics-rehabilitation/telepresencia/',
-    teleLabel: 'PadBot P2 telepresence page',
+    teleLabel: 'PadBot P2 communication page',
     guideHref: '/en/knowledge/robots-asistenciales-atencion-reduccion-carga-personal/',
     guideLabel: 'Guide: service robots and task load',
     crumbHub: 'Projects',
@@ -896,7 +896,7 @@ export const ROBOTICA_COPY = {
     h1: PAGE.es.h1,
     lead: PAGE.es.lead,
     modalityLinks: [
-      { title: 'Telepresencia y comunicación en instalaciones', href: PAGE.es.teleHref },
+      { title: 'Comunicación y recepción en instalaciones', href: PAGE.es.teleHref },
       { title: 'Familia de robots en catálogo', href: PAGE.es.familyHref },
     ],
     formIntro: PAGE.es.formIntro,
@@ -918,7 +918,7 @@ export const ROBOTICA_COPY = {
         help: 'PadBot X3, PadBot X2 y Cruzr cubren orientación, Q&A e interacción. Cruzr añade brazos y Open API.',
       },
       {
-        pain: 'Telepresencia y comunicación en instalaciones',
+        pain: 'Comunicación y recepción en instalaciones',
         help: 'PadBot P2 publica videollamada HD, 10 h de autonomía y sensores anticaída.',
       },
       {
@@ -932,7 +932,7 @@ export const ROBOTICA_COPY = {
     ],
     audienceYes: [
       'Clínicas, hospitales, hoteles, universidades y empresas con un flujo medible',
-      'Proyectos de recepción, telepresencia, AMR, limpieza o integración con ascensores',
+      'Proyectos de recepción, comunicación, AMR, limpieza o integración con ascensores',
       'Quienes deciden o influyen en el presupuesto institucional',
     ],
     audienceNo: [
@@ -943,7 +943,7 @@ export const ROBOTICA_COPY = {
     situations: [
       {
         title: 'Robots de servicio',
-        body: 'Recepción, telepresencia, delivery y humanoide comercial publicados en catálogo.',
+        body: 'Recepción, comunicación, delivery y humanoide comercial publicados en catálogo.',
       },
       {
         title: 'Ingeniería de edificio',
@@ -981,7 +981,7 @@ export const ROBOTICA_COPY = {
     faqs: FAQS.map(item => ({ q: item.q.es, a: item.a.es })),
     projectOptions: [
       { value: 'recepcion_ia', label: 'Recepción, orientación e IA' },
-      { value: 'telepresencia', label: 'Telepresencia y comunicación en instalaciones' },
+      { value: 'telepresencia', label: 'Comunicación y recepción en instalaciones' },
       { value: 'logistica_amr', label: 'Logística AMR y delivery' },
       { value: 'limpieza', label: 'Limpieza autónoma' },
       { value: 'ingenieria_integracion', label: 'Integración con ascensores y accesos' },
@@ -999,7 +999,7 @@ export const ROBOTICA_COPY = {
     h1: PAGE.en.h1,
     lead: PAGE.en.lead,
     modalityLinks: [
-      { title: 'Telepresence and on-site communication', href: PAGE.en.teleHref },
+      { title: 'On-site communication and reception', href: PAGE.en.teleHref },
       { title: 'Robot family in the catalog', href: PAGE.en.familyHref },
     ],
     formIntro: PAGE.en.formIntro,
@@ -1021,7 +1021,7 @@ export const ROBOTICA_COPY = {
         help: 'PadBot X3, PadBot X2 and Cruzr cover wayfinding, Q&A and interaction. Cruzr adds arms and an Open API.',
       },
       {
-        pain: 'Telepresence and on-site communication',
+        pain: 'On-site communication and reception',
         help: 'PadBot P2 publishes HD video, 10 h runtime and cliff sensors.',
       },
       {
@@ -1035,7 +1035,7 @@ export const ROBOTICA_COPY = {
     ],
     audienceYes: [
       'Clinics, hospitals, hotels, universities and companies with a measurable flow',
-      'Reception, telepresence, AMR, cleaning or elevator-integration projects',
+      'Reception, on-site communication, AMR, cleaning or elevator-integration projects',
       'People who decide or influence the institutional budget',
     ],
     audienceNo: [
@@ -1046,7 +1046,7 @@ export const ROBOTICA_COPY = {
     situations: [
       {
         title: 'Service robots',
-        body: 'Reception, telepresence, delivery and a commercial humanoid published in the catalog.',
+        body: 'Reception, on-site communication, delivery and a commercial humanoid published in the catalog.',
       },
       {
         title: 'Building engineering',
@@ -1084,7 +1084,7 @@ export const ROBOTICA_COPY = {
     faqs: FAQS.map(item => ({ q: item.q.en, a: item.a.en })),
     projectOptions: [
       { value: 'recepcion_ia', label: 'Reception, wayfinding and AI' },
-      { value: 'telepresencia', label: 'Telepresence and on-site communication' },
+      { value: 'telepresencia', label: 'On-site communication and reception' },
       { value: 'logistica_amr', label: 'AMR logistics and delivery' },
       { value: 'limpieza', label: 'Autonomous cleaning' },
       { value: 'ingenieria_integracion', label: 'Elevator and access integration' },

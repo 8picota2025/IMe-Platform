@@ -14,9 +14,9 @@ import {
 const locale = 'en' as const;
 const productos = await getProductosBySlugs([TELEPRESENCIA_SLUG], locale);
 const producto = productos[0];
-const title = buildPageTitle('Telepresence and on-site communication with PadBot P2 | I-ME');
+const title = buildPageTitle('On-site communication and reception with PadBot P2 | I-ME');
 const description =
-  'Telepresence and on-site communication in Colombia: PadBot P2, with video calling, remote control, WiFi/4G and auto charging as published. I-ME quotes it by reference.';
+  'On-site communication and reception in Colombia with PadBot P2: video calling, remote control, WiFi/4G and auto charging as published. I-ME quotes it by reference. It does not diagnose.';
 const canonical = buildCanonical('/en/robotics-rehabilitation/telepresencia');
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -28,7 +28,7 @@ const jsonLd = combineJsonLd(
         '/en/robot-distributors-and-robotics-engineering-in-colombia-and-latin-america'
       ),
     },
-    { name: 'Telepresence', url: canonical },
+    { name: 'Communication', url: canonical },
   ])
 );
 ---
@@ -52,13 +52,13 @@ const jsonLd = combineJsonLd(
           >Robotics</a
         >{' '}
         /
-        <span aria-current="page">Telepresence</span>
+        <span aria-current="page">Communication</span>
       </nav>
-      <h1>Telepresence and on-site communication with PadBot P2</h1>
+      <h1>On-site communication and reception with PadBot P2</h1>
       <p style="color:var(--text-mid);line-height:1.6">
-        The catalog lists the PadBot P2 as a foldable telepresence robot with a 10-inch HD screen,
-        WiFi/4G, video calling, remote control and auto charging. The price is quoted. It does not
-        replace a clinical assessment.
+        The catalog lists the PadBot P2 as a foldable communication and reception robot with a
+        10-inch HD screen, WiFi/4G, video calling, remote control and auto charging. The price is
+        quoted. It does not replace a clinical assessment.
       </p>
       <p>
         <a class="btn btn-primary" href="/en/contact/">Request a quote</a>

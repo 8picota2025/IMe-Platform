@@ -149,8 +149,8 @@ describe('landing de distribuidores de robots', () => {
       PROMO_PADBOT_ES,
       PROMO_PADBOT_EN,
     });
-    expect(texto).toContain('Telepresencia y comunicación en instalaciones');
-    expect(texto).toContain('Telepresence and on-site communication');
+    expect(texto).toContain('Comunicación y recepción en instalaciones');
+    expect(texto).toContain('On-site communication and reception');
     expect(texto).toContain('transporte interno de insumos y documentos');
     expect(texto).toContain('internal transport of supplies and documents');
     expect(texto).not.toMatch(/Telepresencia médica|rondas clínicas|medicamentos/);
@@ -158,8 +158,10 @@ describe('landing de distribuidores de robots', () => {
     expect(texto).not.toMatch(/pediátrico|pediatric companionship|HIS, ERP/);
     const p2 = ROBOTS.find(robot => robot.sku === 'PADBOT-P2');
     const w2 = ROBOTS.find(robot => robot.sku === 'PADBOT-W2');
-    expect(p2?.role.es).toBe('Telepresencia y comunicación en instalaciones');
-    expect(p2?.role.en).toBe('Telepresence and on-site communication');
+    expect(p2?.role.es).toBe('Comunicación y recepción en instalaciones');
+    expect(p2?.role.en).toBe('On-site communication and reception');
+    expect(p2?.role.es).not.toMatch(/telepresencia/i);
+    expect(p2?.role.en).not.toMatch(/telepresence/i);
     expect(w2?.summary.es).toContain('transporte interno de insumos y documentos');
     expect(w2?.summary.en).toContain('internal transport of supplies and documents');
   });

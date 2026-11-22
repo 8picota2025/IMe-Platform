@@ -60,7 +60,12 @@ const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
         <span data-quote-request-model></span>
         <span data-quote-request-brand></span>
       </div>
-      <a data-quote-request-page target="_blank" rel="noopener noreferrer">
+      <a
+        data-quote-request-page
+        href={isEn ? '/en/catalog/' : '/es/catalogo/'}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {isEn ? 'View product page ↗' : 'Ver página del producto ↗'}
       </a>
     </section>

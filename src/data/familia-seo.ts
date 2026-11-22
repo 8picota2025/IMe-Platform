@@ -194,9 +194,9 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     title_es: 'Cama hospitalaria eléctrica para clínicas de Colombia | I-ME',
     title_en: 'Hospital bed for clinics in Colombia | I-ME',
     description_es:
-      'Cama hospitalaria eléctrica para clínicas en Colombia. Compare los modelos publicados, incluida la manual, y solicite cotización de la configuración del servicio.',
+      'Cama hospitalaria eléctrica en Colombia. Compare los modelos publicados, incluida la manual, y pida cotización para el servicio.',
     description_en:
-      'Hospital bed for clinics in Colombia: electric and manual models published in the catalog. Compare them and request a quote for the ward.',
+      'Hospital bed in Colombia. Compare electric and manual models in the catalog, then request a quote for the ward.',
     intro_es:
       'La cama hospitalaria se define por el servicio, el personal y el recorrido del área. La cama eléctrica hospitalaria cambia de posición con motores; la manual, con manivelas. Las dos se cotizan por referencia, no como un mueble genérico.',
     intro_en:
@@ -356,29 +356,29 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     title_es: 'Robots de servicio e ingeniería robótica en Colombia | I-ME',
     title_en: 'Service robots and robotics engineering in Colombia | I-ME',
     description_es:
-      'Distribuidores de robots en Colombia: humanoides y cuadrúpedos UniX, recepción, telepresencia, limpieza autónoma y logística AMR con LiDAR SLAM.',
+      'Distribuidores de robots en Colombia: humanoides y cuadrúpedos UniX, recepción, comunicación, limpieza autónoma y logística AMR con LiDAR SLAM.',
     description_en:
-      'Robot distributors in Colombia: UniX humanoids and quadrupeds, reception, telepresence, autonomous cleaning and AMR logistics with LiDAR SLAM.',
+      'Robot distributors in Colombia: UniX humanoids and quadrupeds, reception, on-site communication, autonomous cleaning and AMR logistics with LiDAR SLAM.',
     intro_es:
-      'I-ME distribuye robots de servicio en Colombia y hace la ingeniería de integración: recepción, telepresencia, logística interna, limpieza autónoma y educación, con navegación LiDAR SLAM sobre el plano real de la sede.',
+      'I-ME distribuye robots de servicio en Colombia y hace la ingeniería de integración: recepción, comunicación, logística interna, limpieza autónoma y educación, con navegación LiDAR SLAM sobre el plano real de la sede.',
     intro_en:
-      'I-ME distributes service robots in Colombia and engineers the integration: reception, telepresence, internal logistics, autonomous cleaning and education, with LiDAR SLAM navigation on the real floor plan.',
+      'I-ME distributes service robots in Colombia and engineers the integration: reception, on-site communication, internal logistics, autonomous cleaning and education, with LiDAR SLAM navigation on the real floor plan.',
     body_es: [
-      'El catálogo activo reúne ocho referencias: PadBot X3 y PadBot X2 (recepción), Cruzr (humanoide y Open API), PadBot P2 (telepresencia), PadBot W2 (gabinete PIN/QR), PadBot W3s (bandejas), robot C3 (limpieza 3-en-1) y PadBot T2 (educación y acompañamiento).',
+      'El catálogo activo reúne ocho referencias: PadBot X3 y PadBot X2 (recepción), Cruzr (humanoide y Open API), PadBot P2 (comunicación y recepción), PadBot W2 (gabinete PIN/QR), PadBot W3s (bandejas), robot C3 (limpieza 3-en-1) y PadBot T2 (educación y acompañamiento).',
       'La comparación empieza por el edificio: recorridos, puertas, ascensores, superficies, puntos de carga y el responsable de operación. La integración multiplanta usa puntos de espera y abordaje de ascensor (módulo IoT E-Box o API Cloud) y puntos de control de acceso.',
       'Otras arquitecturas —limpieza industrial pesada, desinfección UV-C o logística cerrada— se estudian como ingeniería bajo proyecto y no se publican como SKUs nuevos. La garantía es la del fabricante, con soporte electromecánico local de I-ME.',
     ],
     body_en: [
-      'The active catalog has eight references: PadBot X3 and PadBot X2 (reception), Cruzr (humanoid and Open API), PadBot P2 (telepresence), PadBot W2 (PIN/QR cabinet), PadBot W3s (trays), the C3 robot (3-in-1 cleaning) and PadBot T2 (education and companionship).',
+      'The active catalog has eight references: PadBot X3 and PadBot X2 (reception), Cruzr (humanoid and Open API), PadBot P2 (communication and reception), PadBot W2 (PIN/QR cabinet), PadBot W3s (trays), the C3 robot (3-in-1 cleaning) and PadBot T2 (education and companionship).',
       'Comparison starts with the building: routes, doors, elevators, floors, charge points and the operating owner. Multi-floor integration uses elevator waiting and boarding points (E-Box IoT module or cloud API) and access-control points.',
       'Other architectures — heavy industrial cleaning, UV-C disinfection or closed logistics — are studied as project engineering and are not published as new SKUs. Warranty is the manufacturer’s, with local electromechanical support from I-ME.',
     ],
     faq: [
       {
         q_es: '¿I-ME es un distribuidor de robots de servicio en Colombia?',
-        a_es: 'Sí. Publica ocho robots de recepción, telepresencia, logística, limpieza y educación, y acompaña la ingeniería de integración en la sede. El alcance se confirma en la propuesta.',
+        a_es: 'Sí. Publica ocho robots de recepción, comunicación, logística, limpieza y educación, y acompaña la ingeniería de integración en la sede. El alcance se confirma en la propuesta.',
         q_en: 'Is I-ME a service-robot distributor in Colombia?',
-        a_en: 'Yes. It publishes eight reception, telepresence, logistics, cleaning and education robots, and supports on-site integration engineering. Scope is confirmed in the proposal.',
+        a_en: 'Yes. It publishes eight reception, communication, logistics, cleaning and education robots, and supports on-site integration engineering. Scope is confirmed in the proposal.',
       },
       {
         q_es: '¿Puede integrarse con ascensores o torniquetes?',
@@ -1112,8 +1112,8 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     {
       href_es: '/es/robotica-rehabilitacion/telepresencia/',
       href_en: '/en/robotics-rehabilitation/telepresencia/',
-      label_es: 'Telepresencia y comunicación en instalaciones',
-      label_en: 'Telepresence and on-site communication',
+      label_es: 'Comunicación y recepción en instalaciones',
+      label_en: 'On-site communication and reception',
     },
   ],
   'movilidad-rehabilitacion': [
