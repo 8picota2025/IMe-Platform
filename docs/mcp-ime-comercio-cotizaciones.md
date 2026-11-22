@@ -215,6 +215,16 @@ y `actor`.
 }
 ```
 
+### Aprobación MCP vs aprobación en BD (2026-11-20)
+
+El envío directo (`enviar-cotizacion` desde `/comercial` o JWT ventas) **ya no exige**
+`aprobado_por` / `aprobado_at` en `solicitudes_cotizacion`. La única barrera operativa
+compartida con el CMS es la marca textual **NO ENVIAR** (ver `docs/commercial-quote-dev.md` § Guarda de envío).
+
+El flujo MCP abajo sigue igual: `preparar_envio_cotizacion` crea una confirmación de 4 h que un
+**owner/admin activo** debe aprobar en el CMS antes de `confirmar_envio_cotizacion`. Esa aprobación
+no escribe `aprobado_por` en la cotización; es un registro aparte en el módulo de confirmaciones comerciales.
+
 ### `preparar_envio_cotizacion`
 
 `{ cotizacion_id, actor_email, canal?: "email"|"whatsapp", motivo? }`
