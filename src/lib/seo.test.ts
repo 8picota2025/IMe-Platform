@@ -29,6 +29,7 @@ describe('buildOrganizationJsonLd', () => {
       'https://x.com/IMEbiomed',
       'https://www.linkedin.com/company/ime-international-medical-enterprise/',
       'https://www.youtube.com/@IMEbiomed',
+      'https://www.facebook.com/profile.php?id=61592213295039',
     ]);
     expect(org.sameAs).not.toContain('https://www.facebook.com/imebiomed');
     expect(JSON.stringify(org)).not.toContain('310-333-2607');

@@ -15,10 +15,7 @@ export const IME_WHATSAPP_TEL = '+57-313-724-7353';
 
 export const IME_WHATSAPP_URL = `https://wa.me/${IME_WHATSAPP_E164}`;
 
-/**
- * Perfiles confirmados. Facebook («ime biomed») no entra: facebook.com/imebiomed
- * no se pudo verificar como página de I-ME (login wall y Graph API sin objeto).
- */
+/** Perfiles confirmados, incluido Facebook (página «I-ME International Medical Enterprise»). */
 export const IME_SOCIAL_PROFILES = [
   {
     id: 'instagram',
@@ -43,6 +40,12 @@ export const IME_SOCIAL_PROFILES = [
     href: 'https://www.youtube.com/@IMEbiomed',
     labelEs: 'YouTube de I-ME',
     labelEn: 'I-ME on YouTube',
+  },
+  {
+    id: 'facebook',
+    href: 'https://www.facebook.com/profile.php?id=61592213295039',
+    labelEs: 'Facebook de I-ME',
+    labelEn: 'Facebook de I-ME',
   },
 ] as const;
 
