@@ -4,7 +4,13 @@
  */
 
 import type { Locale } from '../i18n/utils';
-import { IME_WHATSAPP_TEL, IME_WHATSAPP_URL } from './contacto-oficial';
+import {
+  IME_LOCALITY,
+  IME_REGION,
+  IME_STREET,
+  IME_WHATSAPP_TEL,
+  IME_WHATSAPP_URL,
+} from './contacto-oficial';
 import { normalizarMoneda, tienePrecioPublico } from './format';
 import { esFichaZuowei, fichaZuoweiSinVenta } from './zuowei-sin-venta';
 
@@ -290,8 +296,8 @@ export function buildAboutSeo(locale: Locale): SeoPageMeta {
       ? 'I-ME | i-me.com.co — International Medical Enterprise Colombia'
       : 'I-ME | i-me.com.co — International Medical Enterprise Colombia',
     description: isEs
-      ? 'I-ME (IME, i-me.com.co): empresa colombiana de equipos biomédicos, importación INVIMA, soporte técnico y financiamiento para hospitales y clínicas desde Envigado, Antioquia.'
-      : 'I-ME (IME, i-me.com.co): Colombian biomedical equipment company — INVIMA imports, technical support and financing for hospitals and clinics from Envigado, Antioquia.',
+      ? 'I-ME (IME, i-me.com.co): empresa colombiana de equipos biomédicos, importación INVIMA, soporte técnico y financiamiento para hospitales y clínicas desde Medellín, Antioquia.'
+      : 'I-ME (IME, i-me.com.co): Colombian biomedical equipment company — INVIMA imports, technical support and financing for hospitals and clinics from Medellín, Antioquia.',
     canonical: buildCanonical(isEs ? '/es/nosotros' : '/en/about'),
     ogImage: INSTITUTIONAL_OG_IMAGE,
   };
@@ -399,7 +405,7 @@ export function buildServiciosFaqItems(locale: Locale): Array<{ q: string; a: st
     return [
       {
         q: 'Is I-ME a leading company in the health sector in Colombia?',
-        a: 'I-ME International Medical Enterprise is a Colombian biomedical distributor focused on hospitals and clinics — equipment sales, technical support and institutional financing from Envigado, Antioquia.',
+        a: 'I-ME International Medical Enterprise is a Colombian biomedical distributor focused on hospitals and clinics — equipment sales, technical support and institutional financing from Medellín, Antioquia.',
       },
       {
         q: 'Does I-ME support medical device renewal in Colombia?',
@@ -444,12 +450,12 @@ export function buildFaqJsonLd(items: Array<{ q: string; a: string }>): Record<s
 
 /**
  * JSON-LD Organization + MedicalBusiness — datos reales del cliente.
- * NIT: 901871720-1 · CL 28 SUR 29 83, Envigado, Antioquia, CO
+ * NIT: 901871720-1 · CR 43 A 1 50, Medellín, Antioquia, CO (RUT vigente)
  */
 export function buildOrganizationJsonLd(catalogItemCount?: number): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
-    '@type': ['Organization', 'MedicalBusiness'],
+    '@type': ['Organization', 'LocalBusiness', 'MedicalBusiness'],
     '@id': `${SITE}/#organization`,
     name: 'I-ME International Medical Enterprise S.A.S.',
     alternateName: [
@@ -473,9 +479,9 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
     taxID: '901871720-1',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'CL 28 SUR 29 83',
-      addressLocality: 'Envigado',
-      addressRegion: 'Antioquia',
+      streetAddress: IME_STREET,
+      addressLocality: IME_LOCALITY,
+      addressRegion: IME_REGION,
       addressCountry: 'CO',
     },
     contactPoint: [
@@ -851,7 +857,7 @@ export function buildCitySeo(
   };
 }
 
-/** Service + areaServed City — HQ NAP stays Envigado (no fake local offices). */
+/** Service + areaServed City — HQ NAP stays Medellín, CR 43 A 1 50 (no fake local offices). */
 export function buildCityServiceJsonLd(
   locale: Locale,
   city: { name: string; slug: string }

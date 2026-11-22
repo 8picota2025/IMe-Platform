@@ -17,6 +17,12 @@ export const IME_WHATSAPP_URL = `https://wa.me/${IME_WHATSAPP_E164}`;
 
 export const IME_EMAIL = 'info@i-me.com.co';
 
+/** Domicilio del RUT vigente. NIT 901871720-1. */
+export const IME_STREET = 'CR 43 A 1 50';
+export const IME_LOCALITY = 'Medellín';
+export const IME_REGION = 'Antioquia';
+export const IME_ADDRESS_LINE = `${IME_STREET}, ${IME_LOCALITY}, ${IME_REGION}, Colombia`;
+
 export function buildWhatsAppHref(prefill?: string): string {
   const text = prefill?.trim();
   if (!text) return IME_WHATSAPP_URL;

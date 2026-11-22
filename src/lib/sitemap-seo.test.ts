@@ -117,7 +117,7 @@ describe('sitemap-indexability', () => {
     ).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/lib/analytics')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/assets/productos/x/ficha.pdf')).toBe(false);
-    expect(isIndexableSitemapUrl('https://i-me.com.co/evento/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/evento/')).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/familias/')).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/en/families/')).toBe(true);
     expect(

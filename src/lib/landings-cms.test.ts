@@ -268,6 +268,12 @@ function filasDelSeed(archivo: string, tipo: string): Array<[string, unknown, un
   return [...sql.matchAll(re)].map(m => [m[1]!, JSON.parse(m[2]!), JSON.parse(m[3]!)]);
 }
 
+const CIUDADES_NAP_POR_MIGRACION = new Map([
+  ['bogota', '20261122191000_ciudades_nap_medellin.sql'],
+  ['medellin', '20261122191000_ciudades_nap_medellin.sql'],
+  ['cali', '20261122191000_ciudades_nap_medellin.sql'],
+]);
+
 describe('tanda 3: ciudades', () => {
   it('cada ciudad es válida y sale idéntica tras el paso por jsonb', () => {
     for (const city of CITY_LANDINGS) {
@@ -283,9 +289,30 @@ describe('tanda 3: ciudades', () => {
     const filas = filasDelSeed('20260927020000_seed_landings_ciudad.sql', 'ciudad');
     expect(filas).toHaveLength(CITY_LANDINGS.length);
     for (const [slug, es, en] of filas) {
+      if (CIUDADES_NAP_POR_MIGRACION.has(slug!)) continue;
       const city = getCityLanding(slug)!;
       expect(es, slug).toEqual(copyCiudadDesdeTs(city, 'es'));
       expect(en, slug).toEqual(copyCiudadDesdeTs(city, 'en'));
+    }
+  });
+
+  it('el NAP de Medellín coincide con el copy del código', () => {
+    const sql = readFileSync(
+      new URL(
+        '../../supabase/migrations/20261122191000_ciudades_nap_medellin.sql',
+        import.meta.url
+      ),
+      'utf8'
+    );
+    for (const slug of CIUDADES_NAP_POR_MIGRACION.keys()) {
+      const re = new RegExp(
+        `clave = '${slug}'[\\s\\S]*?contenido_es = \\$ime_landing\\$(.*?)\\$ime_landing\\$::jsonb,\\s*contenido_en = \\$ime_landing\\$(.*?)\\$ime_landing\\$::jsonb`
+      );
+      const m = sql.match(re);
+      expect(m, slug).not.toBeNull();
+      const city = getCityLanding(slug)!;
+      expect(JSON.parse(m![1]!), `${slug} (es)`).toEqual(copyCiudadDesdeTs(city, 'es'));
+      expect(JSON.parse(m![2]!), `${slug} (en)`).toEqual(copyCiudadDesdeTs(city, 'en'));
     }
   });
 
