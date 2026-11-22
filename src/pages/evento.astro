@@ -1,12 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PhoneField from '../components/PhoneField.astro';
-import { buildCanonical, buildPageTitle, getInstitutionalOgImage } from '../lib/seo';
+import {
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+  getInstitutionalOgImage,
+} from '../lib/seo';
+import { IME_ADDRESS_LINE } from '../lib/contacto-oficial';
 
-const title = buildPageTitle('Registro de asistentes al evento');
+const title = buildPageTitle('Registro de asistentes al evento de I-ME');
 const description =
-  'Formulario de registro para asistentes al evento de I-ME. Completa tus datos y recibe la confirmación por correo.';
+  'Formulario de registro para asistentes al evento de I-ME. Confirmación por correo. Sede CR 43 A 1 50, Medellín. +57 313 724 7353.';
 const canonical = buildCanonical('/evento');
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: 'Registro de asistentes al evento de I-ME',
+  description,
+  url: canonical,
+  organizer: { '@id': 'https://i-me.com.co/#organization' },
+});
 const turnstileSiteKey = (
   (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
 ).trim();
@@ -19,7 +34,7 @@ const turnstileSiteKey = (
   locale="es"
   currentPath="/evento"
   ogImage={getInstitutionalOgImage()}
-  noindex={true}
+  jsonLd={jsonLd}
   monolingual
   showAsesor={false}
   showQuoteRequest={false}
@@ -35,6 +50,7 @@ const turnstileSiteKey = (
             Completa tus datos para registrar tu asistencia. Al finalizar, recibirás un correo de
             confirmación.
           </p>
+          <p class="event-lead">Sede I-ME: {IME_ADDRESS_LINE}.</p>
 
           <div class="event-assurances" aria-label="Información del registro">
             <div class="event-assurance">

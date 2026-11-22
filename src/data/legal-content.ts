@@ -31,7 +31,7 @@ export const legalEs = {
         title: 'Identificación del responsable',
         paragraphs: [
           'El responsable del tratamiento es INTERNATIONAL MEDICAL ENTERPRISE. IME. S.A.S., identificada comercialmente como I-ME International Medical Enterprise.',
-          'Datos de contacto informados: NIT 901871720-1, domicilio principal en CL 28 SUR 29 83, Envigado, Antioquia, Colombia, correo info@i-me.com.co y canal de contacto comercial por WhatsApp o teléfono.',
+          'Datos de contacto informados: NIT 901871720-1, domicilio principal en CR 43 A 1 50, Medellín, Antioquia, Colombia, correo info@i-me.com.co y canal de contacto comercial por WhatsApp o teléfono.',
         ],
       },
       {
@@ -87,7 +87,7 @@ export const legalEs = {
         title: 'Identificación del operador',
         paragraphs: [
           'El sitio https://i-me.com.co opera bajo la marca I-ME International Medical Enterprise y corresponde a INTERNATIONAL MEDICAL ENTERPRISE. IME. S.A.S., sociedad colombiana del sector de tecnología biomédica.',
-          'La empresa informa como datos de referencia NIT 901871720-1, matrícula mercantil 277293, domicilio principal en Envigado, Antioquia, Colombia, y correo corporativo de contacto.',
+          'La empresa informa como datos de referencia NIT 901871720-1, matrícula mercantil 277293, domicilio principal en Medellín, Antioquia, Colombia, y correo corporativo de contacto.',
         ],
       },
       {
@@ -195,7 +195,7 @@ export const legalEn = {
         title: 'Controller identification',
         paragraphs: [
           'The data controller is INTERNATIONAL MEDICAL ENTERPRISE. IME. S.A.S., commercially identified as I-ME International Medical Enterprise.',
-          'Public contact details include tax ID 901871720-1, registered address in Envigado, Antioquia, Colombia, and the official contact email for privacy-related matters.',
+          'Public contact details include tax ID 901871720-1, registered address in Medellín, Antioquia, Colombia, and the official contact email for privacy-related matters.',
         ],
       },
       {
