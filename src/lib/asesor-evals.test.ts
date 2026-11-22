@@ -48,7 +48,9 @@ describe('IMEIA evals — WhatsApp Business oficial', () => {
     const org = buildOrganizationJsonLd();
     const contact = (org.contactPoint as Array<{ telephone?: string }>)[0];
     expect(contact?.telephone).toBe(IME_WHATSAPP_TEL);
-    expect(org.sameAs).toEqual([IME_WHATSAPP_URL]);
+    const sameAs = org.sameAs as string[];
+    expect(sameAs[0]).toBe(IME_WHATSAPP_URL);
+    expect(sameAs).toContain('https://x.com/IMEbiomed');
     expect(JSON.stringify(org)).not.toContain('310-333-2607');
   });
 });
