@@ -284,7 +284,7 @@ const gruposFooter = ocultarMencionesInvima
               class="footer__social-link"
               href={profile.href}
               target="_blank"
-              rel="noopener noreferrer"
+              rel={profile.id === 'facebook' ? 'noopener' : 'noopener noreferrer'}
               aria-label={es ? profile.labelEs : profile.labelEn}
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
@@ -299,6 +299,9 @@ const gruposFooter = ocultarMencionesInvima
                 )}
                 {profile.id === 'youtube' && (
                   <path d="M23 12.2s0-3.2-.4-4.6a3 3 0 0 0-2.1-2.1C18.9 5 12 5 12 5s-6.9 0-8.5.5a3 3 0 0 0-2.1 2.1C1 9 1 12.2 1 12.2s0 3.2.4 4.6a3 3 0 0 0 2.1 2.1C5.1 19.4 12 19.4 12 19.4s6.9 0 8.5-.5a3 3 0 0 0 2.1-2.1c.4-1.4.4-4.6.4-4.6zM9.8 15.5v-6.6l6.2 3.3z" />
+                )}
+                {profile.id === 'facebook' && (
+                  <path d="M14.5 8.5V6.8c0-.7.5-1 1.2-1H17V3h-2.1C12.2 3 11 4.3 11 6.6v1.9H9v2.7h2V21h3.5v-9.8h2.3l.4-2.7h-2.7z" />
                 )}
               </svg>
             </a>
