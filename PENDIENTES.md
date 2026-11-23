@@ -2,6 +2,11 @@
 
 > Actualizar en cada fase. Usar exactamente las etiquetas definidas.
 
+## Panel vivo — sincronizador (2026-10-31)
+
+- [ ] NO_EJECUTADO_ENTORNO — Pegar `ops/panel/crontab.snippet` en el crontab del usuario `shoky` en srv1715444 (sin root), o importar `ops/panel/n8n/panel-sync-15min.json` y dejarlo inactivo hasta el OK. El log va a `~/.local/state/panel/log`. No está instalado.
+- [ ] TODO_CLIENTE — Definir en el entorno de `shoky` `IME_VAULT`, `IME_SENT_LOG`, `IME_CMS_CACHE`, `IME_HERMES_PROFILES` y `SUPABASE_ACCESS_TOKEN`. El token no entra al repo. La ruta del checkout en el snippet es un marcador (`/RUTA/AL/CHECKOUT`).
+
 ## Estado contrastado con producción (2026-08-01)
 
 La web pública sí está desplegada y responde en producción sobre Hostinger.
