@@ -124,6 +124,32 @@ Redeploy:
 ```bash
 supabase functions deploy registrar-cotizacion
 supabase functions deploy registrar-lead-comercial
+supabase functions deploy reintentar-crm-cotizacion
+```
+
+## Teléfono inválido en Twenty (2026-11-20)
+
+Twenty responde `400` con código estable `INVALID_PHONE_NUMBER` cuando el nacional no trae indicativo válido. `TwentyClient.writePerson` reintenta el mismo `POST`/`PATCH` **sin** el campo `phones`; el número crudo sigue en la nota/tarea de la cotización. La sincronización de la cotización **no falla** por esto: persona u oportunidad pueden crearse sin teléfono en CRM.
+
+Tests: `supabase/functions/_shared/twenty-crm.test.ts` (`rejectInvalidPhone`).
+
+## Reintento manual de sync cotización → Twenty
+
+Edge Function `reintentar-crm-cotizacion` (solo **service role**; nunca JWT de ventas ni anon):
+
+- **Auth:** header `Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>` o `apikey` con la misma clave; también acepta tokens nuevos `sb_secret_*` (no JWT).
+- **Body:** `POST` JSON `{ "id": "<uuid solicitudes_cotizacion>" }`.
+- **Efecto:** llama `syncCotizacionWithTwenty` con la fila actual; actualiza `crm_sync_status`, `crm_sync_error`, `twenty_*` en Supabase. **No** envía correo ni WhatsApp.
+- Si la fila ya tiene `twenty_opportunity_id`, hace PATCH de esa oportunidad en lugar de crear una duplicada.
+
+Ejemplo operativo (cron o script interno):
+
+```bash
+curl -sS -X POST "$PUBLIC_SUPABASE_URL/functions/v1/reintentar-crm-cotizacion" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"id\":\"$COTIZACION_ID\"}"
 ```
 
 ## Lead consultivo → Twenty (2026-08-09)

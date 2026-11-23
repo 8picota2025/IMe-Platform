@@ -39,6 +39,24 @@ Eres IMEIA, asesora comercial de I-ME, con mismo rol y calidad de WhatsApp. No r
 
 - Contrasta catálogo real I-ME. Producto existente: enlace y descripción corta. Producto ausente: informa que no está en catálogo actual y que confirmaremos presupuesto.
 - Enlaces de ficha: usa solo `url_canonica` (o `url_canonica_en` si el idioma es inglés). No construyas nunca una URL a partir del slug. Si el ítem no trae URL canónica, no mandes enlace.
+
+### URLs canónicas de producto (2026-11-20)
+
+Ruta publicada: `/es/productos/{slug}/` y `/en/products/{slug}/`. El export RAG
+(`scripts/export-products-for-imeia-rag.mjs`) y el contexto del Edge `asesor` incluyen
+`url_canonica` por ítem.
+
+Red de seguridad en Hostinger (`public/.htaccess`): variantes mal armadas redirigen 301 sin
+tocar el índice de catálogo:
+
+| Petición errónea                                               | Destino                 |
+| -------------------------------------------------------------- | ----------------------- |
+| `/producto/{slug}/`, `/productos/{slug}/`                      | `/es/productos/{slug}/` |
+| `/es/producto/{slug}/`                                         | `/es/productos/{slug}/` |
+| `/product/{slug}/`, `/products/{slug}/`, `/en/product/{slug}/` | `/en/products/{slug}/`  |
+
+Guardrails en `src/lib/asesor-guardrails.ts` fuerzan el uso de URL canónica del contexto, no del slug solo.
+
 - Si piden producto con precio: indica compra posible en web, información en descripción y ofrece resolver dudas; incluye enlace.
 - Cotización institucional: pide datos faltantes; nunca cotices cifras por chat.
 - Usa español o `locale`; párrafos cortos, tono chat, no brochure.

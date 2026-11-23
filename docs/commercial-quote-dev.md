@@ -87,15 +87,17 @@ Email `referencia` = `numero`, attachment `{numero}.pdf`.
 
 ## Error codes
 
-| code                                                            | HTTP | meaning                        |
-| --------------------------------------------------------------- | ---- | ------------------------------ |
-| OFERTA_SIN_LINEAS / SIN_PRECIO / SIN_CONDICIONES / MONEDA_MIXTA | 422  | complete offer                 |
-| SIN_EMAIL                                                       | 422  | client email missing           |
-| TEMPLATE_INACTIVE                                               | 422  | activate plantilla             |
-| SEND_IN_FLIGHT                                                  | 409  | wait 2 min                     |
-| NUMERO_CONFLICT                                                 | 409  | retry                          |
-| EMAIL_FALLIDO                                                   | 502  | mail not accepted; not enviada |
-| PDF_RENDER_FAILED                                               | 500  | renderer/upload                |
+| code                                                            | HTTP | meaning                                |
+| --------------------------------------------------------------- | ---- | -------------------------------------- |
+| OFERTA_SIN_LINEAS / SIN_PRECIO / SIN_CONDICIONES / MONEDA_MIXTA | 422  | complete offer                         |
+| SIN_EMAIL                                                       | 422  | client email missing                   |
+| TEMPLATE_INACTIVE                                               | 422  | activate plantilla                     |
+| SEND_IN_FLIGHT                                                  | 409  | wait 2 min                             |
+| NUMERO_CONFLICT                                                 | 409  | retry                                  |
+| EMAIL_FALLIDO                                                   | 502  | mail not accepted; not enviada         |
+| PDF_RENDER_FAILED                                               | 500  | renderer/upload                        |
+| NO_ENVIAR_MARCADO                                               | 409  | texto «NO ENVIAR» en condiciones/notas |
+| CUENTA_RECAUDO_INVALIDA                                         | 422  | `cuenta_recaudo` fuera del catálogo    |
 
 ## `/comercial` workbench (Phase 2)
 
@@ -129,3 +131,34 @@ Listas: sin parámetro ocultan archivadas; `incluir_archivadas=1` las muestra;
 
 Probar solo en una cotización creada para la prueba. No tocar cotizaciones reales.
 Cliente de caja: `tools/ime-cms/cms_api.py`. MCP: `docs/mcp-ime-comercio-cotizaciones.md`.
+
+## Guarda de envío (2026-11-20)
+
+Lógica compartida: `supabase/functions/_shared/guarda-envio.ts` (tests en `src/lib/guarda-envio.test.ts`).
+
+| Regla                                              | Comportamiento                                                                                                                                                                                                                                                                                                                                                                                     |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Marca **NO ENVIAR**                                | Bloquea envío de oferta (`enviar-cotizacion`), formalización, notificación al cliente y compartir catálogo si `condiciones`, `condiciones_en`, `notas_internas`, `notas` o `metadata.nota_envio` / `metadata.notas` contienen la frase (sin importar tildes, guiones o puntos intermedios). Código `NO_ENVIAR_MARCADO` (HTTP 409 en Edge; trigger Postgres `P0409` al pasar a `estado = enviada`). |
+| Aprobación previa (`aprobado_por` / `aprobado_at`) | **Ya no bloquea** el envío. Migración `20261120190303_quitar_bloqueo_aprobacion_envio_cotizacion.sql`. Las columnas y la RPC `aprobar_cotizacion_envio` siguen en BD para auditoría opcional; no devuelve `SIN_APROBACION`.                                                                                                                                                                        |
+| MCP `preparar_envio_cotizacion`                    | Sigue exigiendo aprobación **owner/admin en el CMS** (flujo de confirmación de 4 h). Es independiente de `aprobado_por` en la fila. Ver `docs/mcp-ime-comercio-cotizaciones.md`.                                                                                                                                                                                                                   |
+
+Consumidores de la guarda:
+
+- `verificarEnvioPermitido` → `enviar-cotizacion`
+- `verificarNoEnviar` → `formalizar-cotizacion`, `notificar-cliente`, `comercial-share` (`contieneNoEnviar` en texto del envío)
+
+## Moneda USD, recaudo y emisor en PDF
+
+Fuente: `src/lib/cotizacion-recaudo.ts`, render `supabase/functions/_shared/render-quote-pdf.ts`.
+
+- Sin `cuenta_recaudo` explícita: **COP** → Bancolombia ahorros (`bancolombia_ahorros`); **USD** → Davivienda (`davivienda_sa`, SWIFT `CAFECOBBXXX`).
+- Al guardar o enviar con `moneda = USD`, `aplicarNotaImportesUsd` añade la nota legal de importes en USD a `condiciones` (ES/EN).
+- El bloque **EMISOR** del PDF es siempre I-ME (razón social, NIT, teléfono, correo, web, dirección Medellín); el asesor comercial va aparte, no sustituye al emisor.
+- Web Checkout en el PDF solo se firma en COP; cotizaciones USD no llevan enlace de pago en línea en el anexo.
+
+Validar cuenta en envío/patch:
+
+```bash
+# cuenta_recaudo opcional en body de enviar-cotizacion / comercial-cotizacion
+# Valores: bancolombia_ahorros | davivienda_sa | null (default por moneda)
+```
