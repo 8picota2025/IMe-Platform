@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { contieneNoEnviar, verificarEnvioPermitido } from '../../supabase/functions/_shared/guarda-envio.ts';
+import {
+  contieneNoEnviar,
+  verificarEnvioPermitido,
+  verificarNoEnviar,
+} from '../../supabase/functions/_shared/guarda-envio.ts';
 
 describe('guarda-envio', () => {
   it('detecta NO ENVIAR con tildes, mayúsculas y separadores', () => {
@@ -16,5 +20,11 @@ describe('guarda-envio', () => {
     expect(marcado.ok).toBe(false);
     if (!marcado.ok) expect(marcado.code).toBe('NO_ENVIAR_MARCADO');
     expect(verificarEnvioPermitido({ condiciones: 'ok', aprobado_por: 'shoky', aprobado_at: '2026-10-31' }).ok).toBe(true);
+  });
+  it('verificarNoEnviar bloquea notas_internas (kill switch post-envío / crear-pago)', () => {
+    expect(verificarNoEnviar({ notas_internas: 'NO ENVIAR: precio mal' }).ok).toBe(false);
+    expect(verificarNoEnviar({ notas_internas: 'Seguimiento OK', condiciones: 'Net 30' }).ok).toBe(
+      true
+    );
   });
 });
