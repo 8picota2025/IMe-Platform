@@ -98,6 +98,11 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
 - `docs/mcp-ime-comercio-cotizaciones.md` — herramientas MCP `ime-comercio` para buscar, editar y enviar cotizaciones (envío oficial con asesor y Reply-To)
+- `docs/commercial-quote-dev.md` — PDF de cotización, IVA/moneda, recaudo, guarda de envío
+- `docs/supabase-edge-deploy-ci.md` — CI de Edge Functions y secretos
+- `docs/deploy-preview.md` — vistas previas por PR en Hostinger
+- `docs/catalogo-disponibilidad-producto.md` — reglas de stock vs cotización en catálogo
+- `docs/rag-busqueda-hibrida.md` — RPC `buscar_productos_hibrido` y chunks del Asesor
 
 ## MCP de comercio para agentes remotos
 

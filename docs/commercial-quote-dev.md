@@ -129,3 +129,51 @@ Listas: sin parámetro ocultan archivadas; `incluir_archivadas=1` las muestra;
 
 Probar solo en una cotización creada para la prueba. No tocar cotizaciones reales.
 Cliente de caja: `tools/ime-cms/cms_api.py`. MCP: `docs/mcp-ime-comercio-cotizaciones.md`.
+
+## IVA, moneda y totales (#272)
+
+SoT del cálculo: `src/lib/cotizacion-iva.ts` (espejo en Edge vía import compartido en `render-quote-pdf`).
+
+- Precedencia por línea: `tratamiento_iva` de la línea → ficha (`excluido_iva` / `tarifa_iva_pct`) → 19 % si no hay tarifa.
+- `impuestos_incluidos` a nivel cotización: el precio digitado **ya** incluye IVA; no se suma dos veces.
+- `roundMoney` a 2 decimales en base, IVA y total. `total` es lo que paga el cliente, no la base neta sola.
+- Cotizaciones **USD**: `src/lib/cotizacion-recaudo.ts` → `aplicarNotaImportesUsd` añade la nota de moneda en condiciones (ES/EN); al volver a COP la retira.
+
+Tests: `cotizacion-iva.test.ts`, `render-quote-pdf.test.ts`.
+
+## Cuenta de recaudo por moneda
+
+Catálogo fijo en `src/lib/cotizacion-recaudo.ts`:
+
+| Moneda | Default si `cuenta_recaudo` vacío | Id |
+| ------ | --------------------------------- | -- |
+| COP | Bancolombia ahorros | `bancolombia_ahorros` |
+| USD | Davivienda S.A. (+ SWIFT) | `davivienda_sa` |
+
+`lineasMedioPagoCotizacion` conserva líneas históricas cuando la cuenta es el default de la moneda; si el operador elige otra cuenta, el PDF usa `lineasPagoCuenta`.
+
+Tests: `cotizacion-recaudo.test.ts`.
+
+## Emisor vs bloque cliente
+
+`src/lib/contacto-cliente.ts`: correo, teléfono, NIT y razón social de I-ME **solo** en emisor / pie del PDF, nunca en el bloque del cliente ni en el correo de envío.
+
+Helpers `esCorreoIme`, `esTelefonoIme`, `esNitIme`, `esRazonSocialIme` evitan fugas al guardar oferta desde `/comercial` o al renderizar.
+
+## Guarda de envío (409)
+
+Código: `supabase/functions/_shared/guarda-envio.ts`. Migración: `20261031143158_aprobacion_envio_cotizacion.sql`.
+
+Bloquea envío formal (`enviar-cotizacion`, etc.) con HTTP **409** si:
+
+1. Condiciones, notas o metadata contienen **NO ENVIAR** (normalización sin tildes; regex tolerante).
+2. Faltan `aprobado_por` y `aprobado_at`, o la huella `aprobacion_hash` no coincide tras cambiar líneas/condiciones/total.
+
+Aprobar solo vía RPC `aprobar_cotizacion_envio` (**service_role**): tipos `ok_shoky` o `validacion_costeo_margen` (con `margen_validado`).
+
+| code | Significado |
+| ---- | ----------- |
+| `NO_ENVIAR_MARCADO` | Quitar marca con OK explícito |
+| `SIN_APROBACION` | Ejecutar `aprobar_cotizacion_envio` antes de enviar |
+
+Trigger en BD: ningún `estado = enviada` sin marca vigente (defensa en profundidad).
