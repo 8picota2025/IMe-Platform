@@ -29,6 +29,22 @@ export function simularReservaConcurrente(stockDisponible: number, demandas: num
   });
 }
 
+/**
+ * Regla de `consumir_stock_reservas_pedido` tras el fix TTL:
+ * una reserva (aunque su TTL haya vencido) solo decrementa stock si, frente a
+ * otras holds activas no expiradas, aún cabe la cantidad.
+ */
+export function puedeConsumirReservaPago(params: {
+  stockFisico: number;
+  cantidad: number;
+  otrasReservasActivasNoExpiradas: number;
+}): boolean {
+  const fisico = Math.max(0, Math.floor(params.stockFisico));
+  const qty = Math.max(1, Math.floor(params.cantidad));
+  const otros = Math.max(0, Math.floor(params.otrasReservasActivasNoExpiradas));
+  return fisico - otros >= qty;
+}
+
 export function pedidoDebeLiberarReserva(estado: string): boolean {
   return (
     estado === 'rechazado' ||
