@@ -255,3 +255,19 @@ jobs:
           manifest="$(curl -L --silent --show-error --fail "${PROD_URL}/release-manifest.json")"
           echo "$manifest" | grep -Fq "\"commit\": \"${EXPECTED_SHA}\""
           echo "OK release ${EXPECTED_SHA}"
+
+      # No envía el ping. Para activarlo: Settings → Secrets and variables →
+      # Actions → Variables, variable de repositorio INDEXNOW_SEND = 1.
+      # La clave IndexNow es pública; no hace falta un secret.
+      - name: IndexNow tras el deploy (dry-run salvo variable)
+        if: success()
+        continue-on-error: true
+        env:
+          INDEXNOW_SEND: ${{ vars.INDEXNOW_SEND }}
+        run: |
+          if [ "${INDEXNOW_SEND}" = "1" ]; then
+            node scripts/indexnow-ping.mjs --send
+          else
+            echo "IndexNow en dry-run. Para enviarlo, define la variable de repositorio INDEXNOW_SEND=1."
+            node scripts/indexnow-ping.mjs
+          fi

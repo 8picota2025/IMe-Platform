@@ -12,6 +12,7 @@ import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
 import { resolveMarca } from './producto-origen';
 import { resolvePrecioPublico } from './format';
+import { corregirTypoPortatil } from './copy-publico';
 
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
@@ -22,6 +23,21 @@ import mockProductos from '../data/mock-productos.json';
 import { esProductoDePrueba } from './productos-prueba';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
+
+function aplicarTypoPortatil<T extends Producto>(producto: T): T {
+  return {
+    ...producto,
+    nombre: corregirTypoPortatil(producto.nombre),
+    descripcion_corta: corregirTypoPortatil(producto.descripcion_corta),
+    descripcion_larga: corregirTypoPortatil(producto.descripcion_larga),
+    valor: producto.valor ? corregirTypoPortatil(producto.valor) : producto.valor,
+    beneficios: producto.beneficios.map(corregirTypoPortatil),
+    preguntas_frecuentes: producto.preguntas_frecuentes.map(item => ({
+      q: corregirTypoPortatil(item.q),
+      a: corregirTypoPortatil(item.a),
+    })),
+  };
+}
 
 let supabaseDeshabilitadoPorError = false;
 type RawRow = Record<string, unknown>;
@@ -293,7 +309,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
   const originalFamilySlug = familiaSlugPorId?.[raw.familia_id] ?? '';
   const familySlug = correctedFamilySlug(raw.slug, originalFamilySlug);
   const familyWasCorrected = familySlug !== originalFamilySlug;
-  return {
+  return aplicarTypoPortatil({
     id: raw.id,
     slug: raw.slug,
     familia_id: familyWasCorrected
@@ -336,7 +352,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     nuevo: raw.nuevo,
     activo: raw.activo,
     orden: raw.orden,
-  };
+  });
 }
 
 /* ============================================================
@@ -524,7 +540,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
   const correctedFamily = familyWasCorrected
     ? mockFamilias.find(family => family.slug === familySlug)
     : undefined;
-  return {
+  return aplicarTypoPortatil({
     id: raw.id,
     slug: raw.slug,
     familia_id: correctedFamily?.id ?? raw.familia_id,
@@ -572,7 +588,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     activo: raw.activo,
     orden: raw.orden,
     ...mockCamposIdioma(raw, locale),
-  };
+  });
 }
 
 /** Especificaciones y alt de galería por idioma (mock). Vacío si el JSON no los trae. */

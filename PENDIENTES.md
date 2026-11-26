@@ -2,6 +2,11 @@
 
 > Actualizar en cada fase. Usar exactamente las etiquetas definidas.
 
+## SEO crawlers e IndexNow (2026-11-26)
+
+- [ ] TODO_CLIENTE: en hPanel/LiteSpeed, dejar de responder 429 a GPTBot y a `meta-externalagent` en HTML público. El repo no tiene esa regla. Runbook: `docs/seo/runbook-crawlers-ia-hostinger.md`. No desplegar ni fusionar sin OK de Shoky.
+- [ ] TODO_CLIENTE: la propiedad GA4 `properties/546785565` no tiene streams ni datos y no está en el código. No borrarla desde aquí; Shoky o Integrador deciden si se archiva. La medición viva sigue en `G-YKKFCZHE2N` / `properties/546800763`.
+
 ## Estado contrastado con producción (2026-08-01)
 
 La web pública sí está desplegada y responde en producción sobre Hostinger.

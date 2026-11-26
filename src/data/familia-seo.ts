@@ -1217,6 +1217,26 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_es: 'Familia de ventiladores',
       label_en: 'Ventilator family',
     },
+    {
+      href_es: '/es/conocimiento/central-monitoreo-multicama-o-monitores-independientes/',
+      href_en: '/en/knowledge/central-monitoreo-multicama-o-monitores-independientes/',
+      label_es: 'Central de monitoreo o monitores de cabecera',
+      label_en: 'Central station or bedside monitors',
+    },
+  ],
+  'sala-cirugia': [
+    {
+      href_es: '/es/lampara-cialitica/',
+      href_en: '/en/surgical-light/',
+      label_es: 'Lámpara cielítica para quirófano',
+      label_en: 'Surgical light for the operating room',
+    },
+    {
+      href_es: '/es/productos/lampara-cielitica-ref-led-x36-ilumitec/',
+      href_en: '/en/products/lampara-cielitica-ref-led-x36-ilumitec/',
+      label_es: 'Lámpara cielítica LED-X36',
+      label_en: 'LED-X36 surgical light',
+    },
   ],
   'esterilizacion-control-infecciones': [
     {

@@ -33,6 +33,7 @@ describe('buildOrganizationJsonLd', () => {
     ]);
     expect(org.sameAs).not.toContain('https://www.facebook.com/imebiomed');
     expect(JSON.stringify(org)).not.toContain('310-333-2607');
+    expect(JSON.stringify(org)).not.toContain('TollFree');
   });
 });
 
@@ -92,14 +93,32 @@ describe('buildProductJsonLd', () => {
   });
 
   it.each([0, null, undefined, NaN, 'invalido' as unknown as number])(
-    'no emite Product ni Offer cuando el precio no es público: %s',
+    'sin precio público emite Product y no Offer ni InStock: %s',
     precio => {
-      expect(buildProductJsonLd({ ...producto, precio }, 'es')).toBeNull();
+      const jsonLd = buildProductJsonLd(
+        {
+          ...producto,
+          precio,
+          nombre: 'Lámpara Cielítica LED-X36',
+          slug: 'lampara-cielitica-ref-led-x36-ilumitec',
+        },
+        'es'
+      );
+      expect(jsonLd).not.toBeNull();
+      expect(jsonLd?.['@type']).toBe('Product');
+      expect(jsonLd?.offers).toBeUndefined();
+      expect(JSON.stringify(jsonLd)).not.toContain('InStock');
+      expect(JSON.stringify(jsonLd)).not.toContain('"price"');
     }
   );
 
-  it('Offer con precio incluye moneda, disponibilidad y omite flete o devolución no publicados', () => {
-    const jsonLd = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+  it('Offer con precio incluye moneda y disponibilidad solo si el CMS la afirma', () => {
+    const jsonLd = expectProductJsonLd(
+      { ...producto, disponible: true },
+      'es',
+      'Monitores',
+      'Biolight'
+    );
     const offers = jsonLd.offers as Record<string, unknown>;
     expect(offers.itemCondition).toBe('https://schema.org/NewCondition');
     expect(offers.priceValidUntil).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -107,6 +126,11 @@ describe('buildProductJsonLd', () => {
     expect(offers.priceCurrency).toBe('COP');
     expect(offers.hasMerchantReturnPolicy).toBeUndefined();
     expect(offers.shippingDetails).toBeUndefined();
+  });
+
+  it('no marca InStock si disponible no viene como booleano', () => {
+    const jsonLd = expectProductJsonLd(producto, 'es');
+    expect((jsonLd.offers as { availability?: string }).availability).toBeUndefined();
   });
 
   it('marca agotado solo cuando disponible es false', () => {
@@ -150,17 +174,51 @@ describe('buildProductJsonLd', () => {
     expect(JSON.stringify(jsonLd)).not.toMatch(/INVIMA|InStock|OutOfStock/);
   });
 
-  it('sin precio no emite Product aunque la familia sea de imagen, esterilización o robots', () => {
+  it('sin precio emite Product sin Offer en imagen, esterilización, robots y las fichas que GSC no marcaba', () => {
+    const muestras = [
+      {
+        slug: 'lampara-cielitica-ref-led-x36-ilumitec',
+        nombre: 'Lámpara Cielítica LED-X36',
+        familia: 'anestesia',
+      },
+      {
+        slug: 'monitor-de-paciente-ref-m12-biolight',
+        nombre: 'Monitor de paciente Biolight M12',
+        familia: 'monitores',
+      },
+      {
+        slug: 'detector-plano-inalambrico-ref-tcq-iii-angell',
+        nombre: 'Detector Plano Inalámbrico TCQ-III',
+        familia: 'radiologia',
+      },
+      {
+        slug: 'analizador-hematologico-automatico-mindray-ref-bc-30s-mindray',
+        nombre: 'Analizador hematológico automático Mindray BC-30s',
+        familia: 'diagnostico-clinico-basico',
+      },
+    ];
+    for (const muestra of muestras) {
+      const jsonLd = buildProductJsonLd(
+        { ...producto, precio: null, slug: muestra.slug, nombre: muestra.nombre, sku: null },
+        'es',
+        'Catálogo',
+        'I-ME',
+        { familiaSlug: muestra.familia }
+      );
+      expect(jsonLd?.['@type']).toBe('Product');
+      expect(jsonLd?.offers).toBeUndefined();
+    }
     for (const familiaSlug of ['radiologia', 'esterilizacion-control-infecciones', 'robots']) {
-      expect(
-        buildProductJsonLd(
-          { ...producto, precio: null, sku: familiaSlug === 'robots' ? 'PADBOT-P2' : null },
-          'es',
-          'Imagen',
-          'Angell',
-          { familiaSlug, model: 'ALC-280' }
-        )
-      ).toBeNull();
+      const jsonLd = buildProductJsonLd(
+        { ...producto, precio: null, sku: familiaSlug === 'robots' ? 'PADBOT-P2' : null },
+        'es',
+        'Imagen',
+        'Angell',
+        { familiaSlug, model: 'ALC-280' }
+      );
+      expect(jsonLd?.['@type']).toBe('Product');
+      expect(jsonLd?.offers).toBeUndefined();
+      expect(JSON.stringify(jsonLd)).not.toContain('InStock');
     }
   });
 });
@@ -400,6 +458,11 @@ describe('resolveRobotsContent', () => {
   it('un build de vista previa (PUBLIC_NOINDEX=1) no indexa nada aunque la página lo permita', () => {
     expect(resolveRobotsContent(false, true)).toBe('noindex, nofollow');
     expect(resolveRobotsContent(undefined, true)).toBe('noindex, nofollow');
+    expect(resolveRobotsContent(true, true, true)).toBe('noindex, nofollow');
+  });
+
+  it('la paginación N>1 es noindex, follow', () => {
+    expect(resolveRobotsContent(true, false, true)).toBe('noindex, follow');
   });
 });
 

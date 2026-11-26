@@ -48,6 +48,22 @@ async function main() {
   if (!/Sitemap:\s*https:\/\/i-me\.com\.co\/sitemap-index\.xml/i.test(robots)) {
     fail('robots.txt: falta Sitemap canónico sitemap-index.xml');
   }
+  if (!robots.includes('https://i-me.com.co/llms.txt')) {
+    fail('robots.txt: falta la referencia a llms.txt');
+  }
+  if (/User-agent:\s*(?:GPTBot|ChatGPT|ClaudeBot|PerplexityBot|meta-externalagent)/i.test(robots)) {
+    fail('robots.txt: no crear un grupo de User-agent para crawlers de IA');
+  }
+  const indexNowKey = await readFile(join(DIST, '.well-known/indexnow-key.txt'), 'utf8').catch(
+    () => ''
+  );
+  const trimmedKey = indexNowKey.trim();
+  if (!/^[a-f0-9]{8,128}$/.test(trimmedKey)) {
+    fail('IndexNow: falta public/.well-known/indexnow-key.txt en dist/');
+  } else {
+    const rootKey = await readFile(join(DIST, `${trimmedKey}.txt`), 'utf8').catch(() => '');
+    if (rootKey.trim() !== trimmedKey) fail('IndexNow: /<clave>.txt no coincide con .well-known');
+  }
   if (/Sitemap:\s*https:\/\/i-me\.com\.co\/sitemap-0\.xml/i.test(robots)) {
     fail('robots.txt: no referenciar sitemap-0.xml además del index');
   }

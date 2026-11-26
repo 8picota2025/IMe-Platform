@@ -11,7 +11,7 @@
  * + actualización expresa antes de activarla — fuera de alcance aquí.
  */
 
-import { readAnalyticsLanding } from './analytics-landing';
+import { canonicalPublicUrl, readAnalyticsLanding } from './analytics-landing';
 
 export const CONSENT_STORAGE_KEY = 'ime_consent';
 
@@ -177,10 +177,18 @@ export function loadAnalyticsScripts(ids: AnalyticsIds): boolean {
     // are not measured. Once consent exists, page_location must be on the
     // config hit. Without it GA4 records the landing page as "(not set)".
     const landing = readAnalyticsLanding();
+    const pageLocation = landing?.page_location || canonicalPublicUrl(window.location.href);
+    let pagePath: string | undefined;
+    try {
+      pagePath = new URL(pageLocation).pathname;
+    } catch {
+      pagePath = undefined;
+    }
     window.gtag('config', ids.gaId, {
       send_page_view: false,
       cookie_domain: ids.analyticsDomain === 'auto' ? 'auto' : ids.analyticsDomain,
-      page_location: landing?.page_location || window.location.href,
+      page_location: pageLocation,
+      ...(pagePath ? { page_path: pagePath } : {}),
       page_referrer: landing?.page_referrer || document.referrer,
       page_title: landing?.page_title || document.title,
     });

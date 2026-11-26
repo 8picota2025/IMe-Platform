@@ -18,6 +18,14 @@ describe('snippets de conocimiento con CTR bajo', () => {
     expect(monitor!.h1.toLowerCase()).toBe('how to choose a blood pressure monitor');
     expect(monitor!.faq?.length).toBeGreaterThan(0);
     expect(monitor!.description.toLowerCase()).not.toContain('diagnos');
+    const central = snippetConocimiento(
+      'central-monitoreo-multicama-o-monitores-independientes',
+      'en'
+    );
+    expect(central!.title.length).toBeLessThanOrEqual(60);
+    expect(central!.description.length).toBeLessThanOrEqual(155);
+    expect(central!.title.toLowerCase()).toContain('bedside');
+    expect(central!.description.toLowerCase()).not.toContain('diagnos');
   });
 
   it('separa la guía EN de registro del landing comercial', () => {

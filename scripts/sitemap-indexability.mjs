@@ -2,11 +2,15 @@
  * Sitemap eligibility — pathname-based, no substring false positives.
  * Shared by astro.config.mjs and scripts/validate-seo.mjs.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const HTACCESS_PATH = join(dirname(fileURLToPath(import.meta.url)), '../public/.htaccess');
+const htaccessJuntoAlModulo = join(dirname(fileURLToPath(import.meta.url)), '../public/.htaccess');
+// El prerender de Astro empaqueta este módulo: import.meta.url deja de apuntar a scripts/.
+const HTACCESS_PATH = existsSync(htaccessJuntoAlModulo)
+  ? htaccessJuntoAlModulo
+  : join(process.cwd(), 'public/.htaccess');
 
 /**
  * Slugs que `.htaccess` responde con 410. El sitemap solo lista canónicas vivas.
@@ -130,9 +134,7 @@ function normalizePathname(pathname) {
 function matchesPrefix(pathname, prefix) {
   const normalizedPath = pathname.endsWith('/') ? pathname.slice(0, -1) || '/' : pathname;
   const normalizedPrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
-  return (
-    normalizedPath === normalizedPrefix || normalizedPath.startsWith(`${normalizedPrefix}/`)
-  );
+  return normalizedPath === normalizedPrefix || normalizedPath.startsWith(`${normalizedPrefix}/`);
 }
 
 /**
@@ -159,6 +161,8 @@ export function isIndexableSitemapUrl(page) {
   if (/\/lib\/analytics\/?$/.test(pathname)) return false;
   const productSlug = pathname.match(/^\/(?:es\/productos|en\/products)\/([^/]+)\/?$/)?.[1];
   if (productSlug && GONE_PRODUCT_SLUGS.has(productSlug)) return false;
+  // /pagina/N/ (N>1) es noindex, follow. La página 1 no usa este segmento.
+  if (/\/pagina\/\d+\/?$/.test(pathname)) return false;
   // Datasheets are not pages. Equitronic competitor assets must not re-enter any sitemap.
   if (/\.pdf$/i.test(pathname)) return false;
   if (/\/assets\/importados\/equitronic(?:\/|$)/i.test(pathname)) return false;
