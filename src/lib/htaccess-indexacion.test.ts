@@ -32,7 +32,8 @@ describe('htaccess indexación', () => {
   it('el piloto CDN solo cachea el HTML de /es/catalogo/', () => {
     expect(htaccess).toContain('Header always set Cache-Control "public, max-age=0, s-maxage=3600"');
     expect(htaccess).toContain('Header always set Cache-Control "private, no-store"');
-    expect(htaccess).toContain('m#^/es/catalogo/(index\\.html)?$#');
+    expect(htaccess).toContain('RewriteRule ^es/catalogo/$ - [E=CDN_PILOTO_CATALOGO:1]');
+    expect(htaccess).toContain('RewriteRule ^es/catalogo/index\\.html$ - [E=CDN_PILOTO_CATALOGO:1]');
     expect(htaccess).not.toMatch(/s-maxage=3600[\s\S]{0,80}pagina/);
     expect(htaccess).toContain('Header merge Vary Accept');
   });
