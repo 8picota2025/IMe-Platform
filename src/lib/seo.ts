@@ -257,11 +257,19 @@ export function buildProductoPageTitle(
  * son copias de prueba servidas en el dominio de producción y nada de lo que publican debe
  * indexarse, aunque la página no pida noindex por sí misma.
  */
+/**
+ * Paginación `/pagina/N/` con N>1 usa noindex, follow (`followWhenNoindex`).
+ * La página 1 sigue indexable. Esas URLs salen del sitemap.
+ * Una vista previa (PUBLIC_NOINDEX) sigue en noindex, nofollow.
+ */
 export function resolveRobotsContent(
   noindex: boolean | undefined = false,
-  noindexBuild: boolean = import.meta.env['PUBLIC_NOINDEX'] === '1'
+  noindexBuild: boolean = import.meta.env['PUBLIC_NOINDEX'] === '1',
+  followWhenNoindex: boolean = false
 ): string {
-  return noindex || noindexBuild ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+  if (noindexBuild) return 'noindex, nofollow';
+  if (noindex) return followWhenNoindex ? 'noindex, follow' : 'noindex, nofollow';
+  return 'index, follow, max-image-preview:large';
 }
 
 export function buildCanonical(path: string): string {
@@ -433,11 +441,33 @@ export function buildServiciosFaqItems(locale: Locale): Array<{ q: string; a: st
   ];
 }
 
-export function buildFaqJsonLd(items: Array<{ q: string; a: string }>): Record<string, unknown> {
+function textoPlanoFaq(value: string): string {
+  return value
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * FAQPage solo con pares visibles y no vacíos. Sin preguntas no se emite el
+ * nodo: un FAQPage vacío hace que Search Console se quede en las migas.
+ * `pageUrl` identifica la página para que el nodo no quede huérfano en @graph.
+ */
+export function buildFaqJsonLd(
+  items: Array<{ q: string; a: string }>,
+  pageUrl?: string
+): Record<string, unknown> | null {
+  const pares = items
+    .map(item => ({ q: textoPlanoFaq(item.q), a: textoPlanoFaq(item.a) }))
+    .filter(item => item.q.length > 0 && item.a.length > 0);
+  if (pares.length === 0) return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: items.map(item => ({
+    ...(pageUrl ? { '@id': `${pageUrl}#faq`, url: pageUrl, mainEntityOfPage: pageUrl } : {}),
+    mainEntity: pares.map(item => ({
       '@type': 'Question',
       name: item.q,
       acceptedAnswer: {
@@ -491,7 +521,6 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
         contactType: 'sales',
         availableLanguage: ['Spanish', 'English'],
         areaServed: 'CO',
-        contactOption: 'TollFree',
       },
     ],
     sameAs: [...IME_SAME_AS],
@@ -562,18 +591,24 @@ function buildPriceValidUntil(): string {
 }
 
 /**
- * JSON-LD Product para rich results de producto.
- * Con precio público: Offer con price, priceCurrency y availability.
- * Sin precio y a la venta (cotización): no se emite Product. Un Offer sin price,
- * o un Product sin offers/review/aggregateRating, es el «1 elemento no válido»
- * de Search Console.
+ * JSON-LD Product en toda ficha indexable.
+ * Offer y price solo si hay precio público real. Bajo cotización: Product sin
+ * Offer, sin price y sin availability (no se marca InStock).
+ * InStock u OutOfStock solo cuando `disponible` es un booleano del CMS.
  * Ficha Zuowei con disponible=false: Product con availability Discontinued y
  * sin precio, para no prometer una compra.
  * No se inventan precios. shippingDetails y hasMerchantReturnPolicy se omiten:
  * no hay tarifa de flete publicada (el flete no va en el precio) y la garantía
  * es la del fabricante, no una ventana de devolución del comercio.
  * MedicalDevice solo con sellos de normativa en specs.
+ * Un Product sin offers puede no calificar a rich result de merchant listing;
+ * igual se emite para que la ficha no quede solo con migas y FAQ.
  */
+function disponibilidadOferta(disponible: boolean | undefined): string | undefined {
+  if (disponible === true) return 'https://schema.org/InStock';
+  if (disponible === false) return 'https://schema.org/OutOfStock';
+  return undefined;
+}
 export function buildProductJsonLd(
   producto: {
     nombre: string;
@@ -593,7 +628,7 @@ export function buildProductJsonLd(
   opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string | null }
 ): Record<string, unknown> | null {
   const sinVenta = fichaZuoweiSinVenta(producto);
-  if (!tienePrecioPublico(producto.precio) && !sinVenta) return null;
+  const precioPublico = tienePrecioPublico(producto.precio) ? producto.precio : null;
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -629,19 +664,17 @@ export function buildProductJsonLd(
       url: canonicalUrl,
       availability: 'https://schema.org/Discontinued',
     };
-  } else {
+  } else if (precioPublico !== null) {
     const priceCurrency = normalizarMoneda(producto.moneda);
+    const availability = disponibilidadOferta(producto.disponible);
     jsonLd.offers = {
       '@type': 'Offer',
       url: canonicalUrl,
-      price: producto.precio,
+      price: precioPublico,
       priceCurrency,
       priceValidUntil: buildPriceValidUntil(),
       itemCondition: 'https://schema.org/NewCondition',
-      availability:
-        producto.disponible === false
-          ? 'https://schema.org/OutOfStock'
-          : 'https://schema.org/InStock',
+      ...(availability ? { availability } : {}),
       seller: { '@id': `${SITE}/#organization` },
     };
   }

@@ -118,6 +118,15 @@ describe('sitemap-indexability', () => {
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/lib/analytics')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/assets/productos/x/ficha.pdf')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/evento/')).toBe(true);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/catalogo/pagina/2/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/familias/mobiliario/pagina/2/')).toBe(
+      false
+    );
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/catalog/pagina/2/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/families/mobiliario/pagina/2/')).toBe(
+      false
+    );
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/catalogo/')).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/familias/')).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/en/families/')).toBe(true);
     expect(

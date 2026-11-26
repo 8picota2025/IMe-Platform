@@ -21,6 +21,8 @@ interface Props {
   jsonLd?: string;
   currentPath: string;
   noindex?: boolean;
+  /** Con noindex, follow en lugar de nofollow. Lo usa /pagina/N/ (N>1). */
+  noindexFollow?: boolean;
   fontAwesome?: boolean;
   monolingual?: boolean;
   lcpImage?: string;
@@ -38,6 +40,7 @@ const {
   jsonLd,
   currentPath,
   noindex,
+  noindexFollow = false,
   fontAwesome,
   monolingual = false,
   lcpImage,
@@ -54,7 +57,7 @@ const ogImageType = ogImagePath.endsWith('.svg')
       : 'image/jpeg';
 const ogWidth = String(ogImageWidth ?? 1200);
 const ogHeight = String(ogImageHeight ?? 630);
-const robotsContent = resolveRobotsContent(noindex);
+const robotsContent = resolveRobotsContent(noindex, undefined, noindexFollow);
 const searchConsoleVerification = resolveSearchConsoleVerification();
 const googleFontsHref =
   'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@400;500;600&display=swap';
@@ -86,6 +89,7 @@ const googleFontsHref =
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
+<link rel="alternate" type="text/plain" href="https://i-me.com.co/llms.txt" title="llms.txt" />
 <meta name="robots" content={robotsContent} />
 {
   searchConsoleVerification && (

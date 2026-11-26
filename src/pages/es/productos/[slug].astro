@@ -26,6 +26,7 @@ import { normalizarEspecificaciones } from '../../../lib/especificaciones';
 import { getProductoSeoCopy } from '../../../data/producto-seo-copy';
 import { enlacesZuowei } from '../../../data/zuowei-catalogo';
 import { esFichaZuowei, fichaZuoweiSinVenta } from '../../../lib/zuowei-sin-venta';
+import { fichaSinSchemaProducto } from '../../../lib/ficha-publica';
 
 const locale = 'es';
 
@@ -83,7 +84,8 @@ const seo = seoCopy
       description: truncateMetaDescription(seoCopy.description),
     }
   : seoBase;
-const noindex = producto.slug === 'test';
+const sinSchema = fichaSinSchemaProducto(locale, producto.slug);
+const noindex = producto.slug === 'test' || sinSchema;
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);
 const certificaciones = especificaciones
   .filter(item => /normativ/i.test(item.grupo ?? ''))
@@ -93,13 +95,15 @@ const certificaciones = especificaciones
 const modelo = especificaciones.find(item => /^modelo$/i.test(item.clave))?.valor;
 
 const jsonLd = combineJsonLd(
-  buildProductJsonLd(producto, locale, familia.nombre, producto.marca, {
-    certificaciones,
-    familiaSlug: familia.slug,
-    ...(modelo ? { model: modelo } : {}),
-  }),
+  sinSchema
+    ? null
+    : buildProductJsonLd(producto, locale, familia.nombre, producto.marca, {
+        certificaciones,
+        familiaSlug: familia.slug,
+        ...(modelo ? { model: modelo } : {}),
+      }),
   ...(producto.preguntas_frecuentes.length > 0
-    ? [buildFaqJsonLd(producto.preguntas_frecuentes)]
+    ? [buildFaqJsonLd(producto.preguntas_frecuentes, seo.canonical)]
     : []),
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },

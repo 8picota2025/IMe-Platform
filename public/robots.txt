@@ -1,5 +1,11 @@
 # robots.txt — crawling policy only (not access control).
 # /admin and payments remain protected by auth / app logic independently.
+# llms.txt (instrucciones para agentes; el comentario no es una directiva):
+# https://i-me.com.co/llms.txt
+# No hay Disallow por UA de GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot,
+# PerplexityBot, Google-Extended, Googlebot, Bingbot, Applebot, Applebot-Extended
+# ni meta-externalagent. El 429 de LiteSpeed se documenta en
+# docs/seo/runbook-crawlers-ia-hostinger.md.
 
 User-agent: *
 Disallow: /admin/

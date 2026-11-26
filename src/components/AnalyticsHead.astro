@@ -27,10 +27,14 @@ const analyticsDomain = resolveAnalyticsDomain();
   try {
     const imeLandingKey = 'ime_analytics_landing';
     if (!sessionStorage.getItem(imeLandingKey)) {
+      const url = new URL(location.href);
+      if (!/\.[a-z0-9]{1,8}$/i.test(url.pathname) && !url.pathname.endsWith('/')) {
+        url.pathname = `${url.pathname}/`;
+      }
       sessionStorage.setItem(
         imeLandingKey,
         JSON.stringify({
-          page_location: location.href,
+          page_location: url.toString(),
           page_referrer: document.referrer || '',
           page_title: document.title,
         })

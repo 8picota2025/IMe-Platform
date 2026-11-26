@@ -105,9 +105,21 @@ const TENSIOMETRO_EN: ConocimientoSnippet = {
   ],
 };
 
+const CENTRAL_EN: ConocimientoSnippet = {
+  title: 'Bedside monitors vs central station | I-ME',
+  h1: 'Bedside monitors or a central monitoring station',
+  description:
+    'Compare independent bedside monitors with a multi-bed central station. Confirm the layout, training and quote with I-ME. No clinical claims.',
+  links: [
+    { href: '/en/families/monitores/', label: 'Patient monitor family' },
+    { href: '/en/biolight-icu-monitors/', label: 'Biolight ICU monitors' },
+  ],
+};
+
 const SNIPPETS: Record<string, Partial<Record<Locale, ConocimientoSnippet>>> = {
   'registro-sanitario-invima-equipos-biomedicos': { es: REGISTRO_ES, en: REGISTRO_EN },
   'como-elegir-tensiometro-digital': { es: TENSIOMETRO_ES, en: TENSIOMETRO_EN },
+  'central-monitoreo-multicama-o-monitores-independientes': { en: CENTRAL_EN },
 };
 
 export function snippetConocimiento(slug: string, locale: Locale): ConocimientoSnippet | undefined {

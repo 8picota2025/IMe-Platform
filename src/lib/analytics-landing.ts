@@ -7,6 +7,22 @@
 
 const LANDING_KEY = 'ime_analytics_landing';
 
+/**
+ * GA4 partía landingPage entre `/es` y `/es/`. Las rutas HTML llevan barra final.
+ * Un archivo (`/llms.txt`, imágenes) no se toca.
+ */
+export function canonicalPublicUrl(href: string): string {
+  try {
+    const url = new URL(href, 'https://i-me.com.co');
+    if (!/\.[a-z0-9]{1,8}$/i.test(url.pathname) && !url.pathname.endsWith('/')) {
+      url.pathname = `${url.pathname}/`;
+    }
+    return url.toString();
+  } catch {
+    return href;
+  }
+}
+
 export interface AnalyticsLanding {
   page_location: string;
   page_referrer: string;
@@ -28,7 +44,10 @@ export function rememberAnalyticsLanding(
   if (!storage || !page?.page_location) return;
   try {
     if (storage.getItem(LANDING_KEY)) return;
-    storage.setItem(LANDING_KEY, JSON.stringify(page));
+    storage.setItem(
+      LANDING_KEY,
+      JSON.stringify({ ...page, page_location: canonicalPublicUrl(page.page_location) })
+    );
   } catch {
     // sessionStorage can be blocked. The live URL is still sent after consent.
   }

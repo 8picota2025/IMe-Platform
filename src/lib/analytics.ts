@@ -1,4 +1,8 @@
-import { readAnalyticsLanding, rememberAnalyticsLanding } from './analytics-landing';
+import {
+  canonicalPublicUrl,
+  readAnalyticsLanding,
+  rememberAnalyticsLanding,
+} from './analytics-landing';
 import { hasAnalyticsConsent } from './consent';
 
 export type AnalyticsEventName =
@@ -276,9 +280,11 @@ export function replayPageViewToGtag(): void {
   if (typeof window === 'undefined') return;
   const landing = readAnalyticsLanding();
   const current = window.__imeAnalyticsLastPageViewPayload;
+  const landingPath = landing ? pathFromAnalyticsLocation(landing.page_location) : undefined;
   const landingPayload: AnalyticsParams | undefined = landing
     ? {
         page_location: landing.page_location,
+        ...(landingPath ? { page_path: landingPath } : {}),
         page_title: landing.page_title,
         ...(landing.page_referrer ? { page_referrer: landing.page_referrer } : {}),
       }
@@ -299,10 +305,19 @@ export function replayPageViewToGtag(): void {
   }
 }
 
+function pathFromAnalyticsLocation(href: string): string | undefined {
+  try {
+    return new URL(href).pathname;
+  } catch {
+    return undefined;
+  }
+}
+
 export function trackPageView(): void {
   if (typeof window === 'undefined') return;
   rememberAnalyticsLanding();
-  const pathname = window.location.pathname;
+  const pageLocation = canonicalPublicUrl(window.location.href);
+  const pathname = pathFromAnalyticsLocation(pageLocation) ?? window.location.pathname;
   const search = window.location.search;
   const pageKey = `${pathname}${search}`;
   if (window.__imeAnalyticsLastPage === pageKey) return;
@@ -314,7 +329,7 @@ export function trackPageView(): void {
   window.__imeAnalyticsPageStartedAt = Date.now();
   const campaign = captureCampaign();
   emitAnalyticsEvent('page_view', {
-    page_location: window.location.href,
+    page_location: pageLocation,
     page_path: pathname,
     page_search: search,
     page_referrer: document.referrer,

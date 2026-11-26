@@ -1,0 +1,90 @@
+---
+/**
+ * Enlaces a landings y guías ya publicadas. Los borradores de conocimiento
+ * no se enlazan: no tienen URL pública hasta el OK de publicación.
+ */
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+const es = locale === 'es';
+const enlaces = es
+  ? [
+      { href: '/es/familias/mobiliario/', label: 'Cama hospitalaria eléctrica' },
+      { href: '/es/lampara-cialitica/', label: 'Lámpara cielítica' },
+      { href: '/es/camillas-medicas/', label: 'Camillas médicas' },
+      { href: '/es/esterilizacion/autoclaves-hospitalarios/', label: 'Autoclaves hospitalarios' },
+      { href: '/es/familias/ultrasonido/', label: 'Equipos de ultrasonido' },
+      { href: '/es/tensiometros-digitales/', label: 'Tensiómetros digitales' },
+      { href: '/es/caminadores-para-adultos/', label: 'Caminadores para adultos' },
+      {
+        href: '/es/conocimiento/como-elegir-tensiometro-digital/',
+        label: 'Cómo elegir un tensiómetro',
+      },
+      {
+        href: '/es/conocimiento/desfibrilador-bifasico-que-incluye/',
+        label: 'Desfibrilador bifásico',
+      },
+      {
+        href: '/es/conocimiento/registro-sanitario-invima-equipos-biomedicos/',
+        label: 'Registro sanitario INVIMA',
+      },
+    ]
+  : [
+      { href: '/en/families/mobiliario/', label: 'Hospital beds' },
+      { href: '/en/surgical-light/', label: 'Surgical lights' },
+      { href: '/en/medical-stretchers/', label: 'Medical stretchers' },
+      { href: '/en/sterilization/autoclaves-hospitalarios/', label: 'Hospital autoclaves' },
+      { href: '/en/families/ultrasonido/', label: 'Ultrasound equipment' },
+      { href: '/en/digital-blood-pressure-monitors/', label: 'Digital blood pressure monitors' },
+      { href: '/en/adult-walkers/', label: 'Adult walkers' },
+      {
+        href: '/en/knowledge/como-elegir-tensiometro-digital/',
+        label: 'How to choose a blood pressure monitor',
+      },
+      {
+        href: '/en/knowledge/desfibrilador-bifasico-que-incluye/',
+        label: 'Biphasic defibrillator',
+      },
+      {
+        href: '/en/knowledge/central-monitoreo-multicama-o-monitores-independientes/',
+        label: 'Central station or bedside monitors',
+      },
+    ];
+---
+
+<nav class="catalogo-guias" aria-label={es ? 'Guías de compra' : 'Buying guides'}>
+  <p>{es ? 'Guías para cotizar' : 'Guides before you quote'}</p>
+  <ul>
+    {
+      enlaces.map(enlace => (
+        <li>
+          <a href={enlace.href}>{enlace.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .catalogo-guias {
+    margin: 0 0 var(--space-lg);
+  }
+  .catalogo-guias p {
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+    color: var(--ink, #131b22);
+  }
+  .catalogo-guias ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .catalogo-guias a {
+    color: var(--teal, #0f4c5c);
+  }
+</style>

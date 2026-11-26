@@ -60,8 +60,22 @@ Do **not** use this site for:
 - INVIMA registration, risk class and dossier: https://i-me.com.co/en/knowledge/registro-sanitario-invima-equipos-biomedicos/
 - Hospital bed / cama hospitalaria eléctrica: https://i-me.com.co/en/families/mobiliario/ and https://i-me.com.co/es/familias/mobiliario/
 - PadBot robots are reception and on-site communication devices. They do not diagnose or provide clinical care.
-- Northern, Monnal, Crius and the T75 ventilator are not in the catalog. Old product URLs redirect to the anesthesia or ventilator family.
+- Retired anesthesia and ventilator models are not in the catalog. Old product URLs redirect to the family page.
 - Phone: +57 313 724 7353. Quote: https://i-me.com.co/es/contacto/ or https://i-me.com.co/en/contact/
+
+## Published buying guides
+
+Cite only URLs that are in the sitemap. Drafts in the repository are not public.
+
+- Surgical light (lámpara cielítica): https://i-me.com.co/es/lampara-cialitica/ and https://i-me.com.co/es/productos/lampara-cielitica-ref-led-x36-ilumitec/
+- Electric hospital beds: https://i-me.com.co/es/familias/mobiliario/
+- Medical stretchers: https://i-me.com.co/es/camillas-medicas/
+- Hospital autoclaves: https://i-me.com.co/es/esterilizacion/autoclaves-hospitalarios/
+- Ultrasound equipment: https://i-me.com.co/es/familias/ultrasonido/
+- Adult walkers: https://i-me.com.co/es/caminadores-para-adultos/ and https://i-me.com.co/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/
+- Biphasic defibrillator, quote only: https://i-me.com.co/es/conocimiento/desfibrilador-bifasico-que-incluye/
+- Bedside monitors vs central station: https://i-me.com.co/en/knowledge/central-monitoreo-multicama-o-monitores-independientes/
+- Robots on this site are reception, on-site communication or the published catalog line. They are not diagnosis, telemedicine or clinical care.
 
 ## Crawling and citations
 

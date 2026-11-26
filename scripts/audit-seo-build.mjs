@@ -1,5 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
+import { goneProductSlugs, REDIRECT_ONLY_PRODUCT_PATHS } from './sitemap-indexability.mjs';
+
+const GONE_PRODUCT_SLUGS = goneProductSlugs();
 
 const DIST = join(process.cwd(), 'dist');
 const errors = [];
@@ -88,6 +91,34 @@ async function main() {
       }
     }
 
+    if (/\/pagina\/\d+\/$/.test(page)) {
+      if (!robots.includes('noindex') || robots.includes('nofollow')) {
+        fail(`${page}: paginación N>1 debe ser noindex, follow`);
+      }
+    }
+    if (html.includes('TollFree')) fail(`${page}: ContactPoint no debe decir TollFree`);
+    if (html.includes('Pórtatil')) fail(`${page}: typo Pórtatil`);
+    if (
+      (page === '/es/' || page === '/en/') &&
+      !/<link\b[^>]*href="https:\/\/i-me\.com\.co\/llms\.txt"[^>]*>/i.test(html)
+    ) {
+      fail(`${page}: falta el enlace a llms.txt`);
+    }
+    const productMatch = page.match(/^\/(?:es\/productos|en\/products)\/([^/]+)\/$/);
+    if (productMatch) {
+      const slug = productMatch[1];
+      const prefix = page.startsWith('/en/') ? '/en/products/' : '/es/productos/';
+      const suppressed =
+        GONE_PRODUCT_SLUGS.has(slug) || REDIRECT_ONLY_PRODUCT_PATHS.has(`${prefix}${slug}/`);
+      const hasProduct = jsonLdBlocks.some(([, block]) =>
+        /"@type":"Product"|"@type":\["Product"/.test(block)
+      );
+      if (suppressed && hasProduct) fail(`${page}: ficha 410/301 no debe emitir Product`);
+      if (!suppressed && !robots.includes('noindex') && !hasProduct) {
+        fail(`${page}: ficha indexable sin JSON-LD Product`);
+      }
+    }
+
     const hrefTags = [...html.matchAll(/<(?:a|link)\b[^>]*>/gi)];
     for (const match of robots.includes('noindex') ? [] : hrefTags) {
       const tag = match[0];
@@ -172,6 +203,21 @@ async function main() {
   }
   if (!sawLastmod) fail('sitemap: falta lastmod en entradas');
   if (!sawHreflang) fail('sitemap: falta hreflang (xhtml:link)');
+  for (const pathname of sitemapPaths) {
+    if (/\/pagina\/\d+\/$/.test(pathname)) fail(`sitemap: paginación noindex ${pathname}`);
+  }
+  const indexNowKey = (await readFile(join(DIST, '.well-known/indexnow-key.txt'), 'utf8')).trim();
+  const indexNowRoot = (await readFile(join(DIST, `${indexNowKey}.txt`), 'utf8')).trim();
+  if (!/^[a-f0-9]{8,128}$/.test(indexNowKey) || indexNowRoot !== indexNowKey) {
+    fail('IndexNow: la clave pública de dist/ no coincide');
+  }
+  const tensiometro = join(DIST, 'en/knowledge/como-elegir-tensiometro-digital/index.html');
+  if (await fileExists(tensiometro)) {
+    const guide = await readFile(tensiometro, 'utf8');
+    if (!guide.includes('How to choose a blood pressure monitor')) {
+      fail('guía EN de tensiómetro: el title desplegado no está en el HTML');
+    }
+  }
 
   if (errors.length > 0) {
     console.error(`SEO build audit: ${errors.length} error(es)`);

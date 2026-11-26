@@ -5,6 +5,7 @@
  */
 import Layout from '../../layouts/Layout.astro';
 import CatalogoExplorer from '../../components/CatalogoExplorer.astro';
+import CatalogoGuias from '../../components/CatalogoGuias.astro';
 import { t } from '../../i18n/utils';
 import {
   buildCatalogoSeo,
@@ -60,12 +61,14 @@ const jsonLd = combineJsonLd(
       <span class="section-tag">{t(locale, 'catalogo.familias_titulo')}</span>
       <h1>{t(locale, 'catalogo.titulo')}</h1>
       <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
-        {items.length} biomedical devices across {familias.length} specialized categories. INVIMA certified.
+        {items.length} biomedical devices across {familias.length} categories. Regulatory documents are
+        confirmed per reference.
       </p>
     </div>
   </div>
 
   <div class="container">
+    <CatalogoGuias locale="en" />
     <CatalogoExplorer
       locale={locale}
       items={catalogPage.items}

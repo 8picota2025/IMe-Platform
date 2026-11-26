@@ -1,5 +1,8 @@
 # I-ME F5 legacy redirects
 # Apache/Hostinger static deployment. Keep redirects explicit; do not add SPA fallback.
+# No bloquear crawlers por User-Agent (GPTBot, meta-externalagent, etc.).
+# El 429 vive en el panel de Hostinger/LiteSpeed. No abrir /admin por UA.
+# Ver docs/seo/runbook-crawlers-ia-hostinger.md.
 
 RewriteEngine On
 

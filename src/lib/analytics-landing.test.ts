@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { buildGa4EventParams } from './analytics';
-import { readAnalyticsLanding, rememberAnalyticsLanding } from './analytics-landing';
+import {
+  canonicalPublicUrl,
+  readAnalyticsLanding,
+  rememberAnalyticsLanding,
+} from './analytics-landing';
 import { INVIMA_CHECKLIST_EN, INVIMA_REGISTRATION_EN, INVIMA_TOPIC_EN } from '../data/invima-seo';
 
 describe('buildGa4EventParams', () => {
@@ -31,6 +35,17 @@ describe('buildGa4EventParams', () => {
       { page_location: 'https://i-me.com.co/en/' }
     );
     expect(params.page_location).toBe('https://i-me.com.co/en/knowledge/topic/invima-regulacion/');
+  });
+});
+
+describe('canonicalPublicUrl', () => {
+  it('unifica /es y /es/ para que GA4 no parta la landing', () => {
+    expect(canonicalPublicUrl('https://i-me.com.co/es')).toBe('https://i-me.com.co/es/');
+    expect(canonicalPublicUrl('https://i-me.com.co/es/')).toBe('https://i-me.com.co/es/');
+    expect(canonicalPublicUrl('https://i-me.com.co/es/catalogo?q=cama')).toBe(
+      'https://i-me.com.co/es/catalogo/?q=cama'
+    );
+    expect(canonicalPublicUrl('https://i-me.com.co/llms.txt')).toBe('https://i-me.com.co/llms.txt');
   });
 });
 
