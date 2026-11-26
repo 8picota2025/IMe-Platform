@@ -93,22 +93,19 @@ describe('buildProductJsonLd', () => {
   });
 
   it.each([0, null, undefined, NaN, 'invalido' as unknown as number])(
-    'sin precio público emite Product y no Offer ni InStock: %s',
+    'sin precio público no emite Product ni Offer: %s',
     precio => {
-      const jsonLd = buildProductJsonLd(
-        {
-          ...producto,
-          precio,
-          nombre: 'Lámpara Cielítica LED-X36',
-          slug: 'lampara-cielitica-ref-led-x36-ilumitec',
-        },
-        'es'
-      );
-      expect(jsonLd).not.toBeNull();
-      expect(jsonLd?.['@type']).toBe('Product');
-      expect(jsonLd?.offers).toBeUndefined();
-      expect(JSON.stringify(jsonLd)).not.toContain('InStock');
-      expect(JSON.stringify(jsonLd)).not.toContain('"price"');
+      expect(
+        buildProductJsonLd(
+          {
+            ...producto,
+            precio,
+            nombre: 'Lámpara Cielítica LED-X36',
+            slug: 'lampara-cielitica-ref-led-x36-ilumitec',
+          },
+          'es'
+        )
+      ).toBeNull();
     }
   );
 
@@ -151,7 +148,7 @@ describe('buildProductJsonLd', () => {
     expect(jsonLd.sku).toBe('M12-BIOLIGHT');
   });
 
-  it('ficha Zuowei no disponible emite Discontinued sin precio ni registro', () => {
+  it('ficha Zuowei sin precio no emite Product ni Offer', () => {
     const jsonLd = buildProductJsonLd(
       {
         ...producto,
@@ -166,15 +163,10 @@ describe('buildProductJsonLd', () => {
       'Zuowei',
       { certificaciones: ['INVIMA en trámite'] }
     );
-    expect(jsonLd).not.toBeNull();
-    const offers = (jsonLd as { offers: Record<string, unknown> }).offers;
-    expect(offers.availability).toBe('https://schema.org/Discontinued');
-    expect(offers.price).toBeUndefined();
-    expect(offers.priceCurrency).toBeUndefined();
-    expect(JSON.stringify(jsonLd)).not.toMatch(/INVIMA|InStock|OutOfStock/);
+    expect(jsonLd).toBeNull();
   });
 
-  it('sin precio emite Product sin Offer en imagen, esterilización, robots y las fichas que GSC no marcaba', () => {
+  it('sin precio no emite Product en imagen, esterilización, robots ni en las fichas sin precio', () => {
     const muestras = [
       {
         slug: 'lampara-cielitica-ref-led-x36-ilumitec',
@@ -205,8 +197,7 @@ describe('buildProductJsonLd', () => {
         'I-ME',
         { familiaSlug: muestra.familia }
       );
-      expect(jsonLd?.['@type']).toBe('Product');
-      expect(jsonLd?.offers).toBeUndefined();
+      expect(jsonLd).toBeNull();
     }
     for (const familiaSlug of ['radiologia', 'esterilizacion-control-infecciones', 'robots']) {
       const jsonLd = buildProductJsonLd(
@@ -216,9 +207,7 @@ describe('buildProductJsonLd', () => {
         'Angell',
         { familiaSlug, model: 'ALC-280' }
       );
-      expect(jsonLd?.['@type']).toBe('Product');
-      expect(jsonLd?.offers).toBeUndefined();
-      expect(JSON.stringify(jsonLd)).not.toContain('InStock');
+      expect(jsonLd).toBeNull();
     }
   });
 });

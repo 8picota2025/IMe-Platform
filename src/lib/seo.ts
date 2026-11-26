@@ -591,18 +591,13 @@ function buildPriceValidUntil(): string {
 }
 
 /**
- * JSON-LD Product en toda ficha indexable.
- * Offer y price solo si hay precio público real. Bajo cotización: Product sin
- * Offer, sin price y sin availability (no se marca InStock).
+ * JSON-LD Product solo si hay precio público. Sin ese precio no hay Product
+ * ni Offer: la ficha conserva migas, FAQ y Organization.
  * InStock u OutOfStock solo cuando `disponible` es un booleano del CMS.
- * Ficha Zuowei con disponible=false: Product con availability Discontinued y
- * sin precio, para no prometer una compra.
- * No se inventan precios. shippingDetails y hasMerchantReturnPolicy se omiten:
- * no hay tarifa de flete publicada (el flete no va en el precio) y la garantía
- * es la del fabricante, no una ventana de devolución del comercio.
+ * Ficha Zuowei sin venta y con precio: Offer Discontinued, con ese precio.
+ * Sin precio, tampoco emite Product.
+ * No se inventan precios. shippingDetails y hasMerchantReturnPolicy se omiten.
  * MedicalDevice solo con sellos de normativa en specs.
- * Un Product sin offers puede no calificar a rich result de merchant listing;
- * igual se emite para que la ficha no quede solo con migas y FAQ.
  */
 function disponibilidadOferta(disponible: boolean | undefined): string | undefined {
   if (disponible === true) return 'https://schema.org/InStock';
@@ -629,6 +624,7 @@ export function buildProductJsonLd(
 ): Record<string, unknown> | null {
   const sinVenta = fichaZuoweiSinVenta(producto);
   const precioPublico = tienePrecioPublico(producto.precio) ? producto.precio : null;
+  if (precioPublico === null) return null;
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -662,9 +658,11 @@ export function buildProductJsonLd(
     jsonLd.offers = {
       '@type': 'Offer',
       url: canonicalUrl,
+      price: precioPublico,
+      priceCurrency: normalizarMoneda(producto.moneda),
       availability: 'https://schema.org/Discontinued',
     };
-  } else if (precioPublico !== null) {
+  } else {
     const priceCurrency = normalizarMoneda(producto.moneda);
     const availability = disponibilidadOferta(producto.disponible);
     jsonLd.offers = {

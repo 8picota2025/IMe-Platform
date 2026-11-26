@@ -34,7 +34,7 @@ Para camillas de traslado, use la [guía de camillas médicas](/es/camillas-medi
 
 Pida por escrito el modelo, la ficha técnica, el alcance de instalación, la capacitación, la garantía del fabricante y el soporte en Colombia. Si el registro sanitario aplica, pida el número del modelo exacto y compruébelo en la consulta pública del INVIMA. Un marcado extranjero no reemplaza esa verificación.
 
-WhatsApp de I-ME: [+57 313 724 7353](https://wa.me/573137247353). También puede [escribir al equipo comercial](/es/contacto/).
+[WhatsApp](https://wa.me/573137247353). También puede [escribir al equipo comercial](/es/contacto/).
 
 ## Preguntas frecuentes
 
@@ -45,10 +45,6 @@ No. Compara qué pedir al cotizar una cama eléctrica para una institución. No 
 ### ¿Las camas de la familia de mobiliario tienen precio publicado?
 
 Solo si la ficha lo muestra. Si la ficha dice bajo cotización, no hay un precio que se pueda citar.
-
-### ¿La página 2 del listado de mobiliario es otra categoría?
-
-No. Es la continuación del mismo listado. La página para buscar la familia es [mobiliario](/es/familias/mobiliario/).
 
 ### ¿I-ME garantiza el registro INVIMA de la cama?
 
@@ -69,7 +65,7 @@ Published references to open, not a stock promise:
 - [Electric hospital bed B-1000 Pro](/en/products/cama-hospitalaria-electrica-ref-b-1000-pro-advanced/)
 - [Electric hospital bed V6K](/en/products/cama-hospitalaria-electrica-ref-v6k-saikang/)
 
-If a sheet has no public price, the price is on quotation. Phone: [+57 313 724 7353](https://wa.me/573137247353).
+If a sheet has no public price, the price is on quotation. [WhatsApp](https://wa.me/573137247353).
 
 ## Frequently asked questions
 

@@ -35,7 +35,8 @@ describe('borradores de posicionamiento', () => {
       const borrador = parseBorrador(raw);
       expect(borrador).not.toBeNull();
       expect(raw).not.toMatch(/Equitronic|Pórtatil/i);
-      expect(raw).toContain('+57 313 724 7353');
+      expect(raw).toContain('[WhatsApp](https://wa.me/573137247353)');
+      expect(raw).not.toMatch(/teléfono|Phone:/);
       expect(raw).not.toMatch(/\$\s*\d/);
       expect(`${borrador?.cuerpo_es} ${borrador?.cuerpo_en}`).toMatch(
         /no se garantiza|not guaranteed/i
