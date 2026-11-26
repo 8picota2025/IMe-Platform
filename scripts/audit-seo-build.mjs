@@ -110,12 +110,21 @@ async function main() {
       const prefix = page.startsWith('/en/') ? '/en/products/' : '/es/productos/';
       const suppressed =
         GONE_PRODUCT_SLUGS.has(slug) || REDIRECT_ONLY_PRODUCT_PATHS.has(`${prefix}${slug}/`);
-      const hasProduct = jsonLdBlocks.some(([, block]) =>
-        /"@type":"Product"|"@type":\["Product"/.test(block)
-      );
+      const productBlocks = jsonLdBlocks
+        .map(([, block]) => block)
+        .filter(block => /"@type":"Product"|"@type":\["Product"/.test(block));
+      const hasProduct = productBlocks.length > 0;
+      const productSinPrecio = productBlocks.some(block => !/"price"\s*:/.test(block));
+      const precioPublico = /data-price-mode="commerce"/.test(html);
       if (suppressed && hasProduct) fail(`${page}: ficha 410/301 no debe emitir Product`);
-      if (!suppressed && !robots.includes('noindex') && !hasProduct) {
-        fail(`${page}: ficha indexable sin JSON-LD Product`);
+      if (productSinPrecio) fail(`${page}: Product sin precio`);
+      if (!suppressed && !robots.includes('noindex')) {
+        if (precioPublico && !hasProduct) {
+          fail(`${page}: ficha con precio público sin JSON-LD Product`);
+        }
+        if (!precioPublico && hasProduct) {
+          fail(`${page}: ficha sin precio público no debe emitir Product`);
+        }
       }
     }
 

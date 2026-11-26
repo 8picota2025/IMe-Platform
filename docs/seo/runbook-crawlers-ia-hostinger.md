@@ -8,25 +8,13 @@ Fecha: 26-11-2026. El 429 a `GPTBot/1.2` y a `meta-externalagent` **no está en 
 - `public/.htaccess` no tiene `RewriteCond` por `HTTP_USER_AGENT` ni reglas de ModSecurity. No se añade un allow por User-Agent: el acceso a `/admin` no debe depender del UA.
 - El `curl` del 26-11 a `https://i-me.com.co/es/` con UA de GPTBot respondió **HTTP 429**, `server: LiteSpeed`, `platform: hostinger`, cuerpo vacío. `robots.txt` y `llms.txt` respondieron 200 en la prueba del encargo.
 
-La capa que rate-limita es el WAF o el bot protection de **hPanel / LiteSpeed (hcdn)**. No se desactiva el WAF entero desde este cambio.
+El 429 es un límite de la plataforma Hostinger/LiteSpeed (hcdn). No hay un ajuste por dominio en hPanel para exceptuar User-Agent. No se desactiva el WAF desde el repo y no se abre `/admin` por el nombre del bot.
 
-## Cambio recomendado en el panel (lo aplica Shoky, no esta PR)
+## Qué puede hacer Shoky
 
-1. hPanel → sitio `i-me.com.co` → Seguridad / CDN / LiteSpeed Web Cache o Bot Protection (el nombre exacto depende del plan).
-2. En la lista de bots o en las reglas de rate-limit de HTML, **permitir** estos User-Agent en rutas públicas (`/`, `/es/`, `/en/`, catálogo, fichas, conocimiento, `llms.txt`, `robots.txt`, sitemaps):
-   - `GPTBot`
-   - `ChatGPT-User`
-   - `OAI-SearchBot`
-   - `ClaudeBot`
-   - `PerplexityBot`
-   - `Google-Extended`
-   - `Googlebot`
-   - `Bingbot`
-   - `Applebot`
-   - `Applebot-Extended`
-   - `meta-externalagent`
-3. No crear una excepción por UA para `/admin`, `/comercial`, `/mkt`, `/es/pago/` ni `/en/payment/`. Esas rutas siguen con auth y con `Disallow` en `robots.txt`.
-4. No apagar el WAF completo. Si el panel solo ofrece «desactivar bot fight / rate limit», limitarlo a los UA de la lista y a respuestas HTML públicas.
+La vía es un ticket a Hostinger o el CDN, pidiendo que GPTBot y `meta-externalagent` dejen de recibir 429 en el HTML público de `i-me.com.co`. No existe un interruptor en el panel del dominio para esa lista.
+
+User-Agent a mencionar en el ticket: `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`, `Googlebot`, `Bingbot`, `Applebot`, `Applebot-Extended` y `meta-externalagent`. `/admin`, `/comercial`, `/mkt` y los pagos siguen con auth y con `Disallow` en `robots.txt`.
 
 ## Cómo comprobarlo después del OK
 
@@ -34,7 +22,7 @@ La capa que rate-limita es el WAF o el bot protection de **hPanel / LiteSpeed (h
 scripts/probe-ai-crawlers.sh https://i-me.com.co
 ```
 
-Aceptación en producción (después del cambio de panel, no de esta PR):
+Aceptación en producción (después del ticket o del CDN, no de un ajuste de hPanel):
 
 ```bash
 curl -sS -D - -o /tmp/gptbot-es.html -A 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)' https://i-me.com.co/es/

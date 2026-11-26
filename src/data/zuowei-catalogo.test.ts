@@ -39,11 +39,7 @@ describe('catálogo Zuowei', () => {
         expect(existsSync(`public${vista.imagen_principal}`)).toBe(true);
         for (const src of vista.galeria) expect(existsSync(`public${src}`)).toBe(true);
         const jsonLd = buildProductJsonLd(vista, locale, 'Zuowei', vista.marca);
-        expect(jsonLd).not.toBeNull();
-        const offers = jsonLd?.offers as { availability?: string; price?: unknown };
-        expect(offers.availability).toBe('https://schema.org/Discontinued');
-        expect(offers.price).toBeUndefined();
-        expect(JSON.stringify(jsonLd)).not.toMatch(/InStock|OutOfStock|INVIMA en tr[aá]mite/i);
+        expect(jsonLd).toBeNull();
       }
     }
   });

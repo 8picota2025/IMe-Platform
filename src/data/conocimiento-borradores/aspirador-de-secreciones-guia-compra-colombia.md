@@ -8,7 +8,7 @@ tags: borrador, aspirador, cotizacion, institucional
 
 # Aspirador de secreciones: qué comparar antes de cotizar
 
-Esta nota es para compras institucionales en Colombia. No indica cómo usar un aspirador en un paciente ni promete un efecto clínico. El teléfono de I-ME es [+57 313 724 7353](https://wa.me/573137247353).
+Esta nota es para compras institucionales en Colombia. No indica cómo usar un aspirador en un paciente ni promete un efecto clínico. [WhatsApp](https://wa.me/573137247353).
 
 ## Qué tipo de equipo está pidiendo
 
@@ -51,7 +51,7 @@ No. Puede ser un documento de soporte. No sustituye la verificación del modelo 
 
 # Suction units: what to compare before you request a quote
 
-This note is for institutional buying in Colombia. It does not say how to use a suction unit on a patient and it does not promise a clinical effect. Phone: [+57 313 724 7353](https://wa.me/573137247353).
+This note is for institutional buying in Colombia. It does not say how to use a suction unit on a patient and it does not promise a clinical effect. [WhatsApp](https://wa.me/573137247353).
 
 Write down the setting first: operating room, ward or transport. A portable unit and a central vacuum are not the same quote.
 

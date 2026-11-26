@@ -10,7 +10,7 @@ HOST="${HOST%/}"
 declare -a AGENTS=(
   'GPTBot|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)'
   'ChatGPT-User|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ChatGPT-User/1.0; +https://openai.com/bot)'
-  'OAI-SearchBot|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)'
+  'OAI-SearchBot|Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36; compatible; OAI-SearchBot/1.4; +https://openai.com/searchbot)'
   'ClaudeBot|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +https://www.anthropic.com/claudebot)'
   'PerplexityBot|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)'
   'Google-Extended|Mozilla/5.0 (compatible; Google-Extended)'
@@ -41,5 +41,6 @@ for entry in "${AGENTS[@]}"; do
     bytes="$(wc -c < "$tmp" | tr -d ' ')"
     rm -f "$tmp"
     printf '%-22s %-28s %6s %8s\n' "$name" "$path" "$code" "$bytes"
+    sleep 2
   done
 done
