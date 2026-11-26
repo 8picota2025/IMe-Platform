@@ -29,6 +29,14 @@ describe('htaccess indexación', () => {
     expect(htaccess).toContain('RewriteRule ^en/products/?$ /en/catalog/ [R=301,L]');
   });
 
+  it('el piloto CDN solo cachea el HTML de /es/catalogo/', () => {
+    expect(htaccess).toContain('Header always set Cache-Control "public, max-age=0, s-maxage=3600"');
+    expect(htaccess).toContain('Header always set Cache-Control "private, no-store"');
+    expect(htaccess).toContain('m#^/es/catalogo/(index\\.html)?$#');
+    expect(htaccess).not.toMatch(/s-maxage=3600[\s\S]{0,80}pagina/);
+    expect(htaccess).toContain('Header merge Vary Accept');
+  });
+
   it('responde 410 al slug truncado g-g sin tocar las reglas g-gmrn', () => {
     expect(htaccess).toContain('RewriteRule ^(?:es/productos|en/products)/g-g/?$ - [G,L]');
     expect(htaccess).toContain('g-gmrn');
