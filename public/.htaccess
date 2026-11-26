@@ -6,6 +6,22 @@
 
 RewriteEngine On
 
+# Piloto CDN: solo /es/catalogo/ y /es/catalogo/index.html, sin query.
+# LiteSpeed no aplicó SetEnvIfExpr; estas reglas sí marcan el entorno.
+# La variante markdown no se cachea. Vary: Accept sigue en el bloque agent-ready.
+RewriteCond %{QUERY_STRING} ^$
+RewriteCond %{HTTP:Accept} !text/markdown [NC]
+RewriteRule ^es/catalogo/$ - [E=CDN_PILOTO_CATALOGO:1]
+RewriteCond %{QUERY_STRING} ^$
+RewriteCond %{HTTP:Accept} !text/markdown [NC]
+RewriteRule ^es/catalogo/index\.html$ - [E=CDN_PILOTO_CATALOGO:1]
+RewriteCond %{QUERY_STRING} ^$
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteRule ^es/catalogo/$ - [E=CDN_PILOTO_CATALOGO_MD:1]
+RewriteCond %{QUERY_STRING} ^$
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteRule ^es/catalogo/index\.html$ - [E=CDN_PILOTO_CATALOGO_MD:1]
+
 # Vistas previas de PR (carpetas numéricas /<PR>/...): nunca deben indexarse, tampoco las antiguas
 # que se construyeron sin noindex. SetEnvIf y Header se heredan en las subcarpetas aunque tengan su
 # propio .htaccess. Las rutas reales del sitio no empiezan por un dígito.
@@ -247,14 +263,6 @@ RewriteRule ^1old(/.*)?$ /es/ [R=301,L]
   AddType application/wasm .wasm
 </IfModule>
 
-# Piloto CDN: solo /es/catalogo/ y /es/catalogo/index.html, sin query.
-# No incluye /pagina/N/. max-age=0 para el navegador; s-maxage=3600 para la CDN.
-# La variante Accept: text/markdown no se cachea. Vary: Accept sigue en agent-ready.
-<IfModule mod_setenvif.c>
-  SetEnvIfExpr "%{REQUEST_URI} =~ m#^/es/catalogo/(index\.html)?$# && %{QUERY_STRING} == '' && %{HTTP:Accept} !~ /text\/markdown/i" CDN_PILOTO_CATALOGO
-  SetEnvIfExpr "%{REQUEST_URI} =~ m#^/es/catalogo/(index\.html)?$# && %{QUERY_STRING} == '' && %{HTTP:Accept} =~ /text\/markdown/i" CDN_PILOTO_CATALOGO_MD
-</IfModule>
-
 # Security headers for static hosting.
 <IfModule mod_headers.c>
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
@@ -264,7 +272,9 @@ RewriteRule ^1old(/.*)?$ /es/ [R=301,L]
   Header always set Permissions-Policy "camera=(self), microphone=(), geolocation=()"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Cache-Control "public, max-age=0, s-maxage=3600" env=CDN_PILOTO_CATALOGO
+  Header always set Cache-Control "public, max-age=0, s-maxage=3600" env=REDIRECT_CDN_PILOTO_CATALOGO
   Header always set Cache-Control "private, no-store" env=CDN_PILOTO_CATALOGO_MD
+  Header always set Cache-Control "private, no-store" env=REDIRECT_CDN_PILOTO_CATALOGO_MD
 </IfModule>
 
 
