@@ -17,6 +17,7 @@ import {
   formatQuoteMoney,
   splitNombreApellido,
   tokenExpirado,
+  totalCobroOfertaLocked,
 } from './cotizacion-oferta';
 
 describe('cotizacion-oferta', () => {
@@ -233,5 +234,24 @@ describe('cotizacion-oferta', () => {
     expect(quoteEditable('nueva')).toBe(true);
     expect(quoteEditable('enviada')).toBe(false);
     expect(quoteEditable('convertida')).toBe(false);
+  });
+
+  it('totalCobroOfertaLocked preferre el total congelado sobre desglose vivo', () => {
+    const lineas = parseLineasOferta([
+      {
+        slug: 'caminador',
+        nombre: 'Caminador',
+        cantidad: 1,
+        precio_unitario: 178_900,
+        moneda: 'COP',
+      },
+    ]);
+    // Catálogo pasó de excluido a 19 % → desglose vivo 212.891, oferta enviada 178.900.
+    expect(totalCobroOfertaLocked({ precio_total_ofertado: 178_900 }, 212_891, lineas)).toBe(
+      178_900
+    );
+    // Sin total congelado (borrador): manda el desglose.
+    expect(totalCobroOfertaLocked({ precio_total_ofertado: null }, 212_891, lineas)).toBe(212_891);
+    expect(totalCobroOfertaLocked({ precio_total_ofertado: 0 }, 0, lineas)).toBe(178_900);
   });
 });
