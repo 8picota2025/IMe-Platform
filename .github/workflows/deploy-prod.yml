@@ -258,35 +258,6 @@ jobs:
           echo "$manifest" | grep -Fq "\"commit\": \"${EXPECTED_SHA}\""
           echo "OK release ${EXPECTED_SHA}"
 
-      # Piloto CDN de una sola URL. No bloquea el deploy.
-      # Secret que haría falta para purgar por API: HOSTINGER_API_TOKEN
-      # (Bearer de developers.hostinger.com). No está referenciado en el repo.
-      # La operación de cuenta limpia el CDN del dominio entero, no una ruta,
-      # así que este paso no la llama: no amplía el piloto. Solo precalienta
-      # https://i-me.com.co/es/catalogo/ dos veces.
-      - name: Piloto CDN /es/catalogo/ (sin purga de API)
-        if: success()
-        continue-on-error: true
-        env:
-          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
-        run: |
-          set +e
-          echo "Piloto CDN limitado a https://i-me.com.co/es/catalogo/"
-          echo "Para una purga por API haría falta el secret HOSTINGER_API_TOKEN."
-          if [ -n "${HOSTINGER_API_TOKEN}" ]; then
-            echo "El secret está definido, pero la API hosting_cache_clear purga el CDN del dominio completo."
-            echo "No se envía esa purga: el piloto no sale de /es/catalogo/."
-          else
-            echo "Sin HOSTINGER_API_TOKEN: no se llama a la API de Hostinger."
-          fi
-          for n in 1 2; do
-            echo "-- precalentado ${n} --"
-            sleep 3
-            curl -sS -D - -o /dev/null --max-time 30 -A 'Mozilla/5.0' "https://i-me.com.co/es/catalogo/" \
-              | tr -d '\r' | awk 'BEGIN{IGNORECASE=1} /^HTTP|^cache-control|^x-hcdn-cache-status|^vary|^age/'
-          done
-          exit 0
-
       # No envía el ping. Para activarlo: Settings → Secrets and variables →
       # Actions → Variables, variable de repositorio INDEXNOW_SEND = 1.
       # La clave IndexNow es pública; no hace falta un secret.
