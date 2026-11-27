@@ -18,6 +18,7 @@ src/data/generated/
 .dropship-tokens.json
 .gstack/
 .venv-ocr/
+preview/video10/scenes/
 
 
 # hyperresearch (not part of IMe-Platform)
