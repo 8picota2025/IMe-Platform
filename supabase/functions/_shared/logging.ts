@@ -1,3 +1,4 @@
+import { esProduccion } from './entorno.ts';
 /**
  * Logging estructurado para Edge Functions.
  * Todos los logs se enviarsn a stdout/stderr con contexto estructurado.
@@ -47,7 +48,7 @@ export function createLogger(defaultContext: LogContext = {}) {
       error: {
         name: err.name,
         message: err.message,
-        stack: Deno.env.get('SUPABASE_ENV') === 'prod' ? undefined : err.stack,
+        stack: esProduccion() ? undefined : err.stack,
       },
     }),
   });

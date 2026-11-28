@@ -24,6 +24,7 @@
 import { createLogger, generateRequestId, type LogContext } from './logging.ts';
 import { getServerSupabase } from './supabase-server.ts';
 import { getCorsHeaders } from './cors.ts';
+import { entornoEdge } from './entorno.ts';
 
 type Handler = (req: Request) => Response | Promise<Response>;
 
@@ -53,7 +54,7 @@ function getSentryClient(): Promise<MinimalSentryClient | null> {
         mod.init({
           dsn,
           defaultIntegrations: false,
-          environment: Deno.env.get('SUPABASE_ENV') ?? 'development',
+          environment: entornoEdge(),
           tracesSampleRate: 0,
         });
         return mod;
