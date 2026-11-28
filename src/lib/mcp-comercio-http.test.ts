@@ -99,7 +99,12 @@ describe('Streamable HTTP commerce MCP', () => {
     const health = await handler(
       new Request(`${endpoint}/health`, { headers: { Authorization: `Bearer ${token}` } })
     );
-    expect(await health.json()).toEqual({ ok: true, transport: 'http', tools: MCP_TOOLS.length });
+    expect(await health.json()).toEqual({
+      ok: true,
+      transport: 'http',
+      scope: 'operador',
+      tools: MCP_TOOLS.length,
+    });
     expect((await handler(new Request(`${endpoint}/health`))).status).toBe(401);
     expect(
       (await handler(new Request(endpoint, { headers: { Authorization: `Bearer ${token}` } })))

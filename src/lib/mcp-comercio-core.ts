@@ -1631,6 +1631,32 @@ const DESCRIPCIONES_HERRAMIENTA: Partial<Record<McpToolName, string>> = {
     'Recupera una cotización archivada (limpia archived_at, archived_by y archived_reason). Exige cotizacion_id, motivo y actor. No borra el historial de auditoría.',
 };
 
+/** Herramientas sin efectos: las únicas visibles para un token de solo lectura. */
+export const HERRAMIENTAS_LECTURA: ReadonlySet<McpToolName> = new Set<McpToolName>([
+  'bandeja_trabajo',
+  'decidir_compra',
+  'buscar_productos',
+  'buscar_clientes',
+  'ficha_cliente',
+  'buscar_pedidos',
+  'ficha_pedido',
+  'buscar_proveedores',
+  'buscar_cotizaciones',
+  'obtener_cotizacion',
+]);
+
+/** Pistas MCP para clientes: lectura, escritura reversible o irreversible. */
+function anotaciones(name: McpToolName) {
+  const lectura = HERRAMIENTAS_LECTURA.has(name);
+  return {
+    readOnlyHint: lectura,
+    // confirmar_* ejecuta acciones aprobadas (envío, factura, reembolso, borrado CRM).
+    destructiveHint: name.startsWith('confirmar_'),
+    idempotentHint: lectura,
+    openWorldHint: !lectura,
+  };
+}
+
 export function herramientasComercio() {
   return MCP_TOOLS.map(name => ({
     name,
@@ -1638,5 +1664,6 @@ export function herramientasComercio() {
       DESCRIPCIONES_HERRAMIENTA[name] ??
       `Operación ime-comercio: ${name}. No activa dropshipping ni devuelve secretos.`,
     inputSchema,
+    annotations: anotaciones(name),
   }));
 }

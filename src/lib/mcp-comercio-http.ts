@@ -1,11 +1,24 @@
 /** Server-only, dependency-injected Streamable HTTP adapter for Supabase Edge. */
-import { herramientasComercio } from './mcp-comercio-core.ts';
-import { dispatchMcp, MCP_VERSIONS, rpcError, type McpRpcOptions } from './mcp-comercio-rpc.ts';
+import {
+  COMERCIO_REGISTRY,
+  COMERCIO_REGISTRY_LECTURA,
+  dispatchMcp,
+  MCP_VERSIONS,
+  rpcError,
+  type McpRpcOptions,
+} from './mcp-comercio-rpc.ts';
 
 export interface CommerceHttpOptions extends McpRpcOptions {
+  /** Token de operador (todas las herramientas). */
   token: string | undefined;
+  /** Segundo token de operador para rotación sin cortes (opcional). */
+  nextToken?: string | undefined;
+  /** Token de solo lectura: lista y ejecuta únicamente HERRAMIENTAS_LECTURA (opcional). */
+  readOnlyToken?: string | undefined;
   consumeRateLimit: (keys: string[]) => Promise<boolean>;
 }
+type Alcance = 'operador' | 'lectura';
+const tokenValido = (t: string | undefined): t is string => typeof t === 'string' && t.length >= 32;
 const MAX_BODY_BYTES = 256 * 1024;
 export async function hashIdentifier(value: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
@@ -17,7 +30,10 @@ async function matchesToken(candidate: string, expected: string): Promise<boolea
   for (let i = 0; i < a.length; i++) difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return difference === 0;
 }
-async function readBoundedBody(request: Request): Promise<string> {
+export async function readBoundedBody(
+  request: Request,
+  maxBytes = MAX_BODY_BYTES
+): Promise<string> {
   const reader = request.body?.getReader();
   if (!reader) return '';
   const chunks: Uint8Array[] = [];
@@ -26,7 +42,7 @@ async function readBoundedBody(request: Request): Promise<string> {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.byteLength;
-    if (size > MAX_BODY_BYTES) {
+    if (size > maxBytes) {
       await reader.cancel();
       throw new Error('body_too_large');
     }
@@ -56,12 +72,25 @@ export function createCommerceHttpHandler(options: CommerceHttpOptions) {
       return reply({ error: 'Service unavailable' }, 503);
     const candidate =
       /^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization') ?? '')?.[1] ?? '';
-    if (!candidate || candidate.length > 1024 || !(await matchesToken(candidate, options.token))) {
+    // Se comparan TODOS los tokens configurados (tiempo constante por token) para
+    // no revelar cuál coincide por diferencia de latencia.
+    const configurados: Array<[string, Alcance]> = [[options.token, 'operador']];
+    if (tokenValido(options.nextToken)) configurados.push([options.nextToken, 'operador']);
+    if (tokenValido(options.readOnlyToken)) configurados.push([options.readOnlyToken, 'lectura']);
+    let match: [string, Alcance] | null = null;
+    if (candidate && candidate.length <= 1024) {
+      for (const entry of configurados) {
+        if ((await matchesToken(candidate, entry[0])) && !match) match = entry;
+      }
+    }
+    if (!match) {
       return reply({ error: 'Unauthorized' }, 401, {
         'WWW-Authenticate': 'Bearer realm="ime-comercio"',
       });
     }
-    const fingerprint = await hashIdentifier(options.token);
+    const [matchedToken, alcance] = match;
+    const registry = alcance === 'lectura' ? COMERCIO_REGISTRY_LECTURA : COMERCIO_REGISTRY;
+    const fingerprint = await hashIdentifier(matchedToken);
     // The gateway appends its trusted peer to X-Forwarded-For; the token-wide
     // budget still applies when an upstream does not provide reliable IP data.
     const ip = request.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim() || 'unknown';
@@ -76,7 +105,7 @@ export function createCommerceHttpHandler(options: CommerceHttpOptions) {
     }
     const path = new URL(request.url).pathname.replace(/\/+$/, '');
     if (request.method === 'GET' && path.endsWith('/mcp-comercio/health')) {
-      return reply({ ok: true, transport: 'http', tools: herramientasComercio().length });
+      return reply({ ok: true, transport: 'http', scope: alcance, tools: registry.list().length });
     }
     if (!path.endsWith('/mcp-comercio')) return reply({ error: 'Not found' }, 404);
     if (request.method !== 'POST')
@@ -100,13 +129,14 @@ export function createCommerceHttpHandler(options: CommerceHttpOptions) {
       return reply(rpcError(null, -32700, 'Parse error'), 400);
     }
     const result = await dispatchMcp(message, {
-      secrets: [...(options.secrets ?? []), options.token],
+      registry,
+      secrets: [...(options.secrets ?? []), ...configurados.map(([t]) => t)],
       versions: MCP_VERSIONS.slice(0, 3),
       execute: (name, args) =>
         options.execute(name, {
           ...args,
-          actor: `mcp-http:${fingerprint.slice(0, 16)}`,
-          rol: 'agente',
+          actor: `mcp-http:${alcance === 'lectura' ? 'lectura:' : ''}${fingerprint.slice(0, 16)}`,
+          rol: alcance === 'lectura' ? 'lectura' : 'agente',
         }),
     });
     if (!result)

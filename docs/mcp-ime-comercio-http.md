@@ -123,8 +123,21 @@ JS
 Guardar el mismo valor en Supabase secrets y en el almacén privado de cada agente.
 Para rotar: generar otro archivo privado, actualizar Supabase con `secrets set`,
 y reemplazar la variable del cliente/reiniciar su conexión. No cambia la URL ni
-el código del cliente. La rotación requiere sincronizar el secreto con los
-agentes; no hay una tabla de múltiples tokens ni ventana de solapamiento.
+el código del cliente.
+
+**Rotación sin cortes (v0.3):** definir el token nuevo en
+`IME_MCP_COMERCIO_TOKEN_NEXT`, migrar los agentes a él, y después moverlo a
+`IME_MCP_COMERCIO_TOKEN` y vaciar `_NEXT`. Ambos tienen alcance de operador y cada
+uno su propio actor (`mcp-http:<huella>`) y presupuesto de rate limit.
+
+**Token de solo lectura (v0.3):** `IME_MCP_COMERCIO_TOKEN_LECTURA` (≥32 caracteres)
+solo ve y ejecuta las 10 herramientas sin efectos (`HERRAMIENTAS_LECTURA` en
+`src/lib/mcp-comercio-core.ts`); el resto responde `Unknown tool`. Se audita con
+`rol = 'lectura'`. Usarlo para agentes que solo consultan. Todas las herramientas
+publican `annotations` MCP (`readOnlyHint`, `destructiveHint` en `confirmar_*`).
+
+La superficie pública para agentes de clientes es otra función (`mcp-cliente`, ver
+`docs/MCP_CLIENT_GUIDE.md`); no comparte tokens ni herramientas con este servidor.
 
 Para revocar, reemplazar o eliminar `IME_MCP_COMERCIO_TOKEN` en Supabase.
 Si un GitHub secret también lo gestiona, actualizarlo o borrarlo para evitar que
