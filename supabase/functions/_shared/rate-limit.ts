@@ -18,6 +18,7 @@ export type RateLimitAccion =
   | 'cotizacion'
   | 'comercial-share'
   | 'formalizar-preview'
+  | 'ocr'
   | 'whatsapp';
 
 export interface RateLimitResult {
@@ -64,6 +65,12 @@ const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
     windowSeconds: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
     maxPerWindow: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_MAX_VENTANA') ?? 30),
     maxPerDay: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_MAX_DIA') ?? 100),
+  },
+  // OCR de congreso (usuario staff autenticado): faltaba y lanzaba al desestructurar.
+  ocr: {
+    windowSeconds: Number(Deno.env.get('OCR_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 60),
+    maxPerWindow: Number(Deno.env.get('OCR_RATE_LIMIT_MAX_VENTANA') ?? 10),
+    maxPerDay: Number(Deno.env.get('OCR_RATE_LIMIT_MAX_DIA') ?? 300),
   },
   whatsapp: {
     windowSeconds: Number(Deno.env.get('WHATSAPP_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 60),

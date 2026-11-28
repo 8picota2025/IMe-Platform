@@ -7,6 +7,7 @@ on:
       - 'supabase/functions/**'
       - 'supabase/config.toml'
       - 'src/lib/mcp-comercio-*.ts'
+      - 'src/lib/mcp-cliente-*.ts'
       - 'src/lib/comercio-operacion.ts'
       - 'src/lib/commerce-policy.ts'
       - 'src/lib/cotizacion-mcp.ts'
@@ -77,6 +78,8 @@ jobs:
           ASESOR_TURNSTILE_BYPASS=${{ secrets.ASESOR_TURNSTILE_BYPASS }}
           CANARY_SMOKE_SECRET=${{ secrets.CANARY_SMOKE_SECRET }}
           IME_MCP_COMERCIO_TOKEN=${{ secrets.IME_MCP_COMERCIO_TOKEN }}
+          IME_MCP_COMERCIO_TOKEN_NEXT=${{ secrets.IME_MCP_COMERCIO_TOKEN_NEXT }}
+          IME_MCP_COMERCIO_TOKEN_LECTURA=${{ secrets.IME_MCP_COMERCIO_TOKEN_LECTURA }}
           TWENTY_MCP_API_KEY=${{ secrets.TWENTY_MCP_API_KEY }}
           TWENTY_BASE_URL=${{ secrets.TWENTY_BASE_URL }}
           TWENTY_API_KEY=${{ secrets.TWENTY_API_KEY }}

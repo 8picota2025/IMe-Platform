@@ -16,6 +16,9 @@ const secrets = Object.entries(env)
 Deno.serve(
   createCommerceHttpHandler({
     token: env.IME_MCP_COMERCIO_TOKEN,
+    // Opcionales: rotación sin cortes y token de mínimo privilegio (solo lectura).
+    nextToken: env.IME_MCP_COMERCIO_TOKEN_NEXT,
+    readOnlyToken: env.IME_MCP_COMERCIO_TOKEN_LECTURA,
     secrets,
     consumeRateLimit: async keys => {
       const { data, error } = await db.rpc('consume_mcp_comercio_rate_limit', { p_keys: keys });
@@ -27,7 +30,7 @@ Deno.serve(
       // Business mutations additionally keep their original before/after audit.
       const { error } = await db.from('comercio_actuaciones').insert({
         actor: args.actor,
-        rol: 'agente',
+        rol: args.rol === 'lectura' ? 'lectura' : 'agente',
         herramienta: name,
         entidad: 'mcp_http',
         motivo: 'Solicitud autenticada de plataforma MCP HTTP',

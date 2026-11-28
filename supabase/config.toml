@@ -440,6 +440,11 @@ verify_jwt = false
 [functions.mcp-comercio]
 verify_jwt = false
 
+# MCP público rol `client`: agentes externos sin JWT de Supabase. Auth propia
+# por client_token opaco (registro), rate limit por IP/token y auditoría.
+[functions.mcp-cliente]
+verify_jwt = false
+
 # Cron nocturno de embeddings: token de cron (no JWT). La función sigue exigiendo admin o token de cron.
 [functions.generar-embeddings]
 verify_jwt = false

@@ -30,9 +30,15 @@ jobs:
         run: npm ci
 
       - name: Sync productos a Supabase
+        # Inputs por env (no interpolados en el script): evita inyección de shell.
+        env:
+          SLUGS: ${{ github.event.inputs.slugs }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
-          SLUGS="${{ github.event.inputs.slugs }}"
-          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          if [ -n "$SLUGS" ] && ! printf '%s' "$SLUGS" | grep -Eq '^[a-z0-9,-]+$'; then
+            echo "slugs inválidos: solo a-z, 0-9, guiones y comas" >&2
+            exit 1
+          fi
 
           if [ -z "$SLUGS" ]; then
             # Si no hay slugs, sincroniza todos del mock-productos.json
