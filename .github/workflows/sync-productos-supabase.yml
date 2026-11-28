@@ -34,6 +34,8 @@ jobs:
         env:
           SLUGS: ${{ github.event.inputs.slugs }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
+          PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           if [ -n "$SLUGS" ] && ! printf '%s' "$SLUGS" | grep -Eq '^[a-z0-9,-]+$'; then
             echo "slugs inválidos: solo a-z, 0-9, guiones y comas" >&2
@@ -55,9 +57,6 @@ jobs:
               node scripts/sync-productos-supabase.mjs --slugs="$SLUGS"
             fi
           fi
-        env:
-          PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Trigger rebuild producción (si no fue dry-run)
         if: ${{ github.event.inputs.dry_run != 'true' }}
