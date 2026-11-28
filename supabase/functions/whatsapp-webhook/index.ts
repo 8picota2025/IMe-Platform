@@ -95,7 +95,13 @@ Deno.serve(
         return unauthorized(origin);
       }
     } else {
-      console.warn('[whatsapp-webhook] WHATSAPP_APP_SECRET no configurado: se omite firma');
+      // Fail closed: sin secreto no se puede distinguir a Meta de un atacante
+      // (inyectaría mensajes y comandos de "toma humana" en el agente).
+      console.error('[whatsapp-webhook] WHATSAPP_APP_SECRET no configurado: webhook rechazado');
+      return new Response(JSON.stringify({ ok: false, error: 'Webhook no configurado' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     let payload: unknown;

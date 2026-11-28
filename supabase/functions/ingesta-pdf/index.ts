@@ -8,6 +8,10 @@ import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { createLlmGateway } from '../_shared/llm-gateway.ts';
 import { buildIngestPrompt } from '../_shared/pdf-ingest-prompt.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { requireAdmin } from '../_shared/admin-auth.ts';
+
+/** ~150k caracteres ≈ el máximo útil para el prompt de 4500 tokens de salida. */
+const MAX_PDF_TEXT = 150_000;
 
 interface IngestRequest {
   pdf_url?: string;
@@ -20,22 +24,20 @@ Deno.serve(async req => {
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
-  const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-  if (!token) return unauthorized(origin);
-
   try {
     const supabase = getServerSupabase();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(token);
-    if (error || !user) return unauthorized(origin);
+    // Solo staff (admin_profiles activo): un usuario de /cuenta no puede gastar LLM.
+    const auth = await requireAdmin(supabase, req.headers.get('Authorization'));
+    if (!auth.ok) return unauthorized(origin);
 
     const body = (await req.json()) as IngestRequest;
     const pdfText = body.pdf_text?.trim() ?? '';
     const pdfUrl = body.pdf_url?.trim() ?? '';
     if (!pdfText && !pdfUrl) {
       return badRequest('Enviar pdf_text o pdf_url', origin);
+    }
+    if (pdfText.length > MAX_PDF_TEXT || pdfUrl.length > 2000) {
+      return badRequest('Texto o URL demasiado largos', origin);
     }
 
     const gateway = createLlmGateway();
